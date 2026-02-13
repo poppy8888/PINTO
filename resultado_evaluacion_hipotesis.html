@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación de Hipótesis: Agua vs Sal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .hypothesis {
+            background: white;
+            color: #333;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            border-radius: 10px;
+            font-size: 1.3em;
+            text-align: center;
+            border: 3px solid #fff;
+        }
+        
+        .verdict {
+            background: #ffebee;
+            border-left: 8px solid #e74c3c;
+            padding: 30px;
+            margin: 30px;
+            border-radius: 10px;
+        }
+        
+        .verdict h2 {
+            color: #c0392b;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .verdict-content {
+            font-size: 1.2em;
+            line-height: 1.8;
+            text-align: center;
+        }
+        
+        .evidence-section {
+            padding: 30px;
+        }
+        
+        .evidence-card {
+            background: #f8f9fa;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .evidence-title {
+            font-size: 1.5em;
+            color: #c0392b;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .evidence-content {
+            font-size: 1.1em;
+            line-height: 1.7;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .data-table th {
+            background: #e74c3c;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .supports {
+            background: #d4edda;
+            font-weight: bold;
+        }
+        
+        .contradicts {
+            background: #f8d7da;
+            font-weight: bold;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #ecf0f1;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .conclusion-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            margin: 30px;
+            border-radius: 15px;
+        }
+        
+        .conclusion-box h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .conclusion-list {
+            font-size: 1.15em;
+            line-height: 2;
+        }
+        
+        .conclusion-list li {
+            margin-bottom: 15px;
+        }
+        
+        .highlight-red {
+            background: #ffcccc;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .highlight-green {
+            background: #ccffcc;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 Evaluación de Hipótesis</h1>
+            <div class="hypothesis">
+                <strong>Hipótesis a evaluar:</strong><br>
+                "A menor altura de agua (aforo), mayor salinidad"<br>
+                (Concentración por evaporación)
+            </div>
+        </header>
+        
+        <div class="verdict">
+            <h2>❌ HIPÓTESIS RECHAZADA</h2>
+            <div class="verdict-content">
+                Los datos de la Estación 816 <strong>NO apoyan</strong> la hipótesis de que menor agua produce mayor salinidad.<br><br>
+                De hecho, los datos muestran que <span class="highlight-red">los niveles MÁS BAJOS de agua tienen MENOS sal en promedio</span> que los niveles altos.
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-label">25% Niveles MÁS BAJOS</div>
+                <div class="stat-value">875</div>
+                <div style="color: #7f8c8d; margin-top: 10px;">mg/l promedio</div>
+            </div>
+            
+            <div class="stat-box">
+                <div class="stat-label">25% Niveles MÁS ALTOS</div>
+                <div class="stat-value">1,635</div>
+                <div style="color: #7f8c8d; margin-top: 10px;">mg/l promedio</div>
+            </div>
+            
+            <div class="stat-box">
+                <div class="stat-label">Correlación</div>
+                <div class="stat-value">-0.03</div>
+                <div style="color: #7f8c8d; margin-top: 10px;">Prácticamente NULA</div>
+            </div>
+            
+            <div class="stat-box">
+                <div class="stat-label">Significancia (p-value)</div>
+                <div class="stat-value">0.92</div>
+                <div style="color: #7f8c8d; margin-top: 10px;">NO significativo</div>
+            </div>
+        </div>
+        
+        <div class="evidence-section">
+            <h2 style="text-align: center; color: #c0392b; margin-bottom: 30px; font-size: 2em;">
+                📊 Evidencia en los Datos
+            </h2>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Aforo (m)</th>
+                        <th>Salinidad (mg/l)</th>
+                        <th>¿Apoya hipótesis?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="supports">
+                        <td>17/02/2021</td>
+                        <td>1.95 (BAJO)</td>
+                        <td>5,712 (ALTA)</td>
+                        <td>✓ SÍ - ÚNICO CASO CLARO</td>
+                    </tr>
+                    <tr class="contradicts">
+                        <td>27/07/2022</td>
+                        <td>1.92 (BAJO)</td>
+                        <td>250 (BAJA)</td>
+                        <td>✗ NO - Contradice</td>
+                    </tr>
+                    <tr class="contradicts">
+                        <td>11/01/2023</td>
+                        <td>1.94 (BAJO)</td>
+                        <td>690 (BAJA)</td>
+                        <td>✗ NO - Contradice</td>
+                    </tr>
+                    <tr class="contradicts">
+                        <td>12/02/2020</td>
+                        <td>3.11 (ALTO)</td>
+                        <td>3,281 (ALTA)</td>
+                        <td>✗ NO - Contradice</td>
+                    </tr>
+                    <tr>
+                        <td>19/05/2021</td>
+                        <td>2.06 (MEDIO)</td>
+                        <td>7,721 (MÁXIMA)</td>
+                        <td>⚠️ Valor extremo con nivel medio</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="evidence-card">
+                <div class="evidence-title">🔍 Evidencia 1: Promedios por Nivel</div>
+                <div class="evidence-content">
+                    Contrario a lo esperado, los datos muestran:<br><br>
+                    <strong style="color: #c0392b;">• Cuartil 1 (más bajo):</strong> 875 mg/l promedio<br>
+                    <strong>• Cuartil 2:</strong> 2,348 mg/l promedio<br>
+                    <strong>• Cuartil 3:</strong> 3,956 mg/l promedio<br>
+                    <strong>• Cuartil 4 (más alto):</strong> 1,635 mg/l promedio<br><br>
+                    Los niveles de agua <span class="highlight-red">MÁS BAJOS tienen la salinidad MÁS BAJA</span>, exactamente lo opuesto a la hipótesis.
+                </div>
+            </div>
+            
+            <div class="evidence-card">
+                <div class="evidence-title">📈 Evidencia 2: Correlación Estadística</div>
+                <div class="evidence-content">
+                    • <strong>Correlación de Pearson:</strong> r = -0.028<br>
+                    • <strong>Correlación de Spearman:</strong> r = 0.200<br>
+                    • <strong>P-value:</strong> 0.918 (muy por encima de 0.05)<br><br>
+                    Conclusión: <span class="highlight-red">NO existe relación estadísticamente significativa</span> entre el nivel de agua y la salinidad.
+                    Un p-value de 0.918 significa que hay 91.8% de probabilidad de que esta correlación sea producto del azar.
+                </div>
+            </div>
+            
+            <div class="evidence-card">
+                <div class="evidence-title">⚡ Evidencia 3: Casos Extremos</div>
+                <div class="evidence-content">
+                    El <strong>pico MÁXIMO de salinidad (7,721 mg/l)</strong> ocurrió el 19/05/2021 con un aforo de <strong>2.06m (nivel medio-bajo)</strong>, NO con el nivel más bajo registrado.<br><br>
+                    
+                    El <strong>valor MÍNIMO de salinidad (250 mg/l)</strong> ocurrió el 27/07/2022 con un aforo de <strong>1.92m (uno de los más bajos)</strong>.<br><br>
+                    
+                    Estos casos demuestran que <span class="highlight-red">la salinidad extrema NO está asociada con niveles extremos de agua</span>.
+                </div>
+            </div>
+            
+            <div class="evidence-card">
+                <div class="evidence-title">🎲 Evidencia 4: Balance de Casos</div>
+                <div class="evidence-content">
+                    De los 16 puntos de datos analizados:<br><br>
+                    <strong style="color: green;">✓ Apoyan la hipótesis:</strong> 1 caso (6%)<br>
+                    <strong style="color: red;">✗ Contradicen la hipótesis:</strong> 3 casos (19%)<br>
+                    <strong style="color: gray;">◆ Ambiguos o neutrales:</strong> 12 casos (75%)<br><br>
+                    El balance de evidencia está <span class="highlight-red">claramente en contra de la hipótesis</span>.
+                </div>
+            </div>
+        </div>
+        
+        <div class="conclusion-box">
+            <h2>💡 ¿Por Qué No Se Cumple la Hipótesis?</h2>
+            <ul class="conclusion-list">
+                <li><strong>Factor 1 - Precipitaciones:</strong> Las lluvias pueden diluir la sal incluso con niveles bajos de agua, y períodos secos pueden concentrarla incluso con niveles altos.</li>
+                
+                <li><strong>Factor 2 - Aportes externos:</strong> Riego agrícola, efluentes, o intrusión de agua salina pueden aumentar la salinidad independientemente del nivel.</li>
+                
+                <li><strong>Factor 3 - Variabilidad estacional:</strong> La evaporación varía según la temperatura y estación del año, no solo según el nivel de agua.</li>
+                
+                <li><strong>Factor 4 - Dinámica del flujo:</strong> El intercambio de agua con fuentes externas (río, acuíferos) puede modificar la salinidad independientemente del volumen local.</li>
+                
+                <li><strong>Factor 5 - Tiempo de residencia:</strong> No todos los niveles bajos tienen el mismo tiempo de exposición a evaporación.</li>
+            </ul>
+        </div>
+        
+        <div style="background: #fff3cd; padding: 30px; margin: 30px; border-radius: 10px; border-left: 5px solid #ffc107;">
+            <h3 style="color: #856404; margin-bottom: 15px; font-size: 1.5em;">⚠️ Conclusión Final</h3>
+            <p style="font-size: 1.15em; line-height: 1.8; color: #555;">
+                La hipótesis <strong>"menor agua = mayor salinidad"</strong> es una simplificación que <strong>NO se refleja en los datos reales</strong> de la Estación 816. 
+                El sistema hídrico es más complejo y la salinidad está influenciada por múltiples factores ambientales que no se capturan solo midiendo el nivel de agua.
+                <br><br>
+                <strong>Para predecir la salinidad adecuadamente se requiere:</strong>
+            </p>
+            <ul style="margin-top: 15px; font-size: 1.1em; line-height: 1.8; color: #555;">
+                <li>Datos de precipitación</li>
+                <li>Temperatura y evaporación</li>
+                <li>Caudales de entrada/salida</li>
+                <li>Historial de aportes externos</li>
+                <li>Análisis estacional más detallado</li>
+            </ul>
+        </div>
+        
+        <footer>
+            <strong>Evaluación de Hipótesis: Relación Agua-Salinidad</strong><br>
+            Estación 816 - Salado - Pinto | Análisis basado en 16 puntos de datos coincidentes (2019-2024)<br>
+            Generado: 12 de febrero de 2026
+        </footer>
+    </div>
+</body>
+</html>
