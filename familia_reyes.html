@@ -4,1359 +4,978 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Familia Reyes — Salavagasta, Santiago del Estero</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Lora:ital,wght@0,400;0,500;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;600;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --cream: #f5efe0;
-    --parchment: #e8dcc8;
-    --sepia-light: #c8a96e;
-    --sepia: #8b6914;
-    --sepia-dark: #5c3d0a;
-    --brown-deep: #2c1a06;
-    --ink: #1a0f02;
-    --gold: #b8860b;
-    --gold-light: #d4a843;
-    --red-faded: #8b2020;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background-color: var(--cream);
-    color: var(--ink);
-    font-family: 'Lora', Georgia, serif;
-    overflow-x: hidden;
-  }
-
-  /* Texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: 
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 1000;
-    opacity: 0.5;
-  }
-
-  /* HERO */
-  .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 60px 20px;
-    background: 
-      radial-gradient(ellipse at 50% 0%, rgba(184,134,11,0.15) 0%, transparent 70%),
-      radial-gradient(ellipse at 20% 80%, rgba(139,105,20,0.1) 0%, transparent 50%),
-      linear-gradient(180deg, #ede2c8 0%, #f5efe0 40%, #f0e8d0 100%);
-    border-bottom: 3px double var(--sepia);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero::before {
-    content: '✦';
-    position: absolute;
-    top: 30px; left: 40px;
-    font-size: 1.5rem;
-    color: var(--sepia-light);
-    opacity: 0.5;
-  }
-  .hero::after {
-    content: '✦';
-    position: absolute;
-    bottom: 30px; right: 40px;
-    font-size: 1.5rem;
-    color: var(--sepia-light);
-    opacity: 0.5;
-  }
-
-  .hero-ornament {
-    font-size: 2.5rem;
-    color: var(--sepia-light);
-    letter-spacing: 0.5em;
-    margin-bottom: 20px;
-    animation: fadeIn 2s ease;
-  }
-
-  .hero-subtitle-top {
-    font-family: 'Lora', serif;
-    font-style: italic;
-    font-size: 0.95rem;
-    color: var(--sepia);
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    animation: fadeIn 2s ease 0.3s both;
-  }
-
-  .hero-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(3rem, 8vw, 6.5rem);
-    font-weight: 900;
-    color: var(--brown-deep);
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-    margin-bottom: 12px;
-    animation: fadeIn 2s ease 0.5s both;
-  }
-
-  .hero-title span {
-    color: var(--sepia);
-    font-style: italic;
-  }
-
-  .hero-divider {
-    width: 200px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--sepia), transparent);
-    margin: 24px auto;
-    position: relative;
-    animation: fadeIn 2s ease 0.7s both;
-  }
-  .hero-divider::before {
-    content: '✦';
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--cream);
-    padding: 0 8px;
-    color: var(--sepia);
-    font-size: 0.8rem;
-  }
-
-  .hero-place {
-    font-family: 'IM Fell English', serif;
-    font-size: clamp(1.1rem, 3vw, 1.6rem);
-    color: var(--sepia-dark);
-    margin-bottom: 8px;
-    animation: fadeIn 2s ease 0.9s both;
-  }
-
-  .hero-dates {
-    font-family: 'Lora', serif;
-    font-size: 0.9rem;
-    color: var(--sepia-light);
-    letter-spacing: 0.2em;
-    animation: fadeIn 2s ease 1.1s both;
-  }
-
-  .hero-quote {
-    max-width: 500px;
-    margin: 40px auto 0;
-    font-style: italic;
-    color: var(--sepia-dark);
-    font-size: 1rem;
-    line-height: 1.7;
-    border-left: 2px solid var(--sepia-light);
-    padding-left: 20px;
-    text-align: left;
-    animation: fadeIn 2s ease 1.3s both;
-  }
-
-  /* NAVIGATION */
-  .nav-strip {
-    background: var(--brown-deep);
-    padding: 14px 20px;
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-bottom: 2px solid var(--gold);
-  }
-
-  .nav-strip a {
-    font-family: 'Lora', serif;
-    font-size: 0.8rem;
-    color: var(--parchment);
-    text-decoration: none;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    transition: color 0.3s;
-  }
-  .nav-strip a:hover { color: var(--gold-light); }
-
-  /* SECTIONS */
-  .section {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 80px 30px;
-  }
-
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    font-weight: 700;
-    color: var(--brown-deep);
-    margin-bottom: 8px;
-  }
-
-  .section-title-ornament {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 40px;
-  }
-
-  .ornament-line {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, var(--sepia-light), transparent);
-  }
-  .ornament-line.right {
-    background: linear-gradient(270deg, var(--sepia-light), transparent);
-  }
-
-  .section-number {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.75rem;
-    color: var(--sepia-light);
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  /* CONTEXT BOX */
-  .context-box {
-    background: linear-gradient(135deg, #ede0c4, #e4d5b0);
-    border: 1px solid var(--sepia-light);
-    border-left: 4px solid var(--sepia);
-    padding: 30px 35px;
-    margin-bottom: 40px;
-    position: relative;
-  }
-
-  .context-box::before {
-    content: '"';
-    position: absolute;
-    top: -10px; left: 20px;
-    font-family: 'Playfair Display', serif;
-    font-size: 5rem;
-    color: var(--sepia-light);
-    opacity: 0.4;
-    line-height: 1;
-  }
-
-  .context-box p {
-    font-size: 1rem;
-    line-height: 1.85;
-    color: var(--brown-deep);
-  }
-
-  /* TIMELINE */
-  .timeline {
-    position: relative;
-    padding-left: 40px;
-  }
-
-  .timeline::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0; bottom: 0;
-    width: 2px;
-    background: linear-gradient(180deg, var(--sepia-light), var(--sepia), var(--sepia-light));
-  }
-
-  .timeline-entry {
-    position: relative;
-    margin-bottom: 50px;
-    animation: slideIn 0.6s ease both;
-  }
-
-  .timeline-entry::before {
-    content: '';
-    position: absolute;
-    left: -47px;
-    top: 6px;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    background: var(--sepia);
-    border: 3px solid var(--cream);
-    box-shadow: 0 0 0 2px var(--sepia-light);
-  }
-
-  .timeline-year {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--sepia);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .timeline-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--brown-deep);
-    margin-bottom: 8px;
-  }
-
-  .timeline-text {
-    font-size: 0.95rem;
-    line-height: 1.8;
-    color: #3d2808;
-  }
-
-  .timeline-source {
-    margin-top: 10px;
-    font-size: 0.78rem;
-    font-style: italic;
-    color: var(--sepia);
-    background: rgba(184,134,11,0.08);
-    border-left: 2px solid var(--sepia-light);
-    padding: 6px 12px;
-    display: inline-block;
-  }
-
-  /* FAMILY CARDS */
-  .family-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
-    margin-top: 20px;
-  }
-
-  .family-card {
-    background: linear-gradient(160deg, #ede0c4, #e0d0a8);
-    border: 1px solid var(--sepia-light);
-    padding: 28px 24px;
-    position: relative;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-
-  .family-card::after {
-    content: '';
-    position: absolute;
-    inset: 4px;
-    border: 1px solid rgba(184,134,11,0.2);
-    pointer-events: none;
-  }
-
-  .family-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(92,61,10,0.15);
-  }
-
-  .card-role {
-    font-size: 0.7rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--sepia);
-    margin-bottom: 8px;
-  }
-
-  .card-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--brown-deep);
-    margin-bottom: 14px;
-    line-height: 1.2;
-  }
-
-  .card-detail {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.82rem;
-    color: #5c3d0a;
-    padding: 5px 0;
-    border-bottom: 1px solid rgba(184,134,11,0.2);
-  }
-
-  .card-detail:last-child { border-bottom: none; }
-
-  .card-detail-label {
-    font-style: italic;
-    color: var(--sepia);
-  }
-
-  /* TREE */
-  .tree-section {
-    background: linear-gradient(180deg, #2c1a06 0%, #1a0f02 100%);
-    padding: 80px 30px;
-    color: var(--parchment);
-  }
-
-  .tree-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(1.8rem, 4vw, 2.5rem);
-    color: var(--gold-light);
-    text-align: center;
-    margin-bottom: 60px;
-  }
-
-  .tree-wrapper {
-    max-width: 800px;
-    margin: 0 auto;
-    font-family: 'Lora', serif;
-  }
-
-  .tree-gen {
-    text-align: center;
-    margin-bottom: 8px;
-  }
-
-  .tree-gen-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--sepia-light);
-    margin-bottom: 14px;
-  }
-
-  .tree-person {
-    display: inline-block;
-    background: rgba(184,134,11,0.12);
-    border: 1px solid var(--sepia);
-    padding: 12px 22px;
-    margin: 4px;
-    position: relative;
-  }
-
-  .tree-person.main {
-    background: rgba(184,134,11,0.25);
-    border-color: var(--gold-light);
-    border-width: 2px;
-  }
-
-  .tree-person-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem;
-    color: var(--cream);
-    font-weight: 700;
-  }
-
-  .tree-person-years {
-    font-size: 0.72rem;
-    color: var(--sepia-light);
-    margin-top: 3px;
-  }
-
-  .tree-connector {
-    text-align: center;
-    color: var(--sepia);
-    font-size: 1.5rem;
-    margin: 4px 0;
-    line-height: 1;
-  }
-
-  .tree-plus {
-    display: inline-block;
-    color: var(--gold);
-    font-size: 0.9rem;
-    margin: 0 8px;
-    vertical-align: middle;
-  }
-
-  /* WITNESSES TABLE */
-  .doc-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 0.9rem;
-  }
-
-  .doc-table th {
-    background: var(--sepia-dark);
-    color: var(--parchment);
-    padding: 12px 16px;
-    text-align: left;
-    font-family: 'Playfair Display', serif;
-    font-weight: 400;
-    letter-spacing: 0.1em;
-  }
-
-  .doc-table td {
-    padding: 11px 16px;
-    border-bottom: 1px solid rgba(184,134,11,0.2);
-    color: var(--brown-deep);
-    vertical-align: top;
-  }
-
-  .doc-table tr:nth-child(even) td {
-    background: rgba(184,134,11,0.06);
-  }
-
-  /* DESCENDANTS */
-  .descendants-section {
-    background: linear-gradient(135deg, #ede0c4, #f5efe0);
-    border-top: 3px double var(--sepia);
-    border-bottom: 3px double var(--sepia);
-    padding: 80px 30px;
-  }
-
-  .descendants-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    max-width: 900px;
-    margin: 30px auto 0;
-  }
-
-  .descendant-place {
-    text-align: center;
-    padding: 24px 16px;
-    border: 1px solid var(--sepia-light);
-    background: rgba(255,255,255,0.4);
-  }
-
-  .descendant-place-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
-    color: var(--brown-deep);
-    margin-bottom: 6px;
-  }
-
-  .descendant-place-detail {
-    font-size: 0.8rem;
-    color: var(--sepia);
-    font-style: italic;
-  }
-
-  /* FOOTER */
-  footer {
-    background: var(--brown-deep);
-    color: var(--parchment);
-    text-align: center;
-    padding: 50px 20px;
-  }
-
-  footer .footer-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    color: var(--gold-light);
-    margin-bottom: 10px;
-  }
-
-  footer p {
-    font-size: 0.85rem;
-    color: var(--sepia-light);
-    line-height: 1.8;
-    max-width: 500px;
-    margin: 0 auto;
-  }
-
-  footer .footer-note {
-    margin-top: 30px;
-    font-size: 0.75rem;
-    color: #6b4c1e;
-    font-style: italic;
-  }
-
-  /* HIGHLIGHT BOX */
-  .highlight-box {
-    background: linear-gradient(135deg, rgba(139,34,34,0.06), rgba(184,134,11,0.08));
-    border: 1px solid rgba(139,34,34,0.2);
-    border-left: 4px solid var(--red-faded);
-    padding: 24px 28px;
-    margin: 30px 0;
-  }
-
-  .highlight-box p {
-    font-size: 1rem;
-    line-height: 1.8;
-    color: var(--brown-deep);
-    font-style: italic;
-  }
-
-  /* ANIMATIONS */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(-20px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  /* RESPONSIVE */
-  @media (max-width: 600px) {
-    .nav-strip { gap: 16px; flex-wrap: wrap; }
-    .timeline { padding-left: 24px; }
-    .timeline::before { left: 0; }
-    .timeline-entry::before { left: -31px; }
-    .tree-person { padding: 8px 12px; }
-    .tree-person-name { font-size: 0.85rem; }
-  }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --ink: #0d0802;
+  --sepia-deep: #1e0f00;
+  --sepia: #6b4c1a;
+  --sepia-mid: #9b7235;
+  --sepia-light: #c9a96e;
+  --gold: #c8960c;
+  --gold-bright: #e8b84b;
+  --parchment-dark: #d4c4a0;
+  --parchment: #e8dcc0;
+  --parchment-light: #f5eed8;
+  --cream: #faf5e8;
+  --blood: #6b1212;
+  --white: #fffef9;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--cream); color: var(--ink); font-family: 'Libre Baskerville', Georgia, serif; overflow-x: hidden; }
+body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); opacity: 0.35; mix-blend-mode: multiply; }
+
+.reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.9s ease, transform 0.9s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity 0.9s ease, transform 0.9s ease; }
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+.reveal-right { opacity: 0; transform: translateX(40px); transition: opacity 0.9s ease, transform 0.9s ease; }
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+/* HERO */
+.hero { min-height: 100vh; display: grid; place-items: center; position: relative; overflow: hidden; background: var(--sepia-deep); }
+.hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(200,150,12,0.12) 0%, transparent 70%), radial-gradient(ellipse 40% 40% at 20% 80%, rgba(107,76,26,0.3) 0%, transparent 60%), linear-gradient(180deg, #0d0802 0%, #1e0f00 40%, #150900 100%); }
+.hero-lines { position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,150,12,0.04) 60px); }
+.hero-corner { position: absolute; width: 120px; height: 120px; border-color: rgba(200,150,12,0.25); border-style: solid; }
+.hero-corner.tl { top: 30px; left: 30px; border-width: 1px 0 0 1px; }
+.hero-corner.tr { top: 30px; right: 30px; border-width: 1px 1px 0 0; }
+.hero-corner.bl { bottom: 30px; left: 30px; border-width: 0 0 1px 1px; }
+.hero-corner.br { bottom: 30px; right: 30px; border-width: 0 1px 1px 0; }
+.hero-content { position: relative; z-index: 2; text-align: center; padding: 40px 20px; max-width: 900px; }
+.hero-eyebrow { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.5em; color: var(--sepia-light); text-transform: uppercase; margin-bottom: 28px; opacity: 0; animation: fadeUp 1s ease 0.3s forwards; }
+.hero-title-line { display: block; font-family: 'Cinzel', serif; font-weight: 900; font-size: clamp(4rem, 12vw, 10rem); color: var(--parchment-light); line-height: 0.9; opacity: 0; animation: fadeUp 1.2s cubic-bezier(0.16,1,0.3,1) 0.5s forwards; }
+.hero-title-line.gold { color: var(--gold-bright); font-style: italic; }
+.hero-divider { display: flex; align-items: center; gap: 16px; margin: 28px auto; max-width: 500px; opacity: 0; animation: fadeUp 1s ease 0.9s forwards; }
+.hero-divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--sepia-mid)); }
+.hero-divider-line.r { background: linear-gradient(270deg, transparent, var(--sepia-mid)); }
+.hero-divider-diamond { width: 8px; height: 8px; background: var(--gold); transform: rotate(45deg); flex-shrink: 0; }
+.hero-subtitle { font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--parchment-dark); letter-spacing: 0.1em; margin-bottom: 6px; opacity: 0; animation: fadeUp 1s ease 1.1s forwards; }
+.hero-dates { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.4em; color: var(--sepia-light); opacity: 0; animation: fadeUp 1s ease 1.3s forwards; margin-bottom: 40px; }
+.hero-quote { max-width: 560px; margin: 0 auto; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(1rem, 2vw, 1.25rem); color: var(--parchment-dark); line-height: 1.7; opacity: 0; animation: fadeUp 1s ease 1.5s forwards; border-left: 2px solid var(--gold); padding: 12px 0 12px 24px; text-align: left; }
+.hero-scroll { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0; animation: fadeUp 1s ease 2s forwards; color: var(--sepia-light); font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.4em; }
+.hero-scroll-line { width: 1px; height: 50px; background: linear-gradient(180deg, var(--sepia-mid), transparent); animation: scrollPulse 2s ease infinite; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scrollPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+/* NAV */
+nav { position: sticky; top: 0; z-index: 100; background: rgba(13,8,2,0.97); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(200,150,12,0.2); padding: 0 30px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.nav-brand { font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 0.3em; color: var(--gold); text-decoration: none; }
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.25em; color: var(--parchment-dark); text-decoration: none; text-transform: uppercase; transition: color 0.3s; }
+.nav-links a:hover { color: var(--gold-bright); }
+
+/* SECTIONS */
+section { padding: 100px 30px; }
+.container { max-width: 1000px; margin: 0 auto; }
+.section-label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.5em; color: var(--sepia-mid); text-transform: uppercase; margin-bottom: 12px; }
+.section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 600; color: var(--sepia-deep); line-height: 1.05; margin-bottom: 8px; }
+.section-title em { color: var(--sepia); font-style: italic; }
+.section-rule { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+.section-rule-line { height: 1px; background: linear-gradient(90deg, var(--sepia-light), transparent); flex: 1; }
+.section-rule-dot { width: 5px; height: 5px; background: var(--sepia-light); transform: rotate(45deg); flex-shrink: 0; }
+
+/* CONTEXTO */
+.contexto { background: var(--cream); }
+.contexto-intro { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-style: italic; color: var(--sepia); line-height: 1.65; border-left: 3px solid var(--sepia-light); padding-left: 24px; margin-bottom: 50px; }
+.timeline-grid { display: grid; gap: 0; }
+.timeline-item { display: grid; grid-template-columns: 100px 1fr; gap: 0 30px; position: relative; }
+.timeline-item::before { content: ''; position: absolute; left: 100px; top: 0; bottom: 0; width: 1px; background: linear-gradient(180deg, var(--sepia-light), rgba(201,169,110,0.2)); }
+.timeline-year-col { padding: 20px 0; text-align: right; }
+.timeline-year { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--sepia-mid); letter-spacing: 0.1em; }
+.timeline-dot { position: absolute; left: 95px; top: 28px; width: 11px; height: 11px; border-radius: 50%; background: var(--sepia-light); border: 2px solid var(--cream); box-shadow: 0 0 0 1px var(--sepia); }
+.timeline-content { padding: 20px 0 20px 30px; }
+.timeline-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 700; color: var(--sepia-deep); margin-bottom: 6px; }
+.timeline-text { font-size: 0.88rem; color: #3d2808; line-height: 1.75; }
+.timeline-source { margin-top: 8px; font-size: 0.75rem; font-style: italic; color: var(--sepia-mid); }
+
+/* HISTORIA */
+.historia { background: linear-gradient(180deg, #1a0d03 0%, #0d0802 100%); color: var(--parchment-light); position: relative; overflow: hidden; }
+.historia::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(200,150,12,0.03) 80px); }
+.historia .section-title { color: var(--parchment-light); }
+.historia .section-label { color: var(--sepia-light); }
+.historia .section-rule-line { background: linear-gradient(90deg, rgba(200,150,12,0.5), transparent); }
+.historia .section-rule-dot { background: var(--gold); }
+.historia-intro { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.1rem, 2.5vw, 1.45rem); font-style: italic; color: var(--parchment-dark); line-height: 1.7; text-align: center; max-width: 700px; margin: 0 auto 60px; padding: 24px; border-top: 1px solid rgba(200,150,12,0.3); border-bottom: 1px solid rgba(200,150,12,0.3); }
+
+/* TIMELINE HORIZONTAL */
+.htimeline-wrap { position: relative; padding-bottom: 40px; }
+.htimeline-scroll-hint { text-align: center; font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 0.4em; color: var(--sepia-mid); margin-bottom: 20px; }
+.htimeline-track { overflow-x: auto; overflow-y: visible; padding: 20px 40px 40px; cursor: grab; user-select: none; scrollbar-width: thin; scrollbar-color: var(--sepia) transparent; }
+.htimeline-track::-webkit-scrollbar { height: 4px; }
+.htimeline-track::-webkit-scrollbar-track { background: rgba(200,150,12,0.05); }
+.htimeline-track::-webkit-scrollbar-thumb { background: var(--sepia); border-radius: 2px; }
+.htimeline-track.grabbing { cursor: grabbing; }
+.htimeline-inner { display: flex; align-items: flex-start; gap: 0; position: relative; min-width: max-content; padding-top: 120px; }
+
+/* Línea central */
+.htimeline-inner::before {
+  content: '';
+  position: absolute;
+  top: 80px;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(200,150,12,0.7) 5%, rgba(200,150,12,0.7) 95%, transparent);
+}
+
+.htimeline-item { position: relative; width: 260px; flex-shrink: 0; padding: 0 20px; }
+
+/* Dot en la línea */
+.htimeline-item::before {
+  content: '';
+  position: absolute;
+  top: 73px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid #0d0802;
+  box-shadow: 0 0 14px rgba(200,150,12,0.6);
+  z-index: 2;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.htimeline-item:hover::before {
+  transform: translateX(-50%) scale(1.4);
+  box-shadow: 0 0 20px rgba(200,150,12,0.9);
+}
+
+/* Conector vertical desde dot hasta card */
+.htimeline-item::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  background: rgba(200,150,12,0.4);
+  z-index: 1;
+}
+
+/* Ítems arriba (índices pares): card arriba, conector baja */
+.htimeline-item.top { padding-top: 0; }
+.htimeline-item.top::after { top: 0; height: 73px; }
+.htimeline-item.top .htimeline-card { margin-bottom: 0; }
+
+/* Ítems abajo (índices impares): card abajo, conector sube */
+.htimeline-item.bottom { padding-top: 0; }
+.htimeline-item.bottom::after { top: 87px; height: 60px; }
+.htimeline-item.bottom .htimeline-card { margin-top: 147px; }
+
+.htimeline-year {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  color: var(--gold-bright);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.htimeline-card {
+  background: rgba(200,150,12,0.07);
+  border: 1px solid rgba(200,150,12,0.2);
+  border-top: 2px solid var(--gold);
+  padding: 18px 16px;
+  transition: background 0.3s, border-color 0.3s, transform 0.3s;
+}
+
+.htimeline-card:hover {
+  background: rgba(200,150,12,0.14);
+  border-color: var(--gold-bright);
+  transform: translateY(-4px);
+}
+
+.htimeline-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--parchment-light);
+  margin-bottom: 8px;
+  line-height: 1.25;
+}
+
+.htimeline-text {
+  font-size: 0.78rem;
+  color: var(--parchment-dark);
+  line-height: 1.7;
+}
+
+.htimeline-source {
+  margin-top: 8px;
+  font-size: 0.68rem;
+  font-style: italic;
+  color: var(--sepia-light);
+  border-left: 2px solid rgba(200,150,12,0.3);
+  padding-left: 8px;
+}
+
+/* DESCUBRIMIENTO */
+.descubrimiento { background: var(--sepia-deep); padding: 80px 30px; text-align: center; position: relative; overflow: hidden; }
+.descubrimiento::before { content: '"'; position: absolute; top: -40px; left: 20px; font-family: 'Cormorant Garamond', serif; font-size: 25rem; color: rgba(200,150,12,0.04); line-height: 1; pointer-events: none; }
+.descubrimiento-text { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.3rem, 3vw, 2rem); font-style: italic; color: var(--parchment-light); line-height: 1.65; max-width: 750px; margin: 0 auto 20px; }
+.descubrimiento-text strong { color: var(--gold-bright); font-style: normal; }
+.descubrimiento-sub { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.4em; color: var(--sepia-light); }
+
+/* PERSONAJES */
+.personajes { background: var(--parchment-light); }
+.personajes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2px; margin-top: 20px; }
+.persona-card { background: var(--cream); padding: 32px 28px; position: relative; transition: background 0.3s, transform 0.3s; border: 1px solid rgba(201,169,110,0.2); }
+.persona-card:hover { background: var(--white); transform: translateY(-4px); z-index: 2; box-shadow: 0 20px 50px rgba(30,15,0,0.12); }
+.persona-card.destacado { background: var(--sepia-deep); color: var(--parchment-light); }
+.persona-card.destacado:hover { background: #2a1205; }
+.persona-card.destacado .persona-nombre { color: var(--gold-bright); }
+.persona-card.destacado .persona-rol { color: var(--sepia-light); }
+.persona-card.destacado .persona-dato-label { color: var(--sepia-mid); }
+.persona-card.destacado .persona-dato-val { color: var(--parchment-dark); }
+.persona-card.accent-red { background: rgba(107,18,18,0.08); border-color: rgba(107,18,18,0.2); }
+.persona-numero { font-family: 'Cinzel', serif; font-size: 3rem; font-weight: 900; color: rgba(201,169,110,0.15); position: absolute; top: 16px; right: 20px; line-height: 1; }
+.persona-rol { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 0.4em; color: var(--sepia-mid); text-transform: uppercase; margin-bottom: 8px; }
+.persona-nombre { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700; color: var(--sepia-deep); line-height: 1.15; margin-bottom: 18px; }
+.persona-datos { display: flex; flex-direction: column; gap: 7px; }
+.persona-dato { display: flex; gap: 10px; font-size: 0.8rem; border-bottom: 1px solid rgba(201,169,110,0.15); padding-bottom: 7px; }
+.persona-dato:last-child { border-bottom: none; padding-bottom: 0; }
+.persona-dato-label { color: var(--sepia-mid); font-style: italic; min-width: 70px; flex-shrink: 0; }
+.persona-dato-val { color: var(--sepia-deep); }
+
+/* DOCUMENTOS */
+.documentos { background: var(--cream); }
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 20px; }
+.doc-card { border: 1px solid var(--parchment-dark); padding: 28px 24px; position: relative; background: var(--white); transition: box-shadow 0.3s, border-color 0.3s; }
+.doc-card:hover { border-color: var(--sepia-light); box-shadow: 0 8px 30px rgba(30,15,0,0.08); }
+.doc-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--sepia-light); transition: background 0.3s; }
+.doc-card:hover::before { background: var(--gold); }
+.doc-year { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.3em; color: var(--sepia-mid); margin-bottom: 8px; }
+.doc-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 700; color: var(--sepia-deep); margin-bottom: 10px; line-height: 1.2; }
+.doc-text { font-size: 0.82rem; color: #5a3a0a; line-height: 1.7; }
+.doc-source { margin-top: 12px; font-size: 0.72rem; font-style: italic; color: var(--sepia-mid); }
+
+/* ARBOL */
+.arbol { background: linear-gradient(135deg, #0d0802 0%, #1e0f00 50%, #0d0802 100%); color: var(--parchment-light); padding: 100px 20px; position: relative; overflow: hidden; }
+.arbol::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 60% at 50% 40%, rgba(200,150,12,0.06) 0%, transparent 70%); }
+.arbol .section-title { color: var(--gold-bright); }
+.arbol .section-label { color: var(--sepia-light); }
+.arbol .section-rule-line { background: linear-gradient(90deg, rgba(200,150,12,0.5), transparent); }
+.arbol .section-rule-dot { background: var(--gold); }
+.tree { max-width: 1000px; margin: 0 auto; position: relative; z-index: 1; }
+.tree-gen-label { text-align: center; font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 0.4em; color: var(--sepia-light); margin-bottom: 14px; text-transform: uppercase; }
+.tree-row { display: flex; justify-content: center; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.tree-group { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.tree-group-label { font-family: 'Cinzel', serif; font-size: 0.5rem; letter-spacing: 0.3em; color: var(--sepia-mid); text-align: center; margin-bottom: 4px; }
+.tree-union { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.tree-node { background: rgba(200,150,12,0.08); border: 1px solid rgba(200,150,12,0.3); padding: 10px 16px; text-align: center; transition: background 0.3s; }
+.tree-node:hover { background: rgba(200,150,12,0.18); }
+.tree-node.main { background: rgba(200,150,12,0.18); border-color: var(--gold); border-width: 1.5px; }
+.tree-node.unknown { opacity: 0.5; border-style: dashed; }
+.tree-node-name { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; font-weight: 700; color: var(--parchment-light); line-height: 1.2; }
+.tree-node-name.gold { color: var(--gold-bright); }
+.tree-node-detail { font-size: 0.65rem; color: var(--sepia-light); margin-top: 3px; font-style: italic; }
+.tree-plus { font-family: 'Cinzel', serif; color: var(--gold); font-size: 0.9rem; flex-shrink: 0; }
+.tree-arrow { text-align: center; color: rgba(200,150,12,0.4); font-size: 1.5rem; margin: 6px 0; letter-spacing: 30px; }
+.tree-sep { width: 70%; height: 1px; background: linear-gradient(90deg, transparent, rgba(200,150,12,0.3), transparent); margin: 20px auto; }
+
+/* CONTACTO */
+.contacto { background: linear-gradient(180deg, #0d0802, #1a0900); color: var(--parchment-light); text-align: center; padding: 120px 30px; position: relative; overflow: hidden; }
+.contacto::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(200,150,12,0.08) 0%, transparent 70%); pointer-events: none; }
+.contacto .section-title { color: var(--gold-bright); font-size: clamp(2rem, 5vw, 3.5rem); }
+.contacto .section-label { color: var(--sepia-light); }
+.contacto-desc { font-family: 'Cormorant Garamond', serif; font-size: clamp(1rem, 2vw, 1.3rem); color: var(--parchment-dark); line-height: 1.8; max-width: 620px; margin: 0 auto 50px; }
+.apellidos-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 30px 0; }
+.apellido-tag { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--parchment-dark); padding: 8px 20px; border: 1px solid rgba(200,150,12,0.25); background: rgba(200,150,12,0.06); transition: all 0.3s; cursor: default; }
+.apellido-tag:hover { background: rgba(200,150,12,0.18); border-color: var(--gold); color: var(--gold-bright); transform: translateY(-2px); }
+.encuentro-box { background: rgba(200,150,12,0.08); border: 1px solid rgba(200,150,12,0.25); border-top: 2px solid var(--gold); padding: 40px; max-width: 680px; margin: 0 auto 50px; position: relative; z-index: 1; }
+.encuentro-titulo { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; color: var(--gold-bright); margin-bottom: 14px; }
+.encuentro-texto { font-size: 0.9rem; color: var(--parchment-dark); line-height: 1.8; margin-bottom: 14px; }
+.encuentro-lugar { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--gold); }
+.wa-btn { display: inline-flex; align-items: center; gap: 14px; background: #25D366; color: white; text-decoration: none; padding: 18px 44px; font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.2em; transition: all 0.3s; margin-bottom: 16px; position: relative; z-index: 1; }
+.wa-btn:hover { background: #20ba5a; transform: translateY(-2px); box-shadow: 0 12px 40px rgba(37,211,102,0.35); }
+.contacto-numero { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--sepia-light); letter-spacing: 0.1em; }
+.lugares-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: rgba(200,150,12,0.15); margin-top: 40px; position: relative; z-index: 1; }
+.lugar-item { background: rgba(13,8,2,0.95); padding: 24px 16px; text-align: center; transition: background 0.3s; }
+.lugar-item:hover { background: rgba(30,15,0,0.98); }
+.lugar-nombre { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 700; color: var(--gold-bright); margin-bottom: 4px; }
+.lugar-detalle { font-size: 0.72rem; color: var(--sepia-light); font-style: italic; line-height: 1.4; }
+
+/* FOOTER */
+footer { background: #060401; color: var(--sepia-light); text-align: center; padding: 60px 30px; border-top: 1px solid rgba(200,150,12,0.15); }
+.footer-title { font-family: 'Cinzel', serif; font-size: 1.1rem; letter-spacing: 0.3em; color: var(--gold); margin-bottom: 16px; }
+.footer-text { font-size: 0.78rem; line-height: 1.9; max-width: 500px; margin: 0 auto 20px; color: var(--sepia-mid); }
+.footer-frase { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; color: var(--parchment-dark); max-width: 500px; margin: 0 auto; }
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  section { padding: 70px 20px; }
+  .htimeline-track { padding: 10px 20px 30px; }
+  .htimeline-item { width: 220px; }
+  .tree-row { gap: 8px; }
+  .tree-node { padding: 8px 10px; }
+  .tree-node-name { font-size: 0.8rem; }
+  .encuentro-box { padding: 24px 20px; }
+  .timeline-item { grid-template-columns: 80px 1fr; }
+  .timeline-item::before { left: 80px; }
+  .timeline-dot { left: 75px; }
+}
 </style>
 </head>
 <body>
 
-<!-- HERO -->
 <header class="hero">
-  <div class="hero-ornament">— ✦ —</div>
-  <p class="hero-subtitle-top">Historia y Memoria Familiar</p>
-  <h1 class="hero-title">Familia<br><span>Reyes</span></h1>
-  <div class="hero-divider"></div>
-  <p class="hero-place">Salavagasta · Santiago del Estero · Argentina</p>
-  <p class="hero-dates">Siglo XIX — Presente</p>
-  <blockquote class="hero-quote">
-    Un huérfano recogido por una familia buena, mandado a estudiar para cura, que se enamoró 
-    y fundó el linaje del que hoy todos descendemos.
-  </blockquote>
+  <div class="hero-bg"></div>
+  <div class="hero-lines"></div>
+  <div class="hero-corner tl"></div><div class="hero-corner tr"></div>
+  <div class="hero-corner bl"></div><div class="hero-corner br"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Historia y Memoria Familiar · Siglo XIX</p>
+    <span class="hero-title-line">Familia</span>
+    <span class="hero-title-line gold">Reyes</span>
+    <div class="hero-divider">
+      <div class="hero-divider-line"></div>
+      <div class="hero-divider-diamond"></div>
+      <div class="hero-divider-line r"></div>
+    </div>
+    <p class="hero-subtitle">Salavagasta · Santiago del Estero · Argentina</p>
+    <p class="hero-dates">~1849 — Presente</p>
+    <blockquote class="hero-quote">Un huérfano recogido por una familia buena, mandado a estudiar para cura, que se enamoró y fundó el linaje del que hoy todos descendemos.</blockquote>
+  </div>
+  <div class="hero-scroll"><span>Descubrir</span><div class="hero-scroll-line"></div></div>
 </header>
 
-<!-- NAV -->
-<nav class="nav-strip">
-  <a href="#contexto">El Mundo</a>
-  <a href="#origen">El Origen</a>
-  <a href="#personajes">Los Personajes</a>
-  <a href="#documentos">Documentos</a>
-  <a href="#arbol">Árbol</a>
-  <a href="#hoy">Hoy</a>
-  <a href="#contacto">Contacto</a>
+<nav>
+  <a href="#" class="nav-brand">Familia Reyes · Salavagasta</a>
+  <ul class="nav-links">
+    <li><a href="#contexto">El Mundo</a></li>
+    <li><a href="#historia">La Historia</a></li>
+    <li><a href="#personajes">Personajes</a></li>
+    <li><a href="#documentos">Documentos</a></li>
+    <li><a href="#arbol">Árbol</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
 </nav>
 
-<!-- CONTEXTO -->
-<section id="contexto">
-  <div class="section">
-    <p class="section-number">I — El Contexto</p>
-    <div class="section-title-ornament">
-      <h2 class="section-title">La Frontera del Chaco</h2>
-      <div class="ornament-line right"></div>
-    </div>
-
-    <div class="context-box">
-      <p>
-        A mediados del siglo XIX, Salavagasta era un pequeño paraje en la frontera del Chaco santiagueño. 
-        Las familias vivían agrupadas por seguridad — el malón indígena era una amenaza real y nadie podía 
-        vivir aislado. El río Salado marcaba el límite entre el mundo criollo y el Chaco de los tobas, 
-        abipones y mocovíes. En ese mundo duro y remoto vivieron los primeros Reyes.
-      </p>
-    </div>
-
-    <div class="timeline">
-      <div class="timeline-entry">
-        <div class="timeline-year">~1860</div>
-        <div class="timeline-title">Los Taboada dominan Santiago del Estero</div>
-        <p class="timeline-text">La familia Taboada controlaba políticamente toda la provincia. Las tierras fiscales se vendían a precios irrisorios. La zona de Matará — de la que dependía Salavagasta — era el corazón de su poder.</p>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">1869</div>
-        <div class="timeline-title">Primer Censo Nacional</div>
-        <p class="timeline-text">El gobierno nacional censó por primera vez a toda la población. Salavagasta dependía administrativamente del Departamento Matará. Las familias Reyes, Maldonado, Herrera, Tolosa y Escalada ya estaban asentadas en el paraje.</p>
-        <div class="timeline-source">📋 Fuente: Primer Censo Nacional, 1869 — Matará al Norte y Sud · FamilySearch</div>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">1870</div>
-        <div class="timeline-title">La frontera se cierra</div>
-        <p class="timeline-text">El gobierno nacional reemplazó las Guardias Nacionales por el Ejército de Línea en la frontera del Salado. La región comenzó lentamente a pacificarse, permitiendo mayor movilidad entre parajes.</p>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">1887</div>
-        <div class="timeline-title">Salavagasta cambia de jurisdicción</div>
-        <p class="timeline-text">La ley provincial dividió el Departamento Matará. Salavagasta y Mailín quedaron dentro de la nueva jurisdicción de Villa Atamisqui — por eso los registros del 95 aparecen en Atamisqui y los del 69 en Matará.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ORIGEN -->
-<section id="origen" style="background: linear-gradient(180deg, #f0e6cc, #f5efe0); border-top: 1px solid var(--sepia-light);">
-  <div class="section">
-    <p class="section-number">II — El Origen</p>
-    <div class="section-title-ornament">
-      <h2 class="section-title">La Historia de Juan Francisco</h2>
-      <div class="ornament-line right"></div>
-    </div>
-
-    <div class="highlight-box">
-      <p>
-        Lo que parecía perdido para siempre — el nombre de la madre biológica de un huérfano 
-        nacido en la frontera del Chaco en 1870 — sobrevivió escrito en una sola línea de un 
-        libro parroquial de 1888: <strong>"hijo de Vicenta Escalada"</strong>.
-      </p>
-    </div>
-
-    <div class="timeline">
-      <div class="timeline-entry">
-        <div class="timeline-year">~1850</div>
-        <div class="timeline-title">Nace Vicenta Escalada</div>
-        <p class="timeline-text">Vicenta era una mujer joven de Salavagasta, hija de una familia Escalada asentada en el paraje. Su historia casi se pierde para siempre — solo sobrevivió su nombre en un acta de 1888.</p>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">~1841</div>
-        <div class="timeline-title">Nace Hermenegildo Reyes</div>
-        <p class="timeline-text">Hermenegildo era criador de ganado en Salavagasta. Se casó con Mercedes (~1845) alrededor de 1860. Ambos sabían leer y escribir — una rareza en la zona. Mercedes, ella misma huérfana, entendía el dolor de la orfandad.</p>
-        <div class="timeline-source">📋 Fuente: Segundo Censo Nacional, 1895 — Villa Atamisqui · FamilySearch</div>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">~1868–1870</div>
-        <div class="timeline-title">Nace Juan Francisco — y queda huérfano</div>
-        <p class="timeline-text">Vicenta Escalada dio a luz a Juan Francisco sin padre declarado. Murió probablemente en el parto o poco después — la mortalidad materna era altísima en la frontera. El bebé quedó solo. Hermenegildo y Mercedes lo recogieron y lo adoptaron, dándole el apellido Reyes pero conservando el de su madre: <strong>Juan Francisco Reyes Escalada</strong>.</p>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">~1875–1885</div>
-        <div class="timeline-title">Los curas se llevan a Juan Francisco a Córdoba</div>
-        <p class="timeline-text">Hermenegildo vio en el niño algo especial y tomó una decisión extraordinaria: mandarlo a estudiar para cura. En Salavagasta de 1875, en plena frontera del Chaco, eso era un privilegio de otro mundo. Juan Francisco aprendió a leer, escribir, rezar y officiar — cuando la mayoría de sus vecinos no sabía hacer ninguna de las tres cosas.</p>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">~1887</div>
-        <div class="timeline-title">Juan Francisco vuelve — y conoce a Paula</div>
-        <p class="timeline-text">El seminarista que no llegó a ordenarse regresó a Salavagasta. Ahí conoció a Paula Maldonado, hija legítima de Jorge Miguel Maldonado y Gregoria Herrera. Costurera, mestiza, 18 años. Se enamoraron.</p>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">1888</div>
-        <div class="timeline-title">El casamiento en Villa Atamisqui</div>
-        <p class="timeline-text">El 12 de agosto (aprox.) de 1888, Juan Francisco Reyes Escalada y Paula Maldonado se presentaron ante el Cura <strong>Miguel A. Cleff</strong> en la Parroquia Inmaculada Concepción de Villa Atamisqui. Él tenía 18 años, labrador, mestizo. Ella tenía 18 años, costurera, mestiza. Cuatro vecinos de Salavagasta fueron testigos.</p>
-        <div class="timeline-source">📋 Fuente: Acta N° 49 — Libro de Matrimonios, Parroquia de Atamisqui, 1888 · FamilySearch</div>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">1895</div>
-        <div class="timeline-title">La familia aparece en el Segundo Censo</div>
-        <p class="timeline-text">El Segundo Censo Nacional encuentra a Juan Francisco (27 años) y Paula (24 años) en Salavagasta, casados hace 6 años. Juan Francisco figura como huérfano. Paula, no. Viven con Hermenegildo (54) y Mercedes (50), sus padres adoptivos.</p>
-        <div class="timeline-source">📋 Fuente: Segundo Censo Nacional, 1895 — Villa Atamisqui · FamilySearch</div>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">1896</div>
-        <div class="timeline-title">Nace Estanislao — el primer hijo registrado</div>
-        <p class="timeline-text">El 7 de mayo nace Estanislao Reyes en el paraje Carmona. Es bautizado el 12 de agosto de 1897 por Juan de la Cruz Toloza — el mismo rol que Juan Francisco cumplía en otros bautismos. El Cura Benjamín Argañaras firma el acta.</p>
-        <div class="timeline-source">📋 Fuente: Acta de bautismo — Parroquia de Mailín · FamilySearch</div>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">~1902</div>
-        <div class="timeline-title">Nace Nicacio Reyes</div>
-        <p class="timeline-text">Nicacio, quien viviría hasta los 93 años (~1995), nació en la zona de Salavagasta/Mailín. Seguiría la tradición religiosa de su padre — la fe era el eje de la familia Reyes.</p>
-      </div>
-      <div class="timeline-entry">
-        <div class="timeline-year">1912</div>
-        <div class="timeline-title">Nace Manuel Francisco</div>
-        <p class="timeline-text">El último hijo registrado nace en 1912 y es bautizado en marzo de 1913 en Mailín. Los padrinos son Leonardo Reyes y Rosa Escalada — familiar directa de Vicenta, que mantuvo contacto con la familia hasta esa fecha. El Cura Ramón Terre firma el acta.</p>
-        <div class="timeline-source">📋 Fuente: Partida N° 613, Hoja 307 — Libro de Bautismos, Mailín, 1913 · FamilySearch</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PERSONAJES -->
-<section id="personajes">
-  <div class="section">
-    <p class="section-number">III — Los Personajes</p>
-    <div class="section-title-ornament">
-      <h2 class="section-title">Las Personas de esta Historia</h2>
-      <div class="ornament-line right"></div>
-    </div>
-
-    <div class="family-grid">
-      <div class="family-card">
-        <div class="card-role">Madre Biológica</div>
-        <div class="card-name">Vicenta Escalada</div>
-        <div class="card-detail"><span class="card-detail-label">Nacida</span> ~1850, Salavagasta</div>
-        <div class="card-detail"><span class="card-detail-label">Fallecida</span> ~1870</div>
-        <div class="card-detail"><span class="card-detail-label">Nota</span> Su nombre sobrevivió 155 años en un acta de 1888</div>
-      </div>
-      <div class="family-card">
-        <div class="card-role">Padre Adoptivo</div>
-        <div class="card-name">Hermenegildo Reyes</div>
-        <div class="card-detail"><span class="card-detail-label">Nacido</span> ~1841</div>
-        <div class="card-detail"><span class="card-detail-label">Profesión</span> Criador de ganado</div>
-        <div class="card-detail"><span class="card-detail-label">Casado con</span> Mercedes, ~1860</div>
-        <div class="card-detail"><span class="card-detail-label">Nota</span> Sabía leer y escribir</div>
-      </div>
-      <div class="family-card">
-        <div class="card-role">Madre Adoptiva</div>
-        <div class="card-name">Mercedes (Reyes)</div>
-        <div class="card-detail"><span class="card-detail-label">Nacida</span> ~1845</div>
-        <div class="card-detail"><span class="card-detail-label">Nota</span> Ella misma era huérfana — entendía ese dolor</div>
-        <div class="card-detail"><span class="card-detail-label">Hijos</span> 2 hijos (en 35 años de matrimonio)</div>
-      </div>
-      <div class="family-card" style="border-color: var(--sepia-dark); border-width: 2px;">
-        <div class="card-role">⭐ El Bisabuelo</div>
-        <div class="card-name">Juan Francisco Reyes Escalada</div>
-        <div class="card-detail"><span class="card-detail-label">Nacido</span> ~1868–1870</div>
-        <div class="card-detail"><span class="card-detail-label">Profesión</span> Labrador</div>
-        <div class="card-detail"><span class="card-detail-label">Color</span> Mestizo</div>
-        <div class="card-detail"><span class="card-detail-label">Educación</span> Estudió para cura en Córdoba</div>
-        <div class="card-detail"><span class="card-detail-label">Enterrado</span> Rubia Paso</div>
-      </div>
-      <div class="family-card" style="border-color: var(--sepia-dark); border-width: 2px;">
-        <div class="card-role">⭐ La Bisabuela</div>
-        <div class="card-name">Paula Maldonado</div>
-        <div class="card-detail"><span class="card-detail-label">Nacida</span> ~1871</div>
-        <div class="card-detail"><span class="card-detail-label">Profesión</span> Costurera</div>
-        <div class="card-detail"><span class="card-detail-label">Color</span> Mestiza</div>
-        <div class="card-detail"><span class="card-detail-label">Padre</span> Jorge Miguel Maldonado</div>
-        <div class="card-detail"><span class="card-detail-label">Madre</span> Gregoria Herrera</div>
-      </div>
-      <div class="family-card">
-        <div class="card-role">Testigo — Familiar de Vicenta</div>
-        <div class="card-name">Rosa Escalada</div>
-        <div class="card-detail"><span class="card-detail-label">Activa en</span> 1913, Mailín</div>
-        <div class="card-detail"><span class="card-detail-label">Rol</span> Madrina del bautismo de Manuel Francisco</div>
-        <div class="card-detail"><span class="card-detail-label">Nota</span> Hermana o prima de Vicenta Escalada</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- DOCUMENTOS -->
-<section id="documentos" style="background: linear-gradient(180deg, #ede0c4, #f5efe0); border-top: 1px solid var(--sepia-light);">
-  <div class="section">
-    <p class="section-number">IV — Los Documentos</p>
-    <div class="section-title-ornament">
-      <h2 class="section-title">Registros que Sobrevivieron</h2>
-      <div class="ornament-line right"></div>
-    </div>
-
-    <p style="margin-bottom: 30px; line-height: 1.8; color: var(--brown-deep);">
-      Todos los documentos fueron localizados en <strong>FamilySearch</strong> — el archivo genealógico más grande del mundo, 
-      digitalizado por la Iglesia de los Santos de los Últimos Días. Los libros originales están resguardados 
-      por la <strong>Diócesis de Añatuya</strong>, Santiago del Estero.
-    </p>
-
-    <table class="doc-table">
-      <thead>
-        <tr>
-          <th>Documento</th>
-          <th>Fecha</th>
-          <th>Personas</th>
-          <th>Archivo</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Acta de Matrimonio N° 49</strong></td>
-          <td>1888</td>
-          <td>Juan Francisco Reyes Escalada + Paula Maldonado</td>
-          <td>Parroquia Inmaculada Concepción, Villa Atamisqui</td>
-        </tr>
-        <tr>
-          <td><strong>Segundo Censo Nacional</strong></td>
-          <td>1895</td>
-          <td>Familia Reyes completa (líneas 12–15)</td>
-          <td>Salavagasta, Atamisqui · Archivo General de la Nación</td>
-        </tr>
-        <tr>
-          <td><strong>Acta de Bautismo — Estanislao</strong></td>
-          <td>12 agosto 1897</td>
-          <td>Estanislao Reyes (n. 7 mayo 1896)</td>
-          <td>Parroquia de Mailín — Paraje Carmona</td>
-        </tr>
-        <tr>
-          <td><strong>Acta de Bautismo — Manuel Francisco</strong><br><small>Partida 613, Hoja 307</small></td>
-          <td>Marzo 1913</td>
-          <td>Manuel Francisco Reyes (n. 1912)</td>
-          <td>Parroquia de Mailín</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h3 style="font-family: 'Playfair Display', serif; margin-top: 50px; margin-bottom: 20px; color: var(--brown-deep);">Testigos del Matrimonio de 1888</h3>
-    <p style="margin-bottom: 20px; font-style: italic; color: var(--sepia); font-size: 0.9rem;">Todos vecinos de Salavagasta — la comunidad que rodeó a Juan Francisco y Paula</p>
-
-    <table class="doc-table">
-      <thead>
-        <tr><th>Testigo</th><th>Conexión familiar probable</th></tr>
-      </thead>
-      <tbody>
-        <tr><td><strong>Gregorio Acuña</strong></td><td>Vecino de Salavagasta</td></tr>
-        <tr><td><strong>Cenobio Jiménez</strong></td><td>Vecino de Salavagasta</td></tr>
-        <tr><td><strong>Nicolaza Herrera</strong></td><td>Probable hermana o tía de Gregoria Herrera (madre de Paula)</td></tr>
-        <tr><td><strong>Doroteo Tolosa</strong></td><td>Familia Tolosa — también padrinos de Estanislao en 1897</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ÁRBOL -->
-<section id="arbol" class="tree-section">
-  <div class="tree-wrapper">
-    <h2 class="tree-title">✦ Árbol Genealógico ✦</h2>
-
-    <style>
-      .tree-block {
-        display: inline-flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        vertical-align: top;
-      }
-      .tree-row {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        gap: 30px;
-        margin-bottom: 6px;
-      }
-      .tree-branch-label {
-        font-size: 0.65rem;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: var(--sepia);
-        margin-bottom: 4px;
-        font-style: italic;
-      }
-      .tree-union {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .tree-down {
-        text-align: center;
-        color: var(--sepia);
-        font-size: 1.2rem;
-        margin: 2px 0;
-      }
-      .tree-separator {
-        width: 80%;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--sepia), transparent);
-        margin: 20px auto;
-      }
-    </style>
-
-    <!-- GENERACIÓN 0 — Abuelos de los bisabuelos -->
-    <div class="tree-gen">
-      <div class="tree-gen-label">Abuelos Biológicos y Adoptivos</div>
-      <div class="tree-row">
-
-        <!-- Lado Vicenta -->
-        <div class="tree-block">
-          <div class="tree-branch-label">Rama materna biológica</div>
-          <div class="tree-union">
-            <div class="tree-person" style="opacity:0.65;">
-              <div class="tree-person-name">? Escalada</div>
-              <div class="tree-person-years">padre · por identificar</div>
-            </div>
-            <span class="tree-plus">+</span>
-            <div class="tree-person" style="opacity:0.65;">
-              <div class="tree-person-name">? (madre)</div>
-              <div class="tree-person-years">por identificar</div>
-            </div>
-          </div>
-          <div class="tree-down">↓</div>
-          <div class="tree-person" style="border-color: var(--red-faded);">
-            <div class="tree-person-name">Vicenta Escalada</div>
-            <div class="tree-person-years">~1850 · Salavagasta · †~1870</div>
-          </div>
+<section id="contexto" class="contexto">
+  <div class="container">
+    <p class="section-label reveal">I — El Contexto</p>
+    <h2 class="section-title reveal">La Frontera <em>del Chaco</em></h2>
+    <div class="section-rule reveal"><div class="section-rule-dot"></div><div class="section-rule-line"></div></div>
+    <p class="contexto-intro reveal">A mediados del siglo XIX, Salavagasta era un pequeño paraje en la frontera del Chaco santiagueño. Las familias vivían agrupadas por seguridad — el malón indígena era una amenaza real. En ese mundo duro y remoto nacieron las familias que hoy buscamos.</p>
+    <div class="timeline-grid">
+      <div class="timeline-item reveal">
+        <div class="timeline-year-col"><span class="timeline-year">~1860</span></div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-title">El dominio de los Taboada</div>
+          <p class="timeline-text">La familia Taboada controlaba políticamente toda la provincia. La zona de Matará — de la que dependía Salavagasta — era el corazón de su poder. Las tierras fiscales se vendían a precios irrisorios.</p>
         </div>
-
-        <!-- Lado Hermenegildo — familia adoptiva -->
-        <div class="tree-block">
-          <div class="tree-branch-label">Familia Adoptiva</div>
-          <div class="tree-union">
-            <div class="tree-person">
-              <div class="tree-person-name">Hermenegildo Reyes</div>
-              <div class="tree-person-years">~1841 · Criador</div>
-            </div>
-            <span class="tree-plus">+</span>
-            <div class="tree-person">
-              <div class="tree-person-name">Mercedes</div>
-              <div class="tree-person-years">~1845 · Huérfana</div>
-            </div>
-          </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-year-col"><span class="timeline-year">1869</span></div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-title">Primer Censo Nacional</div>
+          <p class="timeline-text">El gobierno censó por primera vez a toda la población. Las familias Reyes, Maldonado, Herrera, Tolosa y Escalada ya estaban asentadas en Salavagasta, bajo el Departamento Matará.</p>
+          <p class="timeline-source">Fuente: Primer Censo Nacional, 1869 — Matará · FamilySearch</p>
         </div>
-
-        <!-- Lado Paula — padres -->
-        <div class="tree-block">
-          <div class="tree-branch-label">Padres de Paula Maldonado</div>
-          <div class="tree-union">
-            <div class="tree-person">
-              <div class="tree-person-name">Jorge Miguel Maldonado</div>
-              <div class="tree-person-years">Salavagasta</div>
-            </div>
-            <span class="tree-plus">+</span>
-            <div class="tree-person">
-              <div class="tree-person-name">Gregoria Herrera</div>
-              <div class="tree-person-years">Salavagasta</div>
-            </div>
-          </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-year-col"><span class="timeline-year">1887</span></div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-title">Salavagasta cambia de jurisdicción</div>
+          <p class="timeline-text">La ley provincial dividió el Departamento Matará. Salavagasta y Mailín quedaron dentro de Villa Atamisqui — por eso los registros del 95 están en Atamisqui y los del 69 en Matará.</p>
         </div>
-
       </div>
     </div>
+  </div>
+</section>
 
-    <div class="tree-separator"></div>
+<section id="historia" class="historia">
+  <div class="container">
+    <p class="section-label reveal">II — El Origen</p>
+    <h2 class="section-title reveal">La Historia de <em style="color:var(--gold-bright)">Juan Francisco</em></h2>
+    <div class="section-rule reveal"><div class="section-rule-dot"></div><div class="section-rule-line"></div></div>
+    <p class="historia-intro reveal">Lo que parecía perdido para siempre — el nombre de la madre biológica de un huérfano nacido en la frontera del Chaco en 1870 — sobrevivió escrito en una sola línea de un libro parroquial de 1888.</p>
 
-    <!-- GENERACIÓN I — Bisabuelos -->
-    <div class="tree-gen">
-      <div class="tree-gen-label">Generación I — Los Bisabuelos ✦ casados 1888, Villa Atamisqui</div>
-      <div class="tree-row">
+    <div class="htimeline-wrap reveal">
+      <p class="htimeline-scroll-hint">← Deslizá para recorrer la historia →</p>
+      <div class="htimeline-track" id="htTrack">
+        <div class="htimeline-inner">
+
+          <!-- 1: arriba -->
+          <div class="htimeline-item top">
+            <span class="htimeline-year">~1820</span>
+            <div class="htimeline-card">
+              <div class="htimeline-title">Pedro Escalada y Josefa Rodríguez</div>
+              <p class="htimeline-text">Los abuelos biológicos de Juan Francisco. Vivían en Salavagasta. Ambos ya habían fallecido antes de 1885. Están por identificar en el censo de 1869.</p>
+            </div>
+          </div>
+
+          <!-- 2: abajo -->
+          <div class="htimeline-item bottom">
+            <div class="htimeline-card">
+              <div class="htimeline-title">Nace Vicenta Escalada</div>
+              <p class="htimeline-text">Hija legítima de Pedro Escalada y Josefa Rodríguez. Crecerá en Salavagasta y será la madre biológica de Juan Francisco.</p>
+            </div>
+            <span class="htimeline-year" style="margin-top:8px;display:block;">~1849</span>
+          </div>
+
+          <!-- 3: arriba -->
+          <div class="htimeline-item top">
+            <span class="htimeline-year">~1860</span>
+            <div class="htimeline-card">
+              <div class="htimeline-title">Hermenegildo y Mercedes se casan</div>
+              <p class="htimeline-text">Criador de ganado, sabe leer y escribir. Mercedes, huérfana ella misma, entiende ese dolor. Serán los padres adoptivos de Juan Francisco.</p>
+              <p class="htimeline-source">Censo 1895 · FamilySearch</p>
+            </div>
+          </div>
+
+          <!-- 4: abajo -->
+          <div class="htimeline-item bottom">
+            <div class="htimeline-card">
+              <div class="htimeline-title">Nace Juan Francisco — huérfano</div>
+              <p class="htimeline-text">Vicenta Escalada da a luz sin padre declarado. Hermenegildo y Mercedes lo adoptan: <strong style="color:var(--gold-bright)">Juan Francisco Reyes Escalada</strong>.</p>
+            </div>
+            <span class="htimeline-year" style="margin-top:8px;display:block;">~1870</span>
+          </div>
+
+          <!-- 5: arriba -->
+          <div class="htimeline-item top">
+            <span class="htimeline-year">~1875</span>
+            <div class="htimeline-card">
+              <div class="htimeline-title">Lo mandan a estudiar a Córdoba</div>
+              <p class="htimeline-text">Hermenegildo toma una decisión extraordinaria: mandarlo al seminario. Juan Francisco aprende a leer, escribir, rezar y oficiar sacramentos.</p>
+            </div>
+          </div>
+
+          <!-- 6: abajo -->
+          <div class="htimeline-item bottom">
+            <div class="htimeline-card">
+              <div class="htimeline-title">Muere Vicenta Escalada</div>
+              <p class="htimeline-text">Pulmonía. 36 años. Su casa propia de Salavagasta. Casada con Felipe Sequeira. Enterrada en Villa Atamisqui. Juan Francisco tiene ~15 años.</p>
+              <p class="htimeline-source">Acta defunción · Parroquia de Atamisqui · 1885</p>
+            </div>
+            <span class="htimeline-year" style="margin-top:8px;display:block;">9 nov 1885</span>
+          </div>
+
+          <!-- 7: arriba -->
+          <div class="htimeline-item top">
+            <span class="htimeline-year">1888</span>
+            <div class="htimeline-card">
+              <div class="htimeline-title">Se casa con Paula Maldonado</div>
+              <p class="htimeline-text">El seminarista que no se ordenó se enamora de Paula, costurera, 18 años. Acta N° 49. Cura: Miguel A. Cleff. Testigos de Salavagasta: Acuña, Jiménez, Herrera, Tolosa.</p>
+              <p class="htimeline-source">Acta N° 49 · Parroquia Atamisqui · FamilySearch</p>
+            </div>
+          </div>
+
+          <!-- 8: abajo -->
+          <div class="htimeline-item bottom">
+            <div class="htimeline-card">
+              <div class="htimeline-title">Censo: Juan Francisco, huérfano</div>
+              <p class="htimeline-text">Viven con Hermenegildo (54) y Mercedes (50) en Salavagasta. Juan Francisco, 27 años, sabe leer y escribir — rarísimo para el lugar y la época.</p>
+              <p class="htimeline-source">Segundo Censo Nacional · 1895 · FamilySearch</p>
+            </div>
+            <span class="htimeline-year" style="margin-top:8px;display:block;">1895</span>
+          </div>
+
+          <!-- 9: arriba -->
+          <div class="htimeline-item top">
+            <span class="htimeline-year">7 mayo 1896</span>
+            <div class="htimeline-card">
+              <div class="htimeline-title">Nace Estanislao</div>
+              <p class="htimeline-text">Primer hijo registrado. Nace en el paraje Carmona. Bautizado el 12 agosto 1897. Padrinos: Juan de la Cruz Toloza y Carmen Cañiza.</p>
+              <p class="htimeline-source">Parroquia Mailín · FamilySearch</p>
+            </div>
+          </div>
+
+          <!-- 10: abajo -->
+          <div class="htimeline-item bottom">
+            <div class="htimeline-card">
+              <div class="htimeline-title">Felisa Sequeira: la hermanastra</div>
+              <p class="htimeline-text">El acta de su casamiento revela que Felisa era hija de Felipe Sequeira y <strong style="color:var(--gold-bright)">la finada Vicenta Escalada</strong>. Juan Francisco tenía una hermanastra en Salavagasta.</p>
+              <p class="htimeline-source">Matrimonio Escalada–Sequeira · Atamisqui · 1899</p>
+            </div>
+            <span class="htimeline-year" style="margin-top:8px;display:block;">31 jul 1899</span>
+          </div>
+
+          <!-- 11: arriba -->
+          <div class="htimeline-item top">
+            <span class="htimeline-year">~1902</span>
+            <div class="htimeline-card">
+              <div class="htimeline-title">Nace Nicacio Reyes</div>
+              <p class="htimeline-text">El segundo hijo. Vivirá 93 años. Se casará dos veces: primero con Mencía Córdoba (Icaño), y de viudo con Máxima Pacheco en Rubia Paso.</p>
+            </div>
+          </div>
+
+          <!-- 12: abajo -->
+          <div class="htimeline-item bottom">
+            <div class="htimeline-card">
+              <div class="htimeline-title">Nace Manuel Francisco</div>
+              <p class="htimeline-text">Último hijo registrado. Padrinos: Leonardo Reyes y <strong style="color:var(--gold-bright)">Rosa Escalada</strong> — familiar de Vicenta, testigo del vínculo familiar hasta 1913.</p>
+              <p class="htimeline-source">Partida N° 613, Hoja 307 · Mailín · 1913</p>
+            </div>
+            <span class="htimeline-year" style="margin-top:8px;display:block;">1912 – 1913</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="descubrimiento reveal">
+  <p class="descubrimiento-text">Lo que parecía <strong>perdido para siempre</strong> sobrevivió en <strong>una sola línea escrita en 1888</strong>: <em>"hijo de Vicenta Escalada"</em></p>
+  <p class="descubrimiento-sub">Acta N° 49 · Libro de Matrimonios · Parroquia de Atamisqui · 1888</p>
+</div>
+
+<section id="personajes" class="personajes">
+  <div class="container">
+    <p class="section-label reveal">III — Los Personajes</p>
+    <h2 class="section-title reveal">Las Personas <em>de esta Historia</em></h2>
+    <div class="section-rule reveal"><div class="section-rule-dot"></div><div class="section-rule-line"></div></div>
+    <div class="personajes-grid">
+      <div class="persona-card reveal">
+        <div class="persona-numero">01</div>
+        <div class="persona-rol">Abuelos Biológicos</div>
+        <div class="persona-nombre">Pedro Escalada<br>+ Josefa Rodríguez</div>
+        <div class="persona-datos">
+          <div class="persona-dato"><span class="persona-dato-label">Hija</span><span class="persona-dato-val">Vicenta Escalada (~1849)</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Estado</span><span class="persona-dato-val">Fallecidos antes de 1885 · por identificar en censo 1869</span></div>
+        </div>
+      </div>
+      <div class="persona-card accent-red reveal">
+        <div class="persona-numero" style="color:rgba(107,18,18,0.15)">02</div>
+        <div class="persona-rol" style="color:var(--blood)">Madre Biológica</div>
+        <div class="persona-nombre" style="color:var(--blood)">Vicenta Escalada</div>
+        <div class="persona-datos">
+          <div class="persona-dato"><span class="persona-dato-label">Nacida</span><span class="persona-dato-val">~1849, Salavagasta</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Fallecida</span><span class="persona-dato-val">9 nov 1885 · Pulmonía · 36 años</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Casada con</span><span class="persona-dato-val">Felipe Sequeira</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Enterrada</span><span class="persona-dato-val">Panteón Iglesia Villa Atamisqui</span></div>
+        </div>
+      </div>
+      <div class="persona-card reveal">
+        <div class="persona-numero">03</div>
+        <div class="persona-rol">Esposo de Vicenta</div>
+        <div class="persona-nombre">Felipe Sequeira</div>
+        <div class="persona-datos">
+          <div class="persona-dato"><span class="persona-dato-label">Hija</span><span class="persona-dato-val">Felisa Sequeira (~1877) — hermanastra de Juan Francisco</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Nota</span><span class="persona-dato-val">Apellido de origen portugués, raro en Santiago del Estero</span></div>
+        </div>
+      </div>
+      <div class="persona-card reveal">
+        <div class="persona-numero">04</div>
+        <div class="persona-rol">Familia Adoptiva</div>
+        <div class="persona-nombre">Hermenegildo Reyes<br>+ Mercedes</div>
+        <div class="persona-datos">
+          <div class="persona-dato"><span class="persona-dato-label">Nacido</span><span class="persona-dato-val">~1841 · Criador de ganado</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Mercedes</span><span class="persona-dato-val">~1845 · Ella misma huérfana</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Casados</span><span class="persona-dato-val">~1860 · Ambos sabían leer y escribir</span></div>
+        </div>
+      </div>
+      <div class="persona-card destacado reveal">
+        <div class="persona-numero">05</div>
+        <div class="persona-rol">⭐ El Bisabuelo</div>
+        <div class="persona-nombre">Juan Francisco<br>Reyes Escalada</div>
+        <div class="persona-datos">
+          <div class="persona-dato"><span class="persona-dato-label">Nacido</span><span class="persona-dato-val">~1868–1870, Salavagasta</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Profesión</span><span class="persona-dato-val">Labrador · Mestizo</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Educación</span><span class="persona-dato-val">Estudió para cura en Córdoba</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Rol social</span><span class="persona-dato-val">Bautizaba niños · rezaba en velorios</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Enterrado</span><span class="persona-dato-val">Rubia Paso</span></div>
+        </div>
+      </div>
+      <div class="persona-card destacado reveal">
+        <div class="persona-numero">06</div>
+        <div class="persona-rol">⭐ La Bisabuela</div>
+        <div class="persona-nombre">Paula Maldonado</div>
+        <div class="persona-datos">
+          <div class="persona-dato"><span class="persona-dato-label">Nacida</span><span class="persona-dato-val">~1871, Salavagasta</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Profesión</span><span class="persona-dato-val">Costurera · Mestiza</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Padre</span><span class="persona-dato-val">Jorge Miguel Maldonado</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Madre</span><span class="persona-dato-val">Gregoria Herrera</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Casada</span><span class="persona-dato-val">1888, Villa Atamisqui</span></div>
+        </div>
+      </div>
+      <div class="persona-card reveal">
+        <div class="persona-numero">07</div>
+        <div class="persona-rol">Familiar de Vicenta · Testigo 1913</div>
+        <div class="persona-nombre">Rosa Escalada</div>
+        <div class="persona-datos">
+          <div class="persona-dato"><span class="persona-dato-label">Activa en</span><span class="persona-dato-val">1913, Mailín</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Rol</span><span class="persona-dato-val">Madrina del bautismo de Manuel Francisco</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Nota</span><span class="persona-dato-val">Hermana o prima de Vicenta — puente hacia los abuelos biológicos</span></div>
+        </div>
+      </div>
+      <div class="persona-card reveal">
+        <div class="persona-numero">08</div>
+        <div class="persona-rol">El Abuelo · Dos Matrimonios</div>
+        <div class="persona-nombre">Nicacio Reyes</div>
+        <div class="persona-datos">
+          <div class="persona-dato"><span class="persona-dato-label">Nacido</span><span class="persona-dato-val">~1902 — † ~1995 · 93 años · Pinto</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">1° esposa</span><span class="persona-dato-val">Mencía Córdoba (Icaño) · Hijos: Segunda, Goyo, Lucía — todos en Pinto</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">2° esposa</span><span class="persona-dato-val">Máxima Pacheco (15 años al casarse) · Rubia Paso · † Pinto</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Varones</span><span class="persona-dato-val">Juan Francisco · Miguel · Hugo · Negro · Picho · Estanislada — Buenos Aires</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Mujeres</span><span class="persona-dato-val">Jorgelina Reyes — Pinto</span></div>
+          <div class="persona-dato"><span class="persona-dato-label">Nota</span><span class="persona-dato-val">Negro y Picho son apodos · nombres completos a confirmar</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="documentos" class="documentos">
+  <div class="container">
+    <p class="section-label reveal">IV — Los Registros</p>
+    <h2 class="section-title reveal">Documentos que <em>Sobrevivieron</em></h2>
+    <div class="section-rule reveal"><div class="section-rule-dot"></div><div class="section-rule-line"></div></div>
+    <p class="reveal" style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--sepia);font-style:italic;margin-bottom:36px;line-height:1.7;">Todos localizados en FamilySearch — digitalizado por la Diócesis de Añatuya y el Archivo General de la Nación Argentina.</p>
+    <div class="doc-grid">
+      <div class="doc-card reveal">
+        <div class="doc-year">1885</div>
+        <div class="doc-title">Acta de Defunción — Vicenta Escalada</div>
+        <p class="doc-text">Fallecida el 9 de noviembre, 36 años, pulmonía, en su casa de Salavagasta. Casada con Felipe Sequeira. Hija legítima de los finados Pedro Escalada y Josefa Rodríguez. Enterrada el día 10. Misa cantada el día 23.</p>
+        <p class="doc-source">Cura: Victorino Bravo · Parroquia de Atamisqui</p>
+      </div>
+      <div class="doc-card reveal">
+        <div class="doc-year">1888</div>
+        <div class="doc-title">Acta de Matrimonio N° 49</div>
+        <p class="doc-text">Juan Francisco Reyes Escalada (18 años, labrador, mestizo, huérfano, hijo de Vicenta Escalada) se casó con Paula Maldonado (18 años, costurera, mestiza, hija de Jorge Miguel Maldonado y Gregoria Herrera). Testigos: Gregorio Acuña, Cenobio Jiménez, Nicolaza Herrera y Doroteo Tolosa.</p>
+        <p class="doc-source">Cura: Miguel A. Cleff · Parroquia Inmaculada Concepción, Villa Atamisqui</p>
+      </div>
+      <div class="doc-card reveal">
+        <div class="doc-year">1895</div>
+        <div class="doc-title">Segundo Censo Nacional</div>
+        <p class="doc-text">Juan Francisco (27 años, huérfano) y Paula (24 años), casados hace 6 años, viviendo con Hermenegildo (54, criador) y Mercedes (50) en Salavagasta. Juan Francisco sabe leer y escribir — rarísimo para la época y el lugar.</p>
+        <p class="doc-source">Archivo General de la Nación · FamilySearch</p>
+      </div>
+      <div class="doc-card reveal">
+        <div class="doc-year">1897</div>
+        <div class="doc-title">Bautismo de Estanislao Reyes</div>
+        <p class="doc-text">Nacido el 7 de mayo de 1896 en el paraje Carmona. Bautizado el 12 de agosto de 1897. Padrinos: Juan de la Cruz Toloza y Carmen Cañiza, su esposa, de Salavagasta.</p>
+        <p class="doc-source">Cura: Benjamín Argañaras · Parroquia de Mailín</p>
+      </div>
+      <div class="doc-card reveal">
+        <div class="doc-year">1899</div>
+        <div class="doc-title">Matrimonio Ezequiel Escalada y Felisa Sequeira</div>
+        <p class="doc-text">Felisa Sequeira (22 años, costurera) era hija legítima de Felipe Sequeira y la finada Vicenta Escalada — confirmando que Juan Francisco tenía una hermanastra que vivió en Salavagasta. Ezequiel era hijo de Isidro Escalada y Serafina Sardos.</p>
+        <p class="doc-source">Cura: Benjamín Argañaras · Parroquia de Atamisqui · 31 julio 1899</p>
+      </div>
+      <div class="doc-card reveal">
+        <div class="doc-year">1913</div>
+        <div class="doc-title">Bautismo de Manuel Francisco Reyes</div>
+        <p class="doc-text">Nacido en 1912, bautizado en marzo de 1913. Padrinos: Leonardo Reyes y Rosa Escalada — familiar de Vicenta que mantuvo el vínculo familiar hasta 1913. Partida N° 613, Hoja 307.</p>
+        <p class="doc-source">Cura: Ramón Terre · Parroquia de Mailín</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="arbol" class="arbol">
+  <div class="tree reveal">
+    <p class="section-label" style="text-align:center">V — El Árbol</p>
+    <h2 class="section-title" style="text-align:center;color:var(--gold-bright);margin-bottom:8px;">Árbol <em style="color:var(--parchment-light)">Genealógico</em></h2>
+    <div class="section-rule" style="justify-content:center;"><div class="section-rule-dot"></div><div class="section-rule-line" style="max-width:200px;"></div></div>
+    <div class="tree-sep"></div>
+
+    <div class="tree-gen-label">Bisabuelos Biológicos y Adoptivos</div>
+    <div class="tree-row">
+      <div class="tree-group reveal-left">
+        <div class="tree-group-label">Rama Biológica</div>
         <div class="tree-union">
-          <div class="tree-person main">
-            <div class="tree-person-name">Juan Francisco Reyes Escalada</div>
-            <div class="tree-person-years">~1870 · Labrador · Estudió para cura · Huérfano adoptado</div>
-          </div>
-          <span class="tree-plus" style="color: var(--gold-light); font-size: 1.3rem;">+</span>
-          <div class="tree-person main">
-            <div class="tree-person-name">Paula Maldonado</div>
-            <div class="tree-person-years">~1871 · Costurera · Salavagasta</div>
-          </div>
+          <div class="tree-node unknown"><div class="tree-node-name">Pedro Escalada</div><div class="tree-node-detail">por identificar</div></div>
+          <span class="tree-plus">+</span>
+          <div class="tree-node unknown"><div class="tree-node-name">Josefa Rodríguez</div><div class="tree-node-detail">por identificar</div></div>
+        </div>
+      </div>
+      <div class="tree-group reveal">
+        <div class="tree-group-label">Familia Adoptiva</div>
+        <div class="tree-union">
+          <div class="tree-node"><div class="tree-node-name">Hermenegildo Reyes</div><div class="tree-node-detail">~1841 · Criador</div></div>
+          <span class="tree-plus">+</span>
+          <div class="tree-node"><div class="tree-node-name">Mercedes</div><div class="tree-node-detail">~1845 · Huérfana</div></div>
+        </div>
+      </div>
+      <div class="tree-group reveal-right">
+        <div class="tree-group-label">Padres de Paula</div>
+        <div class="tree-union">
+          <div class="tree-node"><div class="tree-node-name">Jorge Miguel Maldonado</div><div class="tree-node-detail">Salavagasta</div></div>
+          <span class="tree-plus">+</span>
+          <div class="tree-node"><div class="tree-node-name">Gregoria Herrera</div><div class="tree-node-detail">Salavagasta</div></div>
         </div>
       </div>
     </div>
 
-    <div class="tree-connector">↓</div>
+    <div class="tree-sep"></div>
+    <div class="tree-gen-label">Generación I — Los Bisabuelos · Casados 1888, Villa Atamisqui</div>
+    <div class="tree-row reveal">
+      <div class="tree-union">
+        <div class="tree-node main"><div class="tree-node-name gold">Juan Francisco Reyes Escalada</div><div class="tree-node-detail">~1870 · Labrador · Estudió para cura · Huérfano adoptado</div></div>
+        <span class="tree-plus" style="font-size:1.3rem">✦</span>
+        <div class="tree-node main"><div class="tree-node-name gold">Paula Maldonado</div><div class="tree-node-detail">~1871 · Costurera · Salavagasta</div></div>
+      </div>
+    </div>
 
-    <!-- GENERACIÓN II — Hijos -->
-    <div class="tree-gen">
-      <div class="tree-gen-label">Generación II — Los Hijos</div>
-      <div class="tree-row">
-        <div class="tree-person">
-          <div class="tree-person-name">Estanislao Reyes</div>
-          <div class="tree-person-years">n. 7 mayo 1896 · Carmona</div>
+    <div class="tree-arrow reveal">↓</div>
+    <div class="tree-gen-label">Generación II — Los Hijos</div>
+    <div class="tree-row reveal">
+      <div class="tree-node"><div class="tree-node-name">Estanislao Reyes</div><div class="tree-node-detail">n. 7 mayo 1896 · Carmona</div></div>
+      <div class="tree-node main"><div class="tree-node-name gold">Nicacio Reyes</div><div class="tree-node-detail">~1902 — † ~1995 · 93 años</div></div>
+      <div class="tree-node"><div class="tree-node-name">Manuel Francisco Reyes</div><div class="tree-node-detail">n. 1912 · Mailín</div></div>
+    </div>
+
+    <div class="tree-arrow reveal">↓</div>
+    <div class="tree-gen-label">Nicacio Reyes — Dos Matrimonios</div>
+    <div class="tree-row reveal">
+      <div class="tree-group">
+        <div class="tree-group-label">1° Matrimonio</div>
+        <div class="tree-union">
+          <div class="tree-node main"><div class="tree-node-name gold">Nicacio Reyes</div></div>
+          <span class="tree-plus">+</span>
+          <div class="tree-node"><div class="tree-node-name">Mencía Córdoba</div><div class="tree-node-detail">Icaño · † joven</div></div>
         </div>
-        <div class="tree-person main">
-          <div class="tree-person-name">Nicacio Reyes</div>
-          <div class="tree-person-years">~1902 — †~1995 · 93 años</div>
+        <div class="tree-arrow" style="letter-spacing:0">↓</div>
+        <div class="tree-row" style="gap:6px;">
+          <div class="tree-node" style="padding:8px 10px;"><div class="tree-node-name" style="font-size:0.8rem">Segunda</div><div class="tree-node-detail">Pinto</div></div>
+          <div class="tree-node" style="padding:8px 10px;"><div class="tree-node-name" style="font-size:0.8rem">Goyo</div><div class="tree-node-detail">Pinto</div></div>
+          <div class="tree-node" style="padding:8px 10px;"><div class="tree-node-name" style="font-size:0.8rem">Lucía</div><div class="tree-node-detail">Pinto</div></div>
         </div>
-        <div class="tree-person">
-          <div class="tree-person-name">Manuel Francisco Reyes</div>
-          <div class="tree-person-years">n. 1912 · Mailín</div>
+      </div>
+      <div class="tree-group">
+        <div class="tree-group-label">2° Matrimonio · viudo</div>
+        <div class="tree-union">
+          <div class="tree-node main"><div class="tree-node-name gold">Nicacio Reyes</div><div class="tree-node-detail">Rubia Paso</div></div>
+          <span class="tree-plus">+</span>
+          <div class="tree-node main"><div class="tree-node-name gold">Máxima Pacheco</div><div class="tree-node-detail">15 años al casarse · † Pinto</div></div>
+        </div>
+        <div class="tree-arrow" style="letter-spacing:0">↓</div>
+        <!-- Hijos varones: Buenos Aires -->
+        <div class="tree-gen-label" style="margin-top:6px;">Varones — Buenos Aires</div>
+        <div class="tree-row" style="gap:6px; flex-wrap:wrap; max-width:500px;">
+          <div class="tree-node" style="padding:8px 12px;">
+            <div class="tree-node-name" style="font-size:0.8rem">Juan Francisco</div>
+            <div class="tree-node-detail">Buenos Aires</div>
+          </div>
+          <div class="tree-node" style="padding:8px 12px;">
+            <div class="tree-node-name" style="font-size:0.8rem">Miguel</div>
+            <div class="tree-node-detail">Buenos Aires</div>
+          </div>
+          <div class="tree-node" style="padding:8px 12px;">
+            <div class="tree-node-name" style="font-size:0.8rem">Hugo</div>
+            <div class="tree-node-detail">Buenos Aires</div>
+          </div>
+          <div class="tree-node" style="padding:8px 12px;">
+            <div class="tree-node-name" style="font-size:0.8rem">Negro <span style="color:var(--sepia-light);font-size:0.6rem">(apodo)</span></div>
+            <div class="tree-node-detail">Buenos Aires</div>
+          </div>
+          <div class="tree-node" style="padding:8px 12px;">
+            <div class="tree-node-name" style="font-size:0.8rem">Picho <span style="color:var(--sepia-light);font-size:0.6rem">(apodo)</span></div>
+            <div class="tree-node-detail">Buenos Aires</div>
+          </div>
+          <div class="tree-node" style="padding:8px 12px;">
+            <div class="tree-node-name" style="font-size:0.8rem">Estanislada Reyes</div>
+            <div class="tree-node-detail">Pinto ↓ ver rama</div>
+          </div>
+        </div>
+        <!-- Hijas mujeres: Pinto -->
+        <div class="tree-gen-label" style="margin-top:14px;">Mujeres — Pinto</div>
+        <div class="tree-row" style="gap:6px; flex-wrap:wrap; max-width:300px;">
+          <div class="tree-node main" style="padding:8px 12px;">
+            <div class="tree-node-name gold" style="font-size:0.85rem">Jorgelina Reyes</div>
+            <div class="tree-node-detail">Pinto, Santiago del Estero</div>
+          </div>
+        </div>
+        <p style="font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.3em;color:var(--sepia-mid);text-align:center;margin-top:10px;">* Nombres completos de apodos por confirmar</p>
+      </div>
+    </div>
+
+    <div class="tree-sep"></div>
+
+    <!-- ESTANISLADA Y FAMILIA CONTRERAS -->
+    <div class="tree-gen-label">Rama Estanislada Céspedes — Pinto</div>
+    <div class="tree-row reveal">
+      <div class="tree-group">
+        <div class="tree-union">
+          <div class="tree-node main"><div class="tree-node-name gold">Estanislada Reyes</div><div class="tree-node-detail">Pinto</div></div>
+          <span class="tree-plus">+</span>
+          <div class="tree-node"><div class="tree-node-name">Catalino Contreras</div><div class="tree-node-detail">Pinto</div></div>
+        </div>
+        <div class="tree-arrow" style="letter-spacing:0">↓</div>
+        <div class="tree-row" style="gap:16px; flex-wrap:wrap; justify-content:center;">
+
+          <!-- MARIO -->
+          <div class="tree-group">
+            <div class="tree-node" style="padding:8px 14px;">
+              <div class="tree-node-name" style="font-size:0.85rem">Mario Contreras</div>
+              <div class="tree-node-detail">Pinto</div>
+            </div>
+          </div>
+
+          <!-- WALTER Y SU FAMILIA -->
+          <div class="tree-group">
+            <div class="tree-union">
+              <div class="tree-node main" style="padding:8px 14px;">
+                <div class="tree-node-name gold" style="font-size:0.85rem">Walter Contreras</div>
+              </div>
+              <span class="tree-plus">+</span>
+              <div class="tree-node" style="padding:8px 14px;">
+                <div class="tree-node-name" style="font-size:0.85rem">Romina Cejas</div>
+              </div>
+            </div>
+            <div class="tree-arrow" style="letter-spacing:0">↓</div>
+            <div class="tree-row" style="gap:8px; justify-content:center;">
+              <div class="tree-node" style="padding:8px 12px;border-color:var(--gold-bright);border-width:2px;">
+                <div class="tree-node-name gold" style="font-size:0.8rem">Esteban Contreras</div>
+                <div class="tree-node-detail">La nueva generación</div>
+              </div>
+              <div class="tree-node" style="padding:8px 12px;border-color:var(--gold-bright);border-width:2px;">
+                <div class="tree-node-name gold" style="font-size:0.8rem">Celeste Contreras</div>
+                <div class="tree-node-detail">La nueva generación</div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
 
-    <div class="tree-connector">↓ (Nicacio)</div>
-
-    <!-- GENERACIÓN III — Nicacio y sus dos matrimonios -->
-    <div class="tree-gen">
-      <div class="tree-gen-label">Generación III — Nicacio Reyes · Dos Matrimonios</div>
-      <div class="tree-row">
-
-        <!-- Primer matrimonio -->
-        <div class="tree-block">
-          <div class="tree-branch-label">1° Matrimonio</div>
-          <div class="tree-union">
-            <div class="tree-person main">
-              <div class="tree-person-name">Nicacio Reyes</div>
-              <div class="tree-person-years">~1902</div>
-            </div>
-            <span class="tree-plus">+</span>
-            <div class="tree-person">
-              <div class="tree-person-name">Mencía Córdoba</div>
-              <div class="tree-person-years">Icaño · †joven</div>
-            </div>
-          </div>
-          <div class="tree-down">↓</div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
-            <div class="tree-person">
-              <div class="tree-person-name">Segunda Reyes</div>
-            </div>
-            <div class="tree-person">
-              <div class="tree-person-name">Gregorio (Goyo)</div>
-            </div>
-            <div class="tree-person">
-              <div class="tree-person-name">Lucía Reyes</div>
-            </div>
-          </div>
+    <div class="tree-sep"></div>
+    <div class="tree-gen-label">Hoy — Los Reyes en Argentina</div>
+    <div class="tree-row reveal">
+      <div class="tree-node main" style="padding:16px 32px;border-width:2px;border-color:var(--gold-bright);">
+        <div class="tree-node-name gold" style="font-size:1.1rem">Familia Reyes</div>
+        <div class="tree-node-detail" style="font-size:0.75rem;margin-top:6px;">
+          Salavagasta · Pinto · Rubia Paso · El Cuadrado<br>
+          <span style="color:var(--gold);font-size:0.7rem">Varones → Buenos Aires &nbsp;·&nbsp; Mujeres → Pinto</span>
         </div>
-
-        <!-- Segundo matrimonio -->
-        <div class="tree-block">
-          <div class="tree-branch-label">2° Matrimonio · viudo</div>
-          <div class="tree-union">
-            <div class="tree-person main">
-              <div class="tree-person-name">Nicacio Reyes</div>
-              <div class="tree-person-years">Rubia Paso</div>
-            </div>
-            <span class="tree-plus">+</span>
-            <div class="tree-person main">
-              <div class="tree-person-name">Máxima Pacheco</div>
-              <div class="tree-person-years">15 años al casarse · †Pinto</div>
-            </div>
-          </div>
-          <div class="tree-down">↓</div>
-          <div class="tree-person main">
-            <div class="tree-person-name">Jorgelina Reyes</div>
-            <div class="tree-person-years">Pinto, Santiago del Estero</div>
-          </div>
-        </div>
-
       </div>
     </div>
 
-    <div class="tree-connector">↓</div>
+    <div class="tree-sep"></div>
 
-    <div class="tree-gen">
-      <div class="tree-gen-label">Hoy — Los Reyes en Argentina</div>
-      <div class="tree-person" style="background: rgba(184,134,11,0.3); border-color: var(--gold-light);">
-        <div class="tree-person-name">Familia Reyes</div>
-        <div class="tree-person-years">Pinto · Rubia Paso · Buenos Aires · San Miguel · San Martín</div>
+    <!-- JORGELINA -->
+    <div class="tree-gen-label">Generación IV — Jorgelina Reyes</div>
+    <div class="tree-row reveal">
+      <div class="tree-union">
+        <div class="tree-node main"><div class="tree-node-name gold">Jorgelina Reyes</div><div class="tree-node-detail">Pinto, Santiago del Estero</div></div>
+        <span class="tree-plus">+</span>
+        <div class="tree-node main"><div class="tree-node-name gold">Hilario Céspedes</div><div class="tree-node-detail">Pinto</div></div>
+      </div>
+    </div>
+
+    <div class="tree-arrow reveal">↓</div>
+
+    <!-- HIJOS: JORGE, LUIS Y JUAN -->
+    <div class="tree-gen-label">Generación V — Los hijos</div>
+    <div class="tree-row reveal">
+      <div class="tree-group">
+        <div class="tree-union">
+          <div class="tree-node main"><div class="tree-node-name gold">Jorge Céspedes</div></div>
+          <span class="tree-plus">+</span>
+          <div class="tree-node"><div class="tree-node-name">María Góngora</div></div>
+        </div>
+        <div class="tree-arrow" style="letter-spacing:0">↓</div>
+        <div class="tree-row" style="gap:6px; flex-wrap:wrap; justify-content:center;">
+          <div class="tree-node" style="padding:8px 12px;"><div class="tree-node-name" style="font-size:0.85rem">Matilde</div></div>
+          <div class="tree-node" style="padding:8px 12px;"><div class="tree-node-name" style="font-size:0.85rem">Jazmín</div></div>
+          <div class="tree-node" style="padding:8px 12px;"><div class="tree-node-name" style="font-size:0.85rem">Alina</div></div>
+        </div>
+      </div>
+
+      <div class="tree-group" style="margin-left:20px;">
+        <div class="tree-node"><div class="tree-node-name">Luis Céspedes</div><div class="tree-node-detail">separado · sin hijos</div></div>
+      </div>
+
+      <div class="tree-group" style="margin-left:20px;">
+        <div class="tree-union">
+          <div class="tree-node main"><div class="tree-node-name gold">Juan Céspedes</div><div class="tree-node-detail">autor de esta investigación</div></div>
+          <span class="tree-plus">+</span>
+          <div class="tree-node main"><div class="tree-node-name gold">Reina Crespín</div><div class="tree-node-detail">su señora</div></div>
+        </div>
+        <div class="tree-arrow" style="letter-spacing:0">↓</div>
+        <div class="tree-row" style="gap:6px; justify-content:center;">
+          <div class="tree-node" style="padding:8px 12px;border-color:var(--gold-bright);border-width:2px;">
+            <div class="tree-node-name gold" style="font-size:0.85rem">Augusto</div>
+            <div class="tree-node-detail">La nueva generación</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- HOY -->
-<section id="hoy" class="descendants-section">
-  <div class="section" style="padding-top: 0; padding-bottom: 0;">
-    <p class="section-number">V — El Presente</p>
-    <div class="section-title-ornament">
-      <h2 class="section-title">Los Reyes Hoy</h2>
-      <div class="ornament-line right"></div>
+<section id="contacto" class="contacto">
+  <div class="container" style="position:relative;z-index:1;">
+    <p class="section-label reveal">VI — Nos Buscamos</p>
+    <h2 class="section-title reveal">¿Sos descendiente<br><em>de Salavagasta?</em></h2>
+    <div class="section-rule reveal" style="justify-content:center;"><div class="section-rule-dot"></div><div class="section-rule-line" style="max-width:200px;"></div></div>
+    <p class="contacto-desc reveal">Estamos reconstruyendo el árbol genealógico completo de las familias de Salavagasta. Si sos descendiente — no importa qué apellido llevés hoy — escribinos por WhatsApp. Queremos saber de dónde venís, qué recordás, qué fotos o documentos tenés. Entre todos lo armamos.</p>
+    <div class="apellidos-wrap reveal">
+      <span class="apellido-tag">Reyes</span><span class="apellido-tag">Escalada</span><span class="apellido-tag">Maldonado</span><span class="apellido-tag">Herrera</span><span class="apellido-tag">Tolosa</span><span class="apellido-tag">Acuña</span><span class="apellido-tag">Jiménez</span><span class="apellido-tag">Cañiza</span><span class="apellido-tag">Pacheco</span><span class="apellido-tag">Sequeira</span><span class="apellido-tag">Córdoba</span><span class="apellido-tag">Rodríguez</span>
     </div>
-    <p style="line-height: 1.85; color: var(--brown-deep); margin-bottom: 10px;">
-      De un huérfano recogido en la frontera del Chaco en 1870, nació una familia que hoy se 
-      extiende por toda Argentina. Cada Reyes que existe hoy lleva en su apellido la historia 
-      de Vicenta Escalada, de Hermenegildo y Mercedes, y de Juan Francisco — el seminarista 
-      que se enamoró.
-    </p>
-  </div>
-  <div class="descendants-grid">
-    <div class="descendant-place">
-      <div class="descendant-place-name">Salavagasta</div>
-      <div class="descendant-place-detail">Santiago del Estero<br>Donde todo comenzó</div>
+    <div class="encuentro-box reveal">
+      <div class="encuentro-titulo">Armemos el Árbol Genealógico Completo</div>
+      <p class="encuentro-texto">Cada familiar que se suma aporta una rama nueva. ¿Sabés quiénes eran tus abuelos o bisabuelos? ¿Tenés fotos viejas, cartas, documentos? ¿Recordás historias que te contaron? Todo suma para reconstruir la historia completa de las familias de Salavagasta.</p>
+      <p class="encuentro-lugar">📍 Pinto · Rubia Paso · Salavagasta — y desde Buenos Aires también</p>
     </div>
-    <div class="descendant-place">
-      <div class="descendant-place-name">Pinto</div>
-      <div class="descendant-place-detail">Santiago del Estero<br>Donde están enterrados los bisabuelos</div>
+    <div class="reveal">
+      <a href="https://wa.me/543854102266?text=Hola%21%20Vi%20la%20p%C3%A1gina%20de%20la%20Familia%20Reyes%20de%20Salavagasta.%20Me%20gustar%C3%ADa%20sumarme%20para%20armar%20el%20%C3%A1rbol%20geneal%C3%B3gico%20completo%20%E2%80%94%20%C2%BFme%20pod%C3%A9s%20contar%20de%20qu%C3%A9%20parte%20de%20la%20familia%20sos%3F" target="_blank" class="wa-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Escribinos por WhatsApp
+      </a>
+      <p class="contacto-numero">+54 385 410-2266 · Descendientes Reyes, Pinto</p>
     </div>
-    <div class="descendant-place">
-      <div class="descendant-place-name">Rubia Paso</div>
-      <div class="descendant-place-detail">Santiago del Estero<br>Donde vivió Nicacio Reyes</div>
-    </div>
-    <div class="descendant-place">
-      <div class="descendant-place-name">San Miguel</div>
-      <div class="descendant-place-detail">Buenos Aires<br>Rama Reyes</div>
-    </div>
-    <div class="descendant-place">
-      <div class="descendant-place-name">San Martín</div>
-      <div class="descendant-place-detail">Buenos Aires<br>Rama Reyes</div>
-    </div>
-    <div class="descendant-place">
-      <div class="descendant-place-name">El Cuadrado</div>
-      <div class="descendant-place-detail">Santiago del Estero<br>Donde falleció la abuela</div>
+    <div class="lugares-grid reveal">
+      <div class="lugar-item"><div class="lugar-nombre">Salavagasta</div><div class="lugar-detalle">Donde todo comenzó</div></div>
+      <div class="lugar-item"><div class="lugar-nombre">Pinto</div><div class="lugar-detalle">Santiago del Estero<br>Los bisabuelos</div></div>
+      <div class="lugar-item"><div class="lugar-nombre">Rubia Paso</div><div class="lugar-detalle">Nicacio Reyes</div></div>
+      <div class="lugar-item"><div class="lugar-nombre">El Cuadrado</div><div class="lugar-detalle">La abuela</div></div>
+      <div class="lugar-item"><div class="lugar-nombre">San Miguel</div><div class="lugar-detalle">Buenos Aires</div></div>
+      <div class="lugar-item"><div class="lugar-nombre">San Martín</div><div class="lugar-detalle">Buenos Aires</div></div>
     </div>
   </div>
 </section>
 
-<!-- CONTACTO Y ENCUENTRO -->
-    <h2 style="font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--gold-light); margin-bottom: 20px;">¿Sos descendiente de Salavagasta?</h2>
-
-    <div style="width: 200px; height: 1px; background: linear-gradient(90deg, transparent, var(--sepia), transparent); margin: 0 auto 30px;"></div>
-
-    <p style="color: var(--parchment); line-height: 1.9; font-size: 1rem; margin-bottom: 20px;">
-      Esta historia es también la tuya si en tu familia están los apellidos:
-    </p>
-
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 40px;">
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--gold-light); padding: 8px 20px; font-family: 'Playfair Display', serif; font-size: 1rem;">Reyes</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--gold-light); padding: 8px 20px; font-family: 'Playfair Display', serif; font-size: 1rem;">Maldonado</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--gold-light); padding: 8px 20px; font-family: 'Playfair Display', serif; font-size: 1rem;">Escalada</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--gold-light); padding: 8px 20px; font-family: 'Playfair Display', serif; font-size: 1rem;">Herrera</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--gold-light); padding: 8px 20px; font-family: 'Playfair Display', serif; font-size: 1rem;">Tolosa</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--gold-light); padding: 8px 20px; font-family: 'Playfair Display', serif; font-size: 1rem;">Pacheco</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--gold-light); padding: 8px 20px; font-family: 'Playfair Display', serif; font-size: 1rem;">Acuña</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--gold-light); padding: 8px 20px; font-family: 'Playfair Display', serif; font-size: 1rem;">Jiménez</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--gold-light); padding: 8px 20px; font-family: 'Playfair Display', serif; font-size: 1rem;">Cañiza</span>
-    </div>
-
-    <p style="color: #c8a96e; line-height: 1.9; font-size: 0.95rem; margin-bottom: 50px; font-style: italic;">
-      Muchos descendientes llevan apellidos distintos porque sus abuelas se casaron y 
-      cambiaron de apellido — pero la sangre de Salavagasta corre igual. 
-      Si tu familia viene de esa zona de Santiago del Estero, somos parte de la misma historia.
-    </p>
-
-    <!-- ENCUENTRO -->
-    <div style="background: rgba(184,134,11,0.1); border: 1px solid var(--sepia); border-top: 3px solid var(--gold); padding: 36px 30px; margin-bottom: 50px;">
-      <p style="font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--sepia-light); margin-bottom: 12px;">Propuesta</p>
-      <h3 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--cream); margin-bottom: 16px;">Primer Encuentro de Descendientes</h3>
-      <p style="color: var(--parchment); line-height: 1.85; font-size: 0.95rem; margin-bottom: 10px;">
-        Hay descendientes de estas familias en 
-        <strong style="color: var(--gold-light);">Buenos Aires</strong>, 
-        <strong style="color: var(--gold-light);">Córdoba</strong>,
-        <strong style="color: var(--gold-light);">Santiago del Estero</strong> y todo el país — 
-        muchos sin saber que comparten raíces en Salavagasta.
-      </p>
-      <p style="color: var(--parchment); line-height: 1.85; font-size: 0.95rem;">
-        La idea es organizar un encuentro en nuestra tierra para conocernos, compartir fotos, 
-        documentos y recuerdos — y seguir reconstruyendo juntos esta historia 
-        que nos pertenece a todos.
-      </p>
-      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(184,134,11,0.3);">
-        <p style="color: var(--sepia-light); font-size: 0.85rem; font-style: italic;">
-          📍 Lugar propuesto: <strong style="color: var(--gold-light);">Pinto · Rubia Paso · Salavagasta</strong> — donde todo empezó
-        </p>
-      </div>
-    </div>
-
-    <!-- WHATSAPP -->
-    <p style="color: var(--parchment); margin-bottom: 24px; font-size: 1rem; line-height: 1.7;">
-      Si tenés información, fotos, documentos o simplemente querés conectarte con 
-      otros descendientes de Salavagasta, escribinos:
-    </p>
-
-    <a href="https://wa.me/543854102266?text=Hola%2C%20vi%20la%20p%C3%A1gina%20de%20la%20Familia%20Reyes%20de%20Salavagasta%20y%20quiero%20conectarme" 
-       target="_blank"
-       style="display: inline-flex; align-items: center; gap: 14px; background: #25D366; color: white; text-decoration: none; padding: 18px 36px; font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; transition: all 0.3s; border-radius: 2px; box-shadow: 0 4px 20px rgba(37,211,102,0.3);">
-      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="white">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-      </svg>
-      Escribinos por WhatsApp
-    </a>
-
-    <p style="margin-top: 20px; color: var(--sepia-light); font-size: 0.85rem;">
-      Descendientes Reyes — Salavagasta, Santiago del Estero
-    </p>
-
-  </div>
-</section>
-
-<!-- ENCUENTRO Y CONTACTO -->
-<section style="background: linear-gradient(180deg, #2c1a06, #1a0f02); padding: 80px 30px; text-align: center;">
-  <div style="max-width: 700px; margin: 0 auto;">
-
-    <p style="font-family: 'Lora', serif; font-size: 0.8rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--sepia-light); margin-bottom: 12px;">VI — El Encuentro</p>
-
-    <h2 style="font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--gold-light); margin-bottom: 20px;">
-      ¿Sos descendiente de Salavagasta?
-    </h2>
-
-    <div style="width: 120px; height: 1px; background: linear-gradient(90deg, transparent, var(--sepia), transparent); margin: 0 auto 30px;">
-    </div>
-
-    <p style="font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.9; color: var(--parchment); margin-bottom: 20px;">
-      Esta historia pertenece a todos los que llevan sangre de las familias que vivieron en 
-      <strong style="color: var(--gold-light);">Salavagasta</strong> en el siglo XIX. 
-      No importa si tu apellido es Reyes — las mujeres de estas familias se casaron y 
-      cambiaron de apellido, pero la historia es la misma.
-    </p>
-
-    <p style="font-family: 'Lora', serif; font-size: 1.05rem; line-height: 1.9; color: var(--parchment); margin-bottom: 40px;">
-      Si descendés de alguna de estas familias, <em>te estamos buscando</em>:
-    </p>
-
-    <!-- Familias -->
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 50px;">
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--cream); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Reyes</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--cream); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Escalada</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--cream); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Maldonado</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--cream); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Herrera</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--cream); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Tolosa</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--cream); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Acuña</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--cream); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Jiménez</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--cream); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Cañiza</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--cream); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Pacheco</span>
-    </div>
-
-    <!-- Encuentro Córdoba -->
-    <div style="background: rgba(184,134,11,0.1); border: 1px solid var(--sepia); border-top: 3px solid var(--gold-light); padding: 30px; margin-bottom: 40px;">
-      <p style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold-light); margin-bottom: 12px;">
-        ✦ Encuentro de Descendientes ✦
-      </p>
-      <p style="font-family: 'Lora', serif; font-size: 0.95rem; color: var(--parchment); line-height: 1.8; margin-bottom: 16px;">
-        Estamos organizando un <strong style="color: var(--gold-light);">encuentro en Córdoba</strong> 
-        para reunir a los descendientes de las familias de Salavagasta dispersos por todo el país. 
-        Hay descendientes en Córdoba, Buenos Aires, Santiago del Estero y más provincias.
-      </p>
-      <p style="font-family: 'Lora', serif; font-size: 0.9rem; color: var(--sepia-light); font-style: italic;">
-        📍 Lugar y fecha a confirmar — sumate para organizarlo juntos
-      </p>
-    </div>
-
-    <!-- WhatsApp -->
-    <p style="font-family: 'Lora', serif; font-size: 0.9rem; color: var(--sepia-light); margin-bottom: 16px; font-style: italic;">
-      Escribinos, contanos de dónde venís y armamos el encuentro
-    </p>
-
-    <a href="https://wa.me/543854102266?text=Hola%2C%20soy%20descendiente%20de%20las%20familias%20de%20Salavagasta%20y%20encontr%C3%A9%20esta%20p%C3%A1gina" 
-       target="_blank"
-       style="display: inline-block; background: #25D366; color: white; font-family: 'Playfair Display', serif; font-size: 1.1rem; padding: 16px 40px; text-decoration: none; letter-spacing: 0.05em; transition: background 0.3s; margin-bottom: 12px;">
-      💬 Escribir por WhatsApp
-    </a>
-
-    <p style="font-family: 'Lora', serif; font-size: 0.85rem; color: var(--sepia-light); margin-top: 12px;">
-      Descendientes Reyes — Pinto, Santiago del Estero<br>
-      <span style="color: var(--sepia); font-size: 0.8rem;">+54 385 410-2266</span>
-    </p>
-
-  </div>
-</section>
-
-<!-- CONTACTO Y ENCUENTRO -->
-<section id="contacto" style="background: linear-gradient(135deg, #2c1a06, #1a0f02); padding: 80px 30px;">
-  <div style="max-width: 800px; margin: 0 auto; text-align: center;">
-    
-    <p style="font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--sepia-light); margin-bottom: 12px;">VI — Nos Buscamos</p>
-    <h2 style="font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--gold-light); margin-bottom: 20px;">¿Sos descendiente de Salavagasta?</h2>
-    
-    <div style="width: 200px; height: 1px; background: linear-gradient(90deg, transparent, var(--sepia), transparent); margin: 0 auto 40px;"></div>
-
-    <p style="color: var(--parchment); line-height: 1.9; font-size: 1rem; margin-bottom: 20px;">
-      Estamos buscando a todos los descendientes de las familias que vivieron en 
-      <strong style="color: var(--gold-light);">Salavagasta</strong> durante el siglo XIX. 
-      No importa si no llevás el apellido Reyes — muchos descendientes cambiaron de apellido 
-      con el tiempo. Si tu familia viene de esa zona y reconocés alguno de estos apellidos, 
-      queremos conocerte.
-    </p>
-
-    <!-- FAMILIAS -->
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 35px 0;">
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--parchment); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Reyes</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--parchment); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Escalada</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--parchment); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Maldonado</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--parchment); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Herrera</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--parchment); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Tolosa</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--parchment); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Acuña</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--parchment); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Jiménez</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--parchment); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Cañiza</span>
-      <span style="background: rgba(184,134,11,0.15); border: 1px solid var(--sepia); color: var(--parchment); padding: 8px 18px; font-family: 'Playfair Display', serif; font-size: 1rem;">Pacheco</span>
-    </div>
-
-    <!-- ENCUENTRO CÓRDOBA -->
-    <div style="background: rgba(184,134,11,0.12); border: 1px solid var(--sepia); border-top: 3px solid var(--gold-light); padding: 35px; margin: 40px 0; text-align: left;">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <span style="font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--sepia-light);">📍 Próximo Encuentro</span>
-      </div>
-      <h3 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--gold-light); text-align: center; margin-bottom: 16px;">
-        Encuentro de Descendientes<br>de Salavagasta
-      </h3>
-      <p style="color: var(--parchment); line-height: 1.85; text-align: center; font-size: 0.95rem;">
-        Sabemos que hay descendientes de estas familias en Buenos Aires, Córdoba, 
-        Santiago del Estero y por todo el país. 
-        La idea es organizar un primer encuentro en nuestra tierra de origen — 
-        <strong style="color: var(--gold-light);">Pinto, Salavagasta o Rubia Paso</strong> — 
-        para conocernos, compartir lo que cada uno sabe de su historia familiar 
-        y armar juntos el árbol completo de Salavagasta.
-      </p>
-      <p style="color: var(--sepia-light); text-align: center; margin-top: 16px; font-style: italic; font-size: 0.9rem;">
-        Si te interesa participar, escribinos — entre todos lo organizamos.
-      </p>
-    </div>
-
-    <!-- WHATSAPP -->
-    <p style="color: var(--sepia-light); margin-bottom: 20px; font-size: 0.9rem; font-style: italic;">
-      Contacto directo — Descendientes Reyes, Pinto (Santiago del Estero)
-    </p>
-    <a href="https://wa.me/543854102266?text=Hola%2C%20vi%20la%20p%C3%A1gina%20de%20la%20Familia%20Reyes%20de%20Salavagasta%20y%20me%20gustar%C3%ADa%20contactarme" 
-       target="_blank"
-       style="display: inline-flex; align-items: center; gap: 14px; background: #25D366; color: white; text-decoration: none; padding: 18px 36px; font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; transition: background 0.3s; border-radius: 2px;">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-      </svg>
-      Escribinos por WhatsApp
-    </a>
-    <p style="color: #4a3010; margin-top: 16px; font-size: 0.8rem;">+54 385 410-2266</p>
-  </div>
-</section>
-
-<!-- FOOTER -->
 <footer>
-  <div class="footer-title">Familia Reyes — Salavagasta</div>
-  <p>
-    Esta historia fue reconstruida a partir de registros parroquiales, 
-    censos nacionales y tradición oral familiar. Los documentos originales 
-    están resguardados en la <strong>Diócesis de Añatuya</strong> y en el 
-    <strong>Archivo General de la Nación Argentina</strong>, digitalizados 
-    por FamilySearch.
-  </p>
-  <p class="footer-note">
-    Investigación genealógica en curso · Salavagasta, Santiago del Estero · Siglo XIX–XXI<br>
-    <em>"Un nombre escrito en 1888 sobrevivió 155 años para contarnos quiénes somos."</em>
-  </p>
+  <div class="footer-title">FAMILIA REYES · SALAVAGASTA</div>
+  <p class="footer-text">Esta historia fue reconstruida a partir de registros parroquiales, censos nacionales y tradición oral familiar. Los documentos originales están en la Diócesis de Añatuya y el Archivo General de la Nación Argentina, digitalizados por FamilySearch.</p>
+  <p class="footer-frase">"Un nombre escrito en 1888 sobrevivió 155 años para contarnos quiénes somos."</p>
 </footer>
 
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('visible');
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach((el, i) => {
+  el.style.transitionDelay = `${(i % 4) * 0.08}s`;
+  observer.observe(el);
+});
+
+// Drag-to-scroll en el timeline horizontal
+const track = document.getElementById('htTrack');
+if (track) {
+  let isDown = false, startX, scrollLeft;
+  track.addEventListener('mousedown', e => {
+    isDown = true;
+    track.classList.add('grabbing');
+    startX = e.pageX - track.offsetLeft;
+    scrollLeft = track.scrollLeft;
+  });
+  track.addEventListener('mouseleave', () => { isDown = false; track.classList.remove('grabbing'); });
+  track.addEventListener('mouseup', () => { isDown = false; track.classList.remove('grabbing'); });
+  track.addEventListener('mousemove', e => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - track.offsetLeft;
+    track.scrollLeft = scrollLeft - (x - startX) * 1.5;
+  });
+  // Touch
+  let touchStartX, touchScrollLeft;
+  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].pageX; touchScrollLeft = track.scrollLeft; });
+  track.addEventListener('touchmove', e => {
+    const dx = touchStartX - e.touches[0].pageX;
+    track.scrollLeft = touchScrollLeft + dx;
+  });
+}
+</script>
 </body>
 </html>
