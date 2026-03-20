@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casares — Memorias del Departamento Aguirre</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Cormorant+Infant:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Crimson+Pro:ital,wght@0,200;0,300;0,400;0,600;1,200;1,400&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ══════════════════════════════════════════
+   VARIABLES & RESET
+══════════════════════════════════════════ */
+:root {
+  --cream:    #f7f1e3;
+  --cream2:   #efe8d5;
+  --parchment:#e8dfc8;
+  --ink:      #1c1409;
+  --ink2:     #2e2010;
+  --brown:    #5c3d1e;
+  --rust:     #7a2416;
+  --gold:     #a67c2e;
+  --gold2:    #c9a84c;
+  --muted:    #7a6a52;
+  --border:   #c4ae88;
+  --border2:  #d8c9aa;
+  --shadow:   rgba(28,20,9,0.12);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: #1c1409;
+  color: var(--ink);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ══════════════════════════════════════════
+   NOISE TEXTURE OVERLAY
+══════════════════════════════════════════ */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ══════════════════════════════════════════
+   PAGE WRAPPER
+══════════════════════════════════════════ */
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: var(--cream);
+  box-shadow: 0 0 80px rgba(0,0,0,0.6), 0 0 160px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 1;
+}
+
+/* ══════════════════════════════════════════
+   MASTHEAD
+══════════════════════════════════════════ */
+.masthead {
+  background: var(--ink);
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.masthead-top {
+  background: var(--rust);
+  padding: 10px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.masthead-top-text {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: rgba(247,241,227,0.75);
+  text-transform: uppercase;
+}
+
+.masthead-inner {
+  padding: 52px 48px 44px;
+  text-align: center;
+  position: relative;
+}
+
+.masthead-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(166,124,46,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.masthead-province {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 8px;
+  color: var(--gold2);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.masthead-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(72px, 12vw, 128px);
+  font-weight: 300;
+  line-height: 0.9;
+  color: var(--cream);
+  letter-spacing: -3px;
+  position: relative;
+}
+
+.masthead-title span {
+  display: block;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--gold2);
+  font-size: 0.55em;
+  letter-spacing: 2px;
+  line-height: 1.8;
+}
+
+.masthead-ornament {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 28px 0;
+}
+.masthead-ornament::before,
+.masthead-ornament::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+}
+.masthead-ornament-diamond {
+  width: 8px; height: 8px;
+  background: var(--gold2);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.masthead-sub {
+  font-family: 'Cormorant Infant', serif;
+  font-style: italic;
+  font-size: 20px;
+  color: rgba(247,241,227,0.65);
+  letter-spacing: 1px;
+  margin-bottom: 28px;
+}
+
+.masthead-meta {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.masthead-meta-item {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(247,241,227,0.45);
+  text-transform: uppercase;
+}
+
+.masthead-meta-item strong {
+  display: block;
+  color: var(--gold2);
+  font-size: 10px;
+  letter-spacing: 2px;
+  margin-bottom: 2px;
+}
+
+/* ══════════════════════════════════════════
+   NAV / INDEX
+══════════════════════════════════════════ */
+.nav-bar {
+  background: var(--ink2);
+  padding: 0 48px;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(166,124,46,0.3);
+}
+
+.nav-bar a {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(247,241,227,0.5);
+  text-decoration: none;
+  padding: 14px 20px;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.25s;
+}
+
+.nav-bar a:hover {
+  color: var(--gold2);
+  border-bottom-color: var(--gold2);
+}
+
+/* ══════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════ */
+.content {
+  padding: 0 48px 72px;
+  background: var(--cream);
+}
+
+@media(max-width:640px) {
+  .content { padding: 0 22px 56px; }
+  .masthead-inner { padding: 36px 22px 32px; }
+  .masthead-top { padding: 8px 22px; }
+  .nav-bar { padding: 0 22px; }
+}
+
+/* ══════════════════════════════════════════
+   LEAD / INTRO
+══════════════════════════════════════════ */
+.lead {
+  padding: 56px 0 48px;
+  text-align: center;
+  border-bottom: 1px solid var(--border2);
+  margin-bottom: 64px;
+}
+
+.lead-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.lead-eyebrow::before,
+.lead-eyebrow::after {
+  content: '';
+  width: 40px; height: 1px;
+  background: var(--rust);
+}
+
+.lead p {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.75;
+  color: var(--brown);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.lead p::first-letter {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 90px;
+  font-weight: 700;
+  float: left;
+  line-height: 0.72;
+  margin: 8px 10px 0 0;
+  color: var(--rust);
+}
+
+/* ══════════════════════════════════════════
+   SECTION HEADER
+══════════════════════════════════════════ */
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  margin-bottom: 40px;
+}
+
+.section-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 120px;
+  font-weight: 700;
+  line-height: 0.85;
+  color: var(--border2);
+  flex-shrink: 0;
+  margin-top: -8px;
+  user-select: none;
+}
+
+.section-titles { flex: 1; padding-top: 6px; }
+
+.section-tag {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--rust);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.section-tag::after {
+  content: '';
+  width: 32px; height: 1px;
+  background: var(--rust);
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 4.5vw, 48px);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.section-title em {
+  font-style: italic;
+  color: var(--rust);
+}
+
+.section-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: 14px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════
+   ARTICLE BLOCK
+══════════════════════════════════════════ */
+.article-block {
+  margin-bottom: 80px;
+  padding-bottom: 80px;
+  border-bottom: 1px solid var(--border2);
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.article-block.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.article-block:last-of-type {
+  border-bottom: none;
+}
+
+/* ══════════════════════════════════════════
+   ARTICLE BODY — 2 COLS
+══════════════════════════════════════════ */
+.article-body {
+  column-count: 2;
+  column-gap: 48px;
+  column-rule: 1px solid var(--border2);
+}
+
+@media(max-width:620px) {
+  .article-body { column-count: 1; }
+  .section-num { font-size: 72px; }
+}
+
+.article-body p {
+  font-size: 16.5px;
+  line-height: 1.85;
+  color: var(--ink2);
+  margin-bottom: 18px;
+  text-align: justify;
+  hyphens: auto;
+  break-inside: avoid;
+}
+
+.article-body p:first-child::first-letter {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 64px;
+  font-weight: 700;
+  float: left;
+  line-height: 0.78;
+  margin: 6px 8px 0 0;
+  color: var(--rust);
+}
+
+/* ══════════════════════════════════════════
+   PULL QUOTE
+══════════════════════════════════════════ */
+.pull-quote {
+  column-span: all;
+  margin: 36px 0;
+  padding: 28px 40px;
+  background: var(--ink);
+  position: relative;
+}
+
+.pull-quote::before {
+  content: '\201C';
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 120px;
+  font-weight: 700;
+  color: var(--rust);
+  line-height: 0.7;
+  position: absolute;
+  top: 16px; left: 24px;
+  opacity: 0.6;
+}
+
+.pull-quote p {
+  font-family: 'Cormorant Infant', serif;
+  font-size: clamp(18px, 2.5vw, 24px);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--cream);
+  line-height: 1.6;
+  text-align: center;
+  padding: 0 32px;
+  position: relative; z-index: 1;
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+.pull-quote p::first-letter { all: unset; }
+
+/* ══════════════════════════════════════════
+   SUBHEADING DENTRO DEL ARTÍCULO
+══════════════════════════════════════════ */
+.art-subhead {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ink);
+  margin: 24px 0 10px;
+  break-inside: avoid;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.art-subhead::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--border2);
+}
+
+/* ══════════════════════════════════════════
+   NOTA / FUENTE
+══════════════════════════════════════════ */
+.art-note {
+  column-span: all;
+  margin-top: 28px;
+  padding: 16px 22px;
+  border-left: 3px solid var(--gold);
+  background: rgba(166,124,46,0.06);
+  font-size: 13.5px;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.art-note strong {
+  font-style: normal;
+  color: var(--brown);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* ══════════════════════════════════════════
+   DECORATIVE DIVIDER
+══════════════════════════════════════════ */
+.ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 64px 0;
+}
+.ornament-line {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+}
+.ornament-center {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ornament-diamond {
+  width: 7px; height: 7px;
+  background: var(--gold);
+  transform: rotate(45deg);
+}
+.ornament-diamond.sm {
+  width: 4px; height: 4px;
+  background: var(--border);
+}
+
+/* ══════════════════════════════════════════
+   SIDEBAR HIGHLIGHT BOX
+══════════════════════════════════════════ */
+.highlight-box {
+  background: var(--ink);
+  padding: 28px 28px 24px;
+  margin: 0 0 28px;
+  break-inside: avoid;
+}
+
+.highlight-box-title {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--gold2);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.highlight-box-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(201,168,76,0.3);
+}
+
+.highlight-box p {
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px !important;
+  color: rgba(247,241,227,0.8) !important;
+  line-height: 1.7 !important;
+  margin-bottom: 0 !important;
+  text-align: left !important;
+}
+.highlight-box p::first-letter { all: unset; }
+
+/* ══════════════════════════════════════════
+   TIMELINE
+══════════════════════════════════════════ */
+.timeline {
+  column-span: all;
+  padding: 32px 0 8px;
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 88px; top: 32px; bottom: 8px;
+  width: 1px; background: var(--border);
+}
+
+.tl-item {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 28px;
+  margin-bottom: 28px;
+  align-items: start;
+}
+
+.tl-year {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--rust);
+  text-align: right;
+  padding-top: 2px;
+  position: relative;
+}
+.tl-year::after {
+  content: '';
+  position: absolute;
+  right: -36px; top: 8px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--cream);
+  border: 2px solid var(--rust);
+}
+
+.tl-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink2);
+  padding-left: 8px;
+}
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+.footer {
+  background: var(--ink);
+  padding: 48px;
+  text-align: center;
+}
+
+.footer-ornament {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.footer-ornament::before,
+.footer-ornament::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(166,124,46,0.4);
+}
+.footer-ornament span {
+  font-size: 20px; color: var(--gold);
+}
+
+.footer p {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(247,241,227,0.4);
+  margin-bottom: 8px;
+}
+
+.footer-credits {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(247,241,227,0.3);
+  margin-top: 20px;
+}
+
+/* ══════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════ */
+@keyframes fadeDown {
+  from { opacity:0; transform:translateY(-16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.masthead { animation: fadeDown .8s ease both; }
+.nav-bar  { animation: fadeDown .8s .1s ease both; }
+.lead     { animation: fadeDown .9s .2s ease both; }
+
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ══════════════ MASTHEAD ══════════════ -->
+  <header class="masthead">
+    <div class="masthead-top">
+      <span class="masthead-top-text">Departamento Aguirre · Ruta Nacional 34</span>
+      <span class="masthead-top-text">Provincia de Santiago del Estero · República Argentina</span>
+    </div>
+    <div class="masthead-inner">
+      <span class="masthead-province">Memorias del Monte Santiagueño</span>
+      <div class="masthead-title">
+        CASARES
+        <span>Historias del Departamento Aguirre</span>
+      </div>
+      <div class="masthead-ornament">
+        <div class="masthead-ornament-diamond"></div>
+        <div class="masthead-ornament-diamond"></div>
+        <div class="masthead-ornament-diamond"></div>
+      </div>
+      <div class="masthead-sub">Episodios, personajes y memorias de un pueblo del interior santiagueño</div>
+      <div class="masthead-meta">
+        <div class="masthead-meta-item"><strong>Ubicación</strong>Dpto. Aguirre, Sgo. del Estero</div>
+        <div class="masthead-meta-item"><strong>Vía</strong>Ruta Nacional 34</div>
+        <div class="masthead-meta-item"><strong>Período</strong>Siglos XIX — XXI</div>
+        <div class="masthead-meta-item"><strong>Campo cercano</strong>Quebrachito · Taboada</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════ NAV ══════════════ -->
+  <nav class="nav-bar">
+    <a href="#santillan">I · El Secuestro de Santillán</a>
+    <a href="#firpo">II · Firpo en el Campo Taboada</a>
+    <a href="#petrona">III · Petrona Gandolfi en Quebrachito</a>
+    <a href="#milei">IV · La Escuela de Contardi</a>
+  </nav>
+
+  <!-- ══════════════ CONTENT ══════════════ -->
+  <main class="content">
+
+    <!-- INTRO -->
+    <div class="lead">
+      <div class="lead-eyebrow">Historia Oral y Documental</div>
+      <p>Sobre la Ruta Nacional 34, en el corazón del Departamento Aguirre, el paraje de Casares guarda en su memoria episodios que merecen ser contados con detenimiento y respeto. Desde el dramático secuestro del gobernador Santillán y su esposa en los albores del siglo XX, hasta la visita del boxeador más admirado de América al campo Taboada, pasando por el olor a fogón que dejó una cocinera de leyenda en el campo Quebrachito y el discreto gesto solidario de una familia presidencial — Casares no es solo un punto en el mapa santiagueño: es historia viva.</p>
+    </div>
+
+    <!-- ══════════════════════════════════
+         ARTÍCULO I · SANTILLÁN
+    ══════════════════════════════════ -->
+    <section class="article-block" id="santillan">
+
+      <div class="section-header">
+        <div class="section-num">I</div>
+        <div class="section-titles">
+          <div class="section-tag">Suceso Policial · 1907</div>
+          <h2 class="section-title">El secuestro del gobernador <em>Santillán</em> y su esposa en Colonia Libertad</h2>
+          <div class="section-subtitle">Casares · Colonia Libertad · Departamento Aguirre</div>
+        </div>
+      </div>
+
+      <div class="article-body">
+
+        <p>El año 1907 fue para Santiago del Estero un año bisagra. La provincia vivía los últimos estertores de un largo período de inestabilidad política y social, donde el poder del Estado llegaba con cuentagotas a los parajes más alejados del interior. El monte chaqueño —con su impenetrable muralla de quebracho, algarrobo y espinillo— era un mundo propio donde las leyes de la civilización cedían ante otras reglas más antiguas y más ásperas. Los caminos eran trochas de tierra colorada, las distancias se medían en horas de caballo, y la autoridad policial era, en el mejor de los casos, una presencia intermitente.</p>
+
+        <p>Fue en ese contexto que una banda organizada ejecutó uno de los golpes más audaces que registra la historia criminal santiagueña: el secuestro del gobernador Santillán y su esposa, perpetrado en las cercanías de Casares, sobre el corredor de lo que hoy es la Ruta Nacional 34. La operación fue ejecutada con rapidez y violencia. La comitiva que acompañaba al gobernador fue sorprendida en un punto del camino y tanto Santillán como su esposa fueron reducidos y conducidos a caballo hacia el interior del monte.</p>
+
+        <div class="pull-quote">
+          <p>Los captores contaban con conocimiento preciso de la geografía local: sabían exactamente adónde ir y cómo desaparecer en ese laberinto verde y espinoso que es el monte santiagueño en pleno verano norteño.</p>
+        </div>
+
+        <p>El destino elegido fue la <strong>Colonia Libertad</strong>, un paraje perdido en el interior del Departamento Aguirre, lo suficientemente alejado de los centros urbanos como para creer que allí nadie los alcanzaría. Durante los días que duró el cautiverio, la noticia sacudió a toda la provincia y llegó a los diarios de la capital. El gobierno movilizó a las fuerzas provinciales con una instrucción precisa y sin matices: encontrar al gobernador con vida.</p>
+
+        <div class="art-subhead">El enfrentamiento final</div>
+
+        <p>Los rastreadores santiagueños —expertos en leer el monte como otros leen un libro, capaces de distinguir una pisada fresca en la tierra colorada a simple vista— siguieron el rastro hasta Colonia Libertad. El monte que había cobijado a la banda durante días se convertiría, finalmente, en su trampa: no había salida fácil en esa geografía que los perseguidores conocían tanto o más que los fugitivos.</p>
+
+        <p>Cuando las fuerzas provinciales rodearon el lugar donde se escondía la banda con sus rehenes, el desenlace fue inevitable. El enfrentamiento fue violento y breve, con muertos de ambos lados. La resistencia se quebró bajo la presión sostenida de los uniformados. El gobernador Santillán y su esposa fueron liberados ilesos y escoltados de regreso a zona segura, mientras los sobrevivientes de la banda eran capturados o dispersados definitivamente en el monte.</p>
+
+        <p>En Casares y en toda la región del Departamento Aguirre, el recuerdo de aquel episodio quedó grabado en la memoria oral de las familias más antiguas. Era la prueba de que, incluso en los rincones más remotos del monte santiagueño, el Estado llegaba —tarde quizás, con dificultad sin duda, a un costo que nadie había deseado pagar— pero llegaba. El episodio de 1907 quedó como uno de los hechos fundacionales de la memoria colectiva de Casares.</p>
+
+        <div class="art-note">
+          <strong>Nota histórica</strong>
+          Este episodio forma parte de la tradición oral del Departamento Aguirre y ha sido transmitido por las familias más antiguas de Casares a través de generaciones. Su documentación completa aguarda una investigación en el Archivo Histórico de la Provincia de Santiago del Estero y en los fondos periodísticos de 1907.
+        </div>
+
+      </div>
+    </section>
+
+    <div class="ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-center">
+        <div class="ornament-diamond sm"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-diamond sm"></div>
+      </div>
+      <div class="ornament-line"></div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         ARTÍCULO II · FIRPO
+    ══════════════════════════════════ -->
+    <section class="article-block" id="firpo">
+
+      <div class="section-header">
+        <div class="section-num">II</div>
+        <div class="section-titles">
+          <div class="section-tag">Visita Célebre · Años 1920</div>
+          <h2 class="section-title">El <em>Toro Salvaje de las Pampas</em> en el campo Taboada</h2>
+          <div class="section-subtitle">Luis Ángel Firpo · Campo Taboada · Casares</div>
+        </div>
+      </div>
+
+      <div class="article-body">
+
+        <p>El 14 de septiembre de 1923, en el Polo Grounds de Nueva York, ante más de 85.000 espectadores que llenaban las gradas hasta el último rincón, un argentino cruzó el Atlántico con los puños y puso al mundo entero de pie. Luis Ángel Firpo, nacido en Junín en 1894, derribó al campeón mundial Jack Dempsey fuera del ring en el primer asalto de su combate por el título mundial, en lo que pasaría a la historia como uno de los momentos más electrizantes del deporte del siglo XX.</p>
+
+        <p>Aunque finalmente cayó noqueado en el segundo round, Firpo ya era inmortal. Su imagen —esa silueta enorme, de hombros anchos y mirada fiera que Bellows capturó en su célebre óleo— quedó grabada para siempre en la conciencia popular argentina y latinoamericana. Por primera vez, un sudamericano había demostrado que podía pararse de igual a igual con el mejor boxeador del planeta y enviarlo al suelo. Eso no se olvidaba.</p>
+
+        <div class="highlight-box">
+          <div class="highlight-box-title">El hombre detrás del mito</div>
+          <p>Quienes conocieron a Firpo de cerca describían a un hombre tímido, reservado y austero hasta la caricatura. No gustaba de la fama aunque la fama lo perseguía a todas partes. No hacía ostentación de su fortuna aunque la había acumulado con inteligencia en la ganadería y en la compraventa de automóviles. No tuteaba a nadie, no levantaba la voz, no necesitaba demostrar nada. Había probado su valor en los rings más duros del mundo. El resto era silencio.</p>
+        </div>
+
+        <p>En los años veinte, en la cima de su celebridad mundial, Firpo visitaba el <strong>campo Taboada</strong>, en las inmediaciones de Casares, Departamento Aguirre. La visita del campeón a estas tierras del norte santiagueño no era la de un turista ni la de un personaje en busca de protagonismo. Era la de un hombre que necesitaba el campo, el silencio del monte y la hospitalidad sin artificios de la gente del interior argentino.</p>
+
+        <div class="pull-quote">
+          <p>En el campo Taboada, Firpo era simplemente un visitante: se sentaba a la mesa con los peones, comía lo que había y miraba el horizonte del monte con algo parecido a la paz. La fama quedaba del otro lado del alambrado.</p>
+        </div>
+
+        <div class="art-subhead">La visita que el pueblo no olvidó</div>
+
+        <p>Los que tuvieron el privilegio de recibirlo o de verlo en el campo Taboada recordaban su presencia física imponente —ese torso descomunal, esas manos que habían golpeado a Dempsey ante la vista del mundo entero— pero también su mansedumbre fuera del ring, su calma, su manera de hablar poco y escuchar mucho. Un hombre de campo, en el fondo, que había llegado demasiado lejos para olvidarse de dónde venía.</p>
+
+        <p>El paso de Firpo por Casares fue uno de esos episodios que la memoria popular preserva con un orgullo particular, quizás precisamente porque no tuvo testigos masivos ni cámaras ni periodistas. Fue algo íntimo: el campeón del mundo visitando un campo del interior santiagueño, bebiendo mate bajo el quebracho, alejado por unos días del ruido que su nombre generaba en el mundo.</p>
+
+        <p>Firpo falleció el 7 de agosto de 1960, a los 65 años, víctima de un ataque cardíaco. Sus restos descansan en el Cementerio de la Recoleta. Pero en Casares, en el Departamento Aguirre, su recuerdo sigue vivo en las historias que los viejos cuentan a los jóvenes: el día que el Toro Salvaje de las Pampas llegó al campo Taboada, se bajó del caballo y pidió un mate como cualquier paisano del monte.</p>
+
+      </div>
+    </section>
+
+    <div class="ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-center">
+        <div class="ornament-diamond sm"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-diamond sm"></div>
+      </div>
+      <div class="ornament-line"></div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         ARTÍCULO III · PETRONA
+    ══════════════════════════════════ -->
+    <section class="article-block" id="petrona">
+
+      <div class="section-header">
+        <div class="section-num">III</div>
+        <div class="section-titles">
+          <div class="section-tag">Vida Cotidiana · Siglo XX</div>
+          <h2 class="section-title"><em>Petrona Gandolfi</em> y los fogones del campo Quebrachito</h2>
+          <div class="section-subtitle">Campo Quebrachito · Estación Casares · 15 km al oeste</div>
+        </div>
+      </div>
+
+      <div class="article-body">
+
+        <p>Hay personajes que la historia recuerda por sus grandes obras y sus momentos de gloria pública. Y hay otros que primero fueron anónimos: que cargaron bolsos pesados en estaciones de tren de polvo y viento, que cocinaron para peones y patrones en cocinas de campo sin gas ni electricidad, que aprendieron su oficio en la silenciosa escuela del fogón de leña, y que solo mucho más tarde el mundo descubrió que habían sido extraordinarios desde siempre. <strong>Petrona Gandolfi</strong> fue de los segundos.</p>
+
+        <p>Antes de que su nombre se volviera referencia ineludible de la gastronomía argentina del siglo XX, Petrona pasó una temporada trabajando como cocinera en el <strong>campo Quebrachito</strong>, a quince kilómetros al oeste de Casares, en el Departamento Aguirre de la provincia de Santiago del Estero. La estación de Casares —sobre la Ruta 34, con su techo bajo y su andén de tierra colorada— era su punto de llegada y partida. En esa pequeña estación, Petrona bajaba del tren con sus cosas, y alguien del campo la esperaba para llevarla al Quebrachito por los caminos del monte santiagueño.</p>
+
+        <div class="pull-quote">
+          <p>Quince kilómetros que en esa época podían ser una hora de viaje en sulky. La cocina de campo santiagueña tiene su propio idioma: el fuego de leña de quebracho, los tiempos largos, los ingredientes de la tierra y el hambre honesta de quien trabaja de sol a sol.</p>
+        </div>
+
+        <div class="art-subhead">La escuela del monte santiagueño</div>
+
+        <p>En el Quebrachito, Petrona cocinaba para los trabajadores del campo: peones, capataces, personal de la estancia. La cocina rural santiagueña tiene su propio idioma, sus propios tiempos y sus propios desafíos. No había almacenes a la vuelta de la esquina: lo que no se producía en el campo o no se traía en la provista del mes simplemente no estaba. Había que ingeniárselas con lo que el monte y el campo ofrecían.</p>
+
+        <p>Los hornos de barro, el fuego de leña de quebracho —que da una brasa larga y pareja, ideal para asar y para cocinar a fuego lento—, los cortes de carne que en Buenos Aires nadie conocía, los quesos de campo, el locro espeso de los días frescos, el guiso que reconfortaba a los peones después de la jornada: todo eso formó parte del repertorio que Petrona aprendió o perfeccionó en esas cocinas del interior santiagueño, lejos de cualquier recetario y cerca de cualquier necesidad real.</p>
+
+        <p>Las temporadas en el Quebrachito le enseñaron algo que los libros de cocina no pueden transmitir: la cocina al servicio de la gente que trabaja, la cocina sin lujos ni pretensiones, la cocina que alimenta de verdad. Esa experiencia, acumulada en fogones anónimos del Departamento Aguirre, forjó en ella una relación con los alimentos que marcaría para siempre su manera de entender la gastronomía. La estación de Casares vio partir a Petrona como había llegado: con sus bolsos, en silencio, sin que nadie supiera entonces que esa mujer que esperaba el tren en el andén de tierra colorada llevaría un día la cocina argentina a lugares que ninguno de ellos podría imaginar.</p>
+
+      </div>
+    </section>
+
+    <div class="ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-center">
+        <div class="ornament-diamond sm"></div>
+        <div class="ornament-diamond"></div>
+        <div class="ornament-diamond sm"></div>
+      </div>
+      <div class="ornament-line"></div>
+    </div>
+
+    <!-- ══════════════════════════════════
+         ARTÍCULO IV · MILEI / CONTARDI
+    ══════════════════════════════════ -->
+    <section class="article-block" id="milei">
+
+      <div class="section-header">
+        <div class="section-num">IV</div>
+        <div class="section-titles">
+          <div class="section-tag">Historia Reciente · Siglo XXI</div>
+          <h2 class="section-title">Karina y su madre: donaciones a la <em>escuela de Contardi</em></h2>
+          <div class="section-subtitle">Campo Milei · Escuela de Contardi · Departamento Aguirre</div>
+        </div>
+      </div>
+
+      <div class="article-body">
+
+        <p>En el Departamento Aguirre, en las cercanías de Casares, opera el campo del padre del presidente Javier Milei. Mucho antes de que el apellido Milei se convirtiera en el más conocido y debatido de la Argentina contemporánea, este campo era simplemente eso: una propiedad rural del interior santiagueño, con sus trabajadores, sus animales, sus ciclos de siembra y cosecha, su sol implacable en el verano del monte y sus noches frías bajo el cielo de Santiago del Estero.</p>
+
+        <p>Y mucho antes de que <strong>Karina Milei</strong> fuera conocida en todo el país como la hermana y colaboradora más cercana del presidente de la Nación, era una mujer que viajaba al interior con su madre para llevar donaciones a una escuela rural de paraje. La <strong>escuela de Contardi</strong> —como las cientos de escuelas rurales que sobreviven en los parajes del interior argentino con recursos mínimos y vocación máxima— recibía esas visitas con la gratitud genuina que solo se entiende cuando se vive en un lugar donde todo escasea y cada gesto cuenta.</p>
+
+        <div class="pull-quote">
+          <p>Antes de los discursos, las cámaras y el peso de la historia, estaban los viajes al interior con bolsos cargados de útiles y ropa para los chicos de la escuela de Contardi. Así los recuerdan los vecinos de Casares.</p>
+        </div>
+
+        <div class="art-subhead">El gesto que los vecinos no olvidaron</div>
+
+        <p>Karina y su madre llegaban al campo con donaciones: útiles escolares, ropa, alimentos, lo que la escuela de Contardi necesitara. No había en esos gestos ningún cálculo político ni ninguna cámara que los registrara para un futuro uso electoral. Era simplemente la costumbre de una familia que tenía sus raíces en esa tierra y que no había olvidado las necesidades concretas de la gente que la habitaba.</p>
+
+        <p>Las maestras y los vecinos del paraje recibían esas visitas con la calidez sin protocolos que caracteriza al interior santiagueño: una mesa servida, un mate, la charla de siempre sobre el campo, la escuela, los chicos. Nada extraordinario en apariencia, pero en la vida cotidiana de una escuela rural que lucha cada día por tener lo básico, esas donaciones hacían una diferencia real y concreta. Los cuadernos duran más. Los chicos llegan mejor abrigados. Las maestras tienen un poco más de con qué trabajar.</p>
+
+        <p>Cuando en diciembre de 2023 Javier Milei asumió la presidencia de la Nación Argentina con el 55,65% de los votos, los vecinos más viejos de Casares y del paraje Contardi recordaron esas visitas con una mezcla particular de orgullo y ternura. Aquellas mujeres que llegaban cargadas de donaciones para los chicos de la escuela eran la madre y la hermana del hombre que ahora gobernaba el país desde la Casa Rosada. En los parajes del interior argentino, donde los grandes nombres de la política nacional suelen sentirse lejanos y abstractos, esa conexión le daba al apellido Milei una textura diferente: más cercana, más humana, más santiagueña.</p>
+
+        <div class="art-note">
+          <strong>Contexto histórico</strong>
+          El campo del padre de Javier Milei, Norberto Horacio Milei, está ubicado en el Departamento Aguirre de la provincia de Santiago del Estero. En septiembre de 2024, Norberto Milei cedió aproximadamente 3.300 hectáreas del campo denominado Pampa Atún a 19 familias campesinas e indígenas que lo habitaban desde generaciones, poniendo fin a un litigio de más de tres décadas y marcando un capítulo definitivo en la historia de esas tierras del interior santiagueño.
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══════════════ FOOTER ══════════════ -->
+  <footer class="footer">
+    <div class="footer-ornament"><span>✦</span></div>
+    <p>Casares · Departamento Aguirre · Provincia de Santiago del Estero · República Argentina</p>
+    <p style="margin-top:6px;">Ruta Nacional 34 · Campo Quebrachito · Campo Taboada · Colonia Libertad · Escuela de Contardi</p>
+    <p class="footer-credits">Historia oral y documental del Departamento Aguirre.<br>Compilado con respeto por quienes vivieron y transmitieron estos episodios a través de las generaciones.</p>
+    <div class="footer-ornament" style="margin-bottom:0; margin-top:28px;"><span>— ✦ —</span></div>
+  </footer>
+
+</div>
+
+<script>
+  // Scroll reveal
+  const blocks = document.querySelectorAll('.article-block');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  blocks.forEach(b => observer.observe(b));
+
+  // Primer artículo visible de entrada
+  setTimeout(() => {
+    document.querySelector('.article-block').classList.add('visible');
+  }, 400);
+</script>
+
+</body>
+</html>
