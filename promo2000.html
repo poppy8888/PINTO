@@ -1161,7 +1161,6 @@
   align-items: flex-end;
   gap: 0.6rem;
 ">
-  <!-- Cartel con el nombre de la canción -->
   <div id="music-label" style="
     background: rgba(13,31,51,0.92);
     border: 1px solid rgba(201,168,76,0.4);
@@ -1176,9 +1175,8 @@
     pointer-events: none;
     white-space: nowrap;
     backdrop-filter: blur(6px);
-  ">🎵 Rodrigo — Lo Mejor del Amor</div>
+  ">🎵 El Che y los Rolling Stones</div>
 
-  <!-- Botón circular -->
   <button id="music-btn" onclick="toggleMusic()" title="Reproducir música" style="
     width: 56px;
     height: 56px;
@@ -1198,13 +1196,10 @@
   ">🎵</button>
 </div>
 
-<!-- iFrame de YouTube oculto -->
-<iframe id="yt-player"
-  src=""
-  style="display:none;"
-  allow="autoplay"
-  title="Música de fondo">
-</iframe>
+<!-- Audio MP3 directo -->
+<audio id="bg-audio" loop>
+  <source src="LOS_RANCHEROS_-_EL_CHE_Y_LOS_ROLLING_STONES__Letra.mp3" type="audio/mpeg">
+</audio>
 
 <style>
   @keyframes pulse-gold {
@@ -1218,26 +1213,12 @@
 </style>
 
 <script>
-  const canciones = [
-    { id: 'rYFELgGY7Jo', nombre: 'Rodrigo — Lo Mejor del Amor' },
-    { id: 'n3CR_x0ATKY', nombre: 'Rodrigo — Se Me Va' },
-    { id: 'PLjCFPSNZCc', nombre: 'Rodrigo — El Hombre que Más Te Amó' },
-  ];
-  let cancionActual = 0;
   let reproduciendo = false;
+  const audio = document.getElementById('bg-audio');
 
-  function cargarCancion(idx) {
-    const c = canciones[idx];
-    const iframe = document.getElementById('yt-player');
-    iframe.src = `https://www.youtube.com/embed/${c.id}?autoplay=1&loop=1&playlist=${c.id}`;
-    document.getElementById('music-label').textContent = '🎵 ' + c.nombre;
-  }
-
-  function arrancarMusica() {
-    if (reproduciendo) return;
+  function mostrarReproduciendo() {
     const btn = document.getElementById('music-btn');
     const label = document.getElementById('music-label');
-    cargarCancion(cancionActual);
     btn.textContent = '⏸';
     btn.style.color = 'var(--celeste)';
     btn.style.borderColor = 'var(--celeste)';
@@ -1245,58 +1226,54 @@
     label.style.opacity = '1';
     label.style.transform = 'translateY(0)';
     reproduciendo = true;
-    // Quitar listeners una vez que arrancó
+  }
+
+  function mostrarPausado() {
+    const btn = document.getElementById('music-btn');
+    const label = document.getElementById('music-label');
+    btn.textContent = '🎵';
+    btn.style.color = 'var(--dorado)';
+    btn.style.borderColor = 'var(--dorado)';
+    btn.style.animation = 'pulse-gold 2.5s ease-in-out infinite';
+    label.style.opacity = '0';
+    label.style.transform = 'translateY(8px)';
+    reproduciendo = false;
+  }
+
+  function arrancarMusica() {
+    if (reproduciendo) return;
+    audio.play().then(() => {
+      mostrarReproduciendo();
+    }).catch(() => {});
     document.removeEventListener('click', arrancarMusica);
-    document.removeEventListener('keydown', arrancarMusica);
     document.removeEventListener('scroll', arrancarMusica);
     document.removeEventListener('touchstart', arrancarMusica);
+    document.removeEventListener('keydown', arrancarMusica);
   }
 
   function toggleMusic() {
-    const btn = document.getElementById('music-btn');
-    const label = document.getElementById('music-label');
-    const iframe = document.getElementById('yt-player');
-
     if (!reproduciendo) {
-      arrancarMusica();
+      audio.play().then(() => mostrarReproduciendo()).catch(() => {});
     } else {
-      iframe.src = '';
-      btn.textContent = '🎵';
-      btn.style.color = 'var(--dorado)';
-      btn.style.borderColor = 'var(--dorado)';
-      btn.style.animation = 'pulse-gold 2.5s ease-in-out infinite';
-      label.style.opacity = '0';
-      label.style.transform = 'translateY(8px)';
-      reproduciendo = false;
+      audio.pause();
+      mostrarPausado();
     }
   }
 
-  // Intentar autoplay directo al cargar
+  // Intentar autoplay al cargar
   window.addEventListener('load', function () {
-    // Intento 1: autoplay directo (funciona en algunos navegadores/dispositivos)
-    try {
-      cargarCancion(cancionActual);
-      const btn = document.getElementById('music-btn');
-      const label = document.getElementById('music-label');
-      btn.textContent = '⏸';
-      btn.style.color = 'var(--celeste)';
-      btn.style.borderColor = 'var(--celeste)';
-      btn.style.animation = 'none';
-      label.style.opacity = '1';
-      label.style.transform = 'translateY(0)';
-      reproduciendo = true;
-    } catch(e) {}
-
-    // Intento 2: al primer gesto del usuario (clic, scroll, tecla, touch)
-    // por si el navegador bloqueó el autoplay
-    if (!reproduciendo) {
+    audio.play().then(() => {
+      mostrarReproduciendo();
+    }).catch(() => {
+      // Si el navegador bloquea, arranca al primer gesto
       document.addEventListener('click', arrancarMusica, { once: true });
-      document.addEventListener('keydown', arrancarMusica, { once: true });
       document.addEventListener('scroll', arrancarMusica, { once: true });
       document.addEventListener('touchstart', arrancarMusica, { once: true });
-    }
+      document.addEventListener('keydown', arrancarMusica, { once: true });
+    });
   });
 </script>
+
 
 <script>
   // Reveal on scroll
