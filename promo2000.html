@@ -1150,6 +1150,154 @@
   <p style="margin-top:0.5rem; font-size:0.75rem;">60° Aniversario del I.F.A. · 26 años de nuestra promoción</p>
 </footer>
 
+<!-- ══ REPRODUCTOR DE MÚSICA FLOTANTE ══ -->
+<div id="music-player" style="
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+">
+  <!-- Cartel con el nombre de la canción -->
+  <div id="music-label" style="
+    background: rgba(13,31,51,0.92);
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--dorado-claro);
+    font-family: 'Crimson Pro', serif;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.4s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    backdrop-filter: blur(6px);
+  ">🎵 Rodrigo — Lo Mejor del Amor</div>
+
+  <!-- Botón circular -->
+  <button id="music-btn" onclick="toggleMusic()" title="Reproducir música" style="
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--dorado);
+    background: rgba(13,31,51,0.92);
+    color: var(--dorado);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(201,168,76,0.3), 0 4px 15px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(6px);
+    animation: pulse-gold 2.5s ease-in-out infinite;
+  ">🎵</button>
+</div>
+
+<!-- iFrame de YouTube oculto -->
+<iframe id="yt-player"
+  src=""
+  style="display:none;"
+  allow="autoplay"
+  title="Música de fondo">
+</iframe>
+
+<style>
+  @keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 20px rgba(201,168,76,0.3), 0 4px 15px rgba(0,0,0,0.5); }
+    50%       { box-shadow: 0 0 32px rgba(201,168,76,0.6), 0 4px 15px rgba(0,0,0,0.5); }
+  }
+  #music-btn:hover {
+    background: rgba(201,168,76,0.15) !important;
+    transform: scale(1.08);
+  }
+</style>
+
+<script>
+  const canciones = [
+    { id: 'rYFELgGY7Jo', nombre: 'Rodrigo — Lo Mejor del Amor' },
+    { id: 'n3CR_x0ATKY', nombre: 'Rodrigo — Se Me Va' },
+    { id: 'PLjCFPSNZCc', nombre: 'Rodrigo — El Hombre que Más Te Amó' },
+  ];
+  let cancionActual = 0;
+  let reproduciendo = false;
+
+  function cargarCancion(idx) {
+    const c = canciones[idx];
+    const iframe = document.getElementById('yt-player');
+    iframe.src = `https://www.youtube.com/embed/${c.id}?autoplay=1&loop=1&playlist=${c.id}`;
+    document.getElementById('music-label').textContent = '🎵 ' + c.nombre;
+  }
+
+  function arrancarMusica() {
+    if (reproduciendo) return;
+    const btn = document.getElementById('music-btn');
+    const label = document.getElementById('music-label');
+    cargarCancion(cancionActual);
+    btn.textContent = '⏸';
+    btn.style.color = 'var(--celeste)';
+    btn.style.borderColor = 'var(--celeste)';
+    btn.style.animation = 'none';
+    label.style.opacity = '1';
+    label.style.transform = 'translateY(0)';
+    reproduciendo = true;
+    // Quitar listeners una vez que arrancó
+    document.removeEventListener('click', arrancarMusica);
+    document.removeEventListener('keydown', arrancarMusica);
+    document.removeEventListener('scroll', arrancarMusica);
+    document.removeEventListener('touchstart', arrancarMusica);
+  }
+
+  function toggleMusic() {
+    const btn = document.getElementById('music-btn');
+    const label = document.getElementById('music-label');
+    const iframe = document.getElementById('yt-player');
+
+    if (!reproduciendo) {
+      arrancarMusica();
+    } else {
+      iframe.src = '';
+      btn.textContent = '🎵';
+      btn.style.color = 'var(--dorado)';
+      btn.style.borderColor = 'var(--dorado)';
+      btn.style.animation = 'pulse-gold 2.5s ease-in-out infinite';
+      label.style.opacity = '0';
+      label.style.transform = 'translateY(8px)';
+      reproduciendo = false;
+    }
+  }
+
+  // Intentar autoplay directo al cargar
+  window.addEventListener('load', function () {
+    // Intento 1: autoplay directo (funciona en algunos navegadores/dispositivos)
+    try {
+      cargarCancion(cancionActual);
+      const btn = document.getElementById('music-btn');
+      const label = document.getElementById('music-label');
+      btn.textContent = '⏸';
+      btn.style.color = 'var(--celeste)';
+      btn.style.borderColor = 'var(--celeste)';
+      btn.style.animation = 'none';
+      label.style.opacity = '1';
+      label.style.transform = 'translateY(0)';
+      reproduciendo = true;
+    } catch(e) {}
+
+    // Intento 2: al primer gesto del usuario (clic, scroll, tecla, touch)
+    // por si el navegador bloqueó el autoplay
+    if (!reproduciendo) {
+      document.addEventListener('click', arrancarMusica, { once: true });
+      document.addEventListener('keydown', arrancarMusica, { once: true });
+      document.addEventListener('scroll', arrancarMusica, { once: true });
+      document.addEventListener('touchstart', arrancarMusica, { once: true });
+    }
+  });
+</script>
+
 <script>
   // Reveal on scroll
   const reveals = document.querySelectorAll('.reveal');
