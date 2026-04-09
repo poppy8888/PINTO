@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estación 824 — Nivel Hidrológico</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,300;9..144,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #1a4f7a;
+    --blue-light: #d6e8f5;
+    --red: #b83a2e;
+    --red-light: #f5e0de;
+    --ink: #1a1a18;
+    --ink-mid: #5a5a55;
+    --ink-soft: #9a9a94;
+    --cream: #f7f4ef;
+    --white: #ffffff;
+    --border: #dedad2;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--ink);
+    color: var(--white);
+    padding: 2.5rem 2rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--blue) 0%, #5DCAA5 50%, var(--red) 100%);
+  }
+
+  .header-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #9a9a94;
+    margin-bottom: 0.75rem;
+  }
+
+  .header-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+
+  .header-title span {
+    font-weight: 600;
+    color: #7ec8e3;
+  }
+
+  .header-sub {
+    font-size: 11px;
+    color: #6a6a65;
+    margin-top: 1rem;
+  }
+
+  .badge-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: #9a9a94;
+    margin-top: 1.25rem;
+  }
+
+  .badge-live::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #5DCAA5;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* METRIC CARDS */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .metric-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .metric-card.blue::before { background: var(--blue); }
+  .metric-card.red::before { background: var(--red); }
+  .metric-card.neutral::before { background: var(--border); }
+
+  .metric-label {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-value {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.9rem;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+
+  .metric-card.blue .metric-value { color: var(--blue); }
+  .metric-card.red .metric-value { color: var(--red); }
+  .metric-card.neutral .metric-value { color: var(--ink); }
+
+  .metric-unit { font-size: 13px; font-weight: 400; }
+  .metric-date { font-size: 9px; color: var(--ink-soft); }
+
+  /* CAMPO PANEL */
+  .campo-panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem 1.25rem;
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 0;
+  }
+
+  .campo-divider {
+    background: var(--border);
+    margin: 0 1.5rem;
+  }
+
+  .campo-half { padding: 0 0.25rem; }
+
+  .campo-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 0.6rem;
+  }
+
+  .campo-val {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 2.4rem;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+
+  .campo-desc { font-size: 10px; color: var(--ink-mid); line-height: 1.5; }
+  .campo-diff {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 3px;
+  }
+
+  .campo-diff.down {
+    background: var(--red-light);
+    color: var(--red);
+  }
+
+  /* ALERT */
+  .alert {
+    background: var(--red-light);
+    border-left: 3px solid var(--red);
+    border-radius: 0 6px 6px 0;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    font-size: 12px;
+    color: #7a2820;
+    line-height: 1.7;
+  }
+
+  .alert strong { font-weight: 500; }
+
+  /* CHART */
+  .chart-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--ink-mid);
+  }
+
+  .legend-sq { width: 10px; height: 10px; border-radius: 2px; }
+  .legend-line { width: 18px; height: 2px; }
+  .legend-dash { width: 18px; height: 0; border-top: 2px dashed; }
+
+  .chart-wrap { position: relative; width: 100%; height: 280px; }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink);
+    color: #5a5a55;
+    font-size: 10px;
+    text-align: center;
+    padding: 1.25rem;
+    letter-spacing: 0.08em;
+    line-height: 1.8;
+  }
+
+  footer span { color: #7ec8e3; }
+
+  @media (max-width: 520px) {
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .metrics-grid .metric-card:last-child { grid-column: span 2; }
+    .campo-panel { grid-template-columns: 1fr; }
+    .campo-divider { display: none; }
+    .campo-half + .campo-half { border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="header-eyebrow">Sistema de monitoreo hidrológico</p>
+  <h1 class="header-title">Estación <span>824</span><br>Dulce — Los Quiroga (Dulce III)</h1>
+  <p class="header-sub">Registros horarios · 1 mar – 9 abr 2026 · 949 mediciones</p>
+  <p style="font-size:11px; color:#7ec8e3; margin-top:1.1rem; letter-spacing:0.06em;">Ing. Civil Juan Pinto Céspedes · Santiago del Estero</p>
+  <div class="badge-live">ACTUALIZACIÓN RECIENTE</div>
+</header>
+
+<main>
+
+  <p class="section-label" style="margin-top:1.5rem;">Niveles en el dique</p>
+  <div class="metrics-grid">
+    <div class="metric-card blue">
+      <p class="metric-label">Pico de crecida</p>
+      <p class="metric-value">4.62 <span class="metric-unit">m</span></p>
+      <p class="metric-date">14 mar 2026</p>
+    </div>
+    <div class="metric-card red">
+      <p class="metric-label">Nivel actual</p>
+      <p class="metric-value">3.15 <span class="metric-unit">m</span></p>
+      <p class="metric-date">9 abr 2026</p>
+    </div>
+    <div class="metric-card neutral">
+      <p class="metric-label">Bajada total</p>
+      <p class="metric-value">-1.47 <span class="metric-unit">m</span></p>
+      <p class="metric-date">desde el pico</p>
+    </div>
+  </div>
+
+  <p class="section-label">Campo Emiliano Daban · desfasaje 7 días</p>
+  <div class="campo-panel">
+    <div class="campo-half">
+      <p class="campo-eyebrow">En la crecida máxima</p>
+      <p class="campo-val" style="color:var(--blue);">1.10 <span style="font-size:1rem;font-weight:300;">m</span></p>
+      <p class="campo-desc">14 de marzo de 2026<br>Nivel más alto del período</p>
+    </div>
+    <div class="campo-divider"></div>
+    <div class="campo-half">
+      <p class="campo-eyebrow">Nivel actual</p>
+      <p class="campo-val" style="color:var(--red);">0.50 <span style="font-size:1rem;font-weight:300;">m</span></p>
+      <p class="campo-desc">9 de abril de 2026<br>Con 7 días de desfasaje</p>
+      <span class="campo-diff down">▼ 60 cm desde el pico</span>
+    </div>
+  </div>
+
+  <div class="alert">
+    El campo se encuentra actualmente en <strong>niveles muy bajos</strong> respecto a la crecida de marzo.
+    Por cada metro que baja el dique, el campo refleja una bajada de <strong>~5 cm</strong>,
+    con un desfasaje de <strong>7 días</strong>. Aún resta absorber la bajante más fuerte registrada a fines de marzo.
+  </div>
+
+  <p class="section-label">Evolución diaria — altura media y rango máx-mín</p>
+  <div class="chart-card">
+    <div class="chart-legend">
+      <span class="legend-item"><span class="legend-sq" style="background:#b5d4f4;"></span>Rango máx-mín diario</span>
+      <span class="legend-item"><span class="legend-line" style="background:#1a4f7a;"></span>Altura media (dique)</span>
+      <span class="legend-item"><span class="legend-dash" style="border-color:#b83a2e;"></span>Nivel actual campo (1 abr)</span>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="mainChart" role="img" aria-label="Evolución diaria de altura en Estación 824, marzo-abril 2026">
+        Altura media diaria Estación 824. Pico 4.62 m el 14 de marzo; nivel actual 3.15 m el 9 de abril.
+      </canvas>
+    </div>
+  </div>
+
+  <p class="section-label" style="margin-top:2rem;">Últimos 10 días — detalle hora a hora</p>
+  <div class="chart-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:8px;">
+      <div class="chart-legend" style="margin-bottom:0;">
+        <span class="legend-item"><span class="legend-line" style="background:#1a4f7a;"></span>Altura horaria</span>
+        <span class="legend-item"><span class="legend-dash" style="border-color:#d4a853; width:18px; height:0; border-top:2px dashed #d4a853; display:inline-block;"></span>&nbsp;Promedio período</span>
+      </div>
+      <span style="font-size:9px; color:var(--ink-soft); letter-spacing:0.1em;">31 MAR – 9 ABR 2026</span>
+    </div>
+    <div class="chart-wrap" style="height:230px;">
+      <canvas id="chart10d" role="img" aria-label="Detalle horario de los últimos 10 días en Estación 824, del 30 de marzo al 8 de abril 2026">
+        Lecturas horarias Estación 824 del 31 de marzo al 9 de abril de 2026. Promedio 2.44 m.
+      </canvas>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p style="color:#7ec8e3; font-size:11px; letter-spacing:0.1em; margin-bottom:4px;">Ing. Civil Juan Pinto Céspedes · Santiago del Estero</p>
+  <p>Estación 824 · Dulce - Los Quiroga (Dulce III) · datos al <span>9 abr 2026</span></p>
+  <p>Campo Emiliano Daban · relación 5 cm/m · desfasaje 7 días</p>
+</footer>
+
+<script>
+const labels = ["03-01", "03-02", "03-03", "03-04", "03-05", "03-06", "03-07", "03-08", "03-09", "03-10", "03-11", "03-12", "03-13", "03-14", "03-15", "03-16", "03-17", "03-18", "03-19", "03-20", "03-21", "03-22", "03-23", "03-24", "03-25", "03-26", "03-27", "03-28", "03-29", "03-30", "03-31", "04-01", "04-02", "04-03", "04-04", "04-05", "04-06", "04-07", "04-08", "04-09"];
+const media = [4.264, 4.248, 4.103, 3.841, 3.589, 3.904, 4.172, 4.322, 4.369, 4.315, 4.105, 4.192, 4.354, 4.56, 4.606, 4.563, 4.504, 4.43, 4.356, 4.307, 4.263, 4.203, 4.142, 4.078, 4.011, 3.839, 3.515, 2.885, 2.4, 2.657, 3.024, 2.657, 2.124, 2.151, 2.2, 2.257, 2.415, 2.429, 2.421, 2.883];
+const maxv = [4.27, 4.26, 4.2, 3.99, 3.67, 4.01, 4.28, 4.35, 4.38, 4.44, 4.13, 4.24, 4.48, 4.6, 4.62, 4.59, 4.54, 4.47, 4.4, 4.33, 4.28, 4.23, 4.17, 4.11, 4.04, 3.96, 3.68, 3.26, 2.64, 2.98, 3.07, 3.04, 2.23, 2.22, 2.21, 2.3, 2.43, 2.46, 2.51, 3.15];
+const minv = [4.26, 4.21, 4.02, 3.69, 3.55, 3.7, 4.02, 4.28, 4.35, 4.09, 4.09, 4.14, 4.26, 4.48, 4.6, 4.53, 4.47, 4.39, 4.33, 4.28, 4.24, 4.17, 4.11, 4.05, 3.96, 3.7, 3.3, 2.66, 2.31, 2.34, 2.99, 2.26, 2.11, 2.11, 2.19, 2.2, 2.32, 2.41, 2.41, 2.57];
+const rangeData = maxv.map((mx,i) => ({x: labels[i], y: [minv[i], mx]}));
+
+const currentLinePlugin = {
+  id: 'currentLine',
+  afterDatasetsDraw(chart) {
+    const {ctx, chartArea, scales} = chart;
+    const y = scales.y.getPixelForValue(3.15);
+    const n = labels.length;
+    const barW = (chartArea.right - chartArea.left) / n;
+    const xMark = chartArea.left + (38 * barW) + barW / 2;
+
+    ctx.save();
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = '#b83a2e';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(chartArea.left, y);
+    ctx.lineTo(xMark, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#b83a2e';
+    ctx.beginPath();
+    ctx.arc(xMark, y, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.font = '500 10px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('campo actual: 0.50 m  |  dique: 3.15 m', xMark - 8, y - 6);
+    ctx.restore();
+  }
+};
+
+const peakPlugin = {
+  id: 'peakMark',
+  afterDatasetsDraw(chart) {
+    const {ctx, scales} = chart;
+    const x = scales.x.getPixelForValue(13);
+    const y = scales.y.getPixelForValue(4.62);
+    ctx.save();
+    ctx.fillStyle = '#1a4f7a';
+    ctx.font = '500 10px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('pico  4.62 m  (campo: 1.10 m)', x, y - 8);
+    ctx.restore();
+  }
+};
+
+new Chart(document.getElementById('mainChart'), {
+  type: 'bar',
+  plugins: [currentLinePlugin, peakPlugin],
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'Rango diario',
+        data: rangeData,
+        backgroundColor: '#c8dff0',
+        barPercentage: 0.75,
+        order: 2
+      },
+      {
+        label: 'Media diaria',
+        data: media,
+        type: 'line',
+        borderColor: '#1a4f7a',
+        backgroundColor: 'transparent',
+        pointRadius: 0,
+        borderWidth: 2,
+        tension: 0.35,
+        order: 1
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1a1a18',
+        titleColor: '#9a9a94',
+        bodyColor: '#f7f4ef',
+        titleFont: { family: "'IBM Plex Mono', monospace", size: 10 },
+        bodyFont: { family: "'IBM Plex Mono', monospace", size: 11 },
+        callbacks: {
+          label: (ctx) => {
+            if (ctx.dataset.type === 'line') return ' Dique: ' + ctx.parsed.y.toFixed(2) + ' m';
+            return ' Rango: ' + ctx.parsed.y.min.toFixed(2) + ' – ' + ctx.parsed.y.max.toFixed(2) + ' m';
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { autoSkip: true, maxTicksLimit: 12, maxRotation: 45, font: { size: 9, family: "'IBM Plex Mono', monospace" }, color: '#9a9a94' },
+        grid: { display: false },
+        border: { color: '#dedad2' }
+      },
+      y: {
+        min: 1.8,
+        max: 4.9,
+        ticks: { font: { size: 9, family: "'IBM Plex Mono', monospace" }, color: '#9a9a94', callback: v => v.toFixed(1) + ' m' },
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        border: { color: '#dedad2' }
+      }
+    }
+  }
+});
+
+const labels10 = ["03-31 00:00", "03-31 01:00", "03-31 02:00", "03-31 03:00", "03-31 04:00", "03-31 05:00", "03-31 06:00", "03-31 07:00", "03-31 08:00", "03-31 09:00", "03-31 10:00", "03-31 11:00", "03-31 12:00", "03-31 13:00", "03-31 14:00", "03-31 15:00", "03-31 16:00", "03-31 17:00", "03-31 18:00", "03-31 19:00", "03-31 20:00", "03-31 21:00", "03-31 22:00", "03-31 23:00", "04-01 00:00", "04-01 01:00", "04-01 02:00", "04-01 03:00", "04-01 04:00", "04-01 05:00", "04-01 06:00", "04-01 07:00", "04-01 08:00", "04-01 09:00", "04-01 10:00", "04-01 11:00", "04-01 12:00", "04-01 13:00", "04-01 14:00", "04-01 15:00", "04-01 16:00", "04-01 17:00", "04-01 18:00", "04-01 19:00", "04-01 20:00", "04-01 21:00", "04-01 22:00", "04-01 23:00", "04-02 00:00", "04-02 01:00", "04-02 02:00", "04-02 03:00", "04-02 04:00", "04-02 05:00", "04-02 06:00", "04-02 07:00", "04-02 08:00", "04-02 09:00", "04-02 10:00", "04-02 11:00", "04-02 12:00", "04-02 13:00", "04-02 14:00", "04-02 15:00", "04-02 16:00", "04-02 17:00", "04-02 18:00", "04-02 19:00", "04-02 20:00", "04-02 21:00", "04-02 22:00", "04-02 23:00", "04-03 00:00", "04-03 01:00", "04-03 02:00", "04-03 03:00", "04-03 04:00", "04-03 05:00", "04-03 06:00", "04-03 07:00", "04-03 08:00", "04-03 09:00", "04-03 10:00", "04-03 11:00", "04-03 12:00", "04-03 13:00", "04-03 14:00", "04-03 15:00", "04-03 16:00", "04-03 17:00", "04-03 18:00", "04-03 19:00", "04-03 20:00", "04-03 21:00", "04-03 22:00", "04-03 23:00", "04-04 00:00", "04-04 01:00", "04-04 02:00", "04-04 03:00", "04-04 04:00", "04-04 05:00", "04-04 06:00", "04-04 07:00", "04-04 08:00", "04-04 09:00", "04-04 10:00", "04-04 11:00", "04-04 12:00", "04-04 13:00", "04-04 14:00", "04-04 15:00", "04-04 16:00", "04-04 17:00", "04-04 18:00", "04-04 19:00", "04-04 20:00", "04-04 21:00", "04-04 22:00", "04-04 23:00", "04-05 00:00", "04-05 01:00", "04-05 02:00", "04-05 03:00", "04-05 04:00", "04-05 05:00", "04-05 06:00", "04-05 07:00", "04-05 08:00", "04-05 09:00", "04-05 10:00", "04-05 11:00", "04-05 12:00", "04-05 13:00", "04-05 14:00", "04-05 15:00", "04-05 16:00", "04-05 17:00", "04-05 18:00", "04-05 19:00", "04-05 20:00", "04-05 21:00", "04-05 22:00", "04-05 23:00", "04-06 00:00", "04-06 01:00", "04-06 02:00", "04-06 03:00", "04-06 04:00", "04-06 05:00", "04-06 06:00", "04-06 07:00", "04-06 08:00", "04-06 09:00", "04-06 10:00", "04-06 11:00", "04-06 12:00", "04-06 13:00", "04-06 14:00", "04-06 15:00", "04-06 16:00", "04-06 17:00", "04-06 18:00", "04-06 19:00", "04-06 20:00", "04-06 21:00", "04-06 22:00", "04-06 23:00", "04-07 00:00", "04-07 01:00", "04-07 02:00", "04-07 03:00", "04-07 04:00", "04-07 05:00", "04-07 06:00", "04-07 07:00", "04-07 08:00", "04-07 09:00", "04-07 10:00", "04-07 11:00", "04-07 12:00", "04-07 13:00", "04-07 14:00", "04-07 15:00", "04-07 16:00", "04-07 17:00", "04-07 18:00", "04-07 19:00", "04-07 20:00", "04-07 21:00", "04-07 22:00", "04-07 23:00", "04-08 00:00", "04-08 01:00", "04-08 02:00", "04-08 03:00", "04-08 04:00", "04-08 05:00", "04-08 06:00", "04-08 07:00", "04-08 08:00", "04-08 09:00", "04-08 10:00", "04-08 11:00", "04-08 12:00", "04-08 13:00", "04-08 14:00", "04-08 15:00", "04-08 16:00", "04-08 17:00", "04-08 18:00", "04-08 19:00", "04-08 20:00", "04-08 21:00", "04-08 22:00", "04-08 23:00", "04-09 00:00", "04-09 01:00", "04-09 02:00", "04-09 03:00", "04-09 04:00", "04-09 05:00", "04-09 06:00", "04-09 07:00", "04-09 08:00", "04-09 09:00", "04-09 10:00", "04-09 11:00", "04-09 12:00"];
+const vals10 = [2.99, 2.99, 3.0, 3.0, 2.99, 3.0, 3.01, 3.02, 3.02, 3.02, 3.03, 3.02, 3.02, 3.03, 3.03, 3.03, 3.03, 3.03, 3.03, 3.04, 3.06, 3.07, 3.06, 3.05, 3.04, 3.0, 2.97, 2.93, 2.89, 2.86, 2.83, 2.81, 2.79, 2.76, 2.73, 2.7, 2.66, 2.62, 2.58, 2.54, 2.51, 2.47, 2.43, 2.4, 2.36, 2.33, 2.3, 2.26, 2.23, 2.2, 2.17, 2.15, 2.13, 2.12, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.11, 2.21, 2.22, 2.21, 2.21, 2.21, 2.21, 2.2, 2.21, 2.2, 2.2, 2.2, 2.2, 2.21, 2.21, 2.2, 2.21, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.2, 2.19, 2.19, 2.2, 2.19, 2.2, 2.2, 2.21, 2.22, 2.23, 2.24, 2.25, 2.25, 2.26, 2.27, 2.27, 2.29, 2.3, 2.3, 2.3, 2.29, 2.28, 2.27, 2.26, 2.25, 2.24, 2.24, 2.26, 2.29, 2.32, 2.35, 2.38, 2.4, 2.41, 2.42, 2.42, 2.43, 2.43, 2.43, 2.43, 2.43, 2.43, 2.43, 2.42, 2.42, 2.43, 2.43, 2.43, 2.43, 2.43, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.43, 2.44, 2.44, 2.45, 2.46, 2.45, 2.45, 2.44, 2.43, 2.43, 2.42, 2.42, 2.42, 2.41, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.42, 2.41, 2.41, 2.41, 2.41, 2.41, 2.41, 2.41, 2.41, 2.41, 2.41, 2.41, 2.41, 2.42, 2.43, 2.46, 2.51, 2.57, 2.63, 2.69, 2.74, 2.8, 2.84, 2.89, 2.94, 2.99, 3.04, 3.08, 3.12, 3.15];
+const avg10 = 2.44;
+const avg10Data = labels10.map(() => avg10);
+
+const avgLinePlugin = {
+  id: 'avgLine',
+  afterDatasetsDraw(chart) {
+    const {ctx, chartArea, scales} = chart;
+    const y = scales.y.getPixelForValue(avg10);
+    ctx.save();
+    ctx.setLineDash([5,4]);
+    ctx.strokeStyle = '#d4a853';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(chartArea.left, y);
+    ctx.lineTo(chartArea.right, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#d4a853';
+    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('prom. ' + avg10.toFixed(2) + ' m', chartArea.left + 4, y - 5);
+    ctx.restore();
+  }
+};
+
+const todayMarkerPlugin = {
+  id: 'todayMarker',
+  afterDatasetsDraw(chart) {
+    const {ctx, chartArea, scales} = chart;
+    const todayIdx = labels10.findIndex(l => l === '04-09 00:00');
+    if (todayIdx === -1) return;
+    const x = scales.x.getPixelForValue(todayIdx);
+
+    ctx.save();
+
+    ctx.strokeStyle = '#b83a2e';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(x, chartArea.top);
+    ctx.lineTo(x, chartArea.bottom);
+    ctx.stroke();
+
+    const label = '9 ABR 2026';
+    ctx.font = '500 10px "IBM Plex Mono", monospace';
+    const tw = ctx.measureText(label).width;
+    const pad = 6;
+    const bx = x - tw / 2 - pad;
+    const by = chartArea.top + 6;
+    const bw = tw + pad * 2;
+    const bh = 18;
+
+    ctx.fillStyle = '#b83a2e';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, bw, bh, 3);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, x, by + bh / 2);
+
+    ctx.restore();
+  }
+};
+
+const tickLabels10 = labels10.map(l => l.endsWith('00:00') ? l.slice(0,5) : '');
+
+new Chart(document.getElementById('chart10d'), {
+  type: 'line',
+  plugins: [avgLinePlugin, todayMarkerPlugin],
+  data: {
+    labels: labels10,
+    datasets: [{
+      label: 'Altura horaria',
+      data: vals10,
+      borderColor: '#1a4f7a',
+      backgroundColor: 'rgba(26,79,122,0.08)',
+      fill: true,
+      pointRadius: 0,
+      borderWidth: 1.5,
+      tension: 0.3
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1a1a18',
+        titleColor: '#9a9a94',
+        bodyColor: '#f7f4ef',
+        titleFont: { family: "'IBM Plex Mono', monospace", size: 10 },
+        bodyFont: { family: "'IBM Plex Mono', monospace", size: 11 },
+        callbacks: {
+          title: (items) => labels10[items[0].dataIndex],
+          label: (ctx) => ' Altura: ' + ctx.parsed.y.toFixed(2) + ' m'
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          font: { size: 9, family: "'IBM Plex Mono', monospace" },
+          color: '#9a9a94',
+          maxRotation: 45,
+          autoSkip: false,
+          callback: (val, idx) => tickLabels10[idx] || null
+        },
+        grid: { display: false },
+        border: { color: '#dedad2' }
+      },
+      y: {
+        min: 1.9,
+        max: 3.4,
+        ticks: { font: { size: 9, family: "'IBM Plex Mono', monospace" }, color: '#9a9a94', callback: v => v.toFixed(1) + ' m' },
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        border: { color: '#dedad2' }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
