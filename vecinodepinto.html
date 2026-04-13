@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pinto Seguro — Reclamo Vecinal Plaza San Martín</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul: #1B3A6B;
+    --azul-medio: #2563B0;
+    --celeste: #38BDF8;
+    --naranja: #F97316;
+    --rojo: #DC2626;
+    --blanco: #F8FAFC;
+    --gris: #94A3B8;
+    --gris-claro: #E2E8F0;
+    --texto: #1E293B;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--blanco);
+    color: var(--texto);
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--azul);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: rgba(56,189,248,0.08);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -60px;
+    width: 350px; height: 350px;
+    border-radius: 50%;
+    background: rgba(249,115,22,0.07);
+  }
+
+  .escudo {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    animation: bounceIn 0.8s ease;
+  }
+
+  .hero-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--celeste);
+    margin-bottom: 1rem;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 12vw, 7rem);
+    color: #fff;
+    line-height: 0.95;
+    letter-spacing: 2px;
+    animation: fadeUp 0.6s ease 0.2s both;
+  }
+
+  .hero h1 span {
+    color: var(--naranja);
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.7);
+    max-width: 540px;
+    line-height: 1.7;
+    margin-top: 1.5rem;
+    animation: fadeUp 0.6s ease 0.35s both;
+  }
+
+  .hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 2rem;
+    animation: fadeUp 0.6s ease 0.45s both;
+  }
+
+  .badge {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 100px;
+    letter-spacing: 1px;
+  }
+
+  .badge.hot { background: rgba(249,115,22,0.25); border-color: var(--naranja); color: var(--naranja); }
+  .badge.blue { background: rgba(56,189,248,0.15); border-color: var(--celeste); color: var(--celeste); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.4);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    animation: pulse 2s infinite;
+  }
+
+  /* ── SECCIÓN PROBLEMAS ── */
+  .section {
+    padding: 5rem 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--naranja);
+    margin-bottom: 0.75rem;
+  }
+
+  .section h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    color: var(--azul);
+    line-height: 1.05;
+    margin-bottom: 1rem;
+  }
+
+  .section-intro {
+    font-size: 1.05rem;
+    color: #475569;
+    max-width: 580px;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+  }
+
+  .problemas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .problema-card {
+    background: #fff;
+    border: 1.5px solid var(--gris-claro);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .problema-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(27,58,107,0.1);
+  }
+
+  .problema-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    height: 4px;
+    width: 100%;
+    background: var(--azul-medio);
+  }
+
+  .problema-card.urgente::before { background: var(--rojo); }
+  .problema-card.media::before { background: var(--naranja); }
+  .problema-card.tech::before { background: var(--celeste); }
+
+  .problema-icono {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .problema-card h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--azul);
+    margin-bottom: 0.5rem;
+  }
+
+  .problema-card p {
+    font-size: 0.88rem;
+    color: #64748B;
+    line-height: 1.65;
+  }
+
+  /* ── SEPARADOR ── */
+  .separador {
+    background: var(--azul);
+    color: #fff;
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+
+  .separador h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 7vw, 4rem);
+    letter-spacing: 2px;
+  }
+
+  .separador h2 span { color: var(--celeste); }
+
+  .separador p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.65);
+    max-width: 560px;
+    margin: 1rem auto 0;
+    line-height: 1.7;
+  }
+
+  /* ── PROPUESTAS ── */
+  .propuestas-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .propuesta-item {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    background: #fff;
+    border: 1.5px solid var(--gris-claro);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: box-shadow 0.2s;
+  }
+
+  .propuesta-item:hover {
+    box-shadow: 0 8px 24px rgba(27,58,107,0.09);
+  }
+
+  .propuesta-num {
+    min-width: 48px;
+    height: 48px;
+    background: var(--azul);
+    color: #fff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+  }
+
+  .propuesta-item.destacada .propuesta-num {
+    background: var(--naranja);
+  }
+
+  .propuesta-item h3 {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--azul);
+    margin-bottom: 0.4rem;
+  }
+
+  .propuesta-item p {
+    font-size: 0.88rem;
+    color: #64748B;
+    line-height: 1.65;
+  }
+
+  /* ── DRONES ── */
+  .drone-section {
+    background: linear-gradient(135deg, #0F172A 0%, #1B3A6B 100%);
+    padding: 5rem 1.5rem;
+    color: #fff;
+  }
+
+  .drone-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  @media (max-width: 680px) {
+    .drone-inner { grid-template-columns: 1fr; }
+  }
+
+  .drone-section .section-label { color: var(--celeste); }
+
+  .drone-section h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    color: #fff;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+  }
+
+  .drone-section h2 span { color: var(--celeste); }
+
+  .drone-section p {
+    color: rgba(255,255,255,0.7);
+    line-height: 1.8;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .drone-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .drone-stat {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .drone-stat .num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--celeste);
+    letter-spacing: 1px;
+  }
+
+  .drone-stat .lbl {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.55);
+    margin-top: 2px;
+  }
+
+  .drone-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8rem;
+    opacity: 0.85;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* ── CANTERA ── */
+  .cantera-section {
+    background: #FFF7ED;
+    border-top: 4px solid var(--naranja);
+    padding: 4rem 1.5rem;
+  }
+
+  .cantera-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  @media (max-width: 600px) {
+    .cantera-inner { grid-template-columns: 1fr; }
+    .cantera-icon { text-align: center; }
+  }
+
+  .cantera-icon { font-size: 5rem; }
+
+  .cantera-section .section-label { color: var(--naranja); }
+
+  .cantera-section h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    color: var(--azul);
+    margin-bottom: 0.75rem;
+  }
+
+  .cantera-section p {
+    color: #78350F;
+    line-height: 1.8;
+    font-size: 0.95rem;
+  }
+
+  /* ── NOTA FORMAL ── */
+  .nota-section {
+    padding: 5rem 1.5rem;
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .nota-section h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    color: var(--azul);
+    margin-bottom: 1rem;
+  }
+
+  .nota-section p {
+    color: #475569;
+    line-height: 1.8;
+    max-width: 580px;
+    margin: 0 auto 2rem;
+    font-size: 0.97rem;
+  }
+
+  .nota-card {
+    background: #fff;
+    border: 1.5px solid var(--gris-claro);
+    border-radius: 20px;
+    padding: 2.5rem 2rem;
+    text-align: left;
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: var(--texto);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+
+  .nota-card .nota-header {
+    text-align: center;
+    border-bottom: 1px solid var(--gris-claro);
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .nota-card .nota-header p {
+    font-size: 0.85rem;
+    color: var(--gris);
+    margin: 0;
+  }
+
+  .nota-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: var(--azul);
+    letter-spacing: 1px;
+  }
+
+  .nota-card ul, .nota-card ol {
+    padding-left: 1.4rem;
+    margin: 0.5rem 0 1rem;
+  }
+
+  .nota-card li { margin-bottom: 0.35rem; }
+
+  .firma-block {
+    border-top: 1px solid var(--gris-claro);
+    padding-top: 1.25rem;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--gris);
+  }
+
+  /* ── PRESUPUESTO ── */
+  .presupuesto-section {
+    background: var(--azul);
+    padding: 5rem 1.5rem;
+    color: #fff;
+  }
+
+  .presupuesto-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .presupuesto-section .section-label { color: var(--celeste); }
+
+  .presupuesto-section h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    margin-bottom: 2rem;
+  }
+
+  .presupuesto-section h2 span { color: var(--naranja); }
+
+  .pres-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 600px) { .pres-grid { grid-template-columns: 1fr; } }
+
+  .pres-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 16px;
+    padding: 1.75rem;
+  }
+
+  .pres-card h3 {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--celeste);
+    margin-bottom: 1rem;
+  }
+
+  .pres-tabla { width: 100%; font-size: 0.83rem; border-collapse: collapse; }
+
+  .pres-tabla tr { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .pres-tabla tr:last-child { border-bottom: none; font-weight: 800; }
+  .pres-tabla td { padding: 8px 4px; color: rgba(255,255,255,0.85); }
+  .pres-tabla td:last-child { text-align: right; white-space: nowrap; }
+  .pres-tabla tr:last-child td { color: var(--naranja); font-size: 0.9rem; }
+
+  .total-bar {
+    background: var(--naranja);
+    border-radius: 12px;
+    padding: 1.25rem 1.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .total-bar span { font-size: 0.9rem; font-weight: 700; color: #fff; }
+  .total-bar strong { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: #fff; letter-spacing: 1px; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #0F172A;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    font-size: 0.82rem;
+    line-height: 1.8;
+  }
+
+  footer strong { color: rgba(255,255,255,0.85); }
+
+  /* ── ANIMACIONES ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-16px); }
+  }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="escudo">🏛️</div>
+  <p class="hero-label">Pinto · Santiago del Estero</p>
+  <h1>PINTO<br><span>SEGURO</span></h1>
+  <p class="hero-sub">Un reclamo vecinal por la Plaza San Martín y la calidad de vida de toda nuestra comunidad.</p>
+  <div class="hero-badges">
+    <span class="badge hot">Quema de residuos</span>
+    <span class="badge">Falta de cámaras</span>
+    <span class="badge hot">Inseguridad nocturna</span>
+    <span class="badge blue">Propuesta de drones</span>
+    <span class="badge">Motos sin control</span>
+    <span class="badge blue">Más iluminación</span>
+  </div>
+  <p class="scroll-hint">▼ &nbsp; VER MÁS</p>
+</section>
+
+<!-- PROBLEMAS -->
+<section style="padding: 5rem 1.5rem; background: #F8FAFC;">
+  <div style="max-width: 1000px; margin: 0 auto;">
+    <p class="section-label fade-in">El problema</p>
+    <h2 class="fade-in" style="font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.2rem, 6vw, 3.5rem); color: var(--azul); line-height: 1.05; margin-bottom: 1rem;">Lo que vivimos<br>a diario en Pinto</h2>
+    <p class="section-intro fade-in">Los vecinos del barrio venimos soportando situaciones que afectan nuestra salud, descanso y seguridad. Ya es hora de que la municipalidad actúe.</p>
+    <div class="problemas-grid">
+      <div class="problema-card urgente fade-in">
+        <div class="problema-icono">🔥</div>
+        <h3>Quema de basura</h3>
+        <p>Vecinos queman residuos sanitarios de noche. El humo y el olor insoportable afecta la salud de adultos mayores y niños.</p>
+      </div>
+      <div class="problema-card urgente fade-in">
+        <div class="problema-icono">🌿</div>
+        <h3>Consumo de drogas en la plaza</h3>
+        <p>Jóvenes consumen marihuana y alcohol en la Plaza San Martín, impidiendo que sea un espacio familiar y seguro.</p>
+      </div>
+      <div class="problema-card media fade-in">
+        <div class="problema-icono">🔊</div>
+        <h3>Música a todo volumen</h3>
+        <p>Ruidos hasta la madrugada que no permiten dormir. Sin posibilidad de descanso digno para los vecinos.</p>
+      </div>
+      <div class="problema-card media fade-in">
+        <div class="problema-icono">🏍️</div>
+        <h3>Motos a alta velocidad</h3>
+        <p>Circulación irresponsable de motocicletas en el casco urbano, poniendo en riesgo a peatones y familias.</p>
+      </div>
+      <div class="problema-card fade-in">
+        <div class="problema-icono">📷</div>
+        <h3>Cero cámaras de seguridad</h3>
+        <p>Ningún sector del barrio cuenta con videovigilancia. Los delitos quedan impunes por falta de evidencia.</p>
+      </div>
+      <div class="problema-card fade-in">
+        <div class="problema-icono">💡</div>
+        <h3>Iluminación insuficiente</h3>
+        <p>Calles y espacios públicos sin luz adecuada, lo que favorece la inseguridad y los incidentes nocturnos.</p>
+      </div>
+      <div class="problema-card media fade-in">
+        <div class="problema-icono">🗑️</div>
+        <h3>Basura abandonada en la plaza</h3>
+        <p>Quienes se juntan a tomar en la Plaza San Martín dejan botellas, bolsas y residuos tirados. El municipio limpia, pero el problema se repite noche tras noche. No alcanza con limpiar: hace falta que haya consecuencias para quienes ensucian.</p>
+      </div>
+      <div class="problema-card urgente fade-in">
+        <div class="problema-icono">🚒</div>
+        <h3>Pinto no tiene cuartel de bomberos</h3>
+        <p>Ante cualquier incendio, accidente o emergencia grave, los vecinos quedamos sin respuesta inmediata. La ciudad más cercana con bomberos puede tardar 40 minutos o más. Cada minuto cuenta.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOMBEROS -->
+<section style="padding: 5rem 1.5rem; background: #fff3f3; border-top: 4px solid #DC2626;">
+  <div style="max-width: 860px; margin: 0 auto;">
+    <p class="section-label fade-in" style="color: #DC2626;">🚒 Emergencia estructural</p>
+    <h2 class="fade-in" style="font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.2rem, 6vw, 3.5rem); color: #DC2626; line-height: 1.05; margin-bottom: 1rem;">Pinto no tiene<br>cuartel de bomberos</h2>
+    <p class="fade-in" style="font-size: 1.05rem; color: #7f1d1d; max-width: 640px; line-height: 1.8; margin-bottom: 2.5rem;">
+      Esta es la deuda más urgente de nuestra ciudad. Ante un incendio domiciliario, una explosión de gas, un accidente vial grave o cualquier otra emergencia que requiera intervención profesional, los vecinos de Pinto quedamos completamente desprotegidos. <br><br>
+      No se trata de política ni de gestiones pasadas. Es una necesidad humana básica que no admite demoras.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
+      <div style="background: #fff; border: 1.5px solid #fca5a5; border-radius: 16px; padding: 1.5rem; text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⏱️</div>
+        <div style="font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; color: #DC2626;">+40 min</div>
+        <div style="font-size: 0.85rem; color: #64748B; font-weight: 700;">tiempo estimado de llegada<br>desde otra localidad</div>
+      </div>
+      <div style="background: #fff; border: 1.5px solid #fca5a5; border-radius: 16px; padding: 1.5rem; text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏠</div>
+        <div style="font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; color: #DC2626;">0</div>
+        <div style="font-size: 0.85rem; color: #64748B; font-weight: 700;">cuarteles de bomberos<br>en Pinto</div>
+      </div>
+      <div style="background: #fff; border: 1.5px solid #fca5a5; border-radius: 16px; padding: 1.5rem; text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👨‍👩‍👧‍👦</div>
+        <div style="font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; color: #DC2626;">100%</div>
+        <div style="font-size: 0.85rem; color: #64748B; font-weight: 700;">de los vecinos<br>sin cobertura</div>
+      </div>
+    </div>
+
+    <div style="background: #fff; border-left: 5px solid #DC2626; border-radius: 0 16px 16px 0; padding: 1.75rem 1.5rem; margin-bottom: 2rem;">
+      <h3 style="font-size: 1.1rem; font-weight: 800; color: #DC2626; margin-bottom: 1rem;">¿Qué pedimos como vecinos?</h3>
+      <ol style="padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.75rem; color: #1E293B; font-size: 0.95rem; line-height: 1.7;">
+        <li><strong>Gestión de un Cuartel de Bomberos Voluntarios</strong> — La provincia y la nación cuentan con programas de apoyo para la creación de cuarteles. Pedimos que el municipio inicie las gestiones formales de inmediato.</li>
+        <li><strong>Convocatoria a bomberos voluntarios</strong> — Los cuarteles voluntarios se sostienen con vecinos capacitados. Solicitamos que el municipio organice una convocatoria y coordine la formación con Bomberos de la provincia de Santiago del Estero.</li>
+        <li><strong>Equipamiento inicial mínimo</strong> — Un vehículo cisterna adaptado, equipos de protección personal y herramientas básicas de rescate son suficientes para comenzar a operar.</li>
+        <li><strong>Terreno y sede provisoria</strong> — Pedimos la cesión de un espacio municipal como sede transitoria del cuartel mientras se gestionan fondos permanentes.</li>
+      </ol>
+    </div>
+
+    <div style="background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: 16px; padding: 1.5rem; color: #7f1d1d; font-size: 0.92rem; line-height: 1.7;">
+      <strong>⚠️ Aclaración:</strong> Este reclamo no tiene ninguna connotación política. La ausencia de bomberos en Pinto es una realidad histórica que trasciende cualquier gestión. Lo pedimos como vecinos, para proteger a nuestras familias, sin importar quién gobierne.
+    </div>
+  </div>
+</section>
+
+<!-- SEPARADOR -->
+<div class="separador">
+  <h2>LO QUE <span>PEDIMOS</span></h2>
+  <p>Propuestas concretas, viables y con presupuesto real para recuperar nuestra comunidad.</p>
+</div>
+
+<!-- PROPUESTAS -->
+<section style="padding: 5rem 1.5rem; background: #fff;">
+  <div style="max-width: 860px; margin: 0 auto;">
+    <p class="section-label fade-in">Nuestras soluciones</p>
+    <h2 class="fade-in" style="font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem, 6vw, 3.2rem); color: var(--azul); margin-bottom: 2rem;">Propuestas al municipio</h2>
+    <div class="propuestas-list">
+      <div class="propuesta-item fade-in">
+        <div class="propuesta-num">01</div>
+        <div>
+          <h3>Instalación de cámaras de seguridad</h3>
+          <p>Sistema de 6 cámaras IP HD con visión nocturna, grabador DVR y monitor de monitoreo. Cobertura de los puntos más conflictivos del barrio con almacenamiento de 30 días.</p>
+        </div>
+      </div>
+      <div class="propuesta-item fade-in">
+        <div class="propuesta-num">02</div>
+        <div>
+          <h3>Mejora de la iluminación pública</h3>
+          <p>Ampliación y modernización del sistema de iluminación en calles y espacios públicos, priorizando los sectores aledaños a la Plaza San Martín.</p>
+        </div>
+      </div>
+      <div class="propuesta-item destacada fade-in">
+        <div class="propuesta-num">03</div>
+        <div>
+          <h3>Drones con cámara térmica — control de quemas</h3>
+          <p>Sistema de 2 drones con sensor térmico FLIR para patrullaje nocturno. Detectan focos de calor en tiempo real y envían alerta automática con coordenadas GPS a inspectores municipales para actuar de inmediato.</p>
+        </div>
+      </div>
+      <div class="propuesta-item fade-in">
+        <div class="propuesta-num">04</div>
+        <div>
+          <h3>Mayor presencia policial nocturna</h3>
+          <p>Patrullajes regulares especialmente entre las 22 hs y las 4 hs, con control de velocidad para motocicletas y verificación del cumplimiento de normas de convivencia.</p>
+        </div>
+      </div>
+      <div class="propuesta-item fade-in">
+        <div class="propuesta-num">05</div>
+        <div>
+          <h3>Habilitación de la cantera como espacio recreativo</h3>
+          <p>Reubicación de las actividades recreativas nocturnas a la cantera ubicada a 1 km del casco urbano. Un espacio amplio, despejado, sin vecinos afectados — donde los jóvenes puedan reunirse sin generar conflictos.</p>
+        </div>
+      </div>
+      <div class="propuesta-item fade-in">
+        <div class="propuesta-num">06</div>
+        <div>
+          <h3>Concientización y sanciones por quema de residuos</h3>
+          <p>Campaña informativa sobre correcta disposición de residuos, mayor frecuencia de recolección nocturna y aplicación efectiva de multas a quienes practiquen la quema en la vía pública.</p>
+        </div>
+      </div>
+      <div class="propuesta-item fade-in">
+        <div class="propuesta-num">07</div>
+        <div>
+          <h3>Sanciones por abandono de basura en espacios públicos</h3>
+          <p>El municipio realiza un esfuerzo constante limpiando la plaza, pero la limpieza no resuelve el problema de fondo: la gente tiene derecho a reunirse en la plaza, pero no a dejar su basura para que la limpien otros. Pedimos la creación o aplicación efectiva de una ordenanza que establezca multas para quienes abandonen residuos (botellas, bolsas, envases) en la Plaza San Martín y demás espacios públicos. La medida debe incluir cartelería visible con las sanciones vigentes y actuación del personal municipal o policial ante la reincidencia.</p>
+        </div>
+      </div>
+  </div>
+</section>
+
+<!-- DRONES -->
+<section class="drone-section">
+  <div class="drone-inner">
+    <div>
+      <p class="section-label">Tecnología para el barrio</p>
+      <h2>DRONES <span>TÉRMICOS</span><br>EN ACCIÓN</h2>
+      <p>El drone patrulla el barrio en rondas programadas durante la noche. La cámara térmica detecta focos de calor anómalos al instante y el sistema envía una alerta automática con la ubicación GPS exacta para que inspectores o bomberos actúen de inmediato.</p>
+      <p>Sin personal extra. Sin puntos ciegos. Con evidencia digital para labrar actas de infracción.</p>
+      <div class="drone-stats">
+        <div class="drone-stat">
+          <div class="num">2</div>
+          <div class="lbl">drones operativos</div>
+        </div>
+        <div class="drone-stat">
+          <div class="num">24/7</div>
+          <div class="lbl">cobertura nocturna</div>
+        </div>
+        <div class="drone-stat">
+          <div class="num">&lt;30s</div>
+          <div class="lbl">tiempo de alerta</div>
+        </div>
+        <div class="drone-stat">
+          <div class="num">GPS</div>
+          <div class="lbl">ubicación exacta</div>
+        </div>
+      </div>
+    </div>
+    <div class="drone-visual">🚁</div>
+  </div>
+</section>
+
+<!-- CANTERA -->
+<section class="cantera-section">
+  <div class="cantera-inner">
+    <div class="cantera-icon">⛏️</div>
+    <div>
+      <p class="section-label">Una solución inteligente</p>
+      <h2>La cantera: espacio para todos</h2>
+      <p>A 1 km del casco urbano, la cantera es un lugar despejado, sin vecinos que afectar. Proponemos que el municipio la habilite como zona de esparcimiento nocturno con iluminación básica, para que los jóvenes puedan reunirse, escuchar música y disfrutar su tiempo libre sin generar conflictos. <br><br>Cada uno es libre de vivir su vida — siempre que no afecte ni ponga en riesgo a los demás. Esta propuesta respeta esa libertad y resuelve el conflicto sin perseguir a nadie.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NOTA FORMAL -->
+<section class="nota-section">
+  <p class="section-label fade-in">Documento oficial</p>
+  <h2 class="fade-in">Nota de reclamo<br>a la municipalidad</h2>
+  <p class="fade-in">Texto formal para presentar ante el Intendente o Director de Seguridad de Pinto, con todas las firmas de los vecinos adherentes.</p>
+
+  <div class="nota-card fade-in">
+    <div class="nota-header">
+      <p>Pinto, Santiago del Estero — [FECHA]</p>
+      <h3>Nota de reclamo vecinal</h3>
+    </div>
+    <p><strong>Sr./Sra. Intendente/a / Director/a de Seguridad Municipal — Municipio de Pinto, S / D</strong></p><br>
+    <p>Por medio de la presente, los vecinos de Pinto nos dirigimos a usted con el fin de poner en conocimiento situaciones que afectan gravemente la seguridad, la tranquilidad y la calidad de vida de quienes habitamos nuestra ciudad.</p><br>
+    <p><strong>Problemáticas detectadas:</strong></p>
+    <ul>
+      <li>Consumo de sustancias ilegales y alcohol en la Plaza San Martín.</li>
+      <li>Abandono de basura, botellas y residuos en la Plaza San Martín por parte de quienes se reúnen a tomar, generando un deterioro constante del espacio público pese a los esfuerzos de limpieza municipal.</li>
+      <li>Música a alto volumen en horario nocturno que impide el descanso.</li>
+      <li>Circulación de motocicletas a velocidad excesiva.</li>
+      <li>Ausencia total de cámaras de seguridad en el sector.</li>
+      <li>Iluminación insuficiente en calles y espacios públicos.</li>
+      <li>Quema clandestina de residuos sanitarios en la vía pública, generando humo tóxico y olores insoportables que afectan la salud de los vecinos.</li>
+      <li><strong>Ausencia de un cuartel de bomberos en la ciudad de Pinto</strong>, dejando a toda la población sin cobertura ante incendios, explosiones y emergencias graves.</li>
+    </ul><br>
+    <p><strong>Solicitudes concretas:</strong></p>
+    <ol>
+      <li>Instalación de cámaras de videovigilancia en puntos estratégicos.</li>
+      <li>Mejora y ampliación del sistema de iluminación pública.</li>
+      <li>Mayor patrullaje policial nocturno y control de velocidad.</li>
+      <li>Implementación de drones con cámara térmica para detección de focos de quema.</li>
+      <li>Sanciones efectivas por quema de residuos en la vía pública.</li>
+      <li>Aplicación efectiva de multas o sanciones a quienes abandonen residuos en la Plaza San Martín y espacios públicos, con cartelería informativa sobre las penalidades vigentes.</li>
+      <li>Habilitación de la cantera (a 1 km del casco urbano) como zona de esparcimiento nocturno, con iluminación básica.</li>
+      <li><strong>Gestión ante la provincia para la creación de un Cuartel de Bomberos Voluntarios en Pinto</strong>, con convocatoria a voluntarios, capacitación y equipamiento inicial mínimo.</li>
+    </ol><br>
+    <p>Adjuntamos propuestas de presupuesto mínimo para los sistemas mencionados. Quedamos a disposición para cualquier instancia de diálogo.</p>
+    <div class="firma-block">
+      <p>Atentamente, los vecinos de Pinto — Santiago del Estero.</p>
+      <p style="margin-top: 0.5rem;">[Espacio para firmas, aclaraciones y DNI]</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRESUPUESTO -->
+<section class="presupuesto-section">
+  <div class="presupuesto-inner">
+    <p class="section-label">Inversión estimada</p>
+    <h2>PRESUPUESTO <span>MÍNIMO</span><br>PROPUESTO</h2>
+    <div class="pres-grid">
+      <div class="pres-card">
+        <h3>📷 Sistema de cámaras</h3>
+        <table class="pres-tabla">
+          <tr><td>6 cámaras IP HD 1080p</td><td>$390.000</td></tr>
+          <tr><td>DVR 8 canales + 1TB</td><td>$180.000</td></tr>
+          <tr><td>Cableado y conectores</td><td>$120.000</td></tr>
+          <tr><td>Soportes y cajas</td><td>$72.000</td></tr>
+          <tr><td>Monitor 21"</td><td>$130.000</td></tr>
+          <tr><td>Instalación y config.</td><td>$280.000</td></tr>
+          <tr><td><strong>TOTAL CÁMARAS</strong></td><td><strong>$1.172.000</strong></td></tr>
+        </table>
+      </div>
+      <div class="pres-card">
+        <h3>🚁 Sistema de drones</h3>
+        <table class="pres-tabla">
+          <tr><td>2 drones cámara térmica</td><td>$2.400.000</td></tr>
+          <tr><td>Software de alertas</td><td>$350.000</td></tr>
+          <tr><td>Base de operaciones</td><td>$280.000</td></tr>
+          <tr><td>Tablets monitoreo (x2)</td><td>$240.000</td></tr>
+          <tr><td>Capacitación operadores</td><td>$180.000</td></tr>
+          <tr><td>Mantenimiento anual</td><td>$350.000</td></tr>
+          <tr><td><strong>TOTAL DRONES</strong></td><td><strong>$3.800.000</strong></td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="total-bar">
+      <span>Inversión total estimada ambos sistemas</span>
+      <strong>$4.972.000</strong>
+    </div>
+    <p style="font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 1rem; text-align: center;">Precios estimados en pesos argentinos · Abril 2026 · Sujeto a cotización final de proveedores</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>Vecinos Unidos de Pinto</strong> · Plaza San Martín · Santiago del Estero</p>
+  <p style="margin-top: 0.5rem;">Esta página es una iniciativa vecinal sin fines de lucro.<br>Para sumarte al reclamo, firmá la nota y presentala en el municipio.</p>
+</footer>
+
+<script>
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
