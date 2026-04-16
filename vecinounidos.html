@@ -220,41 +220,48 @@
       <rect x="12" y="40" width="28" height="240" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
       <text x="26" y="166" text-anchor="middle" transform="rotate(-90,26,166)" class="diag-label" fill="#085041">Canal Mikilo</text>
 
-      <!-- Canal de los Ingleses (ramal) horizontal -->
-      <rect x="40" y="95" width="110" height="18" rx="4" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4,3"/>
-      <text x="95" y="107" text-anchor="middle" class="diag-small" fill="#0F6E56">C. de los Ingleses</text>
+      <!-- Canal de los Ingleses — borde norte S2, S1 y S3 -->
+      <rect x="40" y="95" width="322" height="18" rx="4" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="200" y="107" text-anchor="middle" class="diag-small" fill="#0F6E56">Canal de los Ingleses — norte S2, S1 y S3</text>
 
       <!-- Vías del tren -->
       <line x1="150" y1="40" x2="150" y2="280" stroke="#888780" stroke-width="2.5" stroke-dasharray="8,4"/>
-      <text x="156" y="60" class="diag-small" fill="#5F5E5A">Vías</text>
+      <text x="153" y="75" class="diag-small" fill="#5F5E5A">Vías</text>
 
       <!-- Ruta 34 -->
       <line x1="240" y1="40" x2="240" y2="280" stroke="#444441" stroke-width="2.5"/>
-      <text x="246" y="60" class="diag-small" fill="#2C2C2A">Ruta 34</text>
+      <text x="243" y="75" class="diag-small" fill="#2C2C2A">Ruta 34</text>
 
       <!-- Canal Defensa derecha -->
       <rect x="358" y="40" width="28" height="240" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/>
       <text x="372" y="166" text-anchor="middle" transform="rotate(-90,372,166)" class="diag-label" fill="#633806">Canal Defensa</text>
 
-      <!-- Sector 1 -->
-      <rect x="46" y="120" width="96" height="90" rx="6" fill="#E6F1FB" stroke="#378ADD" stroke-width="1"/>
-      <text x="94" y="158" text-anchor="middle" class="diag-label" fill="#0C447C">Sector 1</text>
-      <text x="94" y="172" text-anchor="middle" class="diag-small" fill="#185FA5">Vías ↔ Mikilo</text>
+      <!-- Sector 2: Mikilo(O) — Vías(E) — C.Ingleses(N) -->
+      <rect x="46" y="120" width="96" height="90" rx="6" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
+      <text x="94" y="151" text-anchor="middle" class="diag-label" fill="#085041">Sector 2</text>
+      <text x="94" y="163" text-anchor="middle" class="diag-small" fill="#0F6E56">Mikilo(O)·Vías(E)</text>
+      <text x="94" y="174" text-anchor="middle" class="diag-small" fill="#0F6E56">6 compuertas</text>
+      <text x="94" y="185" text-anchor="middle" class="diag-small" fill="#0F6E56">→ C.Ingleses+Mikilo</text>
 
-      <!-- Sector 2 -->
-      <rect x="156" y="120" width="76" height="90" rx="6" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
-      <text x="194" y="158" text-anchor="middle" class="diag-label" fill="#085041">Sector 2</text>
-      <text x="194" y="172" text-anchor="middle" class="diag-small" fill="#0F6E56">Vías ↔ Ruta 34</text>
+      <!-- Sector 1: Vías(O) — Ruta34(E) — C.Ingleses(N) -->
+      <rect x="156" y="120" width="76" height="90" rx="6" fill="#E6F1FB" stroke="#378ADD" stroke-width="1"/>
+      <text x="194" y="151" text-anchor="middle" class="diag-label" fill="#0C447C">Sector 1</text>
+      <text x="194" y="163" text-anchor="middle" class="diag-small" fill="#185FA5">Vías(O)·R34(E)</text>
+      <text x="194" y="175" text-anchor="middle" class="diag-small" fill="#185FA5">→ Ruta 34 sur</text>
 
-      <!-- Sector 3 barrio matadero -->
+      <!-- Sector 3: Ruta34(O) — C.Ingleses(N) — C.Defensa(E) -->
       <rect x="248" y="120" width="102" height="90" rx="6" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
-      <text x="299" y="155" text-anchor="middle" class="diag-label" fill="#633806">Sector 3</text>
-      <text x="299" y="169" text-anchor="middle" class="diag-small" fill="#854F0B">Bº Matadero</text>
-      <text x="299" y="181" text-anchor="middle" class="diag-small" fill="#854F0B">Ruta 34 ↔ Defensa</text>
+      <text x="299" y="148" text-anchor="middle" class="diag-label" fill="#633806">Sector 3</text>
+      <text x="299" y="160" text-anchor="middle" class="diag-small" fill="#854F0B">Bº Matadero</text>
+      <text x="299" y="171" text-anchor="middle" class="diag-small" fill="#854F0B">R34(O)·C.Def(E)</text>
+      <text x="299" y="182" text-anchor="middle" class="diag-small" fill="#854F0B">→ Canal Defensa</text>
 
-      <!-- Flechas desagote propuesto -->
-      <line x1="46" y1="165" x2="43" y2="165" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="156" y1="165" x2="43" y2="165" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- Flechas desagote: S2 → Mikilo (izq) y → C.Ingleses (arriba) -->
+      <line x1="46" y1="155" x2="43" y2="155" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="94" y1="120" x2="94" y2="115" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- S1 → Ruta 34 sur -->
+      <line x1="194" y1="210" x2="214" y2="260" stroke="#378ADD" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- S3 → Canal Defensa (der) -->
       <line x1="350" y1="165" x2="357" y2="165" stroke="#BA7517" stroke-width="1.5" marker-end="url(#arr)"/>
 
       <!-- Problema alto ruta -->
@@ -281,12 +288,12 @@
     <div class="canal-card">
       <span class="canal-tag tag-blue">Canal principal</span>
       <h3>Canal Mikilo</h3>
-      <p>Bordea uno de los lados de la ciudad. Su uso es el abastecimiento de <strong>plantas potabilizadoras</strong> y la <strong>ganadería ovina y caprina</strong> de la zona. No es un canal de riego. Con nivel bajo puede recibir el desagote de los sectores 1 y 2 mediante compuertas.</p>
+      <p>Bordea uno de los lados de la ciudad. Su uso es el abastecimiento de <strong>plantas potabilizadoras</strong> y la <strong>ganadería ovina y caprina</strong> de la zona. No es un canal de riego. Con nivel bajo puede recibir el desagote del Sector 2 (barrios Malvinas y Ampliación Malvinas) mediante 3 compuertas.</p>
     </div>
     <div class="canal-card">
       <span class="canal-tag tag-blue">Ramal secundario</span>
       <h3>Canal de los Ingleses</h3>
-      <p>Ramal del Canal Mikilo que recorre la zona del Sector 1. Puede recibir parte del desagote de ese sector y de algunos barrios cercanos. <strong>El borde / terraplén sobre este canal fue removido</strong> con el objetivo de levantar y mejorar el camino que va hacia la cantera, y colocar ripio en ese acceso. Como consecuencia directa, en la última crecida el canal desbordó por lluvia sin contención, afectando al Barrio Matadero. <strong>El borde debe reconstruirse de forma urgente</strong> para evitar que se repita esta situación.</p>
+      <p>Ramal del Canal Mikilo que bordea el norte de los tres sectores de la ciudad. En el Sector 2 recibe la descarga de los barrios Rivadavia y parte del Tigre mediante 3 compuertas. Puede recibir parte del desagote de ese sector y de algunos barrios cercanos. <strong>El borde / terraplén sobre este canal fue removido</strong> con el objetivo de levantar y mejorar el camino que va hacia la cantera, y colocar ripio en ese acceso. Como consecuencia directa, en la última crecida el canal desbordó por lluvia sin contención, afectando al Barrio Matadero. <strong>El borde debe reconstruirse de forma urgente</strong> para evitar que se repita esta situación.</p>
     </div>
     <div class="canal-card">
       <span class="canal-tag tag-amber">Requiere habilitación</span>
@@ -313,25 +320,25 @@
       <div class="sector-head">
         <div class="sector-num-box">1</div>
         <div class="sector-head-info">
-          <h3>Entre las vías del tren y el Canal Mikilo</h3>
-          <p>Desagote hacia el Canal de los Ingleses (ramal Mikilo) y secundariamente por Ruta 34</p>
+          <h3>Entre las Vías del tren (oeste) y la Ruta 34 (este) — Canal de los Ingleses al norte</h3>
+          <p>El agua de este sector descarga hacia el sur por la Ruta 34, donde encuentra el alto natural que bloquea el flujo</p>
         </div>
       </div>
       <div class="sector-body">
         <div class="ep ep-ahora">
           <div class="ep-label">Hoy</div>
-          <p>Sin conexión a ningún canal. Sin desagüe formal. El agua se acumula y escurre sin control. Parte sale por la Ruta 34 pero encuentra el alto natural que limita el flujo.</p>
+          <p>Sin desagüe formal. El agua escurre sin control hacia la Ruta 34 y choca con el alto natural a pocos kilómetros, donde se acumula y retrocede hacia la ciudad.</p>
         </div>
         <div class="ep ep-prop">
           <div class="ep-label">Propuesta</div>
-          <p>Nivelar calles con pendiente hacia el Canal de los Ingleses para dirigir el agua al canal por gravedad. Parte del sector puede también drenar al Canal Mikilo principal con compuertas.</p>
+          <p>Rebajar el alto natural sobre la Ruta 34 con maquinaria vial para recuperar la pendiente y permitir que el agua fluya aguas abajo sin retroceder hacia la ciudad.</p>
         </div>
       </div>
       <div class="urgente-box">
         <span class="urgente-icon">⚠</span>
         <div>
-          <h4>Acción urgente — Canal de los Ingleses</h4>
-          <p>El borde / terraplén sobre el Canal de los Ingleses fue removido para levantar el camino a la cantera y colocar ripio. Sin esa contención, en la última crecida el canal desbordó por lluvia afectando directamente al Barrio Matadero. El borde debe reconstruirse de manera urgente antes de la próxima temporada de lluvias.</p>
+          <h4>Acción urgente — reconstrucción del borde del Canal de los Ingleses</h4>
+          <p>El terraplén norte sobre el Canal de los Ingleses fue removido para levantar el camino al balneario / cantera y colocar ripio. Sin esa contención, en la última crecida el canal desbordó afectando directamente al Barrio Matadero. El borde debe reconstruirse de manera urgente antes de la próxima temporada de lluvias.</p>
         </div>
       </div>
     </div>
@@ -341,25 +348,35 @@
       <div class="sector-head">
         <div class="sector-num-box">2</div>
         <div class="sector-head-info">
-          <h3>Entre las vías del tren y la Ruta 34</h3>
-          <p>Desagote directo al Canal Mikilo — proyecto de 8 compuertas</p>
+          <h3>Entre el Canal Mikilo (oeste) y las Vías del tren (este) — Canal de los Ingleses al norte</h3>
+          <p>6 compuertas: 3 al Canal de los Ingleses (barrios Rivadavia y parte del Tigre) · 3 al Canal Mikilo (barrios Malvinas y Ampliación Malvinas) · + desagüe existente calle Santa Fe</p>
         </div>
       </div>
       <div class="sector-body">
         <div class="ep ep-ahora">
           <div class="ep-label">Hoy</div>
-          <p>Sin conexión al Canal Mikilo. Sin compuertas. El agua no tiene salida controlada hacia el canal que corre paralelo.</p>
+          <p>Un único punto de salida: el desagüe de calle Santa Fe. Toda el agua del sector depende de un solo conducto — insuficiente para absorber el caudal de una tormenta importante.</p>
         </div>
         <div class="ep ep-prop">
           <div class="ep-label">Propuesta</div>
-          <p>8 compuertas sobre el Canal Mikilo + nivelación de calles con pendiente hacia el canal, aprovechando la baja pendiente natural de la zona. El agua fluye por gravedad sin necesidad de bombeo.</p>
+          <p>6 compuertas distribuidas en dos canales + el desagüe existente de calle Santa Fe = <strong>7 puntos de salida</strong>. El agua fluye por gravedad sin bombeo. Se pasa de 1 a 7 salidas, distribuyendo la carga y evitando el colapso.</p>
+        </div>
+      </div>
+      <div style="margin: 0 1.25rem 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div style="background: var(--teal-50); border: 1px solid var(--teal-100); border-radius: 10px; padding: .85rem 1rem;">
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--teal-800); margin-bottom: .4rem;">3 compuertas → Canal de los Ingleses</div>
+          <p style="font-size: .85rem; color: var(--teal-900); line-height: 1.5;">Beneficia a los barrios <strong>Rivadavia</strong> y parte del <strong>Tigre</strong>, que descargan hacia el norte al Canal de los Ingleses.</p>
+        </div>
+        <div style="background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: 10px; padding: .85rem 1rem;">
+          <div style="font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue-800); margin-bottom: .4rem;">3 compuertas → Canal Mikilo</div>
+          <p style="font-size: .85rem; color: var(--blue-900); line-height: 1.5;">Beneficia a los barrios <strong>Malvinas</strong> y <strong>Ampliación Malvinas</strong>, que descargan hacia el oeste al Canal Mikilo.</p>
         </div>
       </div>
       <div class="urgente-box" style="background:var(--amber-50);border-color:var(--amber-100)">
         <span class="urgente-icon">💡</span>
         <div>
           <h4 style="color:var(--amber-800)">Prueba piloto posible</h4>
-          <p style="color:var(--amber-800)">El municipio puede construir <strong>una sola compuerta</strong> para validar el sistema antes de la licitación completa. Si funciona en el primer evento de lluvia, ese resultado es el argumento técnico para las 8 compuertas.</p>
+          <p style="color:var(--amber-800)">El municipio puede construir <strong>una sola compuerta</strong> para validar el sistema antes de la licitación completa. Si funciona en el primer evento de lluvia, ese resultado es el argumento técnico para las 6 compuertas del sistema completo.</p>
         </div>
       </div>
     </div>
@@ -370,17 +387,17 @@
         <div class="sector-num-box">3</div>
         <div class="sector-head-info">
           <h3>Barrio Matadero</h3>
-          <p>Entre la Ruta 34 y el Canal Defensa — desagote hacia el canal que lo protege</p>
+          <p>Oeste: Ruta 34 · Norte: Canal de los Ingleses · Este: Canal Defensa — desagote hacia el Canal Defensa de Pinto</p>
         </div>
       </div>
       <div class="sector-body">
         <div class="ep ep-ahora">
           <div class="ep-label">Hoy</div>
-          <p>El Canal Defensa existe pero está tapado y sin curso. El barrio no tiene conexión de desagote. El agua se acumula sin salida.</p>
+          <p>El Canal Defensa está tapado y sin curso. El borde del Canal de los Ingleses al norte fue removido para hacer el camino al balneario / cantera. El barrio no tiene salida de agua: se acumula sin control.</p>
         </div>
         <div class="ep ep-prop">
           <div class="ep-label">Propuesta</div>
-          <p>Limpiar y habilitar el Canal Defensa (Vaca Blanca). Conectar el barrio al canal mediante nivelación de calles y compuertas. El mismo canal que lo protege recibe su desagote.</p>
+          <p>Limpiar y habilitar el Canal Defensa (Vaca Blanca) para que reciba la descarga del Sector 3. Nivelar calles con pendiente hacia el canal este. El agua del barrio sale hacia el Canal Defensa por gravedad.</p>
         </div>
       </div>
     </div>
@@ -519,7 +536,7 @@
         <p>1 compuerta al Canal Mikilo</p>
       </div>
       <div class="ruta-body">
-        <p>El municipio construye una sola compuerta sobre el Canal Mikilo en el Sector 2. Se prueba en el primer evento de lluvia. El resultado concreto es el argumento técnico para el proyecto licitatorio de las 8 compuertas del sistema completo.</p>
+        <p>El municipio construye una sola compuerta sobre el Canal Mikilo en el Sector 2. Se prueba en el primer evento de lluvia. El resultado concreto es el argumento técnico para el proyecto licitatorio de las 6 compuertas del sistema completo.</p>
       </div>
     </div>
   </div>
