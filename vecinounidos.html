@@ -205,75 +205,195 @@
     </div>
   </div>
   <div class="hero-visual">
-    <!-- Esquema ciudad simplificado -->
-    <svg viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px">
+    <!-- Esquema ciudad animado -->
+    <style>
+      /* ── Flechas pulsantes hacia Canal Mikilo (teal) ── */
+      @keyframes pulso-mikilo {
+        0%   { opacity: 0;   transform: translateX(0);  }
+        30%  { opacity: 1;   transform: translateX(-3px); }
+        70%  { opacity: 1;   transform: translateX(-3px); }
+        100% { opacity: 0;   transform: translateX(-6px); }
+      }
+      /* ── Flechas pulsantes hacia Canal Ingleses (teal, hacia arriba) ── */
+      @keyframes pulso-ingleses {
+        0%   { opacity: 0;   transform: translateY(0);  }
+        30%  { opacity: 1;   transform: translateY(-3px); }
+        70%  { opacity: 1;   transform: translateY(-3px); }
+        100% { opacity: 0;   transform: translateY(-6px); }
+      }
+      /* ── Flecha pulsante Sector 1 → Ruta 34 sur (azul, diagonal) ── */
+      @keyframes pulso-ruta {
+        0%   { opacity: 0; }
+        30%  { opacity: 1; }
+        70%  { opacity: 1; }
+        100% { opacity: 0; }
+      }
+      /* ── Flecha pulsante Sector 3 → Canal Defensa (amber) ── */
+      @keyframes pulso-defensa {
+        0%   { opacity: 0;   transform: translateX(0);  }
+        30%  { opacity: 1;   transform: translateX(3px); }
+        70%  { opacity: 1;   transform: translateX(3px); }
+        100% { opacity: 0;   transform: translateX(6px); }
+      }
+      /* ── Línea Ruta 34 pulsante (descarga hacia sur) ── */
+      @keyframes pulso-linea-ruta {
+        0%,100% { stroke-opacity: 0.15; stroke-dashoffset: 0; }
+        50%      { stroke-opacity: 0.85; stroke-dashoffset: 14; }
+      }
+      /* ── Compuerta blink ── */
+      @keyframes compuerta-on {
+        0%,100% { opacity: 1; }
+        50%      { opacity: 0.35; }
+      }
+
+      .flecha-mikilo-1 { animation: pulso-mikilo 1.6s ease-in-out infinite 0s; }
+      .flecha-mikilo-2 { animation: pulso-mikilo 1.6s ease-in-out infinite 0.52s; }
+      .flecha-mikilo-3 { animation: pulso-mikilo 1.6s ease-in-out infinite 1.04s; }
+
+      .flecha-ingleses-1 { animation: pulso-ingleses 1.6s ease-in-out infinite 0s; }
+      .flecha-ingleses-2 { animation: pulso-ingleses 1.6s ease-in-out infinite 0.52s; }
+      .flecha-ingleses-3 { animation: pulso-ingleses 1.6s ease-in-out infinite 1.04s; }
+
+      .flecha-ruta-1 { animation: pulso-ruta 1.8s ease-in-out infinite 0s; }
+
+      .flecha-defensa-1 { animation: pulso-defensa 1.6s ease-in-out infinite 0s; }
+
+      .linea-ruta34 {
+        stroke: #378ADD;
+        stroke-width: 3;
+        stroke-dasharray: 7 7;
+        animation: pulso-linea-ruta 1.5s linear infinite;
+      }
+      .compuerta { animation: compuerta-on 1.4s ease-in-out infinite; }
+    </style>
+
+    <svg viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:420px">
       <defs>
-        <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-          <path d="M0,0 L6,3 L0,6 Z" fill="#1D9E75"/>
+        <!-- teal: hacia izquierda / arriba -->
+        <marker id="arr-t-l" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+          <path d="M0,3.5 L7,0 L7,7 Z" fill="#1D9E75"/>
         </marker>
-        <marker id="arr-r" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-          <path d="M0,0 L6,3 L0,6 Z" fill="#E24B4A"/>
+        <marker id="arr-t-u" markerWidth="7" markerHeight="7" refX="3.5" refY="5" orient="auto">
+          <path d="M3.5,0 L7,7 L0,7 Z" fill="#1D9E75"/>
+        </marker>
+        <!-- azul: hacia abajo-derecha -->
+        <marker id="arr-b" markerWidth="7" markerHeight="7" refX="3.5" refY="0" orient="auto">
+          <path d="M0,0 L7,0 L3.5,7 Z" fill="#378ADD"/>
+        </marker>
+        <!-- amber: hacia derecha -->
+        <marker id="arr-a" markerWidth="7" markerHeight="7" refX="0" refY="3.5" orient="auto">
+          <path d="M0,0 L7,3.5 L0,7 Z" fill="#BA7517"/>
         </marker>
       </defs>
 
+      <!-- ══ CANALES ══ -->
       <!-- Canal Mikilo izquierda -->
       <rect x="12" y="40" width="28" height="240" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
       <text x="26" y="166" text-anchor="middle" transform="rotate(-90,26,166)" class="diag-label" fill="#085041">Canal Mikilo</text>
 
-      <!-- Canal de los Ingleses — borde norte S2, S1 y S3 -->
+      <!-- Canal de los Ingleses — norte -->
       <rect x="40" y="95" width="322" height="18" rx="4" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1" stroke-dasharray="4,3"/>
       <text x="200" y="107" text-anchor="middle" class="diag-small" fill="#0F6E56">Canal de los Ingleses — norte S2, S1 y S3</text>
-
-      <!-- Vías del tren -->
-      <line x1="150" y1="40" x2="150" y2="280" stroke="#888780" stroke-width="2.5" stroke-dasharray="8,4"/>
-      <text x="153" y="75" class="diag-small" fill="#5F5E5A">Vías</text>
-
-      <!-- Ruta 34 -->
-      <line x1="240" y1="40" x2="240" y2="280" stroke="#444441" stroke-width="2.5"/>
-      <text x="243" y="75" class="diag-small" fill="#2C2C2A">Ruta 34</text>
 
       <!-- Canal Defensa derecha -->
       <rect x="358" y="40" width="28" height="240" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/>
       <text x="372" y="166" text-anchor="middle" transform="rotate(-90,372,166)" class="diag-label" fill="#633806">Canal Defensa</text>
 
-      <!-- Sector 2: Mikilo(O) — Vías(E) — C.Ingleses(N) -->
+      <!-- ══ INFRAESTRUCTURA VIAL ══ -->
+      <!-- Vías del tren -->
+      <line x1="150" y1="40" x2="150" y2="285" stroke="#888780" stroke-width="2.5" stroke-dasharray="8,4"/>
+      <text x="153" y="75" class="diag-small" fill="#5F5E5A">Vías</text>
+
+      <!-- Ruta 34 (línea base estática) -->
+      <line x1="240" y1="40" x2="240" y2="285" stroke="#444441" stroke-width="2.5"/>
+      <text x="243" y="75" class="diag-small" fill="#2C2C2A">Ruta 34</text>
+
+      <!-- ══ LÍNEA ANIMADA DESCARGA RUTA 34 (Sector 1 → sur) ══ -->
+      <!-- Recorre la orilla derecha de la Ruta 34 hacia el sur -->
+      <line x1="243" y1="215" x2="243" y2="278" class="linea-ruta34"/>
+
+      <!-- ══ SECTORES ══ -->
+      <!-- Sector 2 -->
       <rect x="46" y="120" width="96" height="90" rx="6" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
-      <text x="94" y="151" text-anchor="middle" class="diag-label" fill="#085041">Sector 2</text>
-      <text x="94" y="163" text-anchor="middle" class="diag-small" fill="#0F6E56">Mikilo(O)·Vías(E)</text>
-      <text x="94" y="174" text-anchor="middle" class="diag-small" fill="#0F6E56">6 compuertas</text>
-      <text x="94" y="185" text-anchor="middle" class="diag-small" fill="#0F6E56">→ C.Ingleses+Mikilo</text>
+      <text x="94" y="148" text-anchor="middle" class="diag-label" fill="#085041">Sector 2</text>
+      <text x="94" y="160" text-anchor="middle" class="diag-small" fill="#0F6E56">Mikilo(O)·Vías(E)</text>
+      <text x="94" y="171" text-anchor="middle" class="diag-small" fill="#0F6E56">6 compuertas</text>
+      <text x="94" y="182" text-anchor="middle" class="diag-small" fill="#0F6E56">→ C.Ingleses+Mikilo</text>
 
-      <!-- Sector 1: Vías(O) — Ruta34(E) — C.Ingleses(N) -->
+      <!-- Sector 1 -->
       <rect x="156" y="120" width="76" height="90" rx="6" fill="#E6F1FB" stroke="#378ADD" stroke-width="1"/>
-      <text x="194" y="151" text-anchor="middle" class="diag-label" fill="#0C447C">Sector 1</text>
-      <text x="194" y="163" text-anchor="middle" class="diag-small" fill="#185FA5">Vías(O)·R34(E)</text>
-      <text x="194" y="175" text-anchor="middle" class="diag-small" fill="#185FA5">→ Ruta 34 sur</text>
+      <text x="194" y="148" text-anchor="middle" class="diag-label" fill="#0C447C">Sector 1</text>
+      <text x="194" y="160" text-anchor="middle" class="diag-small" fill="#185FA5">Vías(O)·R34(E)</text>
+      <text x="194" y="172" text-anchor="middle" class="diag-small" fill="#185FA5">→ Ruta 34 sur</text>
 
-      <!-- Sector 3: Ruta34(O) — C.Ingleses(N) — C.Defensa(E) -->
+      <!-- Sector 3 -->
       <rect x="248" y="120" width="102" height="90" rx="6" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
       <text x="299" y="148" text-anchor="middle" class="diag-label" fill="#633806">Sector 3</text>
       <text x="299" y="160" text-anchor="middle" class="diag-small" fill="#854F0B">Bº Matadero</text>
       <text x="299" y="171" text-anchor="middle" class="diag-small" fill="#854F0B">R34(O)·C.Def(E)</text>
       <text x="299" y="182" text-anchor="middle" class="diag-small" fill="#854F0B">→ Canal Defensa</text>
 
-      <!-- Flechas desagote: S2 → Mikilo (izq) y → C.Ingleses (arriba) -->
-      <line x1="46" y1="155" x2="43" y2="155" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr)"/>
-      <line x1="94" y1="120" x2="94" y2="115" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr)"/>
-      <!-- S1 → Ruta 34 sur -->
-      <line x1="194" y1="210" x2="214" y2="260" stroke="#378ADD" stroke-width="1.5" marker-end="url(#arr)"/>
-      <!-- S3 → Canal Defensa (der) -->
-      <line x1="350" y1="165" x2="357" y2="165" stroke="#BA7517" stroke-width="1.5" marker-end="url(#arr)"/>
+      <!-- ══════════════════════════════════════════════════
+           ANIMACIONES DE DESCARGA
+      ══════════════════════════════════════════════════ -->
 
-      <!-- Problema alto ruta -->
-      <rect x="228" y="285" width="60" height="20" rx="4" fill="#FCEBEB" stroke="#E24B4A" stroke-width="1"/>
-      <text x="258" y="299" text-anchor="middle" class="diag-small" fill="#A32D2D">⚠ Alto / loma</text>
+      <!-- ── SECTOR 2 → Canal Mikilo: 3 flechas escalonadas (izquierda) ── -->
+      <g class="flecha-mikilo-1">
+        <line x1="44" y1="148" x2="38" y2="148" stroke="#1D9E75" stroke-width="2" marker-end="url(#arr-t-l)"/>
+      </g>
+      <g class="flecha-mikilo-2">
+        <line x1="44" y1="158" x2="38" y2="158" stroke="#1D9E75" stroke-width="2" marker-end="url(#arr-t-l)"/>
+      </g>
+      <g class="flecha-mikilo-3">
+        <line x1="44" y1="168" x2="38" y2="168" stroke="#1D9E75" stroke-width="2" marker-end="url(#arr-t-l)"/>
+      </g>
 
-      <!-- Leyenda -->
-      <rect x="40" y="285" width="140" height="28" rx="6" fill="none" stroke="transparent"/>
-      <rect x="42" y="288" width="10" height="10" rx="2" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
-      <text x="56" y="297" class="diag-small" fill="#5F5E5A">Canal activo</text>
-      <rect x="42" y="302" width="10" height="10" rx="2" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
-      <text x="56" y="311" class="diag-small" fill="#5F5E5A">Canal tapado</text>
+      <!-- ── SECTOR 2 → Canal Ingleses: 3 flechas escalonadas (arriba) ── -->
+      <g class="flecha-ingleses-1">
+        <line x1="78"  y1="118" x2="78"  y2="112" stroke="#1D9E75" stroke-width="2" marker-end="url(#arr-t-u)"/>
+      </g>
+      <g class="flecha-ingleses-2">
+        <line x1="94"  y1="118" x2="94"  y2="112" stroke="#1D9E75" stroke-width="2" marker-end="url(#arr-t-u)"/>
+      </g>
+      <g class="flecha-ingleses-3">
+        <line x1="110" y1="118" x2="110" y2="112" stroke="#1D9E75" stroke-width="2" marker-end="url(#arr-t-u)"/>
+      </g>
+
+      <!-- ── COMPUERTA SECTOR 1 → Canal Ingleses (1 compuerta + 1 flecha arriba) ── -->
+      <!-- Símbolo compuerta: rectángulo pequeño sobre el borde norte del Sector 1 -->
+      <g class="compuerta">
+        <rect x="186" y="113" width="16" height="8" rx="2" fill="#378ADD" stroke="#0C447C" stroke-width="1"/>
+        <line x1="189" y1="115" x2="189" y2="117" stroke="white" stroke-width="1"/>
+        <line x1="194" y1="115" x2="194" y2="117" stroke="white" stroke-width="1"/>
+        <line x1="199" y1="115" x2="199" y2="117" stroke="white" stroke-width="1"/>
+      </g>
+      <!-- Flecha desde compuerta hacia Canal Ingleses -->
+      <g class="flecha-ruta-1">
+        <line x1="194" y1="112" x2="194" y2="106" stroke="#378ADD" stroke-width="2" marker-end="url(#arr-t-u)"/>
+      </g>
+
+      <!-- ── COMPUERTA SECTOR 3 → Canal Defensa (1 compuerta + 1 flecha derecha) ── -->
+      <g class="compuerta">
+        <rect x="349" y="157" width="8" height="16" rx="2" fill="#BA7517" stroke="#633806" stroke-width="1"/>
+        <line x1="351" y1="160" x2="355" y2="160" stroke="white" stroke-width="1"/>
+        <line x1="351" y1="165" x2="355" y2="165" stroke="white" stroke-width="1"/>
+        <line x1="351" y1="170" x2="355" y2="170" stroke="white" stroke-width="1"/>
+      </g>
+      <g class="flecha-defensa-1">
+        <line x1="357" y1="165" x2="363" y2="165" stroke="#BA7517" stroke-width="2" marker-end="url(#arr-a)"/>
+      </g>
+
+      <!-- ══ Problema: Alto / loma ══ -->
+      <rect x="226" y="290" width="60" height="18" rx="4" fill="#FCEBEB" stroke="#E24B4A" stroke-width="1"/>
+      <text x="256" y="302" text-anchor="middle" class="diag-small" fill="#A32D2D">⚠ Alto / loma</text>
+
+      <!-- ══ LEYENDA ══ -->
+      <rect x="12" y="290" width="10" height="10" rx="2" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1"/>
+      <text x="26" y="299" class="diag-small" fill="#5F5E5A">Canal activo</text>
+      <rect x="12" y="304" width="10" height="10" rx="2" fill="#FAEEDA" stroke="#BA7517" stroke-width="1"/>
+      <text x="26" y="313" class="diag-small" fill="#5F5E5A">Canal tapado</text>
+      <rect x="85" y="304" width="10" height="7" rx="2" fill="#378ADD" stroke="#0C447C" stroke-width="0.8"/>
+      <text x="99" y="313" class="diag-small" fill="#5F5E5A">Compuerta</text>
     </svg>
   </div>
 </div>
