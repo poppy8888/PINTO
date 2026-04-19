@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pago · Céspedes</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e0e;
+    --surface: #181818;
+    --border: #2a2a2a;
+    --text: #f0ede8;
+    --muted: #888;
+    --accent: #e8e0d0;
+    --green: #3ddc84;
+    --green-dim: #1a3d28;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    gap: 0;
+  }
+
+  /* Fondo con textura sutil */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle at 20% 20%, #1a1a1a 0%, transparent 60%),
+                      radial-gradient(circle at 80% 80%, #141414 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .header {
+    text-align: center;
+    padding-bottom: 8px;
+  }
+
+  .header h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+
+  .header p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover {
+    border-color: #3a3a3a;
+  }
+
+  .card-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--accent);
+    margin-top: -8px;
+  }
+
+  .alias-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .alias-box {
+    flex: 1;
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.03em;
+    user-select: all;
+  }
+
+  .copy-btn {
+    flex-shrink: 0;
+    background: var(--green-dim);
+    border: 1px solid #2a5a3a;
+    border-radius: 10px;
+    color: var(--green);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .copy-btn:active {
+    transform: scale(0.96);
+  }
+
+  .copy-btn.copied {
+    background: #1a3d28;
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .copy-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .instructions {
+    font-size: 0.68rem;
+    color: var(--muted);
+    line-height: 1.8;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+
+  .instructions ol {
+    padding-left: 16px;
+  }
+
+  .instructions li {
+    margin-bottom: 2px;
+  }
+
+  .wallets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .wallet-tag {
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.62rem;
+    color: var(--muted);
+    padding: 4px 10px;
+    letter-spacing: 0.05em;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 0.62rem;
+    color: #444;
+    letter-spacing: 0.08em;
+    padding-top: 4px;
+  }
+
+  /* Animación entrada */
+  .card {
+    animation: fadeUp 0.4s ease both;
+  }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--green);
+    color: #0a1a10;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 100px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <div class="header">
+    <h1>Realizá tu pago</h1>
+    <p>Copiá el alias y pegalo en tu billetera</p>
+  </div>
+
+  <!-- Juan -->
+  <div class="card">
+    <div>
+      <div class="card-label">Titular</div>
+      <div class="card-name">Juan R. Céspedes</div>
+    </div>
+
+    <div class="alias-row">
+      <div class="alias-box" id="alias-juan">jrcespedes</div>
+      <button class="copy-btn" onclick="copiar('alias-juan', this, 'juan')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        COPIAR
+      </button>
+    </div>
+
+    <div class="instructions">
+      <ol>
+        <li>Tocá <strong style="color:var(--text)">COPIAR</strong></li>
+        <li>Abrí tu billetera virtual</li>
+        <li>Elegí <em>Transferir</em> → <em>Alias</em></li>
+        <li>Pegá el alias y confirmá</li>
+      </ol>
+      <div class="wallets" style="margin-top:10px">
+        <span class="wallet-tag">Mercado Pago</span>
+        <span class="wallet-tag">MODO</span>
+        <span class="wallet-tag">Ualá</span>
+        <span class="wallet-tag">BNA+</span>
+        <span class="wallet-tag">Naranja X</span>
+        <span class="wallet-tag">Prex</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">o pagá a</div>
+
+  <!-- Reina -->
+  <div class="card">
+    <div>
+      <div class="card-label">Titular</div>
+      <div class="card-name">Reina Crespín</div>
+    </div>
+
+    <div class="alias-row">
+      <div class="alias-box" id="alias-reina">reinacrespin</div>
+      <button class="copy-btn" onclick="copiar('alias-reina', this, 'reina')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        COPIAR
+      </button>
+    </div>
+
+    <div class="instructions">
+      <ol>
+        <li>Tocá <strong style="color:var(--text)">COPIAR</strong></li>
+        <li>Abrí tu billetera virtual</li>
+        <li>Elegí <em>Transferir</em> → <em>Alias</em></li>
+        <li>Pegá el alias y confirmá</li>
+      </ol>
+      <div class="wallets" style="margin-top:10px">
+        <span class="wallet-tag">Mercado Pago</span>
+        <span class="wallet-tag">MODO</span>
+        <span class="wallet-tag">Ualá</span>
+        <span class="wallet-tag">BNA+</span>
+        <span class="wallet-tag">Naranja X</span>
+        <span class="wallet-tag">Prex</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Sin costo de transferencia · Acreditación inmediata</div>
+
+</div>
+
+<div class="toast" id="toast">✓ Alias copiado</div>
+
+<script>
+  function copiar(id, btn, quien) {
+    const texto = document.getElementById(id).textContent.trim();
+    navigator.clipboard.writeText(texto).then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg> COPIADO`;
+      
+      const toast = document.getElementById('toast');
+      toast.textContent = '✓ Alias copiado — pegalo en tu billetera';
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> COPIAR`;
+        toast.classList.remove('show');
+      }, 2500);
+    });
+  }
+</script>
+</body>
+</html>
