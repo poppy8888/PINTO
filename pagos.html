@@ -3,250 +3,314 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pago · Céspedes</title>
+<title>Pago · Minimarket La Reina</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap');
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0e0e0e;
-    --surface: #181818;
-    --border: #2a2a2a;
-    --text: #f0ede8;
-    --muted: #888;
-    --accent: #e8e0d0;
-    --green: #3ddc84;
-    --green-dim: #1a3d28;
+    --red:    #E8323C;
+    --yellow: #FFD93D;
+    --green:  #2ECC71;
+    --green-d:#1A8A4A;
+    --blue:   #3498DB;
+    --orange: #FF6B35;
+    --cream:  #FFF8EE;
+    --dark:   #1A1A1A;
+    --white:  #FFFFFF;
   }
 
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
+    background: var(--cream);
+    font-family: 'Nunito', sans-serif;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 16px;
-    gap: 0;
+    overflow-x: hidden;
   }
 
-  /* Fondo con textura sutil */
+  /* Fondo con patrón de cuadritos tipo mercado */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image: radial-gradient(circle at 20% 20%, #1a1a1a 0%, transparent 60%),
-                      radial-gradient(circle at 80% 80%, #141414 0%, transparent 60%);
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,0,0,0.04) 39px, rgba(0,0,0,0.04) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,0,0,0.04) 39px, rgba(0,0,0,0.04) 40px);
     pointer-events: none;
     z-index: 0;
   }
 
-  .wrapper {
+  .page {
     position: relative;
     z-index: 1;
-    width: 100%;
-    max-width: 420px;
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+  }
+
+  /* ---- HEADER ---- */
+  .header {
+    background: var(--red);
+    margin: 0 -16px;
+    padding: 28px 24px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    bottom: -20px; left: 0; right: 0;
+    height: 40px;
+    background: var(--cream);
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  }
+
+  /* Banderines decorativos */
+  .flags {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 12px;
+  }
+  .flag {
+    width: 18px;
+    height: 24px;
+    clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
+    animation: sway 2s ease-in-out infinite alternate;
+  }
+  .flag:nth-child(odd)  { animation-delay: 0.2s; }
+  .flag:nth-child(even) { animation-delay: 0.5s; }
+  @keyframes sway {
+    from { transform: rotate(-3deg); }
+    to   { transform: rotate(3deg); }
+  }
+
+  .store-name {
+    font-family: 'Pacifico', cursive;
+    font-size: 2.4rem;
+    color: var(--yellow);
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .store-sub {
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+    margin-top: 6px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---- TÍTULO SECCIÓN ---- */
+  .section-title {
+    text-align: center;
+    margin: 32px 0 20px;
+  }
+
+  .section-title h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--dark);
+  }
+
+  .section-title p {
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* ---- TARJETAS ALIAS ---- */
+  .cards {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-  }
-
-  .header {
-    text-align: center;
-    padding-bottom: 8px;
-  }
-
-  .header h1 {
-    font-family: 'Fraunces', serif;
-    font-weight: 300;
-    font-size: 2rem;
-    letter-spacing: -0.02em;
-    color: var(--accent);
-    line-height: 1.1;
-  }
-
-  .header p {
-    font-size: 0.72rem;
-    color: var(--muted);
-    margin-top: 6px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    gap: 14px;
   }
 
   .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    transition: border-color 0.2s;
+    border-radius: 20px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
   }
 
-  .card:hover {
-    border-color: #3a3a3a;
+  .card:nth-child(1) { animation-delay: 0.1s; background: #FFF0F0; border: 2.5px solid var(--red); }
+  .card:nth-child(2) { animation-delay: 0.2s; background: #F0FFF6; border: 2.5px solid var(--green-d); }
+  .card:nth-child(3) { animation-delay: 0.3s; background: #FFF8E6; border: 2.5px solid var(--orange); }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.88) translateY(16px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
   }
 
-  .card-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
+  /* Emoji decorativo de fondo */
+  .card::after {
+    content: attr(data-emoji);
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 3.5rem;
+    opacity: 0.12;
+    pointer-events: none;
   }
 
   .card-name {
-    font-family: 'Fraunces', serif;
-    font-weight: 700;
-    font-size: 1.25rem;
-    color: var(--accent);
-    margin-top: -8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 6px;
   }
 
-  .alias-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .card:nth-child(1) .card-name { color: var(--red); }
+  .card:nth-child(2) .card-name { color: var(--green-d); }
+  .card:nth-child(3) .card-name { color: var(--orange); }
 
-  .alias-box {
-    flex: 1;
-    background: #111;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    font-family: 'DM Mono', monospace;
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--text);
-    letter-spacing: 0.03em;
-    user-select: all;
+  .alias-display {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--dark);
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+    word-break: break-all;
   }
 
   .copy-btn {
-    flex-shrink: 0;
-    background: var(--green-dim);
-    border: 1px solid #2a5a3a;
-    border-radius: 10px;
-    color: var(--green);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    padding: 14px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    border-radius: 12px;
+    padding: 11px 22px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 800;
     cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.03em;
+  }
+
+  .card:nth-child(1) .copy-btn { background: var(--red);    color: white; box-shadow: 0 4px 12px rgba(232,50,60,0.35); }
+  .card:nth-child(2) .copy-btn { background: var(--green-d); color: white; box-shadow: 0 4px 12px rgba(26,138,74,0.35); }
+  .card:nth-child(3) .copy-btn { background: var(--orange);  color: white; box-shadow: 0 4px 12px rgba(255,107,53,0.35); }
+
+  .copy-btn:active { transform: scale(0.95); }
+
+  .copy-btn.done {
+    background: var(--green) !important;
+    box-shadow: 0 4px 12px rgba(46,204,113,0.4) !important;
+  }
+
+  /* ---- INSTRUCCIONES ---- */
+  .steps {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 20px;
+    border: 2px dashed #DDD;
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;
+  }
+
+  .steps h3 {
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 14px;
+  }
+
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .step {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 12px;
   }
 
-  .copy-btn:active {
-    transform: scale(0.96);
+  .step-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--yellow);
+    color: var(--dark);
+    font-weight: 900;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
-  .copy-btn.copied {
-    background: #1a3d28;
-    border-color: var(--green);
-    color: var(--green);
+  .step-text {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #444;
   }
 
-  .copy-btn svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .instructions {
-    font-size: 0.68rem;
-    color: var(--muted);
-    line-height: 1.8;
-    border-top: 1px solid var(--border);
-    padding-top: 14px;
-  }
-
-  .instructions ol {
-    padding-left: 16px;
-  }
-
-  .instructions li {
-    margin-bottom: 2px;
-  }
-
+  /* ---- WALLETS ---- */
   .wallets {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 4px;
+    margin-top: 20px;
+    justify-content: center;
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.5s both;
   }
 
   .wallet-tag {
-    background: #1a1a1a;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 0.62rem;
-    color: var(--muted);
-    padding: 4px 10px;
+    background: white;
+    border: 2px solid #EEE;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #666;
+    padding: 5px 14px;
+  }
+
+  /* ---- FOOTER ---- */
+  .footer {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 0.72rem;
+    color: #bbb;
+    font-weight: 700;
     letter-spacing: 0.05em;
   }
 
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--muted);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .divider::before, .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .footer {
-    text-align: center;
-    font-size: 0.62rem;
-    color: #444;
-    letter-spacing: 0.08em;
-    padding-top: 4px;
-  }
-
-  /* Animación entrada */
-  .card {
-    animation: fadeUp 0.4s ease both;
-  }
-  .card:nth-child(2) { animation-delay: 0.1s; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
+  /* ---- TOAST ---- */
   .toast {
     position: fixed;
-    bottom: 32px;
+    bottom: 28px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: var(--green);
-    color: #0a1a10;
-    font-size: 0.8rem;
-    font-weight: 500;
-    padding: 12px 24px;
+    background: var(--dark);
+    color: var(--yellow);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    padding: 14px 28px;
     border-radius: 100px;
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
     pointer-events: none;
-    z-index: 100;
+    z-index: 999;
     white-space: nowrap;
   }
-
   .toast.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
@@ -255,107 +319,113 @@
 </head>
 <body>
 
-<div class="wrapper">
+<div class="page">
 
+  <!-- HEADER -->
   <div class="header">
-    <h1>Realizá tu pago</h1>
-    <p>Copiá el alias y pegalo en tu billetera</p>
+    <div class="flags">
+      <div class="flag" style="background:var(--yellow)"></div>
+      <div class="flag" style="background:var(--white)"></div>
+      <div class="flag" style="background:var(--green)"></div>
+      <div class="flag" style="background:var(--yellow)"></div>
+      <div class="flag" style="background:var(--white)"></div>
+      <div class="flag" style="background:var(--red)"></div>
+      <div class="flag" style="background:var(--yellow)"></div>
+      <div class="flag" style="background:var(--white)"></div>
+      <div class="flag" style="background:var(--green)"></div>
+      <div class="flag" style="background:var(--yellow)"></div>
+      <div class="flag" style="background:var(--white)"></div>
+      <div class="flag" style="background:var(--red)"></div>
+      <div class="flag" style="background:var(--yellow)"></div>
+      <div class="flag" style="background:var(--green)"></div>
+    </div>
+    <div style="font-size:3rem; line-height:1; margin-bottom:4px; filter:drop-shadow(2px 3px 0 rgba(0,0,0,0.2));">👑</div>
+    <div class="store-name">Minimarket<br>La Reina</div>
+    <div class="store-sub">🛒 Pinto · Santiago del Estero</div>
   </div>
 
-  <!-- Juan -->
-  <div class="card">
-    <div>
-      <div class="card-label">Titular</div>
-      <div class="card-name">Juan R. Céspedes</div>
-    </div>
-
-    <div class="alias-row">
-      <div class="alias-box" id="alias-juan">jrcespedes</div>
-      <button class="copy-btn" onclick="copiar('alias-juan', this, 'juan')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-        </svg>
-        COPIAR
-      </button>
-    </div>
-
-    <div class="instructions">
-      <ol>
-        <li>Tocá <strong style="color:var(--text)">COPIAR</strong></li>
-        <li>Abrí tu billetera virtual</li>
-        <li>Elegí <em>Transferir</em> → <em>Alias</em></li>
-        <li>Pegá el alias y confirmá</li>
-      </ol>
-      <div class="wallets" style="margin-top:10px">
-        <span class="wallet-tag">Mercado Pago</span>
-        <span class="wallet-tag">MODO</span>
-        <span class="wallet-tag">Ualá</span>
-        <span class="wallet-tag">BNA+</span>
-        <span class="wallet-tag">Naranja X</span>
-        <span class="wallet-tag">Prex</span>
-      </div>
-    </div>
+  <!-- TÍTULO -->
+  <div class="section-title">
+    <h2>💳 Realizá tu pago</h2>
+    <p>Copiá el alias y pegalo en tu billetera virtual</p>
   </div>
 
-  <div class="divider">o pagá a</div>
+  <!-- ALIAS CARDS -->
+  <div class="cards">
 
-  <!-- Reina -->
-  <div class="card">
-    <div>
-      <div class="card-label">Titular</div>
+    <div class="card" data-emoji="👩‍💼">
       <div class="card-name">Reina Crespín</div>
-    </div>
-
-    <div class="alias-row">
-      <div class="alias-box" id="alias-reina">reinacrespin</div>
-      <button class="copy-btn" onclick="copiar('alias-reina', this, 'reina')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-        </svg>
-        COPIAR
+      <div class="alias-display" id="a2">reinacrespin</div>
+      <button class="copy-btn" onclick="copiar('a2', this, 'Reina')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copiar alias
       </button>
     </div>
 
-    <div class="instructions">
-      <ol>
-        <li>Tocá <strong style="color:var(--text)">COPIAR</strong></li>
-        <li>Abrí tu billetera virtual</li>
-        <li>Elegí <em>Transferir</em> → <em>Alias</em></li>
-        <li>Pegá el alias y confirmá</li>
-      </ol>
-      <div class="wallets" style="margin-top:10px">
-        <span class="wallet-tag">Mercado Pago</span>
-        <span class="wallet-tag">MODO</span>
-        <span class="wallet-tag">Ualá</span>
-        <span class="wallet-tag">BNA+</span>
-        <span class="wallet-tag">Naranja X</span>
-        <span class="wallet-tag">Prex</span>
-      </div>
+    <div class="card" data-emoji="👨‍💼">
+      <div class="card-name">Juan R. Céspedes</div>
+      <div class="alias-display" id="a1">jrcespedes</div>
+      <button class="copy-btn" onclick="copiar('a1', this, 'Juan')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copiar alias
+      </button>
+    </div>
+
+    <div class="card" data-emoji="👩‍🔧">
+      <div class="card-name">Agustina</div>
+      <div class="alias-display" id="a3">agustinalu28</div>
+      <button class="copy-btn" onclick="copiar('a3', this, 'Agustina')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copiar alias
+      </button>
+    </div>
+
+  </div>
+
+  <!-- INSTRUCCIONES -->
+  <div class="steps">
+    <h3>¿Cómo transferir?</h3>
+    <div class="step-list">
+      <div class="step"><div class="step-num">1</div><div class="step-text">Tocá <strong>Copiar alias</strong> en la persona que corresponda</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Abrí tu billetera virtual</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Elegí <strong>Transferir → Por alias</strong></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Pegá el alias y confirmá el monto</div></div>
     </div>
   </div>
 
-  <div class="footer">Sin costo de transferencia · Acreditación inmediata</div>
+  <!-- WALLETS -->
+  <div class="wallets">
+    <span class="wallet-tag">Mercado Pago</span>
+    <span class="wallet-tag">MODO</span>
+    <span class="wallet-tag">Ualá</span>
+    <span class="wallet-tag">BNA+</span>
+    <span class="wallet-tag">Naranja X</span>
+    <span class="wallet-tag">Prex</span>
+  </div>
+
+  <div class="footer">Sin costo · Acreditación inmediata 🎉</div>
 
 </div>
 
-<div class="toast" id="toast">✓ Alias copiado</div>
+<div class="toast" id="toast">✅ ¡Alias copiado!</div>
 
 <script>
-  function copiar(id, btn, quien) {
+  function copiar(id, btn, nombre) {
     const texto = document.getElementById(id).textContent.trim();
     navigator.clipboard.writeText(texto).then(() => {
-      btn.classList.add('copied');
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg> COPIADO`;
-      
+      const orig = btn.innerHTML;
+      btn.classList.add('done');
+      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
+
       const toast = document.getElementById('toast');
-      toast.textContent = '✓ Alias copiado — pegalo en tu billetera';
+      toast.textContent = `✅ Alias de ${nombre} copiado — pegalo en tu app`;
       toast.classList.add('show');
 
       setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> COPIAR`;
+        btn.classList.remove('done');
+        btn.innerHTML = orig;
         toast.classList.remove('show');
-      }, 2500);
+      }, 2800);
     });
   }
 </script>
