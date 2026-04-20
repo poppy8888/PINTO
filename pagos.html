@@ -3,21 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pago · Minimarket La Reina</title>
+<title>Puntos · Minimarket La Reina</title>
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --red:    #E8323C;
-    --yellow: #FFD93D;
-    --green:  #2ECC71;
-    --green-d:#1A8A4A;
-    --blue:   #3498DB;
-    --orange: #FF6B35;
-    --cream:  #FFF8EE;
-    --dark:   #1A1A1A;
-    --white:  #FFFFFF;
+    --red:     #E8323C;
+    --yellow:  #FFD93D;
+    --yellow-d:#E6B800;
+    --green:   #2ECC71;
+    --green-d: #1A8A4A;
+    --orange:  #FF6B35;
+    --brown:   #8B4513;
+    --brown-l: #D4956A;
+    --cream:   #FFF8EE;
+    --dark:    #1A1A1A;
+    --white:   #FFFFFF;
   }
 
   body {
@@ -27,37 +29,28 @@
     overflow-x: hidden;
   }
 
-  /* Fondo con patrón de cuadritos tipo mercado */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     background-image:
-      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,0,0,0.04) 39px, rgba(0,0,0,0.04) 40px),
-      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,0,0,0.04) 39px, rgba(0,0,0,0.04) 40px);
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,0,0,0.03) 39px, rgba(0,0,0,0.03) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,0,0,0.03) 39px, rgba(0,0,0,0.03) 40px);
     pointer-events: none;
-    z-index: 0;
   }
 
-  .page {
-    position: relative;
-    z-index: 1;
-    max-width: 440px;
-    margin: 0 auto;
-    padding: 0 16px 40px;
-  }
+  .page { position: relative; z-index: 1; max-width: 440px; margin: 0 auto; padding: 0 16px 50px; }
 
-  /* ---- HEADER ---- */
+  /* HEADER */
   .header {
-    background: var(--red);
+    background: var(--brown);
     margin: 0 -16px;
-    padding: 28px 24px 24px;
+    padding: 24px 24px 32px;
     text-align: center;
     position: relative;
     overflow: hidden;
   }
-
-  .header::before {
+  .header::after {
     content: '';
     position: absolute;
     bottom: -20px; left: 0; right: 0;
@@ -65,245 +58,260 @@
     background: var(--cream);
     border-radius: 50% 50% 0 0 / 100% 100% 0 0;
   }
-
-  /* Banderines decorativos */
-  .flags {
-    display: flex;
-    justify-content: center;
-    gap: 0;
-    margin-bottom: 12px;
-  }
-  .flag {
-    width: 18px;
-    height: 24px;
-    clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
-    animation: sway 2s ease-in-out infinite alternate;
-  }
-  .flag:nth-child(odd)  { animation-delay: 0.2s; }
-  .flag:nth-child(even) { animation-delay: 0.5s; }
-  @keyframes sway {
-    from { transform: rotate(-3deg); }
-    to   { transform: rotate(3deg); }
-  }
-
+  .header-emoji { font-size: 2.8rem; line-height: 1; margin-bottom: 6px; }
   .store-name {
     font-family: 'Pacifico', cursive;
-    font-size: 2.4rem;
+    font-size: 1.8rem;
     color: var(--yellow);
-    text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
-    line-height: 1.1;
-    position: relative;
-    z-index: 1;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
   }
-
   .store-sub {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 800;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.85);
-    margin-top: 6px;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* ---- TÍTULO SECCIÓN ---- */
-  .section-title {
-    text-align: center;
-    margin: 32px 0 20px;
-  }
-
-  .section-title h2 {
-    font-size: 1.5rem;
-    font-weight: 900;
-    color: var(--dark);
-  }
-
-  .section-title p {
-    font-size: 0.85rem;
-    color: #777;
+    color: rgba(255,255,255,0.7);
     margin-top: 4px;
-    font-weight: 600;
   }
 
-  /* ---- TARJETAS ALIAS ---- */
-  .cards {
+  /* TABS */
+  .tabs {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
+    background: white;
+    border-radius: 16px;
+    padding: 5px;
+    margin: 24px 0 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    gap: 4px;
   }
-
-  .card {
-    border-radius: 20px;
-    padding: 18px 20px;
-    position: relative;
-    overflow: hidden;
-    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-  }
-
-  .card:nth-child(1) { animation-delay: 0.1s; background: #FFF0F0; border: 2.5px solid var(--red); }
-  .card:nth-child(2) { animation-delay: 0.2s; background: #F0FFF6; border: 2.5px solid var(--green-d); }
-  .card:nth-child(3) { animation-delay: 0.3s; background: #FFF8E6; border: 2.5px solid var(--orange); }
-
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.88) translateY(16px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  /* Emoji decorativo de fondo */
-  .card::after {
-    content: attr(data-emoji);
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 3.5rem;
-    opacity: 0.12;
-    pointer-events: none;
-  }
-
-  .card-name {
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #999;
-    margin-bottom: 6px;
-  }
-
-  .card:nth-child(1) .card-name { color: var(--red); }
-  .card:nth-child(2) .card-name { color: var(--green-d); }
-  .card:nth-child(3) .card-name { color: var(--orange); }
-
-  .alias-display {
-    font-size: 1.6rem;
-    font-weight: 900;
-    color: var(--dark);
-    letter-spacing: -0.01em;
-    margin-bottom: 14px;
-    word-break: break-all;
-  }
-
-  .copy-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+  .tab {
+    flex: 1;
+    padding: 11px 8px;
     border: none;
     border-radius: 12px;
-    padding: 11px 22px;
     font-family: 'Nunito', sans-serif;
-    font-size: 0.88rem;
+    font-size: 0.82rem;
     font-weight: 800;
     cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
-    letter-spacing: 0.03em;
+    transition: all 0.2s;
+    background: transparent;
+    color: #aaa;
+  }
+  .tab.active {
+    background: var(--brown);
+    color: white;
+    box-shadow: 0 3px 10px rgba(139,69,19,0.3);
   }
 
-  .card:nth-child(1) .copy-btn { background: var(--red);    color: white; box-shadow: 0 4px 12px rgba(232,50,60,0.35); }
-  .card:nth-child(2) .copy-btn { background: var(--green-d); color: white; box-shadow: 0 4px 12px rgba(26,138,74,0.35); }
-  .card:nth-child(3) .copy-btn { background: var(--orange);  color: white; box-shadow: 0 4px 12px rgba(255,107,53,0.35); }
+  /* VISTAS */
+  .view { display: none; animation: fadeIn 0.3s ease; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
-  .copy-btn:active { transform: scale(0.95); }
-
-  .copy-btn.done {
-    background: var(--green) !important;
-    box-shadow: 0 4px 12px rgba(46,204,113,0.4) !important;
-  }
-
-  /* ---- INSTRUCCIONES ---- */
-  .steps {
+  /* ---- VISTA CLIENTE ---- */
+  .search-box {
     background: white;
     border-radius: 20px;
     padding: 20px;
-    margin-top: 20px;
-    border: 2px dashed #DDD;
-    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
   }
-
-  .steps h3 {
+  .search-box h3 {
     font-size: 0.78rem;
     font-weight: 900;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
+    color: #bbb;
+    margin-bottom: 12px;
+  }
+  .input-row { display: flex; gap: 8px; }
+  .input-field {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #EEE;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--brown); }
+  .btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-brown  { background: var(--brown); color: white; box-shadow: 0 4px 12px rgba(139,69,19,0.3); }
+  .btn-green  { background: var(--green-d); color: white; box-shadow: 0 4px 12px rgba(26,138,74,0.3); }
+  .btn-red    { background: var(--red); color: white; box-shadow: 0 4px 12px rgba(232,50,60,0.3); }
+  .btn-yellow { background: var(--yellow-d); color: white; box-shadow: 0 4px 12px rgba(230,184,0,0.3); }
+  .btn-full   { width: 100%; padding: 14px; font-size: 1rem; border-radius: 14px; margin-top: 10px; }
+
+  /* Tarjeta de cliente */
+  .client-card {
+    background: white;
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+    display: none;
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .client-card.show { display: block; }
+  @keyframes popIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+
+  .client-name-display {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+  .client-phone-display {
+    font-size: 0.8rem;
     color: #aaa;
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+
+  /* Barra de puntos */
+  .points-section { margin-bottom: 18px; }
+  .points-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .points-label span:first-child {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #aaa;
+  }
+  .points-count {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--brown);
+  }
+  .points-count span { font-size: 0.8rem; color: #aaa; font-weight: 700; }
+
+  .progress-bar {
+    background: #F0EAE0;
+    border-radius: 100px;
+    height: 18px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--brown-l), var(--brown));
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 8px; right: 8px; bottom: 3px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 100px;
+  }
+
+  .pan-icons {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    justify-content: center;
+  }
+  .pan-icon {
+    font-size: 1.6rem;
+    filter: grayscale(1) opacity(0.3);
+    transition: all 0.3s;
+  }
+  .pan-icon.earned { filter: none; }
+
+  .canjear-box {
+    background: linear-gradient(135deg, #FFF8E6, #FFF0CC);
+    border: 2px solid var(--yellow);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    display: none;
+  }
+  .canjear-box.show { display: block; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+  .canjear-box p { font-size: 0.9rem; font-weight: 700; color: var(--brown); margin-bottom: 10px; }
+
+  /* ---- VISTA ADMIN ---- */
+  .admin-login {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  .admin-login h3 { font-size: 1.1rem; font-weight: 900; color: var(--dark); margin-bottom: 6px; }
+  .admin-login p { font-size: 0.82rem; color: #aaa; font-weight: 600; margin-bottom: 18px; }
+
+  .admin-panel { display: none; }
+  .admin-panel.show { display: block; }
+
+  .admin-section {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    margin-bottom: 14px;
+  }
+  .admin-section h3 {
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #bbb;
     margin-bottom: 14px;
   }
 
-  .step-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .step {
+  .client-list { display: flex; flex-direction: column; gap: 10px; }
+  .client-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: #FAF7F4;
+    border-radius: 12px;
+    border: 1px solid #EEE;
   }
-
-  .step-num {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--yellow);
-    color: var(--dark);
+  .client-row-info { flex: 1; }
+  .client-row-name { font-size: 0.9rem; font-weight: 800; color: var(--dark); }
+  .client-row-phone { font-size: 0.72rem; color: #aaa; font-weight: 600; }
+  .client-row-pts {
+    font-size: 1.1rem;
     font-weight: 900;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+    color: var(--brown);
+    margin-right: 10px;
   }
+  .client-row-pts span { font-size: 0.65rem; color: #aaa; font-weight: 700; }
 
-  .step-text {
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: #444;
-  }
+  .add-pts-row { display: flex; gap: 6px; align-items: center; margin-top: 14px; }
 
-  /* ---- WALLETS ---- */
-  .wallets {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 20px;
-    justify-content: center;
-    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.5s both;
-  }
-
-  .wallet-tag {
-    background: white;
-    border: 2px solid #EEE;
-    border-radius: 100px;
-    font-size: 0.72rem;
-    font-weight: 800;
-    color: #666;
-    padding: 5px 14px;
-  }
-
-  /* ---- FOOTER ---- */
-  .footer {
-    text-align: center;
-    margin-top: 28px;
-    font-size: 0.72rem;
-    color: #bbb;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-  }
-
-  /* ---- TOAST ---- */
+  /* TOAST */
   .toast {
     position: fixed;
-    bottom: 28px;
-    left: 50%;
+    bottom: 28px; left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: var(--dark);
     color: var(--yellow);
     font-family: 'Nunito', sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 800;
-    padding: 14px 28px;
+    padding: 13px 26px;
     border-radius: 100px;
     opacity: 0;
     transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
@@ -311,123 +319,339 @@
     z-index: 999;
     white-space: nowrap;
   }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .empty-state {
+    text-align: center;
+    padding: 20px;
+    color: #ccc;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--red);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 100px;
+    margin-left: 6px;
+    vertical-align: middle;
   }
 </style>
 </head>
 <body>
-
 <div class="page">
 
   <!-- HEADER -->
   <div class="header">
-    <div class="flags">
-      <div class="flag" style="background:var(--yellow)"></div>
-      <div class="flag" style="background:var(--white)"></div>
-      <div class="flag" style="background:var(--green)"></div>
-      <div class="flag" style="background:var(--yellow)"></div>
-      <div class="flag" style="background:var(--white)"></div>
-      <div class="flag" style="background:var(--red)"></div>
-      <div class="flag" style="background:var(--yellow)"></div>
-      <div class="flag" style="background:var(--white)"></div>
-      <div class="flag" style="background:var(--green)"></div>
-      <div class="flag" style="background:var(--yellow)"></div>
-      <div class="flag" style="background:var(--white)"></div>
-      <div class="flag" style="background:var(--red)"></div>
-      <div class="flag" style="background:var(--yellow)"></div>
-      <div class="flag" style="background:var(--green)"></div>
-    </div>
-    <div style="font-size:3rem; line-height:1; margin-bottom:4px; filter:drop-shadow(2px 3px 0 rgba(0,0,0,0.2));">👑</div>
-    <div class="store-name">Minimarket<br>La Reina</div>
-    <div class="store-sub">🛒 Pinto · Santiago del Estero</div>
+    <div class="header-emoji">👑🍞</div>
+    <div class="store-name">Minimarket La Reina</div>
+    <div class="store-sub">Sistema de Puntos · Pan Gratis</div>
   </div>
 
-  <!-- TÍTULO -->
-  <div class="section-title">
-    <h2>💳 Realizá tu pago</h2>
-    <p>Copiá el alias y pegalo en tu billetera virtual</p>
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('cliente')">🛒 Soy cliente</button>
+    <button class="tab" onclick="switchTab('admin')">🔑 Admin</button>
   </div>
 
-  <!-- ALIAS CARDS -->
-  <div class="cards">
+  <!-- ===== VISTA CLIENTE ===== -->
+  <div class="view active" id="view-cliente">
 
-    <div class="card" data-emoji="👩‍💼">
-      <div class="card-name">Reina Crespín</div>
-      <div class="alias-display" id="a2">reinacrespin</div>
-      <button class="copy-btn" onclick="copiar('a2', this, 'Reina')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Copiar alias
-      </button>
+    <div class="search-box">
+      <h3>📱 Ingresá tu teléfono</h3>
+      <div class="input-row">
+        <input class="input-field" id="phone-input" type="tel" placeholder="Ej: 3845001234" maxlength="15">
+        <button class="btn btn-brown" onclick="buscarCliente()">Buscar</button>
+      </div>
+      <p style="font-size:0.72rem;color:#bbb;font-weight:700;margin-top:10px;text-align:center;">
+        ¿Primera vez? Pedile al local que te registre 😊
+      </p>
     </div>
 
-    <div class="card" data-emoji="👨‍💼">
-      <div class="card-name">Juan R. Céspedes</div>
-      <div class="alias-display" id="a1">jrcespedes</div>
-      <button class="copy-btn" onclick="copiar('a1', this, 'Juan')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Copiar alias
-      </button>
+    <!-- Tarjeta cliente -->
+    <div class="client-card" id="client-card">
+      <div class="client-name-display" id="disp-name">—</div>
+      <div class="client-phone-display" id="disp-phone">—</div>
+
+      <div class="points-section">
+        <div class="points-label">
+          <span>Tus puntos</span>
+          <div class="points-count" id="disp-pts">0 <span>/ 5 para el pan 🍞</span></div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="pan-icons" id="pan-icons">
+          <span class="pan-icon" id="p1">🍞</span>
+          <span class="pan-icon" id="p2">🍞</span>
+          <span class="pan-icon" id="p3">🍞</span>
+          <span class="pan-icon" id="p4">🍞</span>
+          <span class="pan-icon" id="p5">🍞</span>
+        </div>
+      </div>
+
+      <!-- Canjear -->
+      <div class="canjear-box" id="canjear-box">
+        <p>🎉 ¡Llegaste a 5 puntos! Tenés un <strong>pan gratis</strong> esperándote.</p>
+        <p style="font-size:0.78rem;color:#888;margin-bottom:10px;">Mostrá esta pantalla al local para canjearlo.</p>
+        <button class="btn btn-yellow btn-full" onclick="mostrarCanje()">🍞 Canjear mi pan gratis</button>
+      </div>
+
+      <div style="margin-top:14px;font-size:0.72rem;color:#ccc;font-weight:700;text-align:center;">
+        Cada $1.000 de compra = 1 punto 🌟
+      </div>
     </div>
 
-    <div class="card" data-emoji="👩‍🔧">
-      <div class="card-name">Agustina</div>
-      <div class="alias-display" id="a3">agustinalu28</div>
-      <button class="copy-btn" onclick="copiar('a3', this, 'Agustina')">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Copiar alias
-      </button>
+    <div id="no-cliente" style="display:none;background:white;border-radius:20px;padding:20px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+      <div style="font-size:2rem;margin-bottom:8px;">😕</div>
+      <p style="font-weight:800;color:var(--dark);margin-bottom:4px;">No encontramos tu número</p>
+      <p style="font-size:0.8rem;color:#aaa;font-weight:600;">Pedile al local que te registre para empezar a acumular puntos.</p>
     </div>
 
   </div>
 
-  <!-- INSTRUCCIONES -->
-  <div class="steps">
-    <h3>¿Cómo transferir?</h3>
-    <div class="step-list">
-      <div class="step"><div class="step-num">1</div><div class="step-text">Tocá <strong>Copiar alias</strong> en la persona que corresponda</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-text">Abrí tu billetera virtual</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text">Elegí <strong>Transferir → Por alias</strong></div></div>
-      <div class="step"><div class="step-num">4</div><div class="step-text">Pegá el alias y confirmá el monto</div></div>
+  <!-- ===== VISTA ADMIN ===== -->
+  <div class="view" id="view-admin">
+
+    <div class="admin-login" id="admin-login">
+      <div style="font-size:2.5rem;margin-bottom:8px;">🔑</div>
+      <h3>Panel del local</h3>
+      <p>Ingresá la clave para administrar</p>
+      <div class="input-row" style="justify-content:center">
+        <input class="input-field" id="admin-pass" type="password" placeholder="Clave" style="max-width:180px;">
+        <button class="btn btn-brown" onclick="loginAdmin()">Entrar</button>
+      </div>
+
+    </div>
+
+    <div class="admin-panel" id="admin-panel">
+
+      <!-- Registrar cliente -->
+      <div class="admin-section">
+        <h3>➕ Registrar cliente nuevo</h3>
+        <input class="input-field" id="new-name" type="text" placeholder="Nombre completo" style="width:100%;margin-bottom:8px;">
+        <input class="input-field" id="new-phone" type="tel" placeholder="Teléfono" style="width:100%;margin-bottom:10px;">
+        <button class="btn btn-green btn-full" onclick="registrarCliente()">Registrar cliente</button>
+      </div>
+
+      <!-- Agregar puntos -->
+      <div class="admin-section">
+        <h3>🌟 Agregar puntos a cliente</h3>
+        <input class="input-field" id="pts-phone" type="tel" placeholder="Teléfono del cliente" style="width:100%;margin-bottom:8px;">
+        <div class="add-pts-row">
+          <input class="input-field" id="pts-amount" type="number" placeholder="Puntos" min="1" max="10" style="width:80px;">
+          <button class="btn btn-brown" style="flex:1" onclick="agregarPuntos()">+ Agregar puntos</button>
+        </div>
+        <p style="font-size:0.72rem;color:#bbb;font-weight:700;margin-top:8px;text-align:center;">
+          $1.000 = 1 punto · $5.000 = 5 puntos
+        </p>
+      </div>
+
+      <!-- Canjear pan -->
+      <div class="admin-section">
+        <h3>🍞 Canjear pan gratis</h3>
+        <input class="input-field" id="canje-phone" type="tel" placeholder="Teléfono del cliente" style="width:100%;margin-bottom:10px;">
+        <button class="btn btn-red btn-full" onclick="canjearPan()">Confirmar canje de pan</button>
+      </div>
+
+      <!-- Lista clientes -->
+      <div class="admin-section">
+        <h3>👥 Todos los clientes</h3>
+        <div class="client-list" id="client-list">
+          <div class="empty-state">Aún no hay clientes registrados</div>
+        </div>
+      </div>
+
+      <button class="btn btn-full" style="background:#eee;color:#888;" onclick="logoutAdmin()">Cerrar sesión</button>
+
     </div>
   </div>
-
-  <!-- WALLETS -->
-  <div class="wallets">
-    <span class="wallet-tag">Mercado Pago</span>
-    <span class="wallet-tag">MODO</span>
-    <span class="wallet-tag">Ualá</span>
-    <span class="wallet-tag">BNA+</span>
-    <span class="wallet-tag">Naranja X</span>
-    <span class="wallet-tag">Prex</span>
-  </div>
-
-  <div class="footer">Sin costo · Acreditación inmediata 🎉</div>
 
 </div>
 
-<div class="toast" id="toast">✅ ¡Alias copiado!</div>
+<div class="toast" id="toast"></div>
+
+<div id="loading" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:998;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:20px;padding:24px 32px;text-align:center;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;color:#333;">
+    <div style="font-size:2rem;margin-bottom:8px;animation:spin 1s linear infinite;display:inline-block">⏳</div><br>
+    Conectando...
+  </div>
+</div>
+<style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>
 
 <script>
-  function copiar(id, btn, nombre) {
-    const texto = document.getElementById(id).textContent.trim();
-    navigator.clipboard.writeText(texto).then(() => {
-      const orig = btn.innerHTML;
-      btn.classList.add('done');
-      btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!`;
+const API = 'https://script.google.com/macros/s/AKfycbzOBesMLgW3jd2dYahM5EVnb-TjGCpimrDHEDJw8MJIlwlHH5G6BLZZOPEgh9Pvv_Bu/exec';
 
-      const toast = document.getElementById('toast');
-      toast.textContent = `✅ Alias de ${nombre} copiado — pegalo en tu app`;
-      toast.classList.add('show');
+function api(params) {
+  const url = API + '?' + new URLSearchParams(params).toString();
+  return fetch(url).then(r => r.json());
+}
 
-      setTimeout(() => {
-        btn.classList.remove('done');
-        btn.innerHTML = orig;
-        toast.classList.remove('show');
-      }, 2800);
-    });
+function loading(show) {
+  document.getElementById('loading').style.display = show ? 'flex' : 'none';
+}
+
+// ---- TABS ----
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('view-' + tab).classList.add('active');
+}
+
+// ---- TOAST ----
+function toast(msg, dur = 2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ---- CLIENTE ----
+async function buscarCliente() {
+  const phone = document.getElementById('phone-input').value.trim();
+  if (!phone) { toast('⚠️ Ingresá tu teléfono'); return; }
+  document.getElementById('client-card').classList.remove('show');
+  document.getElementById('no-cliente').style.display = 'none';
+  loading(true);
+  try {
+    const data = await api({ action: 'buscar', telefono: phone });
+    if (data.ok) {
+      mostrarTarjeta({ name: data.nombre, phone: data.telefono, points: data.puntos, canjes: data.canjes });
+    } else {
+      document.getElementById('no-cliente').style.display = 'block';
+    }
+  } catch(e) {
+    toast('❌ Error de conexión, intentá de nuevo');
   }
+  loading(false);
+}
+
+function mostrarTarjeta(c) {
+  document.getElementById('disp-name').textContent = c.name;
+  document.getElementById('disp-phone').textContent = '📱 ' + c.phone;
+  const pts = parseInt(c.points) || 0;
+  document.getElementById('disp-pts').innerHTML = pts + ' <span>/ 5 para el pan 🍞</span>';
+  const pct = Math.min((pts % 5) / 5 * 100, 100);
+  document.getElementById('progress-fill').style.width = (pts >= 5 ? 100 : pct) + '%';
+  for (let i = 1; i <= 5; i++) {
+    const el = document.getElementById('p' + i);
+    const filled = pts % 5 === 0 && pts > 0 ? 5 : pts % 5;
+    el.classList.toggle('earned', i <= filled);
+  }
+  const box = document.getElementById('canjear-box');
+  box.classList.toggle('show', pts >= 5);
+  document.getElementById('client-card').classList.add('show');
+}
+
+function mostrarCanje() {
+  toast('🍞 Mostrá esta pantalla al local. ¡Que lo disfrutes!', 4000);
+}
+
+// ---- ADMIN ----
+function loginAdmin() {
+  const pass = document.getElementById('admin-pass').value;
+  if (pass === 'reina2024') {
+    document.getElementById('admin-login').style.display = 'none';
+    document.getElementById('admin-panel').classList.add('show');
+    renderClientList();
+    toast('✅ Bienvenida Reina 👑');
+  } else {
+    toast('❌ Clave incorrecta');
+  }
+}
+
+function logoutAdmin() {
+  document.getElementById('admin-login').style.display = 'block';
+  document.getElementById('admin-panel').classList.remove('show');
+  document.getElementById('admin-pass').value = '';
+}
+
+async function registrarCliente() {
+  const name  = document.getElementById('new-name').value.trim();
+  const phone = document.getElementById('new-phone').value.trim();
+  if (!name || !phone) { toast('⚠️ Completá nombre y teléfono'); return; }
+  loading(true);
+  try {
+    const data = await api({ action: 'registrar', nombre: name, telefono: phone });
+    if (data.ok) {
+      document.getElementById('new-name').value = '';
+      document.getElementById('new-phone').value = '';
+      renderClientList();
+      toast('✅ ' + name + ' registrado/a con éxito!');
+    } else {
+      toast('⚠️ Ese teléfono ya está registrado');
+    }
+  } catch(e) { toast('❌ Error de conexión'); }
+  loading(false);
+}
+
+async function agregarPuntos() {
+  const phone = document.getElementById('pts-phone').value.trim();
+  const pts   = parseInt(document.getElementById('pts-amount').value) || 0;
+  if (!phone || pts < 1) { toast('⚠️ Completá teléfono y puntos'); return; }
+  loading(true);
+  try {
+    const data = await api({ action: 'puntos', telefono: phone, puntos: pts });
+    if (data.ok) {
+      renderClientList();
+      toast('🌟 +' + pts + ' puntos agregados! Total: ' + data.puntos);
+      document.getElementById('pts-phone').value = '';
+      document.getElementById('pts-amount').value = '';
+    } else {
+      toast('❌ Cliente no encontrado');
+    }
+  } catch(e) { toast('❌ Error de conexión'); }
+  loading(false);
+}
+
+async function canjearPan() {
+  const phone = document.getElementById('canje-phone').value.trim();
+  if (!phone) { toast('⚠️ Ingresá el teléfono del cliente'); return; }
+  loading(true);
+  try {
+    const data = await api({ action: 'canjear', telefono: phone });
+    if (data.ok) {
+      renderClientList();
+      toast('🍞 ¡Pan canjeado con éxito!');
+      document.getElementById('canje-phone').value = '';
+    } else {
+      toast('❌ ' + (data.msg || 'No tiene suficientes puntos'));
+    }
+  } catch(e) { toast('❌ Error de conexión'); }
+  loading(false);
+}
+
+async function renderClientList() {
+  const list = document.getElementById('client-list');
+  list.innerHTML = '<div class="empty-state">Cargando...</div>';
+  try {
+    const data = await api({ action: 'todos' });
+    if (!data.clientes || !data.clientes.length) {
+      list.innerHTML = '<div class="empty-state">Aún no hay clientes registrados</div>';
+      return;
+    }
+    const sorted = [...data.clientes].sort((a,b) => (b.puntos||0) - (a.puntos||0));
+    list.innerHTML = sorted.map(c => `
+      <div class="client-row">
+        <div class="client-row-info">
+          <div class="client-row-name">${c.nombre} ${(c.puntos||0) >= 5 ? '<span class="badge">PAN 🍞</span>' : ''}</div>
+          <div class="client-row-phone">📱 ${c.telefono} · ${c.canjes||0} canjes</div>
+        </div>
+        <div class="client-row-pts">${c.puntos||0}<span> pts</span></div>
+      </div>
+    `).join('');
+  } catch(e) {
+    list.innerHTML = '<div class="empty-state">Error al cargar</div>';
+  }
+}
+
+document.getElementById('phone-input').addEventListener('keydown', e => { if(e.key==='Enter') buscarCliente(); });
+document.getElementById('admin-pass').addEventListener('keydown', e => { if(e.key==='Enter') loginAdmin(); });
 </script>
 </body>
 </html>
