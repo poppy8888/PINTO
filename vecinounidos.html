@@ -379,6 +379,115 @@
       <rect x="120" y="420" width="14" height="10" rx="3" fill="#1D9E75" stroke="#085041" stroke-width="0.8"/>
       <text x="140" y="432" font-family="'Familjen Grotesk',sans-serif" font-size="11" fill="#5F5E5A">Compuerta</text>
     </svg>
+
+    <!-- WIDGET METEOROLÓGICO -->
+    <div id="weather-widget" style="margin-top:1.5rem; width:100%; max-width:560px; background:white; border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.07);">
+      <div style="font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); padding:.6rem 1rem; background:var(--bg2); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;">
+        🌦️ Clima en Pinto — Santiago del Estero <span style="margin-left:auto; font-weight:400; font-size:10px; color:var(--gray-400);">Actualizado en tiempo real</span>
+      </div>
+      <div id="wx-body" style="padding:1.25rem 1.5rem;">
+        <p style="font-size:.85rem; color:var(--muted);">Cargando datos meteorológicos…</p>
+      </div>
+    </div>
+
+    <script>
+    (function(){
+      const LAT = -29.19, LON = -62.62; // Pinto, Santiago del Estero
+
+      const WX_CODES = {
+        0:'Despejado', 1:'Mayormente despejado', 2:'Parcialmente nublado', 3:'Nublado',
+        45:'Niebla', 48:'Niebla con escarcha',
+        51:'Llovizna leve', 53:'Llovizna moderada', 55:'Llovizna intensa',
+        61:'Lluvia leve', 63:'Lluvia moderada', 65:'Lluvia intensa',
+        71:'Nevada leve', 73:'Nevada moderada', 75:'Nevada intensa',
+        80:'Chaparrón leve', 81:'Chaparrón moderado', 82:'Chaparrón intenso',
+        95:'Tormenta eléctrica', 96:'Tormenta con granizo', 99:'Tormenta con granizo intenso'
+      };
+      const WX_ICON = {
+        0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️',
+        45:'🌫️', 48:'🌫️',
+        51:'🌦️', 53:'🌦️', 55:'🌧️',
+        61:'🌧️', 63:'🌧️', 65:'🌧️',
+        71:'🌨️', 73:'🌨️', 75:'❄️',
+        80:'🌦️', 81:'🌧️', 82:'⛈️',
+        95:'⛈️', 96:'⛈️', 99:'⛈️'
+      };
+      const DIRS = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+
+      function windDir(deg){ return DIRS[Math.round(deg/22.5) % 16]; }
+      function rainAlert(mm){ 
+        if(mm >= 20) return `<div style="margin-top:.75rem;background:var(--red-50);border:1px solid var(--red-100);border-radius:10px;padding:.7rem 1rem;font-size:.82rem;color:var(--red-800);font-weight:600;">⚠️ Lluvia acumulada hoy: ${mm} mm — Riesgo de anegamiento elevado. Monitorear los canales.</div>`;
+        if(mm >= 5) return `<div style="margin-top:.75rem;background:var(--amber-50);border:1px solid var(--amber-100);border-radius:10px;padding:.7rem 1rem;font-size:.82rem;color:var(--amber-800);font-weight:600;">🌧️ Lluvia acumulada hoy: ${mm} mm — Prestar atención al nivel de los canales.</div>`;
+        return '';
+      }
+
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,precipitation&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code&timezone=America%2FArgentina%2FSalta&forecast_days=4`)
+        .then(r => r.json())
+        .then(d => {
+          const c = d.current, daily = d.daily;
+          const code = c.weather_code;
+          const icon = WX_ICON[code] || '🌡️';
+          const desc = WX_CODES[code] || 'Sin datos';
+          const now = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+          const rainToday = daily.precipitation_sum[0] || 0;
+
+          // Próximos 3 días
+          let forecastHTML = '';
+          for(let i=1; i<=3; i++){
+            const dt = new Date(daily.time[i]+'T12:00:00');
+            const dia = dt.toLocaleDateString('es-AR',{weekday:'short'}).replace('.','');
+            const fc = daily.weather_code[i];
+            const fi = WX_ICON[fc] || '🌡️';
+            const rain = daily.precipitation_sum[i] || 0;
+            forecastHTML += `
+              <div style="flex:1;min-width:70px;text-align:center;background:var(--bg2);border-radius:10px;padding:.6rem .5rem;">
+                <div style="font-size:11px;font-weight:600;text-transform:capitalize;color:var(--muted);margin-bottom:4px;">${dia}</div>
+                <div style="font-size:1.5rem;margin-bottom:4px;">${fi}</div>
+                <div style="font-size:.82rem;font-weight:700;">${Math.round(daily.temperature_2m_max[i])}° / ${Math.round(daily.temperature_2m_min[i])}°</div>
+                <div style="font-size:.75rem;color:var(--blue-600);margin-top:2px;">${rain > 0 ? '💧 '+rain.toFixed(1)+' mm' : 'Sin lluvia'}</div>
+              </div>`;
+          }
+
+          document.getElementById('wx-body').innerHTML = `
+            <!-- Actual -->
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+              <div style="font-size:3.5rem;line-height:1;">${icon}</div>
+              <div>
+                <div style="font-size:2rem;font-weight:700;line-height:1;">${Math.round(c.temperature_2m)}°C</div>
+                <div style="font-size:.88rem;color:var(--muted);">${desc}</div>
+                <div style="font-size:.78rem;color:var(--gray-400);margin-top:2px;">Sensación ${Math.round(c.apparent_temperature)}°C · Actualizado ${now}</div>
+              </div>
+            </div>
+            <!-- Detalles -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;">
+              <div style="background:var(--blue-50);border-radius:10px;padding:.6rem .75rem;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue-600);margin-bottom:3px;">Humedad</div>
+                <div style="font-size:1rem;font-weight:700;">${c.relative_humidity_2m}%</div>
+              </div>
+              <div style="background:var(--teal-50);border-radius:10px;padding:.6rem .75rem;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-600);margin-bottom:3px;">Viento</div>
+                <div style="font-size:1rem;font-weight:700;">${Math.round(c.wind_speed_10m)} km/h <span style="font-size:.8rem;font-weight:500;">${windDir(c.wind_direction_10m)}</span></div>
+              </div>
+              <div style="background:var(--amber-50);border-radius:10px;padding:.6rem .75rem;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--amber-600);margin-bottom:3px;">Precip. hoy</div>
+                <div style="font-size:1rem;font-weight:700;">${rainToday.toFixed(1)} mm</div>
+              </div>
+            </div>
+            ${rainAlert(rainToday)}
+            <!-- Pronóstico 3 días -->
+            <div style="margin-top:.9rem;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;">Pronóstico próximos días</div>
+              <div style="display:flex;gap:8px;">${forecastHTML}</div>
+            </div>
+            <div style="margin-top:.75rem;font-size:.7rem;color:var(--gray-400);text-align:right;">Datos: Open-Meteo · Pinto (−29.19°, −62.62°)</div>
+          `;
+        })
+        .catch(() => {
+          document.getElementById('wx-body').innerHTML = '<p style="font-size:.85rem;color:var(--muted);">No se pudo cargar el clima. Verificá tu conexión.</p>';
+        });
+    })();
+    </script>
+
   </div>
 </div>
 
