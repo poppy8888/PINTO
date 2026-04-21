@@ -191,6 +191,34 @@
   .quote-box p { font-size: 1.05rem; line-height: 1.75; color: var(--teal-900); font-style: italic; }
   .reunion-box { background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: var(--radius-card); padding: 1.5rem 1.75rem; margin-top: 1rem; }
 
+  /* COMPUERTAS OBRA SECTION */
+  .compuertas-barrios { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 2rem; }
+  .barrio-card { border-radius: var(--radius-card); border: 1px solid var(--border); background: white; padding: 1.25rem 1.5rem; box-shadow: var(--shadow-sm); }
+  .barrio-card-new { background: var(--teal-50); border-color: var(--teal-100); }
+  .barrio-tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; margin-bottom: .6rem; }
+  .tag-new { background: var(--teal-100); color: var(--teal-800); }
+  .tag-old { background: var(--red-50); color: var(--red-800); }
+  .barrio-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+  .barrio-card p { font-size: .875rem; line-height: 1.6; color: var(--muted); }
+  .compuerta-anim-card { border-radius: var(--radius-card); overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-md); background: #f0ece2; }
+  .compuerta-anim-bar { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding: .6rem 1rem; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .compuerta-anim-desc { padding: .9rem 1.25rem; background: white; border-top: 1px solid var(--border); font-size: .85rem; color: var(--muted); line-height: 1.6; }
+  .compuerta-anim-controls { display: flex; align-items: center; gap: 10px; padding: .6rem 1rem; background: white; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .anim-btn { padding: 5px 14px; border: 1px solid var(--teal-400); border-radius: 6px; background: var(--teal-400); color: white; cursor: pointer; font-family: var(--font-d); font-size: .75rem; font-weight: 600; letter-spacing: .04em; }
+  .anim-btn-sec { background: transparent; color: var(--muted); border-color: var(--border); }
+  .descarga-counter { display: flex; gap: 12px; margin: 1.5rem 0; }
+  .descarga-num { flex: 1; border-radius: 12px; padding: 1rem; text-align: center; }
+  .descarga-num-antes { background: var(--red-50); border: 1px solid var(--red-100); }
+  .descarga-num-antes .dn-val { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 700; color: var(--red-600); line-height: 1; }
+  .descarga-num-ahora { background: var(--teal-50); border: 1px solid var(--teal-100); }
+  .descarga-num-ahora .dn-val { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 700; color: var(--teal-600); line-height: 1; }
+  .dn-label { font-size: .78rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-top: .35rem; }
+  .descarga-num-antes .dn-label { color: var(--red-800); }
+  .descarga-num-ahora .dn-label { color: var(--teal-800); }
+  .dn-sub { font-size: .75rem; color: var(--muted); margin-top: .2rem; }
+  .descarga-arrow { display: flex; align-items: center; font-size: 1.8rem; color: var(--teal-400); font-weight: 700; }
+  @media (max-width: 768px) { .compuertas-barrios { grid-template-columns: 1fr; } }
+
   /* FOOTER */
   footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; font-size: .8rem; color: var(--muted); font-style: italic; max-width: 1140px; margin: 0 auto; }
 
@@ -216,6 +244,7 @@
     <a href="#problema">Problema crítico</a>
     <a href="#como">Cómo funciona</a>
     <a href="#ruta">Hoja de ruta</a>
+    <a href="#compuertas">Obras compuertas</a>
     <a href="#propuesta">Propuesta</a>
   </div>
 </nav>
@@ -775,6 +804,220 @@
   </div>
 </section>
 
+<!-- OBRAS COMPUERTAS — NUEVAS DESCARGAS AL CANAL MIKILO -->
+<section id="compuertas">
+  <p class="sec-eyebrow">05b — Obras en ejecución</p>
+  <h2>Dos nuevas descargas al Canal Mikilo</h2>
+  <p class="lead">El sector pasa de tener una sola descarga — insuficiente ante cualquier lluvia — a contar con tres puntos de salida al Canal Mikilo. Las dos obras nuevas se ubican en el Barrio Rivadavia y en el Barrio Ampliación Malvinas.</p>
+
+  <!-- Contador antes/después -->
+  <div class="descarga-counter">
+    <div class="descarga-num descarga-num-antes">
+      <div class="dn-val">1</div>
+      <div class="dn-label">Descarga actual</div>
+      <div class="dn-sub">Insuficiente ante lluvia pequeña</div>
+    </div>
+    <div class="descarga-arrow">→</div>
+    <div class="descarga-num descarga-num-ahora">
+      <div class="dn-val">3</div>
+      <div class="dn-label">Descargas con las obras</div>
+      <div class="dn-sub">Capacidad triplicada al Canal Mikilo</div>
+    </div>
+  </div>
+
+  <!-- Tarjetas de barrios -->
+  <div class="compuertas-barrios">
+    <div class="barrio-card barrio-card-new">
+      <span class="barrio-tag tag-new">🆕 Obra nueva</span>
+      <h3>Barrio Rivadavia</h3>
+      <p>Nueva descarga al Canal Mikilo mediante obra con compuerta y contracompuerta. Permite evacuar el excedente pluvial del sector norte con control manual del caudal, evitando retroceso del canal hacia el barrio.</p>
+    </div>
+    <div class="barrio-card barrio-card-new">
+      <span class="barrio-tag tag-new">🆕 Obra nueva</span>
+      <h3>Barrio Ampliación Malvinas</h3>
+      <p>Segunda descarga nueva al Canal Mikilo. Complementa la del Barrio Rivadavia cubriendo el extremo sur del sector. Con ambas obras, el sistema tiene redundancia ante eventos de lluvia que superan la capacidad de una sola compuerta.</p>
+    </div>
+  </div>
+
+  <!-- Animación de la obra de compuerta -->
+  <div class="compuerta-anim-card">
+    <div class="compuerta-anim-bar">
+      💧 Animación — Cómo funciona la obra de compuerta
+    </div>
+
+    <!-- Diagrama estático corte longitudinal -->
+    <div style="background:#f4f1ea;padding:1.25rem 1.5rem 1rem;border-bottom:1px solid var(--border);">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem;">Plano HID-01 · Corte longitudinal — compuerta + contracompuerta + disipador</div>
+      <svg width="100%" viewBox="0 0 690 370" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+        <defs>
+          <marker id="cq-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+          <pattern id="cq-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#888" stroke-width="0.8" opacity="0.4"/>
+          </pattern>
+        </defs>
+        <text x="340" y="20" text-anchor="middle" fill="#14140f" font-family="monospace" font-size="13" font-weight="500">Corte longitudinal — con contracompuerta</text>
+        <!-- SUELO / CALLE -->
+        <rect x="0" y="48" width="104" height="16" fill="#666"/>
+        <rect x="0" y="64" width="104" height="36" fill="#9b8060"/>
+        <text x="52" y="42" text-anchor="middle" fill="#3d3d3a" font-family="sans-serif" font-size="12">calle</text>
+        <!-- PLATAFORMA SUP -->
+        <rect x="104" y="64" width="196" height="18" fill="#b0a888" stroke="#888" stroke-width="0.5"/>
+        <rect x="104" y="64" width="196" height="18" fill="url(#cq-hatch)"/>
+        <!-- PLATAFORMA INF -->
+        <rect x="300" y="124" width="226" height="18" fill="#b0a888" stroke="#888" stroke-width="0.5"/>
+        <rect x="300" y="124" width="226" height="18" fill="url(#cq-hatch)"/>
+        <!-- MUROS -->
+        <line x1="104" y1="28" x2="526" y2="28" stroke="#666" stroke-width="2"/>
+        <line x1="104" y1="28" x2="104" y2="64" stroke="#666" stroke-width="2"/>
+        <line x1="526" y1="28" x2="526" y2="124" stroke="#666" stroke-width="2"/>
+        <!-- COMPUERTA C-1 -->
+        <rect x="102" y="28" width="12" height="38" fill="#3d5a80" stroke="#2c4a6e" stroke-width="1"/>
+        <line x1="108" y1="16" x2="108" y2="28" stroke="#3d5a80" stroke-width="3" stroke-linecap="round"/>
+        <rect x="98" y="8" width="20" height="10" rx="3" fill="#3d5a80" stroke="#2c4a6e" stroke-width="0.5"/>
+        <text x="108" y="17" text-anchor="middle" fill="#B5D4F4" font-family="monospace" font-size="11">C-1</text>
+        <!-- CONTRACOMPUERTA C-1b -->
+        <rect x="122" y="28" width="10" height="38" fill="#5a3a8a" stroke="#3a1a6a" stroke-width="1"/>
+        <line x1="127" y1="16" x2="127" y2="28" stroke="#5a3a8a" stroke-width="3" stroke-linecap="round"/>
+        <rect x="117" y="8" width="20" height="10" rx="3" fill="#5a3a8a" stroke="#3a1a6a" stroke-width="0.5"/>
+        <text x="127" y="17" text-anchor="middle" fill="#CECBF6" font-family="monospace" font-size="10">C-1b</text>
+        <text x="115" y="80" text-anchor="middle" fill="#3d3d3a" font-family="sans-serif" font-size="11">doble</text>
+        <text x="115" y="91" text-anchor="middle" fill="#3d3d3a" font-family="sans-serif" font-size="11">hoja</text>
+        <!-- ESCALERA -->
+        <rect x="136" y="76" width="36" height="12" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+        <rect x="172" y="88" width="36" height="12" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+        <rect x="208" y="100" width="36" height="12" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+        <rect x="244" y="112" width="36" height="12" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+        <rect x="280" y="124" width="20" height="12" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+        <polygon points="136,82 300,124 300,142 104,142 104,82" fill="#c8c0a0" opacity="0.4"/>
+        <text x="210" y="154" text-anchor="middle" fill="#3d3d3a" font-family="sans-serif" font-size="11">escalera · 5 peldaños · 0.60 m desnivel</text>
+        <!-- COMPUERTA C-2 -->
+        <rect x="296" y="84" width="12" height="42" fill="#3d5a80" stroke="#2c4a6e" stroke-width="1"/>
+        <line x1="302" y1="72" x2="302" y2="84" stroke="#3d5a80" stroke-width="3" stroke-linecap="round"/>
+        <rect x="292" y="62" width="20" height="12" rx="3" fill="#3d5a80" stroke="#2c4a6e" stroke-width="0.5"/>
+        <text x="302" y="71" text-anchor="middle" fill="#B5D4F4" font-family="monospace" font-size="11">C-2</text>
+        <!-- DISIPADOR -->
+        <rect x="472" y="124" width="54" height="18" fill="#8b6b3d" stroke="#6a4a1a" stroke-width="1"/>
+        <rect x="510" y="104" width="12" height="38" fill="#7a5a2a" stroke="#5a3a0a" stroke-width="1"/>
+        <text x="499" y="114" text-anchor="middle" fill="#5a3a0a" font-family="sans-serif" font-size="10">diente</text>
+        <!-- CANAL RECEPTOR -->
+        <line x1="526" y1="28" x2="526" y2="210" stroke="#888" stroke-width="1.5"/>
+        <line x1="630" y1="124" x2="630" y2="210" stroke="#888" stroke-width="1.5"/>
+        <line x1="526" y1="210" x2="630" y2="210" stroke="#888" stroke-width="1.5"/>
+        <text x="578" y="175" text-anchor="middle" fill="#1a5276" font-family="sans-serif" font-size="12" font-weight="600">Canal Mikilo</text>
+        <text x="578" y="190" text-anchor="middle" fill="#1a5276" font-family="sans-serif" font-size="10">(canal receptor)</text>
+        <!-- COTAS -->
+        <line x1="56" y1="64" x2="56" y2="124" stroke="#888" stroke-width="0.8" marker-end="url(#cq-arrow)" marker-start="url(#cq-arrow)"/>
+        <text x="44" y="97" text-anchor="middle" fill="#666" font-family="monospace" font-size="10">0.60</text>
+        <text x="44" y="108" text-anchor="middle" fill="#666" font-family="monospace" font-size="10">m</text>
+        <line x1="50" y1="64" x2="106" y2="64" stroke="#aaa" stroke-width="0.5" stroke-dasharray="3 2"/>
+        <line x1="50" y1="124" x2="106" y2="124" stroke="#aaa" stroke-width="0.5" stroke-dasharray="3 2"/>
+        <line x1="526" y1="64" x2="645" y2="64" stroke="#aaa" stroke-width="0.5" stroke-dasharray="3 2"/>
+        <line x1="526" y1="124" x2="645" y2="124" stroke="#aaa" stroke-width="0.5" stroke-dasharray="3 2"/>
+        <text x="647" y="67" fill="#666" font-size="10" font-family="monospace">N. calle</text>
+        <text x="647" y="127" fill="#666" font-size="10" font-family="monospace">N. canal</text>
+        <!-- LEYENDA -->
+        <rect x="0" y="238" width="690" height="32" fill="#e8e4da" opacity="0.8"/>
+        <rect x="10" y="247" width="10" height="10" fill="#3d5a80"/><text x="24" y="256" fill="#333" font-size="10" font-family="sans-serif">Compuerta</text>
+        <rect x="110" y="247" width="10" height="10" fill="#5a3a8a"/><text x="124" y="256" fill="#333" font-size="10" font-family="sans-serif">Contracompuerta</text>
+        <rect x="255" y="247" width="10" height="10" fill="#b0a888"/><text x="269" y="256" fill="#333" font-size="10" font-family="sans-serif">Plataforma HºAº</text>
+        <rect x="390" y="247" width="10" height="10" fill="#8b6b3d"/><text x="404" y="256" fill="#333" font-size="10" font-family="sans-serif">Disipador</text>
+        <rect x="460" y="247" width="10" height="10" fill="#5dade2"/><text x="474" y="256" fill="#333" font-size="10" font-family="sans-serif">Flujo de agua</text>
+        <!-- FLECHA FLUJO -->
+        <text x="340" y="290" text-anchor="middle" fill="#666" font-family="sans-serif" font-size="11" font-style="italic">← flujo del agua pluvial (calle → compuerta → escalera → disipador → Canal Mikilo)</text>
+      </svg>
+    </div>
+
+    <!-- Animación flujo -->
+    <div style="background:#f0ece2;position:relative;">
+      <div style="padding:.7rem 1.25rem;background:white;border-bottom:1px solid var(--border);">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Simulación del flujo hidráulico</span>
+        <p style="font-size:.82rem;color:var(--muted);margin-top:.25rem;">El agua de la calle pasa por las compuertas, baja la escalera, choca el diente del disipador y cae al Canal Mikilo.</p>
+      </div>
+      <svg id="cq-msv" width="100%" viewBox="0 0 690 270" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+        <defs>
+          <pattern id="cq-hatch3" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#888" stroke-width="0.8" opacity="0.4"/>
+          </pattern>
+        </defs>
+        <rect x="0" y="48" width="104" height="12" fill="#666"/>
+        <rect x="0" y="60" width="104" height="32" fill="#9b8060"/>
+        <text x="52" y="44" text-anchor="middle" fill="#555" font-size="11" font-family="sans-serif">calle</text>
+        <rect x="104" y="64" width="196" height="18" fill="#b0a888" stroke="#888" stroke-width="0.5"/>
+        <rect x="104" y="64" width="196" height="18" fill="url(#cq-hatch3)"/>
+        <rect x="300" y="124" width="226" height="18" fill="#b0a888" stroke="#888" stroke-width="0.5"/>
+        <rect x="300" y="124" width="226" height="18" fill="url(#cq-hatch3)"/>
+        <line x1="104" y1="28" x2="526" y2="28" stroke="#666" stroke-width="2"/>
+        <line x1="104" y1="28" x2="104" y2="64" stroke="#666" stroke-width="2"/>
+        <line x1="526" y1="28" x2="526" y2="124" stroke="#666" stroke-width="2"/>
+        <rect x="136" y="76" width="36" height="12" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+        <rect x="172" y="88" width="36" height="12" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+        <rect x="208" y="100" width="36" height="12" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+        <rect x="244" y="112" width="36" height="12" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+        <rect x="280" y="124" width="20" height="12" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+        <polygon points="136,82 300,124 300,142 104,142 104,82" fill="#c8c0a0" opacity="0.3"/>
+        <rect x="102" y="28" width="10" height="36" fill="#3d5a80" stroke="#2c4a6e" stroke-width="1"/>
+        <line x1="107" y1="14" x2="107" y2="28" stroke="#3d5a80" stroke-width="3" stroke-linecap="round"/>
+        <rect x="97" y="6" width="20" height="10" rx="3" fill="#3d5a80" stroke="#2c4a6e" stroke-width="0.5"/>
+        <text x="107" y="15" text-anchor="middle" fill="#B5D4F4" font-size="10" font-family="monospace">C-1</text>
+        <rect x="120" y="28" width="8" height="36" fill="#5a3a8a" stroke="#3a1a6a" stroke-width="1"/>
+        <line x1="124" y1="14" x2="124" y2="28" stroke="#5a3a8a" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="114" y="6" width="20" height="10" rx="3" fill="#5a3a8a" stroke="#3a1a6a" stroke-width="0.5"/>
+        <text x="124" y="15" text-anchor="middle" fill="#CECBF6" font-size="9" font-family="monospace">C-1b</text>
+        <rect x="296" y="84" width="10" height="42" fill="#3d5a80" stroke="#2c4a6e" stroke-width="1"/>
+        <line x1="301" y1="70" x2="301" y2="84" stroke="#3d5a80" stroke-width="3" stroke-linecap="round"/>
+        <rect x="291" y="60" width="20" height="12" rx="3" fill="#3d5a80" stroke="#2c4a6e" stroke-width="0.5"/>
+        <text x="301" y="70" text-anchor="middle" fill="#B5D4F4" font-size="10" font-family="monospace">C-2</text>
+        <rect x="472" y="124" width="54" height="18" fill="#8b6b3d" stroke="#6a4a1a" stroke-width="1"/>
+        <rect x="510" y="104" width="12" height="38" fill="#7a5a2a" stroke="#5a3a0a" stroke-width="1"/>
+        <text x="490" y="200" text-anchor="middle" fill="#7a5a2a" font-size="10" font-family="sans-serif">disipador</text>
+        <text x="516" y="101" text-anchor="middle" fill="#5a3a0a" font-size="9" font-family="sans-serif">diente</text>
+        <line x1="526" y1="28" x2="526" y2="210" stroke="#888" stroke-width="1.5"/>
+        <line x1="630" y1="124" x2="630" y2="210" stroke="#888" stroke-width="1.5"/>
+        <line x1="526" y1="210" x2="630" y2="210" stroke="#888" stroke-width="1.5"/>
+        <text x="578" y="225" text-anchor="middle" fill="#1a5276" font-size="11" font-family="sans-serif">canal Mikilo</text>
+        <line x1="56" y1="64" x2="56" y2="124" stroke="#888" stroke-width="0.8"/>
+        <text x="44" y="97" text-anchor="middle" fill="#666" font-size="10" font-family="monospace">0.60</text>
+        <text x="44" y="108" text-anchor="middle" fill="#666" font-size="10" font-family="monospace">m</text>
+        <line x1="50" y1="64" x2="106" y2="64" stroke="#aaa" stroke-width="0.5" stroke-dasharray="3 2"/>
+        <line x1="50" y1="124" x2="106" y2="124" stroke="#aaa" stroke-width="0.5" stroke-dasharray="3 2"/>
+        <line x1="526" y1="64" x2="645" y2="64" stroke="#aaa" stroke-width="0.5" stroke-dasharray="3 2"/>
+        <line x1="526" y1="124" x2="645" y2="124" stroke="#aaa" stroke-width="0.5" stroke-dasharray="3 2"/>
+        <text x="647" y="67" fill="#666" font-size="10" font-family="monospace">N. calle</text>
+        <text x="647" y="127" fill="#666" font-size="10" font-family="monospace">N. canal</text>
+        <text x="210" y="158" text-anchor="middle" fill="#666" font-size="10" font-family="sans-serif">escalera · 5 peldaños · 0.60 m</text>
+        <rect x="0" y="238" width="690" height="32" fill="#e8e4da" opacity="0.8"/>
+        <rect x="10" y="247" width="10" height="10" fill="#3d5a80"/><text x="24" y="256" fill="#333" font-size="10" font-family="sans-serif">Compuerta</text>
+        <rect x="110" y="247" width="10" height="10" fill="#5a3a8a"/><text x="124" y="256" fill="#333" font-size="10" font-family="sans-serif">Contracompuerta</text>
+        <rect x="255" y="247" width="10" height="10" fill="#b0a888"/><text x="269" y="256" fill="#333" font-size="10" font-family="sans-serif">Plataforma HºAº</text>
+        <rect x="390" y="247" width="10" height="10" fill="#8b6b3d"/><text x="404" y="256" fill="#333" font-size="10" font-family="sans-serif">Disipador</text>
+        <rect x="460" y="247" width="10" height="10" fill="#5dade2"/><text x="474" y="256" fill="#333" font-size="10" font-family="sans-serif">Flujo de agua</text>
+      </svg>
+      <canvas id="cq-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+    </div>
+
+    <!-- Controles -->
+    <div class="compuerta-anim-controls">
+      <button id="cq-btn-play" onclick="cqTogglePlay()" class="anim-btn">⏸ Pausar</button>
+      <button onclick="cqRestart()" class="anim-btn anim-btn-sec">↺ Reiniciar</button>
+      <span style="font-size:.75rem;color:var(--muted);margin-left:auto;letter-spacing:.04em;">Velocidad</span>
+      <input type="range" min="0.5" max="3" step="0.5" value="1" id="cq-speed" style="width:80px;accent-color:var(--teal-400);">
+      <span id="cq-spd-val" style="font-size:.8rem;color:var(--teal-600);font-weight:700;min-width:20px;">1×</span>
+    </div>
+
+    <div class="compuerta-anim-desc">
+      <strong>Cómo funciona:</strong> El agua pluvial entra desde la calle, atraviesa la compuerta principal (C-1) y la contracompuerta de seguridad (C-1b), baja por la escalera de 5 peldaños venciendo el desnivel calle-canal (0,60 m), golpea el diente del disipador para frenar la energía cinética y descarga finalmente al Canal Mikilo. La compuerta de control (C-2) regula el caudal que ingresa al canal receptor.
+    </div>
+  </div>
+
+  <!-- Info técnica compacta -->
+  <div class="info-box-teal" style="margin-top:1.5rem;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-800);margin-bottom:.5rem;">¿Por qué dos obras y no una sola?</div>
+    <p style="font-size:.875rem;line-height:1.7;color:var(--teal-900);">Con una sola descarga, ante lluvias que superan la capacidad de ese punto, el excedente no tiene salida y el sector se inunda. Con dos descargas adicionales — una en el Barrio Rivadavia y otra en el Barrio Ampliación Malvinas — el sistema tiene <strong>redundancia</strong>: si una compuerta se satura o requiere mantenimiento, las otras dos siguen operando. Además, al distribuir el caudal en tres puntos, ninguno de ellos sobrecarga al Canal Mikilo de manera brusca.</p>
+  </div>
+</section>
+
 <!-- CIERRE: PROPUESTA Y PARTICIPACIÓN -->
 <section id="propuesta" class="propuesta-section" style="border-top:none;">
   <p class="sec-eyebrow">06 — Propuesta abierta</p>
@@ -819,6 +1062,178 @@
   Ing. Civil Juan Céspedes &nbsp;·&nbsp; Ciudad de Pinto, Departamento Aguirre, Santiago del Estero
 </footer>
 
+<script>
+// Animación compuerta — Barrios Rivadavia y Ampliación Malvinas
+(function(){
+  const canvas = document.getElementById('cq-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const svg = document.getElementById('cq-msv');
+  const VW = 690, VH = 270;
+  let running = true, spd = 1, t = 0;
+  let particles = [], splashes = [], canalDrops = [], canalFill = 0;
+
+  document.getElementById('cq-speed').addEventListener('input', function(){
+    spd = parseFloat(this.value);
+    document.getElementById('cq-spd-val').textContent = spd + '×';
+  });
+
+  window.cqTogglePlay = function(){
+    running = !running;
+    const b = document.getElementById('cq-btn-play');
+    b.textContent = running ? '⏸ Pausar' : '▶ Reanudar';
+    b.style.background = running ? 'var(--teal-400)' : 'transparent';
+    b.style.color = running ? 'white' : 'var(--muted)';
+    b.style.borderColor = running ? 'var(--teal-400)' : 'var(--border)';
+    if (running) cqLoop();
+  };
+  window.cqRestart = function(){ t = 0; particles = []; splashes = []; canalDrops = []; canalFill = 0; };
+
+  function sc(sx, sy){
+    const r = svg.getBoundingClientRect();
+    return { x: sx*(r.width/VW), y: sy*(r.height/VH), sx: r.width/VW, sy: r.height/VH };
+  }
+  function resize(){
+    const r = svg.getBoundingClientRect();
+    canvas.width = r.width * devicePixelRatio;
+    canvas.height = r.height * devicePixelRatio;
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const SEGS = [
+    {id:'calle',   x1:0,   y1:68, x2:102, y2:68},
+    {id:'pasa_c1', x1:114, y1:68, x2:134, y2:68},
+    {id:'esc1',    x1:136, y1:68, x2:172, y2:80},
+    {id:'esc2',    x1:172, y1:80, x2:208, y2:92},
+    {id:'esc3',    x1:208, y1:92, x2:244, y2:104},
+    {id:'esc4',    x1:244, y1:104,x2:280, y2:116},
+    {id:'esc5',    x1:280, y1:116,x2:308, y2:124},
+    {id:'plat',    x1:308, y1:132,x2:510, y2:132},
+    {id:'sube',    x1:510, y1:132,x2:510, y2:104},
+    {id:'arco',    x1:510, y1:104,x2:540, y2:132, arc:true},
+  ];
+  function segLen(s){
+    if (s.arc){ const dx=s.x2-s.x1,dy=s.y2-s.y1; return Math.sqrt(dx*dx+dy*dy)*1.3; }
+    const dx=s.x2-s.x1,dy=s.y2-s.y1; return Math.sqrt(dx*dx+dy*dy);
+  }
+  const lens = SEGS.map(segLen);
+  const starts = [0];
+  for (let i=0;i<lens.length-1;i++) starts.push(starts[i]+lens[i]);
+  const total = starts[starts.length-1]+lens[lens.length-1];
+
+  function posAt(d){
+    d = ((d%total)+total)%total;
+    for (let i=0;i<SEGS.length;i++){
+      if (d < starts[i]+lens[i]){
+        const f=(d-starts[i])/lens[i], s=SEGS[i];
+        if (s.arc){
+          const cx=s.x1,cy=s.y1-10;
+          return{x:(1-f)*(1-f)*s.x1+2*(1-f)*f*cx+f*f*s.x2, y:(1-f)*(1-f)*s.y1+2*(1-f)*f*cy+f*f*s.y2, id:s.id, seg:i};
+        }
+        return{x:s.x1+(s.x2-s.x1)*f, y:s.y1+(s.y2-s.y1)*f, id:s.id, seg:i};
+      }
+    }
+    const last=SEGS[SEGS.length-1];
+    return{x:last.x2,y:last.y2,id:last.id,seg:SEGS.length-1};
+  }
+
+  function spawnP(){
+    if (Math.random()<0.4*spd)
+      particles.push({d:Math.random()*50, r:2+Math.random()*2, a:0.5+Math.random()*0.45, oy:(Math.random()-0.5)*3});
+  }
+  function spawnSplash(cx,cy){
+    for(let i=0;i<4;i++){
+      const ang=-Math.PI/2+(Math.random()-0.5)*Math.PI*0.9, v=1.5+Math.random()*3;
+      splashes.push({x:cx,y:cy,vx:Math.cos(ang)*v,vy:Math.sin(ang)*v,life:1,r:1.5+Math.random()*1.5});
+    }
+  }
+  function spawnCanalDrop(cx,cy){
+    canalDrops.push({x:cx,y:cy,life:1,r:2+Math.random()*2,spread:0});
+  }
+
+  let splashTimer = 0;
+  function draw(){
+    const r = svg.getBoundingClientRect();
+    ctx.clearRect(0,0,r.width,r.height);
+    const S = sc(0,0);
+
+    canalFill = Math.min(1, canalFill+0.0003*spd);
+    const canalTopSVG = 210-(210-124)*canalFill*0.65;
+    const cTL=sc(526,canalTopSVG), cBL=sc(526,210), cBR=sc(630,210), cTR=sc(630,canalTopSVG);
+
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(cTL.x,cTL.y);
+    for(let wx=cTL.x;wx<=cTR.x;wx+=3){
+      const frac=(wx-cTL.x)/(cTR.x-cTL.x);
+      ctx.lineTo(wx, cTL.y+Math.sin(frac*Math.PI*5+t*2.5)*1.2*S.sx);
+    }
+    ctx.lineTo(cBR.x,cBL.y); ctx.lineTo(cBL.x,cBL.y); ctx.closePath();
+    ctx.fillStyle='rgba(29,158,117,0.22)'; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cTL.x,cTL.y);
+    for(let wx=cTL.x;wx<=cTR.x;wx+=3){
+      const frac=(wx-cTL.x)/(cTR.x-cTL.x);
+      ctx.lineTo(wx, cTL.y+Math.sin(frac*Math.PI*5+t*2.5)*1.2*S.sx);
+    }
+    ctx.lineTo(cTR.x,cTL.y+4*S.sy); ctx.lineTo(cTL.x,cTL.y+4*S.sy); ctx.closePath();
+    ctx.fillStyle='rgba(93,173,226,0.35)'; ctx.fill();
+    ctx.restore();
+
+    const speed = 55*spd;
+    const arcIdx = SEGS.findIndex(s=>s.id==='arco');
+    for(let p of particles){
+      p.d += speed*0.016;
+      const pos = posAt(p.d);
+      const c = sc(pos.x, pos.y+p.oy);
+      if(pos.id==='arco' && p.d-starts[arcIdx]>lens[arcIdx]*0.85){
+        if(Math.random()<0.06) spawnCanalDrop(c.x,c.y);
+        if(Math.random()<0.05) spawnSplash(c.x,cTL.y);
+      }
+      let col;
+      if(pos.id==='calle'||pos.id==='pasa_c1') col=`rgba(93,173,226,${p.a})`;
+      else if(pos.id.startsWith('esc')) col=`rgba(52,152,219,${p.a})`;
+      else if(pos.id==='plat') col=`rgba(41,128,185,${p.a})`;
+      else if(pos.id==='sube') col=`rgba(200,230,255,${p.a*0.9})`;
+      else col=`rgba(93,173,226,${p.a*0.85})`;
+      ctx.beginPath(); ctx.arc(c.x,c.y,p.r*S.sx,0,Math.PI*2);
+      ctx.fillStyle=col; ctx.fill();
+    }
+
+    splashTimer += spd;
+    if(splashTimer>6){ splashTimer=0; const dPt=sc(510,128); spawnSplash(dPt.x,dPt.y); }
+    for(let i=splashes.length-1;i>=0;i--){
+      const s=splashes[i];
+      s.x+=s.vx*S.sx; s.y+=s.vy*S.sy; s.vy+=0.15; s.life-=0.035*spd;
+      if(s.life<=0){splashes.splice(i,1);continue;}
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r*S.sx,0,Math.PI*2);
+      ctx.fillStyle=`rgba(200,230,255,${s.life*0.7})`; ctx.fill();
+    }
+
+    for(let i=canalDrops.length-1;i>=0;i--){
+      const d=canalDrops[i];
+      d.y+=2*S.sy*spd; d.life-=0.03*spd; d.spread+=0.5*S.sx*spd;
+      if(d.life<=0){canalDrops.splice(i,1);continue;}
+      if(d.y>=cTL.y){
+        ctx.beginPath(); ctx.arc(d.x,cTL.y,d.spread,0,Math.PI*2);
+        ctx.strokeStyle=`rgba(93,173,226,${d.life*0.5})`; ctx.lineWidth=0.8; ctx.stroke();
+      } else {
+        ctx.beginPath(); ctx.arc(d.x,d.y,d.r*S.sx,0,Math.PI*2);
+        ctx.fillStyle=`rgba(93,173,226,${d.life*0.7})`; ctx.fill();
+      }
+    }
+
+    particles = particles.filter(p=>p.d<starts[arcIdx]+lens[arcIdx]);
+  }
+
+  function cqLoop(){
+    if(!running) return;
+    t += 0.016*spd; spawnP(); draw();
+    requestAnimationFrame(cqLoop);
+  }
+  cqLoop();
+})();
+</script>
 <script>
   const sections = document.querySelectorAll('section[id]');
   const links = document.querySelectorAll('.nav-links a');
