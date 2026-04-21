@@ -206,6 +206,10 @@
   .compuerta-anim-controls { display: flex; align-items: center; gap: 10px; padding: .6rem 1rem; background: white; border-top: 1px solid var(--border); flex-wrap: wrap; }
   .anim-btn { padding: 5px 14px; border: 1px solid var(--teal-400); border-radius: 6px; background: var(--teal-400); color: white; cursor: pointer; font-family: var(--font-d); font-size: .75rem; font-weight: 600; letter-spacing: .04em; }
   .anim-btn-sec { background: transparent; color: var(--muted); border-color: var(--border); }
+  /* El contenedor del canvas necesita ser relativo y el canvas cubrirlo exactamente */
+  .cq-anim-wrap { background: #f0ece2; position: relative; width: 100%; line-height: 0; }
+  .cq-anim-wrap svg { display: block; width: 100%; height: auto; }
+  .cq-anim-wrap canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: block; }
   .descarga-counter { display: flex; gap: 12px; margin: 1.5rem 0; }
   .descarga-num { flex: 1; border-radius: 12px; padding: 1rem; text-align: center; }
   .descarga-num-antes { background: var(--red-50); border: 1px solid var(--red-100); }
@@ -260,7 +264,89 @@
     </div>
     <p>Pinto no cuenta hoy con un sistema de desagüe pluvial funcionando. Este documento describe la infraestructura existente, los tres sectores afectados, el problema crítico que bloquea el sistema y el camino concreto para implementar las soluciones — empezando por lo que el municipio puede hacer ahora mismo.</p>
 
-    <!-- VIDEO -->
+    <!-- ANIMACIÓN COMPUERTA — MINI HERO -->
+    <div style="margin-top:1.5rem;border-radius:var(--radius-card);overflow:hidden;border:1px solid var(--teal-100);box-shadow:var(--shadow-md);">
+      <div style="background:var(--teal-800);padding:.55rem 1rem;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--teal-100);">💧 Nueva obra — Compuertas al Canal Mikilo</span>
+        <a href="#compuertas" style="margin-left:auto;font-size:11px;font-weight:600;color:var(--teal-100);text-decoration:none;opacity:.75;white-space:nowrap;">Ver detalle ↓</a>
+      </div>
+      <div style="background:var(--teal-50);padding:.65rem 1rem;display:flex;gap:1rem;align-items:center;border-bottom:1px solid var(--teal-100);">
+        <div style="text-align:center;">
+          <div style="font-family:var(--font-serif);font-size:2rem;font-weight:700;color:var(--red-600);line-height:1;">1</div>
+          <div style="font-size:10px;font-weight:600;text-transform:uppercase;color:var(--red-800);letter-spacing:.06em;">antes</div>
+        </div>
+        <div style="font-size:1.3rem;color:var(--teal-400);font-weight:700;">→</div>
+        <div style="text-align:center;">
+          <div style="font-family:var(--font-serif);font-size:2rem;font-weight:700;color:var(--teal-600);line-height:1;">3</div>
+          <div style="font-size:10px;font-weight:600;text-transform:uppercase;color:var(--teal-800);letter-spacing:.06em;">descargas</div>
+        </div>
+        <div style="flex:1;font-size:.78rem;line-height:1.5;color:var(--teal-900);">Barrio Rivadavia + Barrio Ampliación Malvinas — dos nuevas compuertas sobre el Canal Mikilo.</div>
+      </div>
+      <!-- mini animación canvas -->
+      <div style="position:relative;background:#f0ece2;line-height:0;">
+        <svg id="hero-msv" width="100%" viewBox="0 0 690 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="hero-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="6" stroke="#888" stroke-width="0.8" opacity="0.4"/>
+            </pattern>
+          </defs>
+          <!-- SUELO CALLE -->
+          <rect x="0" y="38" width="104" height="10" fill="#666"/>
+          <rect x="0" y="48" width="104" height="26" fill="#9b8060"/>
+          <text x="52" y="34" text-anchor="middle" fill="#555" font-size="11" font-family="sans-serif">calle</text>
+          <!-- PLATAFORMA SUP -->
+          <rect x="104" y="52" width="196" height="15" fill="#b0a888" stroke="#888" stroke-width="0.5"/>
+          <rect x="104" y="52" width="196" height="15" fill="url(#hero-hatch)"/>
+          <!-- PLATAFORMA INF -->
+          <rect x="300" y="104" width="226" height="15" fill="#b0a888" stroke="#888" stroke-width="0.5"/>
+          <rect x="300" y="104" width="226" height="15" fill="url(#hero-hatch)"/>
+          <!-- MUROS -->
+          <line x1="104" y1="22" x2="526" y2="22" stroke="#666" stroke-width="2"/>
+          <line x1="104" y1="22" x2="104" y2="52" stroke="#666" stroke-width="2"/>
+          <line x1="526" y1="22" x2="526" y2="104" stroke="#666" stroke-width="2"/>
+          <!-- ESCALERA -->
+          <rect x="136" y="62" width="36" height="10" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+          <rect x="172" y="72" width="36" height="10" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+          <rect x="208" y="82" width="36" height="10" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+          <rect x="244" y="92" width="36" height="10" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+          <rect x="280" y="104" width="20" height="10" fill="#d0c8a8" stroke="#aaa" stroke-width="0.5"/>
+          <polygon points="136,66 300,104 300,120 104,120 104,66" fill="#c8c0a0" opacity="0.3"/>
+          <!-- COMPUERTA C1 -->
+          <rect x="102" y="22" width="10" height="30" fill="#3d5a80" stroke="#2c4a6e" stroke-width="1"/>
+          <line x1="107" y1="10" x2="107" y2="22" stroke="#3d5a80" stroke-width="3" stroke-linecap="round"/>
+          <rect x="97" y="3" width="20" height="9" rx="3" fill="#3d5a80" stroke="#2c4a6e" stroke-width="0.5"/>
+          <text x="107" y="11" text-anchor="middle" fill="#B5D4F4" font-size="9" font-family="monospace">C-1</text>
+          <!-- CONTRACOMPUERTA C1b -->
+          <rect x="120" y="22" width="8" height="30" fill="#5a3a8a" stroke="#3a1a6a" stroke-width="1"/>
+          <line x1="124" y1="10" x2="124" y2="22" stroke="#5a3a8a" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="114" y="3" width="20" height="9" rx="3" fill="#5a3a8a" stroke="#3a1a6a" stroke-width="0.5"/>
+          <text x="124" y="11" text-anchor="middle" fill="#CECBF6" font-size="8" font-family="monospace">C-1b</text>
+          <!-- COMPUERTA C2 -->
+          <rect x="296" y="68" width="10" height="36" fill="#3d5a80" stroke="#2c4a6e" stroke-width="1"/>
+          <line x1="301" y1="56" x2="301" y2="68" stroke="#3d5a80" stroke-width="3" stroke-linecap="round"/>
+          <rect x="291" y="47" width="20" height="10" rx="3" fill="#3d5a80" stroke="#2c4a6e" stroke-width="0.5"/>
+          <text x="301" y="56" text-anchor="middle" fill="#B5D4F4" font-size="9" font-family="monospace">C-2</text>
+          <!-- DISIPADOR -->
+          <rect x="472" y="104" width="54" height="15" fill="#8b6b3d" stroke="#6a4a1a" stroke-width="1"/>
+          <rect x="510" y="86" width="12" height="32" fill="#7a5a2a" stroke="#5a3a0a" stroke-width="1"/>
+          <!-- CANAL MIKILO -->
+          <line x1="526" y1="22" x2="526" y2="185" stroke="#888" stroke-width="1.5"/>
+          <line x1="630" y1="104" x2="630" y2="185" stroke="#888" stroke-width="1.5"/>
+          <line x1="526" y1="185" x2="630" y2="185" stroke="#888" stroke-width="1.5"/>
+          <text x="578" y="175" text-anchor="middle" fill="#085041" font-size="11" font-family="sans-serif" font-weight="700">Canal Mikilo</text>
+          <!-- etiquetas mínimas -->
+          <text x="52" y="82" text-anchor="middle" fill="#666" font-size="9" font-family="sans-serif">0.60 m</text>
+          <line x1="50" y1="52" x2="56" y2="52" stroke="#888" stroke-width="0.8"/>
+          <line x1="50" y1="104" x2="56" y2="104" stroke="#888" stroke-width="0.8"/>
+          <line x1="53" y1="52" x2="53" y2="104" stroke="#888" stroke-width="0.8"/>
+        </svg>
+        <canvas id="hero-canvas"></canvas>
+      </div>
+      <div style="padding:.5rem 1rem;background:white;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:8px;">
+        <span>Calle → compuerta → escalera → disipador → Canal Mikilo</span>
+        <button id="hero-btn-play" onclick="heroTogglePlay()" style="margin-left:auto;padding:3px 10px;border:1px solid var(--teal-400);border-radius:5px;background:var(--teal-400);color:white;cursor:pointer;font-size:.72rem;font-weight:600;">⏸</button>
+      </div>
+    </div>
     <div class="video-card" style="margin-top:1.75rem;">
       <div class="video-label">🎥 Registro — situación actual</div>
       <div class="video-wrap">
@@ -930,12 +1016,13 @@
     </div>
 
     <!-- Animación flujo -->
-    <div style="background:#f0ece2;position:relative;">
+    <div style="background:#f0ece2;">
       <div style="padding:.7rem 1.25rem;background:white;border-bottom:1px solid var(--border);">
         <span style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Simulación del flujo hidráulico</span>
-        <p style="font-size:.82rem;color:var(--muted);margin-top:.25rem;">El agua de la calle pasa por las compuertas, baja la escalera, choca el diente del disipador y cae al Canal Mikilo.</p>
+        <p style="font-size:.82rem;color:var(--muted);margin-top:.25rem;">El agua pasa por las compuertas, baja la escalera, golpea el diente disipador y cae al Canal Mikilo.</p>
       </div>
-      <svg id="cq-msv" width="100%" viewBox="0 0 690 270" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+      <div class="cq-anim-wrap">
+      <svg id="cq-msv" width="100%" viewBox="0 0 690 280" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="cq-hatch3" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
             <line x1="0" y1="0" x2="0" y2="6" stroke="#888" stroke-width="0.8" opacity="0.4"/>
@@ -987,14 +1074,15 @@
         <text x="647" y="67" fill="#666" font-size="10" font-family="monospace">N. calle</text>
         <text x="647" y="127" fill="#666" font-size="10" font-family="monospace">N. canal</text>
         <text x="210" y="158" text-anchor="middle" fill="#666" font-size="10" font-family="sans-serif">escalera · 5 peldaños · 0.60 m</text>
-        <rect x="0" y="238" width="690" height="32" fill="#e8e4da" opacity="0.8"/>
-        <rect x="10" y="247" width="10" height="10" fill="#3d5a80"/><text x="24" y="256" fill="#333" font-size="10" font-family="sans-serif">Compuerta</text>
-        <rect x="110" y="247" width="10" height="10" fill="#5a3a8a"/><text x="124" y="256" fill="#333" font-size="10" font-family="sans-serif">Contracompuerta</text>
-        <rect x="255" y="247" width="10" height="10" fill="#b0a888"/><text x="269" y="256" fill="#333" font-size="10" font-family="sans-serif">Plataforma HºAº</text>
-        <rect x="390" y="247" width="10" height="10" fill="#8b6b3d"/><text x="404" y="256" fill="#333" font-size="10" font-family="sans-serif">Disipador</text>
-        <rect x="460" y="247" width="10" height="10" fill="#5dade2"/><text x="474" y="256" fill="#333" font-size="10" font-family="sans-serif">Flujo de agua</text>
+        <rect x="0" y="238" width="690" height="42" fill="#e8e4da" opacity="0.8"/>
+        <rect x="10" y="242" width="10" height="10" fill="#3d5a80"/><text x="24" y="251" fill="#333" font-size="10" font-family="sans-serif">Compuerta</text>
+        <rect x="100" y="242" width="10" height="10" fill="#5a3a8a"/><text x="114" y="251" fill="#333" font-size="10" font-family="sans-serif">Contracompuerta</text>
+        <rect x="225" y="242" width="10" height="10" fill="#b0a888"/><text x="239" y="251" fill="#333" font-size="10" font-family="sans-serif">Plataforma HºAº</text>
+        <rect x="10" y="257" width="10" height="10" fill="#8b6b3d"/><text x="24" y="266" fill="#333" font-size="10" font-family="sans-serif">Disipador</text>
+        <rect x="100" y="257" width="10" height="10" fill="#5dade2"/><text x="114" y="266" fill="#333" font-size="10" font-family="sans-serif">Flujo de agua</text>
       </svg>
-      <canvas id="cq-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+      <canvas id="cq-canvas"></canvas>
+      </div>
     </div>
 
     <!-- Controles -->
@@ -1063,13 +1151,148 @@
 </footer>
 
 <script>
+// Animación hero — mini compuerta
+(function(){
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const svg = document.getElementById('hero-msv');
+  const VW = 690, VH = 220;
+  let running = true, spd = 1, t = 0;
+  let particles = [], splashes = [], canalDrops = [], canalFill = 0;
+
+  window.heroTogglePlay = function(){
+    running = !running;
+    const b = document.getElementById('hero-btn-play');
+    b.textContent = running ? '⏸' : '▶';
+    b.style.background = running ? 'var(--teal-400)' : 'transparent';
+    b.style.color = running ? 'white' : 'var(--muted)';
+    b.style.borderColor = running ? 'var(--teal-400)' : 'var(--border)';
+    if (running) heroLoop();
+  };
+
+  function syncCanvas(){
+    const r = svg.getBoundingClientRect();
+    canvas.style.cssText = `position:absolute;top:0;left:0;width:${r.width}px;height:${r.height}px;pointer-events:none;display:block;`;
+    canvas.width  = Math.round(r.width  * devicePixelRatio);
+    canvas.height = Math.round(r.height * devicePixelRatio);
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  }
+  syncCanvas();
+  if (window.ResizeObserver) new ResizeObserver(syncCanvas).observe(svg);
+  else window.addEventListener('resize', syncCanvas);
+
+  function sc(sx, sy){
+    const r = svg.getBoundingClientRect();
+    return { x: sx*(r.width/VW), y: sy*(r.height/VH), sx: r.width/VW, sy: r.height/VH };
+  }
+
+  // path ajustado a las coordenadas del SVG hero (escalera en y=52..104)
+  const SEGS = [
+    {id:'calle',   x1:0,   y1:55, x2:102, y2:55},
+    {id:'pasa_c1', x1:114, y1:55, x2:134, y2:55},
+    {id:'esc1',    x1:136, y1:55, x2:172, y2:65},
+    {id:'esc2',    x1:172, y1:65, x2:208, y2:75},
+    {id:'esc3',    x1:208, y1:75, x2:244, y2:85},
+    {id:'esc4',    x1:244, y1:85, x2:280, y2:95},
+    {id:'esc5',    x1:280, y1:95, x2:308, y2:104},
+    {id:'plat',    x1:308, y1:111,x2:510, y2:111},
+    {id:'sube',    x1:510, y1:111,x2:510, y2:86},
+    {id:'arco',    x1:510, y1:86, x2:540, y2:111, arc:true},
+  ];
+  function segLen(s){
+    if(s.arc){const dx=s.x2-s.x1,dy=s.y2-s.y1;return Math.sqrt(dx*dx+dy*dy)*1.3;}
+    const dx=s.x2-s.x1,dy=s.y2-s.y1;return Math.sqrt(dx*dx+dy*dy);
+  }
+  const lens=SEGS.map(segLen);
+  const starts=[0];
+  for(let i=0;i<lens.length-1;i++) starts.push(starts[i]+lens[i]);
+  const total=starts[starts.length-1]+lens[lens.length-1];
+
+  function posAt(d){
+    d=((d%total)+total)%total;
+    for(let i=0;i<SEGS.length;i++){
+      if(d<starts[i]+lens[i]){
+        const f=(d-starts[i])/lens[i],s=SEGS[i];
+        if(s.arc){const cx=s.x1,cy=s.y1-8;return{x:(1-f)*(1-f)*s.x1+2*(1-f)*f*cx+f*f*s.x2,y:(1-f)*(1-f)*s.y1+2*(1-f)*f*cy+f*f*s.y2,id:s.id};}
+        return{x:s.x1+(s.x2-s.x1)*f,y:s.y1+(s.y2-s.y1)*f,id:s.id};
+      }
+    }
+    const last=SEGS[SEGS.length-1];return{x:last.x2,y:last.y2,id:last.id};
+  }
+
+  function spawnP(){if(Math.random()<0.35) particles.push({d:Math.random()*40,r:1.8+Math.random()*1.8,a:0.5+Math.random()*0.45,oy:(Math.random()-0.5)*2.5});}
+  function spawnSplash(cx,cy){for(let i=0;i<3;i++){const ang=-Math.PI/2+(Math.random()-0.5)*Math.PI*0.9,v=1.2+Math.random()*2.5;splashes.push({x:cx,y:cy,vx:Math.cos(ang)*v,vy:Math.sin(ang)*v,life:1,r:1.2+Math.random()*1.2});}}
+  function spawnDrop(cx,cy){canalDrops.push({x:cx,y:cy,life:1,r:1.8+Math.random()*1.5,spread:0});}
+
+  let splashTimer=0;
+  function draw(){
+    const r=svg.getBoundingClientRect();
+    ctx.clearRect(0,0,r.width,r.height);
+    const S=sc(0,0);
+    canalFill=Math.min(1,canalFill+0.0003*spd);
+    const canalTopSVG=185-(185-104)*canalFill*0.6;
+    const cTL=sc(526,canalTopSVG),cBL=sc(526,185),cBR=sc(630,185),cTR=sc(630,canalTopSVG);
+
+    ctx.save();
+    ctx.beginPath();ctx.moveTo(cTL.x,cTL.y);
+    for(let wx=cTL.x;wx<=cTR.x;wx+=3){const frac=(wx-cTL.x)/(cTR.x-cTL.x);ctx.lineTo(wx,cTL.y+Math.sin(frac*Math.PI*5+t*2.5)*1*S.sx);}
+    ctx.lineTo(cBR.x,cBL.y);ctx.lineTo(cBL.x,cBL.y);ctx.closePath();
+    ctx.fillStyle='rgba(29,158,117,0.22)';ctx.fill();
+    ctx.beginPath();ctx.moveTo(cTL.x,cTL.y);
+    for(let wx=cTL.x;wx<=cTR.x;wx+=3){const frac=(wx-cTL.x)/(cTR.x-cTL.x);ctx.lineTo(wx,cTL.y+Math.sin(frac*Math.PI*5+t*2.5)*1*S.sx);}
+    ctx.lineTo(cTR.x,cTL.y+3*S.sy);ctx.lineTo(cTL.x,cTL.y+3*S.sy);ctx.closePath();
+    ctx.fillStyle='rgba(93,173,226,0.35)';ctx.fill();
+    ctx.restore();
+
+    const speed=55*spd;
+    const arcIdx=SEGS.findIndex(s=>s.id==='arco');
+    for(let p of particles){
+      p.d+=speed*0.016;
+      const pos=posAt(p.d);const c=sc(pos.x,pos.y+p.oy);
+      if(pos.id==='arco'&&p.d-starts[arcIdx]>lens[arcIdx]*0.85){
+        if(Math.random()<0.06) spawnDrop(c.x,c.y);
+        if(Math.random()<0.05) spawnSplash(c.x,cTL.y);
+      }
+      let col;
+      if(pos.id==='calle'||pos.id==='pasa_c1') col=`rgba(93,173,226,${p.a})`;
+      else if(pos.id.startsWith('esc')) col=`rgba(52,152,219,${p.a})`;
+      else if(pos.id==='plat') col=`rgba(41,128,185,${p.a})`;
+      else col=`rgba(93,173,226,${p.a*0.85})`;
+      ctx.beginPath();ctx.arc(c.x,c.y,p.r*S.sx,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+    }
+    splashTimer+=spd;
+    if(splashTimer>6){splashTimer=0;const dPt=sc(510,108);spawnSplash(dPt.x,dPt.y);}
+    for(let i=splashes.length-1;i>=0;i--){
+      const s=splashes[i];s.x+=s.vx*S.sx;s.y+=s.vy*S.sy;s.vy+=0.15;s.life-=0.035*spd;
+      if(s.life<=0){splashes.splice(i,1);continue;}
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r*S.sx,0,Math.PI*2);ctx.fillStyle=`rgba(200,230,255,${s.life*0.7})`;ctx.fill();
+    }
+    for(let i=canalDrops.length-1;i>=0;i--){
+      const d=canalDrops[i];d.y+=2*S.sy*spd;d.life-=0.03*spd;d.spread+=0.5*S.sx*spd;
+      if(d.life<=0){canalDrops.splice(i,1);continue;}
+      if(d.y>=cTL.y){ctx.beginPath();ctx.arc(d.x,cTL.y,d.spread,0,Math.PI*2);ctx.strokeStyle=`rgba(93,173,226,${d.life*0.5})`;ctx.lineWidth=0.8;ctx.stroke();}
+      else{ctx.beginPath();ctx.arc(d.x,d.y,d.r*S.sx,0,Math.PI*2);ctx.fillStyle=`rgba(93,173,226,${d.life*0.7})`;ctx.fill();}
+    }
+    particles=particles.filter(p=>p.d<starts[arcIdx]+lens[arcIdx]);
+  }
+
+  function heroLoop(){
+    if(!running)return;
+    t+=0.016*spd;spawnP();draw();
+    requestAnimationFrame(heroLoop);
+  }
+  heroLoop();
+})();
+</script>
+<script>
 // Animación compuerta — Barrios Rivadavia y Ampliación Malvinas
 (function(){
   const canvas = document.getElementById('cq-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const svg = document.getElementById('cq-msv');
-  const VW = 690, VH = 270;
+  const VW = 690, VH = 280;
   let running = true, spd = 1, t = 0;
   let particles = [], splashes = [], canalDrops = [], canalFill = 0;
 
@@ -1089,18 +1312,25 @@
   };
   window.cqRestart = function(){ t = 0; particles = []; splashes = []; canalDrops = []; canalFill = 0; };
 
+  function syncCanvas(){
+    const r = svg.getBoundingClientRect();
+    canvas.style.width  = r.width  + 'px';
+    canvas.style.height = r.height + 'px';
+    canvas.width  = Math.round(r.width  * devicePixelRatio);
+    canvas.height = Math.round(r.height * devicePixelRatio);
+    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  }
+  syncCanvas();
+  if (window.ResizeObserver) {
+    new ResizeObserver(syncCanvas).observe(svg);
+  } else {
+    window.addEventListener('resize', syncCanvas);
+  }
+
   function sc(sx, sy){
     const r = svg.getBoundingClientRect();
     return { x: sx*(r.width/VW), y: sy*(r.height/VH), sx: r.width/VW, sy: r.height/VH };
   }
-  function resize(){
-    const r = svg.getBoundingClientRect();
-    canvas.width = r.width * devicePixelRatio;
-    canvas.height = r.height * devicePixelRatio;
-    ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-  }
-  resize();
-  window.addEventListener('resize', resize);
 
   const SEGS = [
     {id:'calle',   x1:0,   y1:68, x2:102, y2:68},
