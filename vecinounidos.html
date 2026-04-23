@@ -223,6 +223,48 @@
   .descarga-arrow { display: flex; align-items: center; font-size: 1.8rem; color: var(--teal-400); font-weight: 700; }
   @media (max-width: 768px) { .compuertas-barrios { grid-template-columns: 1fr; } }
 
+  /* ALTERNATIVAS TABS */
+  .alt-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 1.5rem; }
+  .alt-tab { padding: .65rem 1.4rem; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -2px; font-family: var(--font-d); transition: color .15s, border-color .15s; letter-spacing: .02em; }
+  .alt-tab.active { color: var(--teal-600); border-bottom-color: var(--teal-400); }
+  .alt-tab:hover:not(.active) { color: var(--text); }
+  .alt-panel { display: none; }
+  .alt-panel.active { display: block; }
+
+  /* PRESUPUESTO TABLE */
+  .pres-section { margin-top: 2rem; }
+  .pres-section h3 { font-family: var(--font-serif); font-size: 1.4rem; margin-bottom: .3rem; }
+  .pres-section .pres-lead { font-size: .875rem; color: var(--muted); margin-bottom: 1.25rem; line-height: 1.6; }
+  .pres-table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+  .pres-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  .pres-table th { background: var(--teal-800); color: white; padding: .65rem .9rem; text-align: left; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .pres-table th:last-child, .pres-table td:last-child { text-align: right; }
+  .pres-table th:nth-child(4), .pres-table td:nth-child(4),
+  .pres-table th:nth-child(5), .pres-table td:nth-child(5) { text-align: right; }
+  .pres-table td { padding: .55rem .9rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  .pres-table tr:last-child td { border-bottom: none; }
+  .pres-table .sub-head td { background: var(--gray-50); font-weight: 700; font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--gray-600); padding: .4rem .9rem; }
+  .pres-table .subtotal-row td { background: var(--teal-50); font-weight: 700; color: var(--teal-800); font-size: .8rem; }
+  .pres-table .subtotal-row td:first-child { text-transform: uppercase; font-size: .72rem; letter-spacing: .06em; }
+  .pres-table .total-row td { background: var(--teal-800); color: white; font-weight: 700; font-size: .9rem; }
+  .pres-table .iva-row td { background: var(--teal-50); color: var(--teal-800); font-weight: 600; }
+  .pres-table .obs-col { color: var(--muted); font-size: .76rem; font-style: italic; }
+  .pres-totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 1.25rem; }
+  .pres-total-card { border-radius: 12px; padding: 1rem 1.1rem; text-align: center; }
+  .ptc-sin-iva { background: var(--gray-50); border: 1px solid var(--border); }
+  .ptc-iva { background: var(--amber-50); border: 1px solid var(--amber-100); }
+  .ptc-total { background: var(--teal-800); color: white; }
+  .ptc-val { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 700; line-height: 1; margin-bottom: .2rem; }
+  .ptc-label { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .ptc-sin-iva .ptc-val { color: var(--text); }
+  .ptc-sin-iva .ptc-label { color: var(--muted); }
+  .ptc-iva .ptc-val { color: var(--amber-800); }
+  .ptc-iva .ptc-label { color: var(--amber-600); }
+  .ptc-total .ptc-val { color: white; }
+  .ptc-total .ptc-label { color: var(--teal-100); }
+  .pres-nota { margin-top: 1rem; background: var(--amber-50); border: 1px solid var(--amber-100); border-radius: 10px; padding: .85rem 1.1rem; font-size: .8rem; color: var(--amber-800); line-height: 1.6; }
+  @media (max-width: 768px) { .pres-totals { grid-template-columns: 1fr; } }
+
   /* FOOTER */
   footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; font-size: .8rem; color: var(--muted); font-style: italic; max-width: 1140px; margin: 0 auto; }
 
@@ -925,6 +967,17 @@
     </div>
   </div>
 
+  <!-- TABS DE ALTERNATIVAS -->
+  <div style="margin-bottom:1.5rem;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal-600);margin-bottom:.6rem;">Tipología de obra — alternativas</div>
+    <div class="alt-tabs">
+      <button class="alt-tab active" onclick="switchAlt(0)">Alt. A — Compuerta + escalera + disipador</button>
+      <button class="alt-tab" onclick="switchAlt(1)">Alt. B — Conducto cerrado con bordo de defensa</button>
+    </div>
+  </div>
+
+  <!-- ALTERNATIVA A: compuerta escalera (original) -->
+  <div class="alt-panel active" id="alt-panel-0">
   <!-- Animación de la obra de compuerta -->
   <div class="compuerta-anim-card">
     <div class="compuerta-anim-bar">
@@ -1104,6 +1157,135 @@
     <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-800);margin-bottom:.5rem;">¿Por qué dos obras y no una sola?</div>
     <p style="font-size:.875rem;line-height:1.7;color:var(--teal-900);">Con una sola descarga, ante lluvias que superan la capacidad de ese punto, el excedente no tiene salida y el sector se inunda. Con dos descargas adicionales — una en el Barrio Rivadavia y otra en el Barrio Ampliación Malvinas — el sistema tiene <strong>redundancia</strong>: si una compuerta se satura o requiere mantenimiento, las otras dos siguen operando. Además, al distribuir el caudal en tres puntos, ninguno de ellos sobrecarga al Canal Mikilo de manera brusca.</p>
   </div>
+  </div><!-- /alt-panel-0 -->
+
+  <!-- ALTERNATIVA B: Conducto cerrado con bordo de defensa -->
+  <div class="alt-panel" id="alt-panel-1">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem;">
+      <div class="barrio-card" style="background:var(--blue-50);border-color:var(--blue-100);">
+        <span class="barrio-tag" style="background:var(--blue-100);color:var(--blue-800);">🏗️ Alternativa B</span>
+        <h3>Conducto cerrado (HºAº) + Bordo de defensa</h3>
+        <p>El agua pluvial ingresa por una boca de tormenta superficial, cae al conducto subterráneo, atraviesa la compuerta de entrada, recorre la cámara de 7 m, pasa la compuerta de salida y descarga al canal lateral. El <strong>bordo de protección</strong> separa el conducto del canal, evitando retroceso hacia el pueblo.</p>
+      </div>
+      <div class="barrio-card" style="background:var(--teal-50);border-color:var(--teal-100);">
+        <span class="barrio-tag tag-new">Diferencias clave vs. Alt. A</span>
+        <h3>¿Cuándo conviene esta opción?</h3>
+        <p>Cuando el desnivel calle-canal es menor al necesario para una escalera, o cuando se requiere mayor control del flujo. La cámara cerrada facilita el mantenimiento y protege de obstrucciones. El bordo de defensa cumple la función de terraplén perimetral del canal.</p>
+      </div>
+    </div>
+
+    <div class="compuerta-anim-card">
+      <div class="compuerta-anim-bar">
+        🌧️ Animación — Conducto cerrado con bordo de protección y canal lateral
+      </div>
+      <div style="background:white;padding:.7rem 1.25rem;border-bottom:1px solid var(--border);">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Vista de sección — perfil longitudinal</span>
+        <p style="font-size:.82rem;color:var(--muted);margin-top:.25rem;">El agua de lluvia entra por la boca de tormenta, circula por la cámara cerrada entre las dos compuertas, y descarga al canal de tierra protegido por el bordo de defensa.</p>
+      </div>
+      <div style="background:#0d1117;line-height:0;">
+        <iframe id="bordo-iframe" style="display:block;width:100%;height:500px;border:none;" scrolling="no"></iframe>
+      </div>
+      <div class="compuerta-anim-desc">
+        <strong>Cómo funciona:</strong> La lluvia cae sobre la calle y el agua superficial fluye hacia la boca de tormenta. Entra al conducto cerrado de hormigón (1,00 m alto × 1,50 m ancho), avanza entre la <em>compuerta de entrada</em> (que controla el ingreso) y la <em>compuerta de salida</em> (que evita el retroceso del canal). El <strong>bordo de protección</strong> actúa como terraplén entre la cámara y el canal, garantizando que el flujo sea unidireccional: del pueblo al canal. El bordo de defensa del canal, sobre el talud lateral, separa el conducto del espejo de agua.
+      </div>
+    </div>
+
+    <div class="info-box-teal" style="margin-top:1.5rem;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal-800);margin-bottom:.5rem;">Componentes principales — Alt. B</div>
+      <p style="font-size:.875rem;line-height:1.7;color:var(--teal-900);">La obra incluye: <strong>cámara de hormigón armado</strong> 1,50 m × 1,00 m × 7,00 m · <strong>compuerta de entrada</strong> con vástago roscado · <strong>compuerta de salida</strong> con vástago roscado · <strong>bordo de protección</strong> a nivel de calle (~5,0 m de longitud) · <strong>boca de tormenta</strong> con rejilla metálica · <strong>bordo defensa del canal</strong> (talud lateral). El presupuesto detallado cubre esta tipología.</p>
+    </div>
+  </div><!-- /alt-panel-1 -->
+
+  <!-- PRESUPUESTO -->
+  <div class="pres-section" style="margin-top:3rem;padding-top:2.5rem;border-top:1px solid var(--border);">
+    <p class="sec-eyebrow">Presupuesto de referencia</p>
+    <h3>Cámara de descarga 1,50 m × 1,00 m × 7,00 m con compuertas metálicas</h3>
+    <p class="pres-lead">Precios de referencia — abril 2025 (zona Buenos Aires). Valores expresados en pesos argentinos (ARS). Sujetos a variación regional. No incluye habilitaciones municipales ni estudio de suelos.</p>
+
+    <div class="pres-table-wrap">
+      <table class="pres-table">
+        <thead>
+          <tr>
+            <th style="width:42px;">Ítem</th>
+            <th>Descripción</th>
+            <th>U.</th>
+            <th>Cant.</th>
+            <th>P. Unit. (ARS)</th>
+            <th>Total (ARS)</th>
+            <th class="obs-col" style="text-align:left;">Observaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="sub-head"><td colspan="7">1. Movimiento de suelos</td></tr>
+          <tr><td>1.1</td><td>Excavación manual/mecánica (cámara + bordo defensa)</td><td>m³</td><td>11</td><td>18.000</td><td>198.000</td><td class="obs-col">1,5m×1,2m×7m aprox.</td></tr>
+          <tr><td>1.2</td><td>Relleno y compactación lateral</td><td>m³</td><td>4</td><td>12.000</td><td>48.000</td><td class="obs-col">Relleno c/material propio</td></tr>
+          <tr><td>1.3</td><td>Retiro de material sobrante</td><td>m³</td><td>7</td><td>9.500</td><td>66.500</td><td class="obs-col">Traslado a botadero</td></tr>
+          <tr class="subtotal-row"><td colspan="5">Subtotal 1 — Movimiento de suelos</td><td>312.500</td><td></td></tr>
+
+          <tr class="sub-head"><td colspan="7">2. Hormigón armado</td></tr>
+          <tr><td>2.1</td><td>Losa de piso e=0,15m (H-21, fck=210 kg/cm²)</td><td>m³</td><td>1,58</td><td>95.000</td><td>150.100</td><td class="obs-col">1,5m × 7m × 0,15m</td></tr>
+          <tr><td>2.2</td><td>Muros laterales e=0,15m (H-21)</td><td>m³</td><td>2,1</td><td>95.000</td><td>199.500</td><td class="obs-col">2 muros × 7m × 1m × 0,15m</td></tr>
+          <tr><td>2.3</td><td>Losa de techo e=0,15m (H-21) c/ventanas de rejilla</td><td>m³</td><td>1,58</td><td>98.000</td><td>154.840</td><td class="obs-col">Incluye aperturas rejillas</td></tr>
+          <tr><td>2.4</td><td>Bordo defensa longitudinal (H-21) e=0,20m h=0,20m</td><td>m³</td><td>0,28</td><td>102.000</td><td>28.560</td><td class="obs-col">5,0m × 0,20m × 0,28m</td></tr>
+          <tr><td>2.5</td><td>Acero de refuerzo ADN 420 (promedio obra)</td><td>kg</td><td>520</td><td>1.450</td><td>754.000</td><td class="obs-col">~65 kg/m³ promedio</td></tr>
+          <tr><td>2.6</td><td>Encofrado (losa, muros y techo)</td><td>m²</td><td>56</td><td>8.500</td><td>476.000</td><td class="obs-col">Dos caras muros + losas</td></tr>
+          <tr class="subtotal-row"><td colspan="5">Subtotal 2 — Hormigón armado</td><td>1.763.000</td><td></td></tr>
+
+          <tr class="sub-head"><td colspan="7">3. Compuertas metálicas</td></tr>
+          <tr><td>3.1</td><td>Compuerta entrada — chapa acero e=4mm c/guías y vástago roscado</td><td>u</td><td>1</td><td>185.000</td><td>185.000</td><td class="obs-col">1,50m × 1,10m</td></tr>
+          <tr><td>3.2</td><td>Compuerta salida — chapa acero e=4mm c/guías y vástago roscado</td><td>u</td><td>1</td><td>185.000</td><td>185.000</td><td class="obs-col">1,50m × 1,10m</td></tr>
+          <tr><td>3.3</td><td>Guías/marcos embebidos (perfil L 50×50×4)</td><td>kg</td><td>48</td><td>2.200</td><td>105.600</td><td class="obs-col">2 compuertas × 24 kg</td></tr>
+          <tr><td>3.4</td><td>Anticorrosivo + pintura esmalte 2 manos</td><td>m²</td><td>6,4</td><td>4.800</td><td>30.720</td><td class="obs-col">Ambas compuertas</td></tr>
+          <tr class="subtotal-row"><td colspan="5">Subtotal 3 — Compuertas metálicas</td><td>506.320</td><td></td></tr>
+
+          <tr class="sub-head"><td colspan="7">4. Rejillas de captación (bocas de tormenta)</td></tr>
+          <tr><td>4.1</td><td>Rejilla barra cuadrada 12mm, marco ángulo 40×40×4 — boca 0,60m×0,40m</td><td>u</td><td>3</td><td>52.000</td><td>156.000</td><td class="obs-col">3 bocas sobre losa techo</td></tr>
+          <tr><td>4.2</td><td>Colocación y sellado perimetral c/mortero</td><td>u</td><td>3</td><td>8.500</td><td>25.500</td><td class="obs-col">Incluye junta hidrófuga</td></tr>
+          <tr class="subtotal-row"><td colspan="5">Subtotal 4 — Rejillas de captación</td><td>181.500</td><td></td></tr>
+
+          <tr class="sub-head"><td colspan="7">5. Impermeabilización y terminaciones</td></tr>
+          <tr><td>5.1</td><td>Hidrófugo integral en masa (hormigón)</td><td>kg</td><td>18</td><td>2.800</td><td>50.400</td><td class="obs-col">2% peso cemento</td></tr>
+          <tr><td>5.2</td><td>Revoque impermeable interior (1:3 c/hidrófugo)</td><td>m²</td><td>42</td><td>6.200</td><td>260.400</td><td class="obs-col">Muros y piso interior</td></tr>
+          <tr><td>5.3</td><td>Pendiente interior hacia salida (mortero)</td><td>gl</td><td>1</td><td>28.000</td><td>28.000</td><td class="obs-col">Pendiente mínima 1%</td></tr>
+          <tr class="subtotal-row"><td colspan="5">Subtotal 5 — Impermeabilización</td><td>338.800</td><td></td></tr>
+
+          <tr class="sub-head"><td colspan="7">6. Canal de conexión al canal de tierra</td></tr>
+          <tr><td>6.1</td><td>Talud de empalme (conform. tierra + afirmado)</td><td>m²</td><td>4</td><td>9.500</td><td>38.000</td><td class="obs-col">Empalme con canal exist.</td></tr>
+          <tr class="subtotal-row"><td colspan="5">Subtotal 6 — Canal de conexión</td><td>38.000</td><td></td></tr>
+
+          <tr class="sub-head"><td colspan="7">7. Gastos indirectos</td></tr>
+          <tr><td>7.1</td><td>Transporte de materiales</td><td>gl</td><td>1</td><td>45.000</td><td>45.000</td><td class="obs-col">Estimado global</td></tr>
+          <tr><td>7.2</td><td>Mano de obra oficial + peón (jornal)</td><td>jl</td><td>18</td><td>22.000</td><td>396.000</td><td class="obs-col">~18 jornales totales</td></tr>
+          <tr><td>7.3</td><td>Herramientas y equipos menores</td><td>gl</td><td>1</td><td>18.000</td><td>18.000</td><td class="obs-col">Vibrador, mezcladora, etc.</td></tr>
+          <tr class="subtotal-row"><td colspan="5">Subtotal 7 — Gastos indirectos</td><td>459.000</td><td></td></tr>
+
+          <tr class="subtotal-row" style="border-top:2px solid var(--teal-400);"><td colspan="5" style="font-size:.9rem;">Subtotal obra (sin IVA)</td><td style="font-size:.9rem;">3.599.120</td><td></td></tr>
+          <tr class="iva-row"><td colspan="5">IVA (21%)</td><td>755.815</td><td></td></tr>
+          <tr class="total-row"><td colspan="5">★ TOTAL GENERAL (con IVA)</td><td>4.354.935</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pres-totals">
+      <div class="pres-total-card ptc-sin-iva">
+        <div class="ptc-val">$3.599.120</div>
+        <div class="ptc-label">Sin IVA</div>
+      </div>
+      <div class="pres-total-card ptc-iva">
+        <div class="ptc-val">$755.815</div>
+        <div class="ptc-label">IVA 21%</div>
+      </div>
+      <div class="pres-total-card ptc-total">
+        <div class="ptc-val">$4.354.935</div>
+        <div class="ptc-label">Total con IVA (ARS)</div>
+      </div>
+    </div>
+
+    <div class="pres-nota">
+      ⚠️ <strong>Nota:</strong> Precios de referencia — abril 2025 (zona Buenos Aires). Valores sujetos a variación por costos de materiales y mano de obra regional. No incluye habilitaciones municipales ni estudio de suelos. Presupuesto válido por 30 días desde su fecha de emisión.
+    </div>
+  </div><!-- /pres-section -->
+
 </section>
 
 <!-- CIERRE: PROPUESTA Y PARTICIPACIÓN -->
@@ -1483,6 +1665,496 @@
       document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
     });
   });
+</script>
+
+<script>
+/* ── TAB SWITCHING ── */
+var _bordoStarted = false;
+function switchAlt(idx) {
+  document.querySelectorAll('.alt-tab').forEach(function(t,i){ t.classList.toggle('active', i===idx); });
+  document.querySelectorAll('.alt-panel').forEach(function(p,i){ p.classList.toggle('active', i===idx); });
+  if (idx === 1 && !_bordoStarted) { _bordoStarted = true; startBordoAnim(); }
+}
+
+/* ── BORDO DEFENSA IFRAME ANIMATION ── */
+function startBordoAnim(){
+  var iframe = document.getElementById('bordo-iframe');
+  if (!iframe) return;
+  var html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obra de descarga — Bordo defensa y canal</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0d1117; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
+  h1 { color: #90a4ae; font-size: 13px; font-weight: 400; letter-spacing: 0.05em; margin-bottom: 10px; text-align: center; }
+  canvas { display: block; border-radius: 10px; max-width: 100%; }
+  .sub { color: #37474f; font-size: 11px; margin-top: 8px; text-align: center; }
+</style>
+</head>
+<body>
+<h1>Obra de descarga — perfil longitudinal con bordo de protección y canal lateral</h1>
+<canvas id="c" width="800" height="500"></canvas>
+<p class="sub">Vista de sección — lluvia intensa / entrada única / descarga al canal</p>
+
+<script>
+var cv = document.getElementById('c');
+var ctx = cv.getContext('2d');
+var W = 800, H = 500;
+
+/* ── GEOMETRÍA PRINCIPAL ── */
+var SY   = 120;   // nivel de calle
+var RY   = 142;   // losa techo
+var FY   = 260;   // losa piso
+var WL   = 90;    // muro izquierdo
+var WR   = 560;   // muro derecho
+var GIN  = 200;   // compuerta entrada x
+var GOUT = 480;   // compuerta salida x
+var GRX  = 120;   // boca de tormenta x
+var GRW  = 60;    // boca de tormenta ancho
+
+/* ── BORDO DE PROTECCIÓN (a nivel de calle, entre compuertas) ── */
+var BPX1 = GIN + 6;
+var BPX2 = GOUT + 6;
+var BP_TOP  = SY - 38;
+var BP_BASE = SY + 4;
+
+/* ── CANAL DE TIERRA al costado derecho ── */
+/* El canal corre a la derecha del muro derecho, separado del pueblo por el bordo */
+var CANAL_LEFT  = WR + 20;
+var CANAL_RIGHT = W - 20;
+var CANAL_TOP   = RY + 5;
+var CANAL_BOT   = FY + 18;
+var CANAL_MID   = (CANAL_TOP + CANAL_BOT) / 2;
+
+/* ── BORDO DEFENSA DEL CANAL (terraplén lateral entre conducto y canal) ── */
+/* Es el talud de tierra que forma la pared del canal hacia el pueblo */
+var BD_X1    = WR - 2;
+var BD_X2    = CANAL_LEFT + 2;
+var BD_TOP_Y = SY - 10;
+var BD_BOT_Y = FY + 18;
+
+function rand(a, b) { return a + Math.random() * (b - a); }
+
+/* ── PARTÍCULAS ── */
+var particles = [];
+
+function Particle(type) { this.type = type; this.reset(); }
+Particle.prototype.reset = function () {
+  var tp = this.type;
+  if (tp === 'rain') {
+    this.x = rand(0, W); this.y = rand(-80, SY);
+    this.vx = rand(-0.8, 0.8); this.vy = rand(11, 20);
+    this.len = rand(9, 17); this.alpha = rand(0.35, 0.92); this.w = rand(0.7, 1.6);
+  } else if (tp === 'street') {
+    this.x = rand(GRX + GRW + 6, BPX1 - 6);
+    this.y = rand(SY + 2, SY + 10);
+    this.vx = rand(-2.8, -0.9); this.vy = 0;
+    this.r = rand(1, 2.5); this.life = 0; this.maxLife = rand(0.6, 1.8);
+  } else if (tp === 'street2') {
+    this.x = rand(10, GRX - 6);
+    this.y = rand(SY + 2, SY + 10);
+    this.vx = rand(0.6, 1.6); this.vy = 0;
+    this.r = rand(1, 2); this.life = 0; this.maxLife = rand(0.5, 1.4);
+  } else if (tp === 'descend') {
+    this.x = rand(GRX + 4, GRX + GRW - 4);
+    this.y = RY + 4;
+    this.vx = rand(-0.5, 0.5); this.vy = rand(4, 9);
+    this.r = rand(2, 4.5); this.life = 0; this.maxLife = rand(0.45, 1.0);
+  } else if (tp === 'splash') {
+    this.x = rand(GRX + 3, GRX + GRW - 3); this.y = SY + 3;
+    this.vx = rand(-3.5, 3.5); this.vy = rand(-5, -1);
+    this.r = rand(1, 2.5); this.life = 0; this.maxLife = rand(0.18, 0.45);
+  } else if (tp === 'interior') {
+    this.x = rand(WL + 18, GIN - 2);
+    this.y = rand(FY - 65, FY - 10);
+    this.vx = rand(2.8, 5.5); this.vy = rand(-0.3, 0.3);
+    this.r = rand(2, 4.5); this.life = 0; this.maxLife = rand(1.4, 3.2);
+  } else if (tp === 'canal') {
+    this.x = rand(CANAL_LEFT + 4, CANAL_RIGHT - 10);
+    this.y = rand(CANAL_TOP + 4, CANAL_TOP + 35);
+    this.vx = rand(-0.3, 0.5); this.vy = rand(2.5, 5.5);
+    this.r = rand(2, 4); this.life = 0; this.maxLife = rand(0.9, 2.0);
+  } else if (tp === 'outlet') {
+    /* agua saliendo por compuerta salida hacia el canal */
+    this.x = WR + 4;
+    this.y = rand(FY - 60, FY - 15);
+    this.vx = rand(1.5, 3.5); this.vy = rand(-0.3, 0.3);
+    this.r = rand(2, 4); this.life = 0; this.maxLife = rand(0.8, 1.8);
+  }
+};
+
+var counts = { rain: 130, street: 22, street2: 8, descend: 20, splash: 14, interior: 32, canal: 22, outlet: 18 };
+for (var tp in counts) {
+  for (var i = 0; i < counts[tp]; i++) {
+    var p = new Particle(tp);
+    if (tp !== 'rain') p.life = rand(0, p.maxLife);
+    particles.push(p);
+  }
+}
+
+var waterLevel = FY;
+var targetLevel = FY - 62;
+var canalWater = CANAL_BOT;
+var canalTarget = CANAL_TOP + 55;
+var t = 0;
+
+/* ══════════════════════════════════════════
+   DIBUJO DE ESCENA
+══════════════════════════════════════════ */
+function drawScene() {
+  ctx.clearRect(0, 0, W, H);
+
+  /* fondo general */
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+
+  /* cielo / zona sobre calle */
+  ctx.fillStyle = '#080e1a';
+  ctx.fillRect(0, 0, W, SY);
+
+  /* zona bajo calle (tierra/subsuelo color) */
+  ctx.fillStyle = '#111518';
+  ctx.fillRect(0, SY, W, H - SY);
+
+  /* línea de calle */
+  ctx.strokeStyle = '#2d3748';
+  ctx.lineWidth = 1; ctx.setLineDash([6, 5]);
+  ctx.beginPath(); ctx.moveTo(0, SY); ctx.lineTo(W, SY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#546e7a';
+  ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('nivel de calle', 4, SY - 4);
+
+  /* ── ZONA PUEBLO (izquierda del bordo de protección) ── */
+  ctx.fillStyle = 'rgba(30,40,55,0.25)';
+  ctx.fillRect(0, 0, BPX1 - 20, SY + 2);
+  ctx.fillStyle = '#1a2634';
+  ctx.font = '11px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#37474f';
+  ctx.fillText('PUEBLO', (BPX1 - 20) / 2, 22);
+
+  /* ── ZONA CANAL (derecha del bordo de protección) ── */
+  ctx.fillStyle = 'rgba(13,40,80,0.3)';
+  ctx.fillRect(BPX2 + 20, 0, W - BPX2 - 20, SY + 2);
+  ctx.fillStyle = '#1a3a5c';
+  ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('CANAL', BPX2 + 20 + (W - BPX2 - 20) / 2, 22);
+
+  /* ── BORDO DE PROTECCIÓN (terraplén a nivel de calle) ── */
+  ctx.beginPath();
+  ctx.moveTo(BPX1 - 22, BP_BASE);
+  ctx.lineTo(BPX1,      BP_TOP);
+  ctx.lineTo(BPX2,      BP_TOP);
+  ctx.lineTo(BPX2 + 22, BP_BASE);
+  ctx.closePath();
+  ctx.fillStyle = '#5d4037';
+  ctx.fill();
+  ctx.strokeStyle = '#4e342e'; ctx.lineWidth = 1.5;
+  ctx.stroke();
+  /* corona del bordo */
+  ctx.beginPath();
+  ctx.moveTo(BPX1, BP_TOP); ctx.lineTo(BPX2, BP_TOP);
+  ctx.strokeStyle = '#8d6e63'; ctx.lineWidth = 4;
+  ctx.stroke();
+  /* etiqueta bordo protección */
+  ctx.fillStyle = '#efebe9';
+  ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('bordo de protección', (BPX1 + BPX2) / 2, BP_TOP - 8);
+  ctx.fillStyle = '#a1887f'; ctx.font = '10px sans-serif';
+  ctx.fillText('protege al pueblo del canal', (BPX1 + BPX2) / 2, BP_TOP - 20);
+
+  /* cota bordo protección */
+  ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 0.7; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(BPX1, BP_TOP - 3); ctx.lineTo(BPX1, 35); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(BPX2, BP_TOP - 3); ctx.lineTo(BPX2, 35); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.strokeStyle = '#6d4c41'; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(BPX1, 38); ctx.lineTo(BPX2, 38); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(BPX1, 33); ctx.lineTo(BPX1, 43); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(BPX2, 33); ctx.lineTo(BPX2, 43); ctx.stroke();
+  ctx.fillStyle = '#bcaaa4'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('~5.0 m', (BPX1 + BPX2) / 2, 52);
+
+  /* ── LOSA TECHO ── */
+  ctx.fillStyle = '#78909c';
+  ctx.fillRect(WL + 16, RY, WR - WL - 16, 16);
+  ctx.strokeStyle = '#546e7a'; ctx.lineWidth = 0.8;
+  ctx.strokeRect(WL + 16, RY, WR - WL - 16, 16);
+
+  /* ── LOSA PISO ── */
+  ctx.fillStyle = '#78909c';
+  ctx.fillRect(WL + 16, FY, WR - WL - 16, 16);
+  ctx.strokeRect(WL + 16, FY, WR - WL - 16, 16);
+
+  /* ── MURO IZQUIERDO ── */
+  ctx.fillStyle = '#607d8b';
+  ctx.fillRect(WL, RY, 16, FY - RY + 16);
+  ctx.strokeStyle = '#455a64'; ctx.lineWidth = 1;
+  ctx.strokeRect(WL, RY, 16, FY - RY + 16);
+
+  /* ── MURO DERECHO ── */
+  ctx.fillStyle = '#607d8b';
+  ctx.fillRect(WR, RY + 10, 16, FY - RY + 6);
+  ctx.strokeRect(WR, RY + 10, 16, FY - RY + 6);
+
+  /* ── INTERIOR (vacío oscuro) ── */
+  ctx.fillStyle = '#040b16';
+  ctx.fillRect(WL + 16, RY + 16, WR - WL - 16, FY - RY - 16);
+
+  /* ── NIVEL DE AGUA INTERIOR ── */
+  if (waterLevel < FY) {
+    ctx.fillStyle = 'rgba(13,71,161,0.70)';
+    ctx.fillRect(WL + 16, waterLevel, WR - WL - 32, FY - waterLevel);
+    /* ola superficie */
+    ctx.strokeStyle = 'rgba(41,182,246,0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (var wx = WL + 16; wx <= WR - 16; wx += 6) {
+      var wy = waterLevel + Math.sin((wx - WL) * 0.1 + t * 3) * 1.8;
+      wx === WL + 16 ? ctx.moveTo(wx, wy) : ctx.lineTo(wx, wy);
+    }
+    ctx.stroke();
+  }
+
+  /* ── COMPUERTA ENTRADA ── */
+  ctx.fillStyle = '#37474f';
+  ctx.fillRect(GIN, RY + 16, 12, FY - RY - 16);
+  ctx.fillStyle = '#546e7a';
+  ctx.fillRect(GIN - 14, RY + 18, 14, FY - RY - 18);
+  ctx.strokeStyle = '#263238'; ctx.lineWidth = 1.2;
+  ctx.strokeRect(GIN, RY + 16, 12, FY - RY - 16);
+  /* vástago */
+  ctx.strokeStyle = '#455a64'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(GIN + 6, RY + 16); ctx.lineTo(GIN + 6, SY - 10); ctx.stroke();
+  ctx.fillStyle = '#78909c';
+  ctx.beginPath(); ctx.ellipse(GIN + 6, SY - 12, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#90a4ae'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Compuerta entrada', GIN + 6, FY + 30);
+
+  /* ── COMPUERTA SALIDA ── */
+  ctx.fillStyle = '#37474f';
+  ctx.fillRect(GOUT, RY + 18, 12, FY - RY - 18);
+  ctx.fillStyle = '#546e7a';
+  ctx.fillRect(GOUT + 12, RY + 20, 14, FY - RY - 20);
+  ctx.strokeStyle = '#263238'; ctx.lineWidth = 1.2;
+  ctx.strokeRect(GOUT, RY + 18, 12, FY - RY - 18);
+  /* vástago */
+  ctx.strokeStyle = '#455a64'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(GOUT + 6, RY + 18); ctx.lineTo(GOUT + 6, SY - 10); ctx.stroke();
+  ctx.fillStyle = '#78909c';
+  ctx.beginPath(); ctx.ellipse(GOUT + 6, SY - 12, 10, 6, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#90a4ae'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Compuerta salida', GOUT + 6, FY + 30);
+
+  /* ── CANAL DE TIERRA al costado derecho ── */
+  /* Talud izquierdo del canal (viene del muro derecho) */
+  ctx.beginPath();
+  ctx.moveTo(WR + 16, RY + 10);
+  ctx.lineTo(CANAL_LEFT, CANAL_TOP);
+  ctx.lineTo(CANAL_LEFT, CANAL_BOT);
+  ctx.lineTo(WR + 16, FY + 16);
+  ctx.closePath();
+  ctx.fillStyle = '#3e2723';
+  ctx.fill();
+  ctx.strokeStyle = '#4e342e'; ctx.lineWidth = 1;
+  ctx.stroke();
+
+  /* Talud derecho del canal */
+  ctx.beginPath();
+  ctx.moveTo(CANAL_RIGHT, SY + 5);
+  ctx.lineTo(CANAL_RIGHT - 30, CANAL_TOP);
+  ctx.lineTo(CANAL_RIGHT - 30, CANAL_BOT);
+  ctx.lineTo(CANAL_RIGHT, H - 10);
+  ctx.closePath();
+  ctx.fillStyle = '#3e2723';
+  ctx.fill();
+  ctx.strokeStyle = '#4e342e'; ctx.lineWidth = 1;
+  ctx.stroke();
+
+  /* Agua en el canal */
+  if (canalWater < CANAL_BOT) {
+    ctx.fillStyle = 'rgba(13,71,161,0.65)';
+    ctx.fillRect(CANAL_LEFT, canalWater, CANAL_RIGHT - 30 - CANAL_LEFT, CANAL_BOT - canalWater);
+    /* ola canal */
+    ctx.strokeStyle = 'rgba(41,182,246,0.5)';
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    for (var cx = CANAL_LEFT; cx <= CANAL_RIGHT - 30; cx += 5) {
+      var cy = canalWater + Math.sin(cx * 0.12 + t * 4) * 1.5;
+      cx === CANAL_LEFT ? ctx.moveTo(cx, cy) : ctx.lineTo(cx, cy);
+    }
+    ctx.stroke();
+  }
+
+  /* fondo del canal */
+  ctx.fillStyle = '#2e1a10';
+  ctx.fillRect(CANAL_LEFT, CANAL_BOT, CANAL_RIGHT - 30 - CANAL_LEFT, 12);
+
+  /* etiqueta canal */
+  ctx.fillStyle = '#8d6e63';
+  ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('CANAL', (CANAL_LEFT + CANAL_RIGHT - 30) / 2, CANAL_BOT + 28);
+  ctx.fillStyle = '#6d4c41'; ctx.font = '9px sans-serif';
+  ctx.fillText('(canal de descarga)', (CANAL_LEFT + CANAL_RIGHT - 30) / 2, CANAL_BOT + 40);
+
+  /* ── BORDO DEFENSA DEL CANAL (terraplén lateral — el talud que forma el canal) ── */
+  /* Etiqueta apuntando al talud izquierdo del canal */
+  ctx.strokeStyle = '#8d6e63'; ctx.lineWidth = 0.8; ctx.setLineDash([3, 2]);
+  ctx.beginPath();
+  ctx.moveTo(WR + 16 + (CANAL_LEFT - WR - 16) / 2, RY + 10 + (CANAL_TOP - RY - 10) / 2);
+  ctx.lineTo(WR + 80, RY - 15);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#d7ccc8';
+  ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('bordo defensa del canal', WR + 22, RY - 18);
+  ctx.fillStyle = '#8d6e63'; ctx.font = '9px sans-serif';
+  ctx.fillText('(terraplén lateral)', WR + 22, RY - 6);
+
+  /* ── BOCA DE TORMENTA ── */
+  ctx.fillStyle = '#546e7a';
+  ctx.fillRect(GRX, SY + 2, GRW, 10);
+  ctx.strokeStyle = '#263238'; ctx.lineWidth = 0.8;
+  for (var gx = GRX + 11; gx < GRX + GRW; gx += 11) {
+    ctx.beginPath(); ctx.moveTo(gx, SY + 2); ctx.lineTo(gx, SY + 12); ctx.stroke();
+  }
+  ctx.fillStyle = '#4fc3f7'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('boca de tormenta', GRX + GRW / 2, SY - 14);
+  /* flecha agua bajando */
+  ctx.strokeStyle = '#29b6f6'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(GRX + GRW / 2, SY - 24); ctx.lineTo(GRX + GRW / 2, SY + 2); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(GRX + GRW / 2 - 5, SY - 4);
+  ctx.lineTo(GRX + GRW / 2, SY + 3);
+  ctx.lineTo(GRX + GRW / 2 + 5, SY - 4);
+  ctx.stroke();
+
+  /* ── COTAS ── */
+  /* total 7m */
+  ctx.strokeStyle = '#546e7a'; ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(WL, FY + 46); ctx.lineTo(WR, FY + 46); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(WL, FY + 41); ctx.lineTo(WL, FY + 51); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(WR, FY + 41); ctx.lineTo(WR, FY + 51); ctx.stroke();
+  ctx.fillStyle = '#78909c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('7.00 m', (WL + WR) / 2, FY + 62);
+
+  /* tramo entrada ~0.9m */
+  ctx.strokeStyle = '#0288d1'; ctx.lineWidth = 0.7;
+  ctx.beginPath(); ctx.moveTo(WL, FY + 76); ctx.lineTo(GIN, FY + 76); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(WL, FY + 71); ctx.lineTo(WL, FY + 81); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(GIN, FY + 71); ctx.lineTo(GIN, FY + 81); ctx.stroke();
+  ctx.fillStyle = '#4fc3f7'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('~0.9 m', (WL + GIN) / 2, FY + 90);
+
+  /* bordo ~5m */
+  ctx.strokeStyle = '#5d4037'; ctx.lineWidth = 0.7;
+  ctx.beginPath(); ctx.moveTo(GIN, FY + 76); ctx.lineTo(GOUT, FY + 76); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(GIN, FY + 71); ctx.lineTo(GIN, FY + 81); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(GOUT, FY + 71); ctx.lineTo(GOUT, FY + 81); ctx.stroke();
+  ctx.fillStyle = '#a1887f'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('~5.0 m', (GIN + GOUT) / 2, FY + 90);
+
+  /* ── ETIQUETAS COTAS VERTICALES ── */
+  ctx.strokeStyle = '#444'; ctx.lineWidth = 0.7;
+  ctx.beginPath(); ctx.moveTo(WL - 25, RY + 16); ctx.lineTo(WL - 25, FY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(WL - 30, RY + 16); ctx.lineTo(WL - 20, RY + 16); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(WL - 30, FY); ctx.lineTo(WL - 20, FY); ctx.stroke();
+  ctx.fillStyle = '#78909c'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillText('1 m', WL - 30, (RY + 16 + FY) / 2 + 4);
+}
+
+/* ══════════════════════════════════════════
+   DIBUJO DE PARTÍCULAS
+══════════════════════════════════════════ */
+function drawParticles() {
+  particles.forEach(function (p) {
+    var tp = p.type;
+
+    if (tp === 'rain') {
+      p.y += p.vy * 0.38; p.x += p.vx * 0.3;
+      if (p.y > SY) { p.reset(); return; }
+      ctx.save(); ctx.globalAlpha = p.alpha;
+      ctx.strokeStyle = '#5fa8d3'; ctx.lineWidth = p.w;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + p.vx * 0.4, p.y + p.len); ctx.stroke();
+      ctx.restore();
+
+    } else if (tp === 'street') {
+      p.life += 0.032; p.x += p.vx;
+      if (p.life > p.maxLife || p.x < GRX + GRW) { p.reset(); return; }
+      var prog = p.life / p.maxLife;
+      var op = prog < 0.3 ? prog * 3.3 : (1 - prog) * 1.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(41,182,246,' + Math.min(op, 0.9).toFixed(2) + ')'; ctx.fill();
+
+    } else if (tp === 'street2') {
+      p.life += 0.032; p.x += p.vx;
+      if (p.life > p.maxLife || p.x > GRX) { p.reset(); return; }
+      var prog = p.life / p.maxLife;
+      var op = prog < 0.3 ? prog * 3.3 : (1 - prog) * 1.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(41,182,246,' + Math.min(op, 0.8).toFixed(2) + ')'; ctx.fill();
+
+    } else if (tp === 'descend') {
+      p.life += 0.048; p.x += p.vx; p.y += p.vy * 0.5;
+      if (p.y > FY || p.life > p.maxLife) { p.reset(); return; }
+      var prog = p.life / p.maxLife;
+      var op = prog < 0.2 ? prog * 5 : (1 - prog) * 1.2;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(2,136,209,' + Math.min(op, 0.95).toFixed(2) + ')'; ctx.fill();
+
+    } else if (tp === 'splash') {
+      p.life += 0.09; p.x += p.vx * 0.4; p.y += p.vy * 0.4 + 0.5;
+      if (p.life > p.maxLife) { p.reset(); return; }
+      var op = (1 - p.life / p.maxLife) * 0.8;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(79,195,247,' + op.toFixed(2) + ')'; ctx.fill();
+
+    } else if (tp === 'interior') {
+      p.life += 0.02; p.x += p.vx * 0.55; p.y += p.vy;
+      if (p.x > WR - 16 || p.life > p.maxLife) { p.reset(); return; }
+      if (p.y > FY || p.y < RY + 16) { p.reset(); return; }
+      var prog = p.life / p.maxLife;
+      var op = prog < 0.2 ? prog * 5 : (1 - prog) * 1.3;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(2,136,209,' + Math.min(op, 0.9).toFixed(2) + ')'; ctx.fill();
+
+    } else if (tp === 'outlet') {
+      p.life += 0.035; p.x += p.vx * 0.7; p.y += p.vy;
+      if (p.x > CANAL_LEFT + 40 || p.life > p.maxLife) { p.reset(); return; }
+      var prog = p.life / p.maxLife;
+      var op = prog < 0.2 ? prog * 5 : (1 - prog) * 1.2;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(2,136,209,' + Math.min(op, 0.9).toFixed(2) + ')'; ctx.fill();
+
+    } else if (tp === 'canal') {
+      p.life += 0.04; p.x += p.vx * 0.3; p.y += p.vy * 0.45;
+      if (p.y > CANAL_BOT || p.life > p.maxLife) { p.reset(); return; }
+      var prog = p.life / p.maxLife;
+      var op = prog < 0.2 ? prog * 5 : (1 - prog) * 1.2;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(2,136,209,' + Math.min(op, 0.9).toFixed(2) + ')'; ctx.fill();
+    }
+  });
+}
+
+function loop() {
+  t += 0.018;
+  if (waterLevel > targetLevel) waterLevel -= 0.22;
+  if (canalWater > canalTarget) canalWater -= 0.18;
+  drawScene();
+  drawParticles();
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
+`;
+  var blob = new Blob([html], {type: 'text/html'});
+  iframe.src = URL.createObjectURL(blob);
+}
 </script>
 </body>
 </html>
