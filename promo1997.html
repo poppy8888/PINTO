@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promoción '97 — Pinto, Sgo. del Estero</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Libre+Baskerville:ital@0;1&family=Oswald:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul: #1a3a5c;
+    --celeste: #4a90b8;
+    --dorado: #c9a84c;
+    --crema: #f5f0e8;
+    --blanco: #fdfcf9;
+    --negro: #1a1a1a;
+    --gris: #5a5a5a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--azul);
+    font-family: 'Libre Baskerville', serif;
+    color: var(--negro);
+    overflow-x: hidden;
+  }
+
+  /* ====== HERO ====== */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #0d2238 0%, #1a3a5c 40%, #2a5a8c 70%, #1a3a5c 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 60px 20px;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.03) 60px),
+      repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.03) 60px);
+  }
+
+  .hero-year {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(120px, 25vw, 260px);
+    font-weight: 600;
+    color: rgba(255,255,255,0.04);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    letter-spacing: -10px;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero-badge {
+    border: 2px solid var(--dorado);
+    padding: 8px 24px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    letter-spacing: 4px;
+    color: var(--dorado);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    position: relative;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 9vw, 88px);
+    font-weight: 900;
+    color: var(--blanco);
+    text-align: center;
+    line-height: 1;
+    position: relative;
+    animation: fadeDown 0.8s 0.2s ease both;
+  }
+
+  .hero-title em {
+    color: var(--dorado);
+    font-style: italic;
+  }
+
+  .hero-subtitle {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+    font-size: clamp(16px, 3vw, 22px);
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 20px;
+    text-align: center;
+    position: relative;
+    animation: fadeDown 0.8s 0.4s ease both;
+  }
+
+  .hero-divider {
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--dorado), transparent);
+    margin: 40px auto;
+    position: relative;
+    animation: fadeIn 1s 0.6s ease both;
+  }
+
+  .hero-quote {
+    max-width: 580px;
+    text-align: center;
+    color: rgba(255,255,255,0.75);
+    font-style: italic;
+    font-size: clamp(14px, 2.2vw, 17px);
+    line-height: 1.8;
+    position: relative;
+    animation: fadeIn 1s 0.8s ease both;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.35);
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    animation: bounce 2s infinite;
+  }
+
+  .hero-scroll::after {
+    content: '';
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.35), transparent);
+  }
+
+  /* ====== SECTIONS ====== */
+  .section {
+    background: var(--crema);
+    position: relative;
+  }
+
+  .section-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 100px 30px;
+  }
+
+  .section-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--celeste);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700;
+    color: var(--azul);
+    line-height: 1.15;
+    margin-bottom: 40px;
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--celeste);
+  }
+
+  /* ====== ANECDOTAS ====== */
+  .anecdotas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+  }
+
+  .anecdota-card {
+    background: var(--blanco);
+    border-left: 4px solid var(--dorado);
+    padding: 28px 24px;
+    box-shadow: 4px 4px 0 rgba(26,58,92,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .anecdota-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 4px 8px 0 rgba(26,58,92,0.14);
+  }
+
+  .anecdota-icon {
+    font-size: 28px;
+    margin-bottom: 14px;
+  }
+
+  .anecdota-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--azul);
+    margin-bottom: 10px;
+  }
+
+  .anecdota-text {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--gris);
+  }
+
+  /* ====== HISTORIA ====== */
+  .historia-section {
+    background: var(--azul);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .historia-section::before {
+    content: 'IFA';
+    position: absolute;
+    right: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Oswald', sans-serif;
+    font-size: 220px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.03);
+    pointer-events: none;
+  }
+
+  .historia-section .section-inner {
+    position: relative;
+  }
+
+  .historia-section .section-label { color: var(--dorado); }
+  .historia-section .section-title { color: var(--blanco); }
+  .historia-section .section-title em { color: var(--celeste); }
+
+  .historia-text {
+    color: rgba(255,255,255,0.80);
+    font-size: clamp(15px, 2vw, 17px);
+    line-height: 2;
+    max-width: 720px;
+  }
+
+  .historia-text p + p { margin-top: 24px; }
+
+  .historia-highlight {
+    display: inline-block;
+    background: var(--dorado);
+    color: var(--azul);
+    padding: 2px 8px;
+    font-weight: bold;
+  }
+
+  /* ====== EGRESADOS ====== */
+  .egresados-section { background: var(--blanco); }
+
+  .egresados-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .egresado-item {
+    padding: 14px 18px;
+    border: 1px solid rgba(26,58,92,0.12);
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--azul);
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .egresado-item:hover {
+    background: var(--azul);
+    color: var(--blanco);
+    border-color: var(--azul);
+  }
+
+  .egresado-item span {
+    font-weight: 600;
+  }
+
+  /* ====== GALERÍA ====== */
+  .galeria-section { background: var(--crema); }
+
+  .galeria-nota {
+    font-style: italic;
+    color: var(--gris);
+    font-size: 14px;
+    margin-top: -30px;
+    margin-bottom: 40px;
+    max-width: 500px;
+  }
+
+  .foto-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+
+  .foto-grid .foto-big {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .foto-placeholder {
+    background: var(--azul);
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Oswald', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .foto-big.foto-placeholder { aspect-ratio: auto; min-height: 300px; }
+
+  .foto-placeholder::before {
+    content: '📷';
+    font-size: 32px;
+    margin-bottom: 8px;
+    opacity: 0.4;
+  }
+
+  .foto-caption {
+    font-size: 10px;
+    opacity: 0.6;
+    text-align: center;
+    padding: 0 12px;
+  }
+
+  /* ====== FRASE FINAL ====== */
+  .cierre-section {
+    background: linear-gradient(135deg, #0d2238 0%, #1a3a5c 50%, #0d2238 100%);
+    text-align: center;
+    padding: 120px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cierre-section::before {
+    content: '97';
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Oswald', sans-serif;
+    font-size: 320px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.025);
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .cierre-estrella {
+    font-size: 36px;
+    margin-bottom: 30px;
+    display: block;
+    animation: spin 8s linear infinite;
+  }
+
+  .cierre-frase {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 4vw, 42px);
+    font-style: italic;
+    color: var(--blanco);
+    max-width: 700px;
+    margin: 0 auto 24px;
+    line-height: 1.5;
+    position: relative;
+  }
+
+  .cierre-sub {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    letter-spacing: 4px;
+    color: var(--dorado);
+    text-transform: uppercase;
+    position: relative;
+  }
+
+  /* ====== NAV ====== */
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: rgba(13, 34, 56, 0);
+    backdrop-filter: blur(0px);
+    transition: background 0.4s, backdrop-filter 0.4s;
+  }
+
+  nav.scrolled {
+    background: rgba(13, 34, 56, 0.92);
+    backdrop-filter: blur(12px);
+    padding: 14px 40px;
+  }
+
+  .nav-logo {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 3px;
+    color: var(--blanco);
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .nav-logo span { color: var(--dorado); }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--dorado); }
+
+  /* ====== DIVIDER ornamental ====== */
+  .ornament {
+    text-align: center;
+    color: var(--dorado);
+    font-size: 22px;
+    margin: 16px 0 48px;
+    letter-spacing: 12px;
+  }
+
+  /* ====== COUNTER ====== */
+  .stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin: 60px 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 40px 0;
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px;
+    font-weight: 900;
+    color: var(--dorado);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ====== ANIMATIONS ====== */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(8px); }
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* ====== RESPONSIVE ====== */
+  @media (max-width: 600px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .foto-grid { grid-template-columns: 1fr 1fr; }
+    .foto-grid .foto-big { grid-column: span 2; }
+    .stats-row { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#"><span>IFA</span> · Promo '97</a>
+  <ul class="nav-links">
+    <li><a href="#historia">Historia</a></li>
+    <li><a href="#anecdotas">Anécdotas</a></li>
+    <li><a href="#egresados">Egresados</a></li>
+    <li><a href="#galeria">Fotos</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="starCanvas"></canvas>
+  <div class="hero-year">97</div>
+  <div class="hero-badge">Pinto · Santiago del Estero · Dpto. Aguirre</div>
+  <h1 class="hero-title">Promoción<br><em>'97</em></h1>
+  <p class="hero-subtitle">Instituto I.F.A. — Egresados 1997</p>
+  <div class="hero-divider"></div>
+  <p class="hero-quote">
+    "Quinto no se va como una estrella que se apaga,<br>
+    Quinto se divide en mil pedacitos<br>
+    que son los recuerdos que quedan en cada uno de nosotros..."
+  </p>
+  <div class="hero-scroll">Scrollear</div>
+</section>
+
+<!-- HISTORIA -->
+<section class="historia-section" id="historia">
+  <div class="section-inner">
+    <p class="section-label">Nuestra historia</p>
+    <h2 class="section-title">Veinticinco sueños.<br><em>Una sola banda.</em></h2>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-num">25</div>
+        <div class="stat-label">Egresados</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">28</div>
+        <div class="stat-label">Años después</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">97</div>
+        <div class="stat-label">El año que nos marcó</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Recuerdos</div>
+      </div>
+    </div>
+
+    <div class="historia-text">
+      <p>
+        Así fuimos armando <span class="historia-highlight">veinticinco sueños</span>. Veinticinco pibes que se iban formando con un código de amistad que no se enseña en los libros. Con un título secundario que llevaríamos por donde estuviéramos, con respeto y con el orgullo de decir: <strong>somos la Promo '97.</strong>
+      </p>
+      <p>
+        Nos marcó <em>La Salamanca</em>, esa obra de teatro que ensayamos hasta el cansancio y que nos hizo entender lo que era dejar todo por un sueño en común. Nos marcaron las horas interminables preparando todo para los Encuentros Juveniles, porque <strong>"Adelante Juventud"</strong> no era un cartel: era laburar, transpirar y bancarnos entre todos.
+      </p>
+      <p>
+        Hoy volvemos. Con menos pelo, con más canas, con más historias en la mochila. Pero con las mismas ganas de joder y de bailar. Porque los egresados del '97 nunca dejaron de ser una banda. Una banda que hizo del <span class="historia-highlight">IFA su segundo hogar</span> y que, 28 años después, sigue eligiendo volver.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ANÉCDOTAS -->
+<section class="section" id="anecdotas">
+  <div class="section-inner">
+    <p class="section-label">Las que nunca olvidamos</p>
+    <h2 class="section-title">Anécdotas que<br><em>todavía nos hacen reír</em></h2>
+    <div class="ornament">✦ ✦ ✦</div>
+
+    <div class="anecdotas-grid">
+
+      <div class="anecdota-card">
+        <div class="anecdota-icon">🚗</div>
+        <div class="anecdota-title">El auto del Profe Gille</div>
+        <div class="anecdota-text">
+          La hazaña que quedó en la historia: robarle el auto al profe más querido en plena hora de Contabilidad para dar la vuelta manzana con el corazón en la boca. El Profe Gille, emblema del IFA y adorado por todos los chicos, nunca supo (o sí lo supo) quién fue.
+        </div>
+      </div>
+
+      <div class="anecdota-card">
+        <div class="anecdota-icon">🎵</div>
+        <div class="anecdota-title">Zambas en el examen</div>
+        <div class="anecdota-text">
+          Cuando no habíamos estudiado ni el título de Historia, la solución era clara: escribir zambas en el papel. Creatividad pura, vocación artística, o simplemente el arte de zafar con estilo santiagueño.
+        </div>
+      </div>
+
+      <div class="anecdota-card">
+        <div class="anecdota-icon">🌙</div>
+        <div class="anecdota-title">Las jodas en lo de Belén</div>
+        <div class="anecdota-text">
+          Las noches en la casa de la Belén que siempre terminaban igual: todos cantando juntos a las 3 de la mañana, sin importar el día siguiente, sin importar nada más que estar ahí, juntos, siendo nosotros.
+        </div>
+      </div>
+
+      <div class="anecdota-card">
+        <div class="anecdota-icon">🎭</div>
+        <div class="anecdota-title">La Salamanca</div>
+        <div class="anecdota-text">
+          La obra de teatro que ensayamos hasta el cansancio. Esa experiencia que nos enseñó lo que significa dejar todo por un sueño en común. Más que una obra, fue el momento en que nos convertimos en equipo.
+        </div>
+      </div>
+
+      <div class="anecdota-card">
+        <div class="anecdota-icon">🏃</div>
+        <div class="anecdota-title">Adelante Juventud</div>
+        <div class="anecdota-text">
+          Los Encuentros Juveniles no eran solo un evento: eran horas y horas de preparación, transpiración y aguante. "Adelante Juventud" no era un cartel bonito, era un grito de guerra que vivíamos cada día.
+        </div>
+      </div>
+
+      <div class="anecdota-card">
+        <div class="anecdota-icon">🎓</div>
+        <div class="anecdota-title">La colación en el C.A.S.P.</div>
+        <div class="anecdota-text">
+          El 5 de diciembre de 1997, a las 20 horas, veinticinco pibes desfilaron orgullosos en el acto de colación. Guardapolvos celestes, medallas al cuello y la vida entera por delante. Ese momento es nuestro para siempre.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EGRESADOS -->
+<section class="egresados-section" id="egresados">
+  <div class="section-inner">
+    <p class="section-label">Los 25 de la Promo</p>
+    <h2 class="section-title">Los que dijimos<br><em>presente</em></h2>
+    <div class="ornament">✦ ✦ ✦</div>
+
+    <div class="egresados-grid">
+      <div class="egresado-item"><span>ASTRADA</span>, María Ángela</div>
+      <div class="egresado-item"><span>ASTUDILLO</span>, María Alejandra</div>
+      <div class="egresado-item"><span>BELIZÁN</span>, Belkys Edith</div>
+      <div class="egresado-item"><span>BELIZÁN</span>, María Belén</div>
+      <div class="egresado-item"><span>BIANCHI</span>, Francisco Fernando</div>
+      <div class="egresado-item"><span>CORIA</span>, Paula Elizabeth</div>
+      <div class="egresado-item"><span>GALEANO</span>, Miriam Gisselle</div>
+      <div class="egresado-item"><span>GALVÁN</span>, Fernando Sebastián</div>
+      <div class="egresado-item"><span>GARCIA</span>, Hilda Vanessa</div>
+      <div class="egresado-item"><span>GÓNGORA</span>, Juan Antonio</div>
+      <div class="egresado-item"><span>MÉNDEZ</span>, Cinthia Elizabeth</div>
+      <div class="egresado-item"><span>MÉNDEZ</span>, María Belén</div>
+      <div class="egresado-item"><span>MÉNDEZ</span>, Pablo Sebastián</div>
+      <div class="egresado-item"><span>ORELLANO</span>, José Ramón</div>
+      <div class="egresado-item"><span>ORTIZ</span>, Flavia Eliana</div>
+      <div class="egresado-item"><span>OTAL</span>, Cecilia Soledad</div>
+      <div class="egresado-item"><span>PAZ</span>, Anabella Soledad</div>
+      <div class="egresado-item"><span>POGONZA</span>, Nelssy Luciana</div>
+      <div class="egresado-item"><span>QUIROGA</span>, Magdalena Alicia</div>
+      <div class="egresado-item"><span>RICCOBELLI</span>, Jimena Alina</div>
+      <div class="egresado-item"><span>ROJAS</span>, Carolina Viviana</div>
+      <div class="egresado-item"><span>ROJAS</span>, Elizabeth Noemí</div>
+      <div class="egresado-item"><span>TEJEDA</span>, Nadia M. Soledad</div>
+      <div class="egresado-item"><span>TEVEZ</span>, Víctor Hugo</div>
+      <div class="egresado-item"><span>ZONI</span>, Claudia Teresa</div>
+    </div>
+  </div>
+</section>
+
+<!-- GALERÍA -->
+<section class="galeria-section" id="galeria">
+  <div class="section-inner">
+    <p class="section-label">28 años de recuerdos</p>
+    <h2 class="section-title">El álbum de<br><em>la Promo '97</em></h2>
+    <p class="galeria-nota">Desde la viaje de egresados con las remeras del "Mickey's Trophy — Rover Mouse — I.F.A." hasta la foto del acto de colación con los guardapolvos celestes y las medallas al cuello.</p>
+
+    <div class="foto-grid">
+      <div class="foto-placeholder foto-big">
+        <span style="font-size:48px;opacity:0.3">🎓</span>
+        <span style="font-size:11px;letter-spacing:3px;opacity:0.5;margin-top:12px">ACTO DE COLACIÓN 1997</span>
+        <span class="foto-caption">Reemplazá este espacio con tus fotos favoritas</span>
+      </div>
+      <div class="foto-placeholder" style="background:#162d47;">
+        <span style="font-size:32px;opacity:0.3">✈️</span>
+        <span class="foto-caption">Viaje de Egresados</span>
+      </div>
+      <div class="foto-placeholder" style="background:#0f2030;">
+        <span style="font-size:32px;opacity:0.3">👕</span>
+        <span class="foto-caption">Remera IFA</span>
+      </div>
+      <div class="foto-placeholder" style="background:#1e3f60;">
+        <span style="font-size:32px;opacity:0.3">🎭</span>
+        <span class="foto-caption">La Salamanca</span>
+      </div>
+      <div class="foto-placeholder" style="background:#132840;">
+        <span style="font-size:32px;opacity:0.3">🏆</span>
+        <span class="foto-caption">Encuentros Juveniles</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CIERRE -->
+<section class="cierre-section">
+  <span class="cierre-estrella">⭐</span>
+  <p class="cierre-frase">
+    "Los egresados del '97 nunca dejaron de ser una banda."
+  </p>
+  <p class="cierre-sub">Pinto · Santiago del Estero · I.F.A. · 1997 — 2025</p>
+</section>
+
+<style>
+  #starCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+</style>
+
+<script>
+  // ====== NAV SCROLL ======
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ====== FADE-IN ON SCROLL ======
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.anecdota-card, .egresado-item, .stat').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+
+  // ====== STARS & COMET CANVAS ======
+  const canvas = document.getElementById('starCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // --- Stars ---
+  const NUM_STARS = 180;
+  const stars = Array.from({ length: NUM_STARS }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.6 + 0.3,
+    alpha: Math.random() * 0.7 + 0.2,
+    speed: Math.random() * 0.004 + 0.002,
+    phase: Math.random() * Math.PI * 2,
+  }));
+
+  // --- Comets ---
+  function makeComet() {
+    const angle = Math.PI / 5 + (Math.random() * Math.PI / 8); // ~36-58° diagonal
+    const speed = 1.4 + Math.random() * 1.0; // muy lento
+    return {
+      x: Math.random() * canvas.width * 0.6,
+      y: Math.random() * canvas.height * 0.4,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      friction: 0.994, // desacelera suavemente — "le cuesta irse"
+      length: 70 + Math.random() * 50,
+      width: 1.8 + Math.random() * 1.2,
+      alpha: 0,
+      state: 'fadein',
+      life: 0,
+      maxLife: 280 + Math.random() * 160, // vive mucho más tiempo
+      sparks: [],
+    };
+  }
+
+  let comets = [];
+  let nextComet = 120; // frames until next comet
+
+  function spawnSpark(cx, cy) {
+    return {
+      x: cx + (Math.random() - 0.5) * 4,
+      y: cy + (Math.random() - 0.5) * 4,
+      vx: (Math.random() - 0.5) * 1.2,
+      vy: (Math.random() - 0.5) * 1.2,
+      r: Math.random() * 1.4 + 0.4,
+      alpha: 0.9,
+      life: 0,
+      maxLife: 25 + Math.random() * 20,
+    };
+  }
+
+  let frame = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const t = frame * 0.01;
+
+    // --- Draw stars ---
+    stars.forEach(s => {
+      // Recalc position if canvas resized
+      if (s.x > canvas.width) s.x = Math.random() * canvas.width;
+      if (s.y > canvas.height) s.y = Math.random() * canvas.height;
+
+      const twinkle = 0.4 + 0.6 * Math.abs(Math.sin(t * s.speed * 100 + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 240, ${s.alpha * twinkle})`;
+      ctx.fill();
+
+      // Occasional 4-point sparkle for bigger stars
+      if (s.r > 1.3) {
+        ctx.strokeStyle = `rgba(201, 168, 76, ${s.alpha * twinkle * 0.5})`;
+        ctx.lineWidth = 0.5;
+        const sz = s.r * 2.5;
+        ctx.beginPath();
+        ctx.moveTo(s.x - sz, s.y); ctx.lineTo(s.x + sz, s.y);
+        ctx.moveTo(s.x, s.y - sz); ctx.lineTo(s.x, s.y + sz);
+        ctx.stroke();
+      }
+    });
+
+    // --- Spawn comet ---
+    nextComet--;
+    if (nextComet <= 0) {
+      comets.push(makeComet());
+      nextComet = 200 + Math.random() * 180;
+    }
+
+    // --- Draw comets ---
+    comets = comets.filter(c => c.state !== 'dead');
+    comets.forEach(c => {
+      c.life++;
+
+      // Alpha lifecycle
+      if (c.state === 'fadein') {
+        c.alpha = Math.min(1, c.life / 40);
+        if (c.alpha >= 1) c.state = 'travel';
+      } else if (c.state === 'travel') {
+        if (c.life >= c.maxLife) c.state = 'fadeout';
+      } else if (c.state === 'fadeout') {
+        c.alpha = Math.max(0, c.alpha - 0.012); // desvanece muy lento
+        if (c.alpha <= 0) { c.state = 'dead'; return; }
+      }
+
+      // Move con fricción — el cometa desacelera, "le cuesta irse"
+      c.vx *= c.friction;
+      c.vy *= c.friction;
+      c.x += c.vx;
+      c.y += c.vy;
+
+      // Kill if out of bounds
+      if (c.x > canvas.width + 200 || c.y > canvas.height + 200) {
+        c.state = 'dead';
+        return;
+      }
+
+      // Spawn sparks
+      if (Math.random() < 0.6) {
+        c.sparks.push(spawnSpark(c.x, c.y));
+      }
+
+      // Draw tail gradient
+      const tailX = c.x - Math.cos(Math.atan2(c.vy, c.vx)) * c.length;
+      const tailY = c.y - Math.sin(Math.atan2(c.vy, c.vx)) * c.length;
+
+      const grad = ctx.createLinearGradient(tailX, tailY, c.x, c.y);
+      grad.addColorStop(0, `rgba(255, 255, 255, 0)`);
+      grad.addColorStop(0.6, `rgba(201, 220, 255, ${c.alpha * 0.35})`);
+      grad.addColorStop(0.88, `rgba(220, 235, 255, ${c.alpha * 0.75})`);
+      grad.addColorStop(1, `rgba(255, 255, 255, ${c.alpha})`);
+
+      ctx.beginPath();
+      ctx.moveTo(tailX, tailY);
+      ctx.lineTo(c.x, c.y);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = c.width;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // Comet head glow
+      const headGlow = ctx.createRadialGradient(c.x, c.y, 0, c.x, c.y, 8);
+      headGlow.addColorStop(0, `rgba(255, 255, 255, ${c.alpha})`);
+      headGlow.addColorStop(0.4, `rgba(201, 168, 76, ${c.alpha * 0.6})`);
+      headGlow.addColorStop(1, `rgba(255, 255, 255, 0)`);
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 8, 0, Math.PI * 2);
+      ctx.fillStyle = headGlow;
+      ctx.fill();
+
+      // Draw & update sparks
+      c.sparks = c.sparks.filter(sp => sp.state !== 'dead');
+      c.sparks.forEach(sp => {
+        sp.life++;
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.alpha = (1 - sp.life / sp.maxLife) * 0.9 * c.alpha;
+        if (sp.life >= sp.maxLife) { sp.state = 'dead'; return; }
+
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(201, 210, 255, ${sp.alpha})`;
+        ctx.fill();
+      });
+    });
+
+    frame++;
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+</script>
+
+</body>
+</html>
