@@ -533,6 +533,51 @@
     .foto-grid .foto-big { grid-column: span 2; }
     .stats-row { gap: 24px; }
   }
+
+  /* ====== LIGHTBOX ====== */
+  .foto-placeholder { cursor: pointer; }
+  .foto-placeholder img { cursor: pointer; }
+
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0,0,0,0.92);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.25s ease;
+  }
+  #lightbox.active { display: flex; }
+
+  #lightbox img {
+    max-width: 92vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 0 60px rgba(0,0,0,0.8);
+    animation: zoomIn 0.25s ease;
+  }
+
+  #lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 28px;
+    font-size: 36px;
+    color: white;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    font-family: sans-serif;
+  }
+  #lightbox-close:hover { opacity: 1; }
+
+  @keyframes zoomIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
 </style>
 </head>
 <body>
@@ -954,6 +999,41 @@
   }
 
   draw();
+</script>
+
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <span id="lightbox-close">&times;</span>
+  <img id="lightbox-img" src="" alt="Foto ampliada">
+</div>
+
+<script>
+  const lightbox     = document.getElementById('lightbox');
+  const lightboxImg  = document.getElementById('lightbox-img');
+  const lightboxClose = document.getElementById('lightbox-close');
+
+  // Abrir al hacer clic en cualquier foto-placeholder o img dentro
+  document.querySelectorAll('.foto-placeholder').forEach(el => {
+    el.addEventListener('click', () => {
+      const img = el.querySelector('img');
+      if (!img) return;
+      lightboxImg.src = img.src;
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  // Cerrar con X, clic afuera o Escape
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+    lightboxImg.src = '';
+  }
 </script>
 
 </body>
