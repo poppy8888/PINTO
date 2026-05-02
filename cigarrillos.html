@@ -231,7 +231,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
     <div style="overflow-x:auto; margin-top:16px;">
-      <table class="factura-table"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th><tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot></table>
+      <table class="factura-table"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th></tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot></table>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
       <div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="number" id="compra-monto-real" class="field-input" placeholder="Opcional" step="any" style="width:140px;"><span id="compra-match-indicator" style="font-size:0.75rem;"></span></div>
@@ -274,7 +274,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 // ============ CONFIGURACIÓN ============
 const PASSWORD = "admin123";  // Cambia aquí la contraseña si quieres
-const SCRIPT_URL = https://script.google.com/macros/s/AKfycbyrHO7BX6EnXYxhp6THhAPczUEd5O3C9EGZrknYJzLtTSuUbjctWmx6gnQ5d76n6II/exec
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyrHO7BX6EnXYxhp6THhAPczUEd5O3C9EGZrknYJzLtTSuUbjctWmx6gnQ5d76n6II/exec";
 
 // ============ FUNCIONES DE LOGIN ============
 function verificarPassword() {
@@ -642,7 +642,7 @@ async function confirmarCompra(){
 }
 function iniciarScannerCompra(){
   const inp=document.getElementById('compra-scan-input');
-  if(inp) inp.addEventListener('keydown', e=>{
+  if(inp) inp.addEventListener('keydown', function(e){
     if(e.key==='Enter'){
       e.preventDefault();
       const code=this.value.trim();
@@ -747,7 +747,7 @@ async function confirmarVenta(){
 }
 function iniciarScannerVenta(){
   const inp=document.getElementById('venta-scan-input');
-  if(inp) inp.addEventListener('keydown', e=>{
+  if(inp) inp.addEventListener('keydown', function(e){
     if(e.key==='Enter'){
       e.preventDefault();
       const code=this.value.trim();
@@ -806,6 +806,10 @@ async function anularFactura(fid){
   f.anulada=true;
   await saveAll(); renderAll();
   toast(`Factura ${f.tipo} #${fid} anulada`);
+}
+
+function addLog(tipo,prod,antes,despues,qty,facturaId=null){
+  log.push({tipo, id:prod.id, nombre:prod.nombre, marca:prod.marca, antes, despues, qty, fecha:nowStr(), facturaId});
 }
 
 function calcPrecioVenta(){
@@ -871,10 +875,6 @@ function importarBackup(e){
   reader.readAsText(file); e.target.value='';
 }
 
-function addLog(tipo,prod,antes,despues,qty,facturaId=null){
-  log.push({tipo, id:prod.id, nombre:prod.nombre, marca:prod.marca, antes, despues, qty, fecha:nowStr(), facturaId});
-}
-
 function renderAll(){
   renderStock(); renderStats(); renderTotal(); renderFacturas(); renderLog();
   actualizarDatalistCompra(); actualizarDatalistVenta();
@@ -908,6 +908,8 @@ async function cargarYRenderizar(){
   initEventos();
   const hdate=document.getElementById('hdate');
   if(hdate) hdate.textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  // Forzar guardado inicial para que Google cree la hoja "Datos"
+  await saveAll();
 }
 
 // Exponer globales
