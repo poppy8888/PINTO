@@ -5,6 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Stock cigarrillos - Edición en lista de compra/venta</title>
 <style>
+/* ========== BLOQUE DE CLAVE (overlay) ========== */
+#clave-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.clave-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 32px;
+  width: 320px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+.clave-card h2 {
+  margin-bottom: 20px;
+  color: #1a1a2e;
+}
+.clave-card input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+.clave-card button {
+  background: #1a1a2e;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+}
+.clave-card button:hover {
+  background: #2a2a4a;
+}
+.mensaje-error {
+  color: #e24b4a;
+  font-size: 0.8rem;
+  margin-top: 10px;
+}
+/* ========== ESTILOS ORIGINALES (no se modifican) ========== */
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f5;min-height:100vh;color:#1a1a2e}
@@ -136,6 +190,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </head>
 <body>
 
+<!-- OVERLAY DE CLAVE (se elimina tras autenticación correcta) -->
+<div id="clave-overlay">
+  <div class="clave-card">
+    <h2>🔐 Acceso restringido</h2>
+    <input type="password" id="clave-input" placeholder="Contraseña" autofocus>
+    <button id="btn-validar">Ingresar</button>
+    <div id="clave-error" class="mensaje-error"></div>
+  </div>
+</div>
+
+<!-- CONTENIDO PRINCIPAL (todo el programa original) -->
+<div id="app-contenido" style="display: none;">
 <div class="header">
   <div class="header-left">
     <div class="header-icon">
@@ -247,8 +313,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <table class="factura-table" id="compra-tabla">
         <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th></tr></thead>
         <tbody id="compra-lineas-tbody"></tbody>
-        <tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr>
-        </tfoot>
+        <tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
       </table>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
@@ -289,8 +354,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <table class="factura-table" id="venta-tabla">
         <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th></tr></thead>
         <tbody id="venta-lineas-tbody"></tbody>
-        <tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr>
-        </tfoot>
+        <tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
       </table>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
@@ -312,45 +376,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <div class="modal-overlay" id="modal-del"><div class="modal"><div class="modal-title">¿Eliminar producto?</div><div id="modal-del-text"></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-confirm" onclick="confirmarEliminar()">Eliminar</button></div></div></div>
 <div class="toast" id="toast"></div>
+</div> <!-- fin #app-contenido -->
 
 <script>
-// ---------- DATOS BASE ----------
-const productosBase=[
-  {id:1,nombre:'Blue Titanium RCB 20',marca:'Marlboro Titanium',precio:6150,costo:0,barcode:''},
-  {id:2,nombre:'Gold Titanium Super Slims BOX 20',marca:'Marlboro Titanium',precio:6150,costo:0,barcode:''},
-  {id:3,nombre:'Red Titanium BOX 20',marca:'Marlboro Titanium',precio:5600,costo:0,barcode:''},
-  {id:4,nombre:'Red BOX 20 / Gold Original RCB 20',marca:'Marlboro Red',precio:5600,costo:0,barcode:''},
-  {id:5,nombre:'Red Común',marca:'Marlboro Red',precio:5250,costo:0,barcode:''},
-  {id:6,nombre:'Red / Vista Purple Fusion BOX 12',marca:'Marlboro Red',precio:3340,costo:0,barcode:''},
-  {id:7,nombre:'Vista Purple Fusion XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
-  {id:8,nombre:'Vista Coral Fusion XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
-  {id:9,nombre:'Vista Blue XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
-  {id:10,nombre:'BOX 20',marca:'Philip Morris',precio:5050,costo:0,barcode:''},
-  {id:11,nombre:'Común',marca:'Philip Morris',precio:4650,costo:0,barcode:''},
-  {id:12,nombre:'BOX 12',marca:'Philip Morris',precio:3000,costo:0,barcode:''},
-  {id:13,nombre:'Blue Spin BOX 20',marca:'Philip Morris',precio:5050,costo:0,barcode:''},
-  {id:14,nombre:'Blue Spin BOX 12',marca:'Philip Morris',precio:3040,costo:0,barcode:''},
-  {id:15,nombre:'Original Común',marca:'Chesterfield',precio:3980,costo:0,barcode:''},
-  {id:16,nombre:'Original BOX 12',marca:'Chesterfield',precio:2650,costo:0,barcode:''},
-  {id:17,nombre:'Purple Motion 2 BOX 20',marca:'Chesterfield',precio:4450,costo:0,barcode:''},
-  {id:18,nombre:'Blue Motion BOX 20',marca:'Chesterfield',precio:4450,costo:0,barcode:''},
-  {id:19,nombre:'Blue Motion Común',marca:'Chesterfield',precio:3980,costo:0,barcode:''},
-  {id:20,nombre:'Blue Motion BOX 12',marca:'Chesterfield',precio:2650,costo:0,barcode:''},
-  {id:21,nombre:'Dorado Negros/Colorados Común',marca:'Harmony',precio:3980,costo:0,barcode:''},
-  {id:22,nombre:'Crafted Red BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
-  {id:23,nombre:'Crafted Coral BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
-  {id:24,nombre:'Crafted Forward BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
-  {id:25,nombre:'Crafted Red Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
-  {id:26,nombre:'Crafted Blue Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
-  {id:27,nombre:'Crafted Forward Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
-  {id:28,nombre:'Red Select Común',marca:'Philip Morris Select',precio:2000,costo:0,barcode:''},
-];
+// ========== CLAVE DE ACCESO ==========
+const CLAVE_ACCESO = "admin123";   // Cambiá esta clave por la que quieras
 
-// ---------- CONFIGURACIÓN NUBE ----------
+function autenticar() {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('clave-overlay');
+    const input = document.getElementById('clave-input');
+    const btn = document.getElementById('btn-validar');
+    const errorDiv = document.getElementById('clave-error');
+    
+    function validar() {
+      if (input.value === CLAVE_ACCESO) {
+        overlay.style.display = 'none';
+        document.getElementById('app-contenido').style.display = 'block';
+        resolve(true);
+      } else {
+        errorDiv.textContent = 'Contraseña incorrecta. Intente de nuevo.';
+        input.value = '';
+        input.focus();
+      }
+    }
+    
+    btn.onclick = validar;
+    input.onkeypress = (e) => { if (e.key === 'Enter') validar(); };
+    input.focus();
+  });
+}
+
+// ========== RESTO DEL PROGRAMA ORIGINAL (sin modificaciones) ==========
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7tiFVf8qKlLrKZDNrRL0Ht0s4UhNvJcXebwKAxd5bzrr_CIcgggF0qZSiWtE3CcE/exec";
 const KEY_P='cig_prods_v11', KEY_S='cig_stock_v11', KEY_L='cig_log_v11', KEY_F='cig_facturas_v11';
 
-// ---------- VARIABLES GLOBALES ----------
 let productos=[], stock={}, log=[], facturas=[];
 let scannerMode='salida', deleteTarget=null, nextId=100;
 
@@ -404,7 +464,36 @@ async function loadAll(){
     try{const s=localStorage.getItem(KEY_S);if(s)stock=JSON.parse(s)}catch(e){}
     try{const l=localStorage.getItem(KEY_L);if(l)log=JSON.parse(l)}catch(e){}
     try{const f=localStorage.getItem(KEY_F);if(f)facturas=JSON.parse(f)}catch(e){}
-    if(!productos.length)productos=JSON.parse(JSON.stringify(productosBase));
+    if(!productos.length)productos=JSON.parse(JSON.stringify([
+      {id:1,nombre:'Blue Titanium RCB 20',marca:'Marlboro Titanium',precio:6150,costo:0,barcode:''},
+      {id:2,nombre:'Gold Titanium Super Slims BOX 20',marca:'Marlboro Titanium',precio:6150,costo:0,barcode:''},
+      {id:3,nombre:'Red Titanium BOX 20',marca:'Marlboro Titanium',precio:5600,costo:0,barcode:''},
+      {id:4,nombre:'Red BOX 20 / Gold Original RCB 20',marca:'Marlboro Red',precio:5600,costo:0,barcode:''},
+      {id:5,nombre:'Red Común',marca:'Marlboro Red',precio:5250,costo:0,barcode:''},
+      {id:6,nombre:'Red / Vista Purple Fusion BOX 12',marca:'Marlboro Red',precio:3340,costo:0,barcode:''},
+      {id:7,nombre:'Vista Purple Fusion XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
+      {id:8,nombre:'Vista Coral Fusion XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
+      {id:9,nombre:'Vista Blue XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
+      {id:10,nombre:'BOX 20',marca:'Philip Morris',precio:5050,costo:0,barcode:''},
+      {id:11,nombre:'Común',marca:'Philip Morris',precio:4650,costo:0,barcode:''},
+      {id:12,nombre:'BOX 12',marca:'Philip Morris',precio:3000,costo:0,barcode:''},
+      {id:13,nombre:'Blue Spin BOX 20',marca:'Philip Morris',precio:5050,costo:0,barcode:''},
+      {id:14,nombre:'Blue Spin BOX 12',marca:'Philip Morris',precio:3040,costo:0,barcode:''},
+      {id:15,nombre:'Original Común',marca:'Chesterfield',precio:3980,costo:0,barcode:''},
+      {id:16,nombre:'Original BOX 12',marca:'Chesterfield',precio:2650,costo:0,barcode:''},
+      {id:17,nombre:'Purple Motion 2 BOX 20',marca:'Chesterfield',precio:4450,costo:0,barcode:''},
+      {id:18,nombre:'Blue Motion BOX 20',marca:'Chesterfield',precio:4450,costo:0,barcode:''},
+      {id:19,nombre:'Blue Motion Común',marca:'Chesterfield',precio:3980,costo:0,barcode:''},
+      {id:20,nombre:'Blue Motion BOX 12',marca:'Chesterfield',precio:2650,costo:0,barcode:''},
+      {id:21,nombre:'Dorado Negros/Colorados Común',marca:'Harmony',precio:3980,costo:0,barcode:''},
+      {id:22,nombre:'Crafted Red BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
+      {id:23,nombre:'Crafted Coral BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
+      {id:24,nombre:'Crafted Forward BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
+      {id:25,nombre:'Crafted Red Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
+      {id:26,nombre:'Crafted Blue Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
+      {id:27,nombre:'Crafted Forward Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
+      {id:28,nombre:'Red Select Común',marca:'Philip Morris Select',precio:2000,costo:0,barcode:''},
+    ]));
     toast('📀 Datos cargados desde este dispositivo');
   }
   if(!productos.length)productos=JSON.parse(JSON.stringify(productosBase));
@@ -555,8 +644,8 @@ function confirmarEliminar(){if(!deleteTarget)return;productos=productos.filter(
 // ---------- ESCÁNER GLOBAL (movimientos rápidos) ----------
 function setMode(mode){
   scannerMode=mode;
-  document.getElementById('btn-mode-salida').classList.toggle('active',mode==='salida');
-  document.getElementById('btn-mode-compra').classList.toggle('active',mode==='compra');
+  document.querySelector('.mode-btn.salida').classList.toggle('active',mode==='salida');
+  document.querySelector('.mode-btn.compra').classList.toggle('active',mode==='compra');
   document.getElementById('scanner-status').textContent=`Modo: ${mode==='salida'?'Sacar':'Agregar'}`;
 }
 const scannerInput=document.getElementById('scanner-input');
@@ -1075,7 +1164,11 @@ function initEventos(){
   activarEnterEnCamposVenta();
 }
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-(async()=>{await loadAll();renderAll();initEventos();})();
+
+// Lanzar la autenticación primero y luego cargar todo
+autenticar().then(() => {
+  (async()=>{await loadAll();renderAll();initEventos();})();
+});
 </script>
 </body>
 </html>
