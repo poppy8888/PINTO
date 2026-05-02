@@ -99,7 +99,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .item-edit-stock{width:80px;padding:4px 6px;border:1px solid #ddd;border-radius:8px;text-align:center}
 .item-edit-price{width:90px;padding:4px 6px;border:1px solid #ddd;border-radius:8px;text-align:center}
 .item-edit-barcode{width:120px;padding:4px 6px;border:1px solid #ddd;border-radius:8px;font-family:monospace}
-.item-edit-tipo{width:90px;padding:4px 6px;border:1px solid #ddd;border-radius:8px;font-size:0.75rem}
 .item-util-percent{font-size:0.7rem;min-width:60px;text-align:center;color:#639922}
 .del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:1rem;padding:0 4px}
 .del-btn:hover{color:#e24b4a}
@@ -146,6 +145,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #pago-modal .modal input { width: 100%; padding: 10px; font-size: 1.2rem; margin: 15px 0; text-align: center; }
 #pago-modal .vuelto { font-size: 1.8rem; font-weight: bold; color: #27500a; margin: 10px 0; }
 #pago-modal .total-venta { font-size: 1.2rem; background: #f0f0f5; padding: 8px; border-radius: 8px; }
+
+/* Estilos para buscador manual simplificado */
+.manual-add {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+.manual-add .field-group {
+  flex: 3;
+  margin-bottom: 0;
+}
+.manual-add button {
+  flex: 0 0 auto;
+  height: 38px;
+  margin-top: 0;
+}
+@media (max-width: 700px) {
+  .manual-add { flex-direction: column; }
+  .manual-add .field-group { width: 100%; }
+  .manual-add button { width: 100%; }
+}
 </style>
 </head>
 <body>
@@ -248,20 +271,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- PANEL COMPRA: solo búsqueda manual simple -->
 <div id="panel-compra" class="panel">
   <div class="add-product-card" style="border-color:#639922;">
     <div class="add-product-title" style="color:#27500a;">🧾 Cargar factura de COMPRA</div>
-    <div style="display:grid; grid-template-columns:1fr; gap:12px;">
-      <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="compra-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
-      <div class="field-group"><label class="field-label">🔎 Producto</label><input list="compra-productos-list" id="compra-producto-nombre" class="field-input" placeholder="Escribí nombre o marca..."><datalist id="compra-productos-list"></datalist></div>
-      <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:8px;">
-        <div class="field-group"><label class="field-label" id="compra-cantidad-label">Cantidad</label><input type="text" id="compra-cantidad" class="field-input" value="1"></div>
-        <div class="field-group"><label class="field-label" id="compra-precio-label">Precio c/u ($)</label><input type="text" id="compra-precio-costo" class="field-input" placeholder="Auto"></div>
-        <div><button class="btn-action btn-compra" id="btn-agregar-linea-compra" style="margin-top:22px; padding:8px 12px;">➕ Agregar</button></div>
+    <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="compra-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
+    
+    <div class="manual-add">
+      <div class="field-group">
+        <label class="field-label">🔎 Buscar producto</label>
+        <input list="compra-productos-list" id="compra-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código...">
+        <datalist id="compra-productos-list"></datalist>
       </div>
+      <div><button class="btn-action btn-compra" id="btn-agregar-linea-compra" style="padding:8px 16px;">➕ Agregar</button></div>
     </div>
+
     <div style="overflow-x:auto; margin-top:16px;">
-      <table class="factura-table" id="compra-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th></tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
+      <table class="factura-table" id="compra-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th><tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
       </table>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
@@ -271,18 +297,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- PANEL VENTA: solo búsqueda manual simple -->
 <div id="panel-venta" class="panel">
   <div class="add-product-card" style="border-color:#e24b4a;">
     <div class="add-product-title" style="color:#791f1f;">🧾 Cargar factura de VENTA</div>
-    <div style="display:grid; grid-template-columns:1fr; gap:12px;">
-      <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="venta-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
-      <div class="field-group"><label class="field-label">🔎 Producto</label><input list="venta-productos-list" id="venta-producto-nombre" class="field-input" placeholder="Escribí nombre o marca..."><datalist id="venta-productos-list"></datalist></div>
-      <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:8px;">
-        <div class="field-group"><label class="field-label" id="venta-cantidad-label">Cantidad</label><input type="text" id="venta-cantidad" class="field-input" value="1"></div>
-        <div class="field-group"><label class="field-label" id="venta-precio-label">Precio ($)</label><input type="text" id="venta-precio" class="field-input" placeholder="Auto"></div>
-        <div><button class="btn-action btn-venta" id="btn-agregar-linea-venta" style="margin-top:22px; padding:8px 12px;">➕ Agregar</button></div>
+    <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="venta-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
+
+    <div class="manual-add">
+      <div class="field-group">
+        <label class="field-label">🔎 Buscar producto</label>
+        <input list="venta-productos-list" id="venta-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código...">
+        <datalist id="venta-productos-list"></datalist>
       </div>
+      <div><button class="btn-action btn-venta" id="btn-agregar-linea-venta" style="padding:8px 16px;">➕ Agregar</button></div>
     </div>
+
     <div style="overflow-x:auto; margin-top:16px;">
       <table class="factura-table" id="venta-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead><tbody id="venta-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
       </table>
@@ -316,7 +345,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
-// ========== UTILIDADES: PARSEO DE NÚMEROS CON COMA ==========
+// ========== UTILIDADES: PARSEO DE NÚMEROS CON COMA Y PUNTO DE MILES ==========
 function parseNumero(valor) {
   if (valor === undefined || valor === null || valor === '') return NaN;
   let str = String(valor).trim();
@@ -345,7 +374,7 @@ function fmtUnidad(valor, tipo) {
   else return fmt(valor) + ' u';
 }
 
-// ========== URL DE APPS SCRIPT ==========
+// ========== URL DE APPS SCRIPT (cambiar si es necesario) ==========
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSx9P2qiGn9Osk4ZCFuxXnPWm1uW2dWE8b446Ms7e6PnzTpqHvKTF1Q_TaMW7l9jo/exec";
 
 // ========== CLAVE DE ACCESO ==========
@@ -530,13 +559,7 @@ function guardarEdicionProducto(id){
 }
 
 function agregarProducto(){
-  const marca=document.getElementById('new-marca').value.trim();
-  const nombre=document.getElementById('new-nombre').value.trim();
-  let precio = parseNumero(document.getElementById('new-precio').value);
-  let costo = parseNumero(document.getElementById('new-costo').value);
-  const barcode=document.getElementById('new-barcode').value.trim();
-  let stockInicial = parseNumero(document.getElementById('new-stock').value);
-  const tipo=document.getElementById('new-tipo').value;
+  const marca=document.getElementById('new-marca').value.trim(), nombre=document.getElementById('new-nombre').value.trim(), precio=parseNumero(document.getElementById('new-precio').value)||0, costo=parseNumero(document.getElementById('new-costo').value)||0, barcode=document.getElementById('new-barcode').value.trim(), stockInicial=parseNumero(document.getElementById('new-stock').value)||0, tipo=document.getElementById('new-tipo').value;
   if(!marca||!nombre||isNaN(precio)||precio<=0){toast('Completá marca, nombre y precio válido');return;}
   if(barcode&&productos.some(p=>p.barcode===barcode)){toast('❌ Código ya existe');return;}
   if(isNaN(stockInicial)) stockInicial=0;
@@ -607,31 +630,23 @@ function compraSeleccionarProdId(id){
   compraProductoActualId=id; const p=productos.find(p=>p.id===id); 
   if(p){ 
     document.getElementById('compra-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`;
-    const cantLabel = document.getElementById('compra-cantidad-label');
-    const precioLabel = document.getElementById('compra-precio-label');
-    if(p.tipo==='peso'){ cantLabel.textContent='Cantidad (kg)'; precioLabel.textContent='Precio por kg ($)'; }
-    else { cantLabel.textContent='Cantidad (unidades)'; precioLabel.textContent='Precio por unidad ($)'; }
-    const inp=document.getElementById('compra-precio-costo'); 
-    if(inp&&(inp.value==''||parseNumero(inp.value)<=0)&&p.costo>0) inp.value=p.costo; 
   } 
 }
 function agregarLineaCompra(){
   if(!compraProductoActualId){ const t=document.getElementById('compra-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) compraProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
   const prod=productos.find(p=>p.id===compraProductoActualId); if(!prod){toast("Producto no encontrado");return;}
-  let cant = parseNumero(document.getElementById('compra-cantidad').value);
-  let prec = parseNumero(document.getElementById('compra-precio-costo').value);
-  if(isNaN(cant)||cant<=0){toast("Cantidad inválida");return;}
+  let cant = 1;  // cantidad por defecto 1 (luego pueden editar en tabla)
+  let prec = prod.costo || 0;
+  if(prec<=0){toast("El producto no tiene costo. Edite el producto o ingrese manualmente en la tabla.");return;}
   if(prod.tipo==='unidad') cant = Math.round(cant);
   else cant = Math.round(cant * 100) / 100;
-  if(isNaN(prec)||prec<=0) prec=prod.costo||0;
-  if(prec<=0){toast("Ingrese precio costo");return;}
   compraLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioCosto:prec, subtotal:cant*prec, costoAnterior:prod.costo, precioAnterior:prod.precio, stockAnterior:stock[prod.id]||0, tipo:prod.tipo});
-  renderCompraTabla(); document.getElementById('compra-cantidad').value='1'; document.getElementById('compra-precio-costo').value='';
+  renderCompraTabla();
 }
 function eliminarLineaCompra(i){compraLineas.splice(i,1);renderCompraTabla();}
 function renderCompraTabla(){
   const tbody=document.getElementById('compra-lineas-tbody'); if(!tbody)return;
-  if(compraLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></tr>'; document.getElementById('compra-total-pesos').innerText='$0'; return; }
+  if(compraLineas.length===0){ tbody.innerHTML='</td><td colspan="5" style="text-align:center">Sin líneas</td><tr>'; document.getElementById('compra-total-pesos').innerText='$0'; return; }
   let total=0, html='';
   compraLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="text" class="edit-cantidad" value="${fmt(l.cantidad)}" style="width:80px;"></td><td><input type="text" class="edit-precio" value="${fmt(l.precioCosto)}" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
   tbody.innerHTML=html; document.getElementById('compra-total-pesos').innerHTML=`$${fmt(total)}`;
@@ -659,9 +674,9 @@ function confirmarCompra(){
   compraLineas=[]; renderCompraTabla(); document.getElementById('compra-monto-real').value=''; compraProductoActualId=null; document.getElementById('compra-producto-nombre').value='';
 }
 function iniciarScannerCompra(){ const inp=document.getElementById('compra-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } compraSeleccionarProdId(p.id); agregarLineaCompra(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
-function activarEnterCompra(){ const cant=document.getElementById('compra-cantidad'), prec=document.getElementById('compra-precio-costo'); if(cant) cant.addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();agregarLineaCompra();}}); if(prec) prec.addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();agregarLineaCompra();}}); const nom=document.getElementById('compra-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); compraProductoActualId=p?p.id:null; compraSeleccionarProdId(compraProductoActualId); }); }
+function activarEnterCompra(){ const nom=document.getElementById('compra-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); compraProductoActualId=p?p.id:null; }); }
 
-// ----- VENTA CON SOPORTE DECIMAL Y COMA -----
+// ----- VENTA -----
 let ventaLineas=[], ventaProductoActualId=null;
 
 function actualizarDatalistVenta(){ const d=document.getElementById('venta-productos-list'); if(d) d.innerHTML=productos.map(p=>`<option value="${p.marca} ${p.nombre} (Cód: ${p.barcode})">`).join(''); }
@@ -669,33 +684,23 @@ function ventaSeleccionarProdId(id){
   ventaProductoActualId=id; const p=productos.find(p=>p.id===id); 
   if(p){ 
     document.getElementById('venta-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`;
-    const cantLabel = document.getElementById('venta-cantidad-label');
-    const precioLabel = document.getElementById('venta-precio-label');
-    if(p.tipo==='peso'){ cantLabel.textContent='Cantidad (kg)'; precioLabel.textContent='Precio por kg ($)'; }
-    else { cantLabel.textContent='Cantidad (unidades)'; precioLabel.textContent='Precio por unidad ($)'; }
-    const inp=document.getElementById('venta-precio'); 
-    if(inp&&(inp.value==''||parseNumero(inp.value)<=0)&&p.precio>0) inp.value=fmt(p.precio); 
   } 
 }
 function agregarLineaVenta(){
   if(!ventaProductoActualId){ const t=document.getElementById('venta-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) ventaProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
   const prod=productos.find(p=>p.id===ventaProductoActualId); if(!prod){toast("Producto no encontrado");return;}
-  let cant = parseNumero(document.getElementById('venta-cantidad').value);
-  let prec = parseNumero(document.getElementById('venta-precio').value);
-  if(isNaN(cant)||cant<=0){toast("Cantidad inválida");return;}
-  if(prod.tipo==='unidad') cant = Math.round(cant);
-  else cant = Math.round(cant * 100) / 100;
-  if(isNaN(prec)||prec<=0) prec=prod.precio||0;
-  if(prec<=0){toast("Ingrese precio de venta");return;}
+  let cant = 1;
+  let prec = prod.precio || 0;
+  if(prec<=0){toast("El producto no tiene precio de venta. Edite el producto o ingrese manualmente en la tabla.");return;}
   const antesStock=stock[prod.id]||0;
   if(cant > antesStock+0.001){ toast(`Stock insuficiente: ${fmtUnidad(antesStock, prod.tipo)} disponible`); return; }
   ventaLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioVenta:prec, subtotal:cant*prec, stockAntes:antesStock, tipo:prod.tipo});
-  renderVentaTabla(); document.getElementById('venta-cantidad').value='1'; document.getElementById('venta-precio').value='';
+  renderVentaTabla();
 }
 function eliminarLineaVenta(i){ventaLineas.splice(i,1);renderVentaTabla();}
 function renderVentaTabla(){
   const tbody=document.getElementById('venta-lineas-tbody'); if(!tbody)return;
-  if(ventaLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></tr>'; document.getElementById('venta-total-pesos').innerText='$0'; return; }
+  if(ventaLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></td>'; document.getElementById('venta-total-pesos').innerText='$0'; return; }
   let total=0, html='';
   ventaLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="text" class="edit-cantidad-venta" value="${fmt(l.cantidad)}" style="width:80px;"></td><td><input type="text" class="edit-precio-venta" value="${fmt(l.precioVenta)}" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row-venta" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
   tbody.innerHTML=html; document.getElementById('venta-total-pesos').innerHTML=`$${fmt(total)}`;
@@ -794,7 +799,7 @@ async function confirmarVenta(){
 }
 
 function iniciarScannerVenta(){ const inp=document.getElementById('venta-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } ventaSeleccionarProdId(p.id); agregarLineaVenta(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
-function activarEnterVenta(){ const cant=document.getElementById('venta-cantidad'), prec=document.getElementById('venta-precio'); if(cant) cant.addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();agregarLineaVenta();}}); if(prec) prec.addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();agregarLineaVenta();}}); const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?p.id:null; ventaSeleccionarProdId(ventaProductoActualId); }); }
+function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?p.id:null; }); }
 
 function renderLog(){
   const el=document.getElementById('log-list');
