@@ -201,7 +201,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="scanner-bar">
   <div class="scanner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2"><line x1="2" y1="5" x2="2" y2="19"/><line x1="6" y1="5" x2="6" y2="19"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="14" y1="5" x2="14" y2="19"/><line x1="17" y1="5" x2="17" y2="19"/><line x1="20" y1="5" x2="20" y2="19"/></svg></div>
   <input type="text" id="scanner-input" class="scanner-input" placeholder="Escanear código..." autocomplete="off"/>
-  <input type="number" id="scanner-qty" class="scanner-qty" value="1" min="0" step="any" lang="es"/>
+  <input type="text" id="scanner-qty" class="scanner-qty" value="1" style="width:80px;"/>
   <div class="scanner-mode">
     <button class="mode-btn salida active" onclick="setMode('salida')">Vender</button>
     <button class="mode-btn compra" onclick="setMode('compra')">Agregar</button>
@@ -233,11 +233,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field-group"><div class="field-label">Marca</div><input type="text" id="new-marca" class="field-input" placeholder="Ej: Frutas"/></div>
       <div class="field-group"><div class="field-label">Nombre</div><input type="text" id="new-nombre" class="field-input" placeholder="Ej: Manzana"/></div>
       <div class="field-group"><div class="field-label">Código barras</div><input type="text" id="new-barcode" class="field-input" placeholder="Código para escáner"/></div>
-      <div class="field-group"><div class="field-label">Tipo de venta</div><select id="new-tipo" class="field-input" onchange="cambiarUnidadStock()"><option value="unidad">Unidad (precio por pieza)</option><option value="peso">Peso (precio por kg)</option></select></div>
-      <div class="field-group"><div class="field-label">Stock inicial</div><input type="number" id="new-stock" class="field-input" value="0" min="0" step="any"/></div>
-      <div class="field-group"><div class="field-label">Precio costo ($)</div><input type="number" id="new-costo" class="field-input" placeholder="Ej: 800" step="any" oninput="calcPrecioVenta()"/></div>
-      <div class="field-group"><div class="field-label">Utilidad (%)</div><input type="number" id="new-utilidad" class="field-input" placeholder="Ej: 40" step="any" oninput="calcPrecioVenta()"/></div>
-      <div class="field-group full"><div class="field-label">Precio venta ($)</div><input type="number" id="new-precio" class="field-input" placeholder="Automático" step="any" oninput="calcUtilidad()"/></div>
+      <div class="field-group"><div class="field-label">Tipo de venta</div><select id="new-tipo" class="field-input"><option value="unidad">Unidad (precio por pieza)</option><option value="peso">Peso (precio por kg)</option></select></div>
+      <div class="field-group"><div class="field-label">Stock inicial</div><input type="text" id="new-stock" class="field-input" value="0"/></div>
+      <div class="field-group"><div class="field-label">Precio costo ($)</div><input type="text" id="new-costo" class="field-input" placeholder="Ej: 800" oninput="calcPrecioVenta()"/></div>
+      <div class="field-group"><div class="field-label">Utilidad (%)</div><input type="text" id="new-utilidad" class="field-input" placeholder="Ej: 40" oninput="calcPrecioVenta()"/></div>
+      <div class="field-group full"><div class="field-label">Precio venta ($)</div><input type="text" id="new-precio" class="field-input" placeholder="Automático" oninput="calcUtilidad()"/></div>
     </div>
     <div class="price-box" id="price-preview" style="display:none">
       <div class="price-item price-costo"><div class="price-item-label">Costo</div><div class="price-item-val" id="prev-costo">$0</div></div>
@@ -255,17 +255,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="compra-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
       <div class="field-group"><label class="field-label">🔎 Producto</label><input list="compra-productos-list" id="compra-producto-nombre" class="field-input" placeholder="Escribí nombre o marca..."><datalist id="compra-productos-list"></datalist></div>
       <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:8px;">
-        <div class="field-group"><label class="field-label" id="compra-cantidad-label">Cantidad</label><input type="number" id="compra-cantidad" class="field-input" value="1" min="0" step="any" lang="es"></div>
-        <div class="field-group"><label class="field-label" id="compra-precio-label">Precio c/u ($)</label><input type="number" id="compra-precio-costo" class="field-input" step="any" min="0" placeholder="Auto"></div>
+        <div class="field-group"><label class="field-label" id="compra-cantidad-label">Cantidad</label><input type="text" id="compra-cantidad" class="field-input" value="1"></div>
+        <div class="field-group"><label class="field-label" id="compra-precio-label">Precio c/u ($)</label><input type="text" id="compra-precio-costo" class="field-input" placeholder="Auto"></div>
         <div><button class="btn-action btn-compra" id="btn-agregar-linea-compra" style="margin-top:22px; padding:8px 12px;">➕ Agregar</button></div>
       </div>
     </div>
     <div style="overflow-x:auto; margin-top:16px;">
-      <table class="factura-table" id="compra-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th></tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></tr></tfoot>
+      <table class="factura-table" id="compra-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th></tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
       </table>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
-      <div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="number" id="compra-monto-real" class="field-input" placeholder="Opcional" step="any" style="width:140px;"><span id="compra-match-indicator" style="font-size:0.75rem;"></span></div>
+      <div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="compra-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="compra-match-indicator" style="font-size:0.75rem;"></span></div>
       <div><button class="btn-action btn-compra" id="btn-confirmar-compra" style="background:#27500a; color:#fff;">✅ Confirmar compra</button><button class="btn-action" id="btn-limpiar-compra" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div>
     </div>
   </div>
@@ -278,17 +278,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="venta-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
       <div class="field-group"><label class="field-label">🔎 Producto</label><input list="venta-productos-list" id="venta-producto-nombre" class="field-input" placeholder="Escribí nombre o marca..."><datalist id="venta-productos-list"></datalist></div>
       <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:8px;">
-        <div class="field-group"><label class="field-label" id="venta-cantidad-label">Cantidad</label><input type="number" id="venta-cantidad" class="field-input" value="1" min="0" step="any" lang="es"></div>
-        <div class="field-group"><label class="field-label" id="venta-precio-label">Precio ($)</label><input type="number" id="venta-precio" class="field-input" step="any" min="0" placeholder="Auto"></div>
+        <div class="field-group"><label class="field-label" id="venta-cantidad-label">Cantidad</label><input type="text" id="venta-cantidad" class="field-input" value="1"></div>
+        <div class="field-group"><label class="field-label" id="venta-precio-label">Precio ($)</label><input type="text" id="venta-precio" class="field-input" placeholder="Auto"></div>
         <div><button class="btn-action btn-venta" id="btn-agregar-linea-venta" style="margin-top:22px; padding:8px 12px;">➕ Agregar</button></div>
       </div>
     </div>
     <div style="overflow-x:auto; margin-top:16px;">
-      <table class="factura-table" id="venta-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead><tbody id="venta-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></tr></tfoot>
+      <table class="factura-table" id="venta-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead><tbody id="venta-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
       </table>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
-      <div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="number" id="venta-monto-real" class="field-input" placeholder="Opcional" step="any" style="width:140px;"><span id="venta-match-indicator" style="font-size:0.75rem;"></span></div>
+      <div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="venta-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="venta-match-indicator" style="font-size:0.75rem;"></span></div>
       <div><button class="btn-action btn-venta" id="btn-confirmar-venta" style="background:#791f1f; color:#fff;">✅ Confirmar venta</button><button class="btn-action" id="btn-limpiar-venta" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div>
     </div>
   </div>
@@ -303,7 +303,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="modal">
     <div class="modal-title">💰 Pago del cliente</div>
     <div class="total-venta" id="pago-total-venta">Total: $0</div>
-    <input type="number" id="monto-cliente" placeholder="Monto que entrega el cliente" step="any" autocomplete="off" lang="es">
+    <input type="text" id="monto-cliente" placeholder="Monto que entrega el cliente" autocomplete="off">
     <div class="vuelto" id="vuelto-mostrar">Vuelto: $0</div>
     <div class="modal-btns">
       <button class="btn-cancel" id="cancelar-pago">Cancelar</button>
@@ -316,6 +316,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
+// ========== UTILIDADES: PARSEO DE NÚMEROS CON COMA ==========
+function parseNumero(valor) {
+  if (valor === undefined || valor === null || valor === '') return NaN;
+  let str = String(valor).trim();
+  // Reemplazar coma por punto
+  str = str.replace(',', '.');
+  let num = parseFloat(str);
+  return isNaN(num) ? NaN : Math.round(num * 100) / 100;
+}
+
+function fmt(n) {
+  if (isNaN(n) || n === undefined || n === null) return '0';
+  let valor = Math.round(n * 100) / 100;
+  if (Math.abs(valor - Math.round(valor)) < 0.001) return Math.round(valor).toLocaleString('es-AR');
+  return valor.toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+}
+
+function fmtUnidad(valor, tipo) {
+  if (tipo === 'peso') return fmt(valor) + ' kg';
+  else return fmt(valor) + ' u';
+}
+
 // ========== URL DE APPS SCRIPT ==========
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSx9P2qiGn9Osk4ZCFuxXnPWm1uW2dWE8b446Ms7e6PnzTpqHvKTF1Q_TaMW7l9jo/exec";
 
@@ -327,19 +349,6 @@ const KEY_P='mm_prods_v1', KEY_S='mm_stock_v1', KEY_L='mm_log_v1', KEY_F='mm_fac
 
 let productos=[], stock={}, log=[], facturas=[];
 let scannerMode='salida', deleteTarget=null, nextId=100;
-
-// Función de formateo (unidades o peso)
-function fmt(n, tipo = null) {
-  if (n === undefined || n === null) return '0';
-  let valor = Math.round(n * 100) / 100;
-  if (Math.abs(valor - Math.round(valor)) < 0.001) return Math.round(valor).toLocaleString('es-AR');
-  return valor.toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
-}
-
-function fmtUnidad(valor, tipo) {
-  if (tipo === 'peso') return fmt(valor) + ' kg';
-  else return fmt(valor) + ' u';
-}
 
 function nowStr(){const d=new Date();return d.toLocaleDateString('es-AR')+' '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}
 function calcTotal(){return productos.reduce((a,p)=>a+(stock[p.id]||0),0)}
@@ -446,8 +455,8 @@ function renderStock(){
         <div class="item-name"><strong>${p.marca}</strong> ${p.nombre}</div>
         <div class="item-edit-group" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
           <input type="text" id="barcode-${p.id}" class="item-edit-barcode" value="${p.barcode}" placeholder="Código" style="width:110px;">
-          <input type="number" id="stock-${p.id}" class="item-edit-stock" value="${q}" min="0" step="${p.tipo==='peso'?'any':'1'}" style="width:80px;">
-          <input type="number" id="price-${p.id}" class="item-edit-price" value="${p.precio}" min="0" step="any" style="width:90px;">
+          <input type="text" id="stock-${p.id}" class="item-edit-stock" value="${q}" style="width:80px;">
+          <input type="text" id="price-${p.id}" class="item-edit-price" value="${p.precio}" style="width:90px;">
           <select id="tipo-${p.id}" class="item-edit-tipo" onchange="cambiarTipoProducto(${p.id}, this.value)">
             <option value="unidad" ${p.tipo==='unidad'?'selected':''}>Unidad</option>
             <option value="peso" ${p.tipo==='peso'?'selected':''}>Peso (kg)</option>
@@ -475,7 +484,6 @@ function cambiarTipoProducto(id, nuevoTipo) {
   if(prod.tipo !== nuevoTipo) {
     if(confirm(`Cambiar tipo de "${prod.nombre}" de ${prod.tipo==='unidad'?'unidad':'peso'} a ${nuevoTipo==='unidad'?'unidad':'peso (kg)'}. El stock actual se convertirá automáticamente (puede redondearse). ¿Continuar?`)) {
       prod.tipo = nuevoTipo;
-      // Si el stock no es compatible, redondeamos
       if(nuevoTipo === 'unidad') stock[id] = Math.round(stock[id] || 0);
       else stock[id] = Math.round((stock[id] || 0) * 100) / 100;
       guardarEdicionProducto(id);
@@ -490,9 +498,9 @@ function cambiarTipoProducto(id, nuevoTipo) {
 function guardarEdicionProducto(id){
   const prod=productos.find(p=>p.id===id);
   if(!prod)return;
-  let nuevoStock=parseFloat(document.getElementById(`stock-${id}`).value);
-  const nuevoPrecio=parseFloat(document.getElementById(`price-${id}`).value);
-  const nuevoBarcode=document.getElementById(`barcode-${id}`).value.trim();
+  let nuevoStock = parseNumero(document.getElementById(`stock-${id}`).value);
+  const nuevoPrecio = parseNumero(document.getElementById(`price-${id}`).value);
+  const nuevoBarcode = document.getElementById(`barcode-${id}`).value.trim();
   let cambios=false;
   if(prod.tipo === 'unidad') nuevoStock = Math.round(nuevoStock);
   else nuevoStock = Math.round(nuevoStock * 100) / 100;
@@ -511,28 +519,63 @@ function guardarEdicionProducto(id){
     else { prod.barcode=nuevoBarcode; cambios=true; }
   }
   if(cambios){ saveAll(); renderStats(); renderTotal(); toast(`Actualizado ${prod.marca} ${prod.nombre}`); }
-  else { document.getElementById(`stock-${id}`).value=stock[id]||0; document.getElementById(`price-${id}`).value=prod.precio; document.getElementById(`barcode-${id}`).value=prod.barcode; }
+  else { document.getElementById(`stock-${id}`).value=fmt(stock[id]||0); document.getElementById(`price-${id}`).value=fmt(prod.precio); document.getElementById(`barcode-${id}`).value=prod.barcode; }
 }
+
 function agregarProducto(){
-  const marca=document.getElementById('new-marca').value.trim(), nombre=document.getElementById('new-nombre').value.trim(), precio=parseFloat(document.getElementById('new-precio').value)||0, costo=parseFloat(document.getElementById('new-costo').value)||0, barcode=document.getElementById('new-barcode').value.trim(), stockInicial=parseFloat(document.getElementById('new-stock').value)||0, tipo=document.getElementById('new-tipo').value;
-  if(!marca||!nombre||!precio){toast('Completá marca, nombre y precio');return;}
+  const marca=document.getElementById('new-marca').value.trim();
+  const nombre=document.getElementById('new-nombre').value.trim();
+  let precio = parseNumero(document.getElementById('new-precio').value);
+  let costo = parseNumero(document.getElementById('new-costo').value);
+  const barcode=document.getElementById('new-barcode').value.trim();
+  let stockInicial = parseNumero(document.getElementById('new-stock').value);
+  const tipo=document.getElementById('new-tipo').value;
+  if(!marca||!nombre||isNaN(precio)||precio<=0){toast('Completá marca, nombre y precio válido');return;}
   if(barcode&&productos.some(p=>p.barcode===barcode)){toast('❌ Código ya existe');return;}
+  if(isNaN(stockInicial)) stockInicial=0;
   let stockFinal = (tipo === 'unidad') ? Math.round(stockInicial) : Math.round(stockInicial * 100) / 100;
+  if(isNaN(costo)) costo=0;
   const prod={id:nextId++,nombre,marca,precio,costo,barcode,tipo};
   productos.push(prod); stock[prod.id]=stockFinal;
   saveAll();renderAll();
   document.getElementById('new-marca').value='';document.getElementById('new-nombre').value='';document.getElementById('new-precio').value='';document.getElementById('new-costo').value='';document.getElementById('new-utilidad').value='';document.getElementById('new-barcode').value='';document.getElementById('new-stock').value='0';document.getElementById('price-preview').style.display='none';
   toast(`✅ ${marca} ${nombre} (${tipo==='unidad'?'unidad':'kg'}) agregado`);
 }
+
 function pedirEliminar(id){deleteTarget=id;const prod=productos.find(p=>p.id===id);document.getElementById('modal-del-text').textContent=`Eliminar "${prod.marca} — ${prod.nombre}"`;document.getElementById('modal-del').classList.add('open');}
 function closeModal(){document.getElementById('modal-del').classList.remove('open');deleteTarget=null;}
 function confirmarEliminar(){if(!deleteTarget)return;productos=productos.filter(p=>p.id!==deleteTarget);delete stock[deleteTarget];saveAll();renderAll();closeModal();toast('Producto eliminado');}
+
 function setMode(mode){scannerMode=mode;document.querySelector('.mode-btn.salida').classList.toggle('active',mode==='salida');document.querySelector('.mode-btn.compra').classList.toggle('active',mode==='compra');document.getElementById('scanner-status').textContent=`Modo: ${mode==='salida'?'Vender':'Agregar'}`;}
-const scannerInput=document.getElementById('scanner-input');let scanBuffer='',scanTimer=null;
-scannerInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();const c=this.value.trim();if(c)processScanGlobal(c);this.value=''}});
-document.addEventListener('keydown',function(e){if(document.activeElement===scannerInput)return;if(e.key==='Enter'){if(scanBuffer.length>2)processScanGlobal(scanBuffer.trim());scanBuffer='';clearTimeout(scanTimer);return;}if(e.key.length===1){scanBuffer+=e.key;clearTimeout(scanTimer);scanTimer=setTimeout(()=>{scanBuffer=''},300)}});
+
+const scannerInput=document.getElementById('scanner-input');
+let scanBuffer='',scanTimer=null;
+scannerInput.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const c=this.value.trim();
+    if(c) processScanGlobal(c);
+    this.value='';
+  }
+});
+document.addEventListener('keydown',function(e){
+  if(document.activeElement===scannerInput)return;
+  if(e.key==='Enter'){
+    if(scanBuffer.length>2) processScanGlobal(scanBuffer.trim());
+    scanBuffer='';
+    clearTimeout(scanTimer);
+    return;
+  }
+  if(e.key.length===1){
+    scanBuffer+=e.key;
+    clearTimeout(scanTimer);
+    scanTimer=setTimeout(()=>{scanBuffer=''},300);
+  }
+});
+
 function processScanGlobal(code){
-  let qty=parseFloat(document.getElementById('scanner-qty').value)||1;
+  let qty = parseNumero(document.getElementById('scanner-qty').value);
+  if(isNaN(qty)) qty=1;
   const prod=productos.find(p=>p.barcode&&p.barcode===code);
   const statusEl=document.getElementById('scanner-status');
   if(!prod){statusEl.textContent=`❌ Código no encontrado`;statusEl.className='scanner-status err';setTimeout(()=>{statusEl.textContent='Listo';statusEl.className='scanner-status'},2500);return;}
@@ -562,35 +605,35 @@ function compraSeleccionarProdId(id){
     if(p.tipo==='peso'){ cantLabel.textContent='Cantidad (kg)'; precioLabel.textContent='Precio por kg ($)'; }
     else { cantLabel.textContent='Cantidad (unidades)'; precioLabel.textContent='Precio por unidad ($)'; }
     const inp=document.getElementById('compra-precio-costo'); 
-    if(inp&&(inp.value==''||parseFloat(inp.value)<=0)&&p.costo>0) inp.value=p.costo; 
+    if(inp&&(inp.value==''||parseNumero(inp.value)<=0)&&p.costo>0) inp.value=p.costo; 
   } 
 }
 function agregarLineaCompra(){
   if(!compraProductoActualId){ const t=document.getElementById('compra-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) compraProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
   const prod=productos.find(p=>p.id===compraProductoActualId); if(!prod){toast("Producto no encontrado");return;}
-  let cant=parseFloat(document.getElementById('compra-cantidad').value);
-  let prec=parseFloat(document.getElementById('compra-precio-costo').value);
+  let cant = parseNumero(document.getElementById('compra-cantidad').value);
+  let prec = parseNumero(document.getElementById('compra-precio-costo').value);
   if(isNaN(cant)||cant<=0){toast("Cantidad inválida");return;}
   if(prod.tipo==='unidad') cant = Math.round(cant);
   else cant = Math.round(cant * 100) / 100;
   if(isNaN(prec)||prec<=0) prec=prod.costo||0;
   if(prec<=0){toast("Ingrese precio costo");return;}
   compraLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioCosto:prec, subtotal:cant*prec, costoAnterior:prod.costo, precioAnterior:prod.precio, stockAnterior:stock[prod.id]||0, tipo:prod.tipo});
-  renderCompraTabla(); document.getElementById('compra-cantidad').value=1; document.getElementById('compra-precio-costo').value='';
+  renderCompraTabla(); document.getElementById('compra-cantidad').value='1'; document.getElementById('compra-precio-costo').value='';
 }
 function eliminarLineaCompra(i){compraLineas.splice(i,1);renderCompraTabla();}
 function renderCompraTabla(){
   const tbody=document.getElementById('compra-lineas-tbody'); if(!tbody)return;
   if(compraLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></tr>'; document.getElementById('compra-total-pesos').innerText='$0'; return; }
   let total=0, html='';
-  compraLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="number" class="edit-cantidad" value="${l.cantidad}" min="0" step="${l.tipo==='peso'?'any':'1'}" style="width:80px;"></td><td><input type="number" class="edit-precio" value="${l.precioCosto}" min="0" step="any" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
+  compraLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="text" class="edit-cantidad" value="${fmt(l.cantidad)}" style="width:80px;"></td><td><input type="text" class="edit-precio" value="${fmt(l.precioCosto)}" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
   tbody.innerHTML=html; document.getElementById('compra-total-pesos').innerHTML=`$${fmt(total)}`;
-  document.querySelectorAll('#compra-lineas-tbody .edit-cantidad').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseFloat(inp.value); if(!isNaN(n)&&n>0){ compraLineas[i].cantidad = (compraLineas[i].tipo==='unidad') ? Math.round(n) : Math.round(n*100)/100; compraLineas[i].subtotal=compraLineas[i].cantidad*compraLineas[i].precioCosto; renderCompraTabla(); actualizarMatchCompra(); } else inp.value=compraLineas[i].cantidad; }; });
-  document.querySelectorAll('#compra-lineas-tbody .edit-precio').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseFloat(inp.value); if(!isNaN(n)&&n>=0){ compraLineas[i].precioCosto=n; compraLineas[i].subtotal=compraLineas[i].cantidad*compraLineas[i].precioCosto; renderCompraTabla(); actualizarMatchCompra(); } else inp.value=compraLineas[i].precioCosto; }; });
+  document.querySelectorAll('#compra-lineas-tbody .edit-cantidad').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseNumero(inp.value); if(!isNaN(n)&&n>0){ compraLineas[i].cantidad = (compraLineas[i].tipo==='unidad') ? Math.round(n) : Math.round(n*100)/100; compraLineas[i].subtotal=compraLineas[i].cantidad*compraLineas[i].precioCosto; renderCompraTabla(); actualizarMatchCompra(); } else inp.value=fmt(compraLineas[i].cantidad); }; });
+  document.querySelectorAll('#compra-lineas-tbody .edit-precio').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseNumero(inp.value); if(!isNaN(n)&&n>=0){ compraLineas[i].precioCosto=n; compraLineas[i].subtotal=compraLineas[i].cantidad*compraLineas[i].precioCosto; renderCompraTabla(); actualizarMatchCompra(); } else inp.value=fmt(compraLineas[i].precioCosto); }; });
   document.querySelectorAll('#compra-lineas-tbody .del-row').forEach(btn=>{ btn.onclick=()=>{ eliminarLineaCompra(parseInt(btn.getAttribute('data-idx'))); }; });
   actualizarMatchCompra();
 }
-function actualizarMatchCompra(){ const total=compraLineas.reduce((a,l)=>a+l.subtotal,0); const real=parseFloat(document.getElementById('compra-monto-real').value); const ind=document.getElementById('compra-match-indicator'); if(!isNaN(real)&&real>0){ const diff=Math.abs(total-real); ind.innerHTML=diff<0.01?'✅ Coincide':`⚠️ Diferencia: $${fmt(diff)}`; } else ind.innerHTML=''; }
+function actualizarMatchCompra(){ const total=compraLineas.reduce((a,l)=>a+l.subtotal,0); const real=parseNumero(document.getElementById('compra-monto-real').value); const ind=document.getElementById('compra-match-indicator'); if(!isNaN(real)&&real>0){ const diff=Math.abs(total-real); ind.innerHTML=diff<0.01?'✅ Coincide':`⚠️ Diferencia: $${fmt(diff)}`; } else ind.innerHTML=''; }
 function limpiarCompra(){ compraLineas=[]; renderCompraTabla(); document.getElementById('compra-monto-real').value=''; compraProductoActualId=null; document.getElementById('compra-producto-nombre').value=''; }
 function confirmarCompra(){
   if(!compraLineas.length){toast("Sin líneas");return;}
@@ -611,7 +654,7 @@ function confirmarCompra(){
 function iniciarScannerCompra(){ const inp=document.getElementById('compra-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } compraSeleccionarProdId(p.id); agregarLineaCompra(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
 function activarEnterCompra(){ const cant=document.getElementById('compra-cantidad'), prec=document.getElementById('compra-precio-costo'); if(cant) cant.addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();agregarLineaCompra();}}); if(prec) prec.addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();agregarLineaCompra();}}); const nom=document.getElementById('compra-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); compraProductoActualId=p?p.id:null; compraSeleccionarProdId(compraProductoActualId); }); }
 
-// ----- VENTA CON SOPORTE UNIDAD/PESO -----
+// ----- VENTA CON SOPORTE DECIMAL Y COMA -----
 let ventaLineas=[], ventaProductoActualId=null;
 
 function actualizarDatalistVenta(){ const d=document.getElementById('venta-productos-list'); if(d) d.innerHTML=productos.map(p=>`<option value="${p.marca} ${p.nombre} (Cód: ${p.barcode})">`).join(''); }
@@ -624,14 +667,14 @@ function ventaSeleccionarProdId(id){
     if(p.tipo==='peso'){ cantLabel.textContent='Cantidad (kg)'; precioLabel.textContent='Precio por kg ($)'; }
     else { cantLabel.textContent='Cantidad (unidades)'; precioLabel.textContent='Precio por unidad ($)'; }
     const inp=document.getElementById('venta-precio'); 
-    if(inp&&(inp.value==''||parseFloat(inp.value)<=0)&&p.precio>0) inp.value=p.precio; 
+    if(inp&&(inp.value==''||parseNumero(inp.value)<=0)&&p.precio>0) inp.value=fmt(p.precio); 
   } 
 }
 function agregarLineaVenta(){
   if(!ventaProductoActualId){ const t=document.getElementById('venta-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) ventaProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
   const prod=productos.find(p=>p.id===ventaProductoActualId); if(!prod){toast("Producto no encontrado");return;}
-  let cant=parseFloat(document.getElementById('venta-cantidad').value);
-  let prec=parseFloat(document.getElementById('venta-precio').value);
+  let cant = parseNumero(document.getElementById('venta-cantidad').value);
+  let prec = parseNumero(document.getElementById('venta-precio').value);
   if(isNaN(cant)||cant<=0){toast("Cantidad inválida");return;}
   if(prod.tipo==='unidad') cant = Math.round(cant);
   else cant = Math.round(cant * 100) / 100;
@@ -640,21 +683,21 @@ function agregarLineaVenta(){
   const antesStock=stock[prod.id]||0;
   if(cant > antesStock+0.001){ toast(`Stock insuficiente: ${fmtUnidad(antesStock, prod.tipo)} disponible`); return; }
   ventaLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioVenta:prec, subtotal:cant*prec, stockAntes:antesStock, tipo:prod.tipo});
-  renderVentaTabla(); document.getElementById('venta-cantidad').value=1; document.getElementById('venta-precio').value='';
+  renderVentaTabla(); document.getElementById('venta-cantidad').value='1'; document.getElementById('venta-precio').value='';
 }
 function eliminarLineaVenta(i){ventaLineas.splice(i,1);renderVentaTabla();}
 function renderVentaTabla(){
   const tbody=document.getElementById('venta-lineas-tbody'); if(!tbody)return;
   if(ventaLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></tr>'; document.getElementById('venta-total-pesos').innerText='$0'; return; }
   let total=0, html='';
-  ventaLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="number" class="edit-cantidad-venta" value="${l.cantidad}" min="0" step="${l.tipo==='peso'?'any':'1'}" style="width:80px;"></td><td><input type="number" class="edit-precio-venta" value="${l.precioVenta}" min="0" step="any" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row-venta" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
+  ventaLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="text" class="edit-cantidad-venta" value="${fmt(l.cantidad)}" style="width:80px;"></td><td><input type="text" class="edit-precio-venta" value="${fmt(l.precioVenta)}" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row-venta" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
   tbody.innerHTML=html; document.getElementById('venta-total-pesos').innerHTML=`$${fmt(total)}`;
-  document.querySelectorAll('#venta-lineas-tbody .edit-cantidad-venta').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseFloat(inp.value); if(!isNaN(n) && n>0){ ventaLineas[i].cantidad = (ventaLineas[i].tipo==='unidad') ? Math.round(n) : Math.round(n*100)/100; ventaLineas[i].subtotal=ventaLineas[i].cantidad*ventaLineas[i].precioVenta; renderVentaTabla(); actualizarMatchVenta(); } else{ inp.value=ventaLineas[i].cantidad; } }; });
-  document.querySelectorAll('#venta-lineas-tbody .edit-precio-venta').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseFloat(inp.value); if(!isNaN(n) && n>=0){ ventaLineas[i].precioVenta=n; ventaLineas[i].subtotal=ventaLineas[i].cantidad*ventaLineas[i].precioVenta; renderVentaTabla(); actualizarMatchVenta(); } else{ inp.value=ventaLineas[i].precioVenta; } }; });
+  document.querySelectorAll('#venta-lineas-tbody .edit-cantidad-venta').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseNumero(inp.value); if(!isNaN(n) && n>0){ ventaLineas[i].cantidad = (ventaLineas[i].tipo==='unidad') ? Math.round(n) : Math.round(n*100)/100; ventaLineas[i].subtotal=ventaLineas[i].cantidad*ventaLineas[i].precioVenta; renderVentaTabla(); actualizarMatchVenta(); } else{ inp.value=fmt(ventaLineas[i].cantidad); } }; });
+  document.querySelectorAll('#venta-lineas-tbody .edit-precio-venta').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseNumero(inp.value); if(!isNaN(n) && n>=0){ ventaLineas[i].precioVenta=n; ventaLineas[i].subtotal=ventaLineas[i].cantidad*ventaLineas[i].precioVenta; renderVentaTabla(); actualizarMatchVenta(); } else{ inp.value=fmt(ventaLineas[i].precioVenta); } }; });
   document.querySelectorAll('#venta-lineas-tbody .del-row-venta').forEach(btn=>{ btn.onclick=()=>{ eliminarLineaVenta(parseInt(btn.getAttribute('data-idx'))); }; });
   actualizarMatchVenta();
 }
-function actualizarMatchVenta(){ const total=ventaLineas.reduce((a,l)=>a+l.subtotal,0); const real=parseFloat(document.getElementById('venta-monto-real').value); const ind=document.getElementById('venta-match-indicator'); if(!isNaN(real)&&real>0){ const diff=Math.abs(total-real); ind.innerHTML=diff<0.01?'✅ Coincide':`⚠️ Diferencia: $${fmt(diff)}`; } else ind.innerHTML=''; }
+function actualizarMatchVenta(){ const total=ventaLineas.reduce((a,l)=>a+l.subtotal,0); const real=parseNumero(document.getElementById('venta-monto-real').value); const ind=document.getElementById('venta-match-indicator'); if(!isNaN(real)&&real>0){ const diff=Math.abs(total-real); ind.innerHTML=diff<0.01?'✅ Coincide':`⚠️ Diferencia: $${fmt(diff)}`; } else ind.innerHTML=''; }
 function limpiarVenta(){ ventaLineas=[]; renderVentaTabla(); document.getElementById('venta-monto-real').value=''; ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value=''; }
 
 function pedirPagoYVuelto(totalVenta){
@@ -669,7 +712,7 @@ function pedirPagoYVuelto(totalVenta){
     montoInput.value = '';
     vueltoSpan.textContent = 'Vuelto: $0';
     function calcularVuelto() {
-      let pago = parseFloat(montoInput.value);
+      let pago = parseNumero(montoInput.value);
       if (isNaN(pago)) pago = 0;
       let vuelto = pago - totalVenta;
       if (vuelto < 0) vuelto = 0;
@@ -678,7 +721,7 @@ function pedirPagoYVuelto(totalVenta){
     function onEnter(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
-        let pago = parseFloat(montoInput.value);
+        let pago = parseNumero(montoInput.value);
         if (isNaN(pago)) pago = 0;
         let vuelto = pago - totalVenta;
         if (vuelto >= 0) {
@@ -700,7 +743,7 @@ function pedirPagoYVuelto(totalVenta){
     }
     function onCancel() { limpiarEventos(); modal.classList.remove('open'); resolve(false); }
     function onConfirm() {
-      let pago = parseFloat(montoInput.value);
+      let pago = parseNumero(montoInput.value);
       if (isNaN(pago)) pago = 0;
       let vuelto = pago - totalVenta;
       if (vuelto >= 0) {
@@ -782,9 +825,9 @@ function anularFactura(fid){
   }
   f.anulada=true; saveAll(); renderAll(); toast(`Factura ${f.tipo} #${fid} anulada`);
 }
-function calcPrecioVenta(){ const costo=parseFloat(document.getElementById('new-costo').value)||0, util=parseFloat(document.getElementById('new-utilidad').value)||0; if(costo>0&&util>0) document.getElementById('new-precio').value=Math.round(costo*(1+util/100)); updatePreview(); }
-function calcUtilidad(){ const costo=parseFloat(document.getElementById('new-costo').value)||0, venta=parseFloat(document.getElementById('new-precio').value)||0; if(costo>0&&venta>0) document.getElementById('new-utilidad').value=((venta-costo)/costo*100).toFixed(1); updatePreview(); }
-function updatePreview(){ const costo=parseFloat(document.getElementById('new-costo').value)||0, venta=parseFloat(document.getElementById('new-precio').value)||0, box=document.getElementById('price-preview'); if(costo<=0&&venta<=0){box.style.display='none';return;} box.style.display='grid'; document.getElementById('prev-costo').textContent='$'+fmt(costo); document.getElementById('prev-venta').textContent='$'+fmt(venta); if(costo>0&&venta>0){ const util=((venta-costo)/costo*100).toFixed(1); document.getElementById('prev-util').textContent=util+'% (+$'+fmt(venta-costo)+')'; } else document.getElementById('prev-util').textContent='—'; }
+function calcPrecioVenta(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, util=parseNumero(document.getElementById('new-utilidad').value)||0; if(costo>0&&util>0) document.getElementById('new-precio').value=Math.round(costo*(1+util/100)); updatePreview(); }
+function calcUtilidad(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, venta=parseNumero(document.getElementById('new-precio').value)||0; if(costo>0&&venta>0) document.getElementById('new-utilidad').value=((venta-costo)/costo*100).toFixed(1); updatePreview(); }
+function updatePreview(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, venta=parseNumero(document.getElementById('new-precio').value)||0, box=document.getElementById('price-preview'); if(costo<=0&&venta<=0){box.style.display='none';return;} box.style.display='grid'; document.getElementById('prev-costo').textContent='$'+fmt(costo); document.getElementById('prev-venta').textContent='$'+fmt(venta); if(costo>0&&venta>0){ const util=((venta-costo)/costo*100).toFixed(1); document.getElementById('prev-util').textContent=util+'% (+$'+fmt(venta-costo)+')'; } else document.getElementById('prev-util').textContent='—'; }
 function showTab(name,btn){ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.getElementById('panel-'+name).classList.add('active'); btn.classList.add('active'); if(name==='movimientos') renderLog(); if(name==='facturas') renderFacturas(); if(name==='compra'){ actualizarDatalistCompra(); setTimeout(()=>document.getElementById('compra-scan-input').focus(),100); } if(name==='venta'){ actualizarDatalistVenta(); setTimeout(()=>document.getElementById('venta-scan-input').focus(),100); } }
 function exportarBackup(){ const data={productos,stock,log,facturas,fecha:new Date().toISOString()}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`backup_minimarket_${new Date().toLocaleDateString('es-AR').replace(/\//g,'-')}.json`; a.click(); URL.revokeObjectURL(blob); toast('Backup guardado'); }
 function importarBackup(e){ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=function(ev){ try{ const data=JSON.parse(ev.target.result); if(!data.productos||!data.stock){toast('Archivo inválido');return;} if(!confirm(`Restaurar backup? Se perderán datos actuales.`)) return; productos=data.productos; stock=data.stock; log=data.log||[]; facturas=data.facturas||[]; nextId=Math.max(...productos.map(p=>p.id),99)+1; saveAll();renderAll(); toast(`Backup restaurado: ${productos.length} productos`); }catch(err){toast('Error al leer archivo')} }; reader.readAsText(file); e.target.value=''; }
