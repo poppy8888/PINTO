@@ -320,8 +320,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 function parseNumero(valor) {
   if (valor === undefined || valor === null || valor === '') return NaN;
   let str = String(valor).trim();
-  // Reemplazar coma por punto
   str = str.replace(',', '.');
+  let partes = str.split('.');
+  if (partes.length > 1) {
+    let entero = partes.slice(0, -1).join('');
+    let decimal = partes[partes.length - 1];
+    str = entero + '.' + decimal;
+  } else {
+    str = str.replace(/\./g, '');
+  }
   let num = parseFloat(str);
   return isNaN(num) ? NaN : Math.round(num * 100) / 100;
 }
