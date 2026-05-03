@@ -175,6 +175,109 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .manual-add .field-group { width: 100%; }
   .manual-add button { width: 100%; }
 }
+/* ===== ESTILO VENTA TIPO STOCKFACIL ===== */
+.venta-stockfacil{
+  background:#fff;border-radius:14px;padding:14px;
+  box-shadow:0 4px 18px rgba(0,0,0,0.08);
+}
+.vsf-header{
+  display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(135deg,#1a1a2e,#3a2e5e);
+  color:#fff;padding:12px 18px;border-radius:10px;margin-bottom:12px;
+  flex-wrap:wrap;gap:10px;
+}
+.vsf-titulo{font-size:1.5rem;font-weight:800;letter-spacing:1px;}
+.vsf-fecha,.vsf-numero{font-size:0.95rem;}
+.vsf-numero strong{color:#e8c84a;font-size:1.1rem;}
+
+.vsf-entrada{
+  display:grid;grid-template-columns:1.2fr 50px 1.2fr auto;
+  gap:10px;align-items:end;margin-bottom:12px;
+  background:#f5f5fa;padding:12px;border-radius:10px;border:2px solid #e0e0e8;
+}
+.vsf-input-grupo{display:flex;flex-direction:column;}
+.vsf-label{font-size:0.78rem;font-weight:700;color:#444;margin-bottom:5px;text-transform:uppercase;}
+.vsf-input{
+  padding:10px 12px;font-size:1rem;border:2px solid #c8c8d8;
+  border-radius:8px;background:#fff;outline:none;transition:0.15s;
+}
+.vsf-input:focus{border-color:#791f1f;box-shadow:0 0 0 3px rgba(121,31,31,0.15);}
+.vsf-input-grande{font-size:1.15rem;font-weight:600;letter-spacing:1px;}
+
+.vsf-btn-camara{
+  background:#e8c84a;border:none;border-radius:8px;font-size:1.6rem;
+  cursor:pointer;height:44px;width:50px;transition:0.15s;
+}
+.vsf-btn-camara:hover{background:#f0d260;transform:scale(1.05);}
+
+.vsf-btn-agregar{
+  background:#27500a;color:#fff;border:none;padding:10px 22px;
+  border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;
+  height:44px;letter-spacing:0.5px;transition:0.15s;
+}
+.vsf-btn-agregar:hover{background:#1f3e07;}
+
+.vsf-tabla-cont{
+  border:2px solid #d0d0e0;border-radius:10px;overflow:hidden;
+  background:#fff;margin-bottom:12px;min-height:280px;position:relative;
+}
+.vsf-tabla{width:100%;border-collapse:collapse;font-size:0.95rem;}
+.vsf-tabla thead{
+  background:linear-gradient(180deg,#3a2e5e,#1a1a2e);color:#fff;
+  position:sticky;top:0;z-index:5;
+}
+.vsf-tabla th{padding:10px 8px;text-align:left;font-size:0.85rem;font-weight:700;letter-spacing:0.4px;}
+.vsf-tabla td{padding:8px;border-bottom:1px solid #e8e8f0;}
+.vsf-tabla tbody tr:hover{background:#f5f0fa;}
+.vsf-tabla tbody tr:last-child td{border-bottom:none;}
+.vsf-tabla input{
+  padding:6px 8px;font-size:0.95rem;border:1px solid #ccc;border-radius:6px;
+  width:100%;font-weight:600;
+}
+.vsf-tabla .vsf-codigo{font-family:monospace;font-size:0.85rem;color:#666;}
+.vsf-tabla .vsf-detalle{font-weight:600;color:#1a1a2e;}
+.vsf-tabla .vsf-subtotal{font-weight:800;color:#27500a;font-size:1.05rem;text-align:right;}
+.vsf-tabla-vacia{
+  padding:60px 20px;text-align:center;color:#999;font-style:italic;
+  font-size:0.95rem;
+}
+
+.vsf-footer{
+  display:grid;grid-template-columns:1fr 1fr auto;gap:14px;
+  align-items:center;background:#f5f5fa;padding:14px;border-radius:10px;
+  border:2px solid #e0e0e8;flex-wrap:wrap;
+}
+.vsf-footer-izq{display:flex;gap:10px;flex-wrap:wrap;}
+.vsf-footer-mid{display:flex;justify-content:center;}
+.vsf-monto-real{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.vsf-monto-real label{font-size:0.85rem;font-weight:700;color:#444;}
+
+.vsf-btn-accion{
+  padding:10px 20px;border:none;border-radius:10px;font-size:0.95rem;
+  font-weight:800;cursor:pointer;letter-spacing:0.5px;transition:0.15s;
+}
+.vsf-btn-cancelar{background:#888;color:#fff;}
+.vsf-btn-cancelar:hover{background:#666;}
+.vsf-btn-guardar{background:#791f1f;color:#fff;}
+.vsf-btn-guardar:hover{background:#5a1414;}
+
+.vsf-total-box{
+  background:linear-gradient(135deg,#27500a,#3d8011);
+  color:#fff;padding:14px 30px;border-radius:12px;
+  min-width:220px;text-align:right;box-shadow:0 4px 12px rgba(39,80,10,0.3);
+}
+.vsf-total-label{font-size:0.85rem;font-weight:700;letter-spacing:2px;opacity:0.9;}
+.vsf-total-monto{font-size:2.2rem;font-weight:900;line-height:1;margin-top:2px;}
+
+@media (max-width:768px){
+  .vsf-entrada{grid-template-columns:1fr 50px;grid-template-rows:auto auto auto;}
+  .vsf-input-grupo:nth-child(3){grid-column:1/3;}
+  .vsf-btn-agregar{grid-column:1/3;}
+  .vsf-footer{grid-template-columns:1fr;}
+  .vsf-total-box{text-align:center;}
+  .vsf-total-monto{font-size:1.8rem;}
+  .vsf-titulo{font-size:1.2rem;}
+}
 </style>
 </head>
 <body>
@@ -288,6 +391,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="tab" onclick="showTab('venta',this)">💰 Venta</button>
   <button class="tab" onclick="showTab('facturas',this)">🧾 Facturas</button>
   <button class="tab" onclick="showTab('movimientos',this)">📜 Movimientos</button>
+  <button class="tab" onclick="showTab('contabilidad',this)">📊 Contabilidad</button>
 </div>
 
 <div id="panel-stock" class="panel active">
@@ -349,31 +453,145 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- PANEL VENTA: solo búsqueda manual simple -->
-<div id="panel-venta" class="panel">
-  <div class="add-product-card" style="border-color:#e24b4a;">
-    <div class="add-product-title" style="color:#791f1f;">🧾 Cargar factura de VENTA</div>
-    <div style="display:flex;gap:8px;align-items:end;flex-wrap:wrap;">
-      <div class="field-group" style="flex:1;min-width:200px;"><label class="field-label">🔍 Escanear código</label><input type="text" id="venta-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
-      <button onclick="abrirCamara('venta')" style="padding:8px 14px;border-radius:10px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.85rem;font-weight:700;cursor:pointer;height:38px;">📷 Cámara</button>
+<!-- PANEL VENTA - vacío, se abre la ventana flotante directo desde la pestaña -->
+<div id="panel-venta" class="panel"></div>
+
+<!-- PANEL CONTABILIDAD -->
+<div id="panel-contabilidad" class="panel">
+  <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
+    <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#1a1a2e,#3a2e5e);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+      <span style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">📊 CONTABILIDAD</span>
+      <span style="font-size:0.85rem;opacity:0.85;">Estado de Resultado</span>
     </div>
 
-    <div class="manual-add">
-      <div class="field-group">
-        <label class="field-label">🔎 Buscar producto</label>
-        <input list="venta-productos-list" id="venta-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código...">
+    <!-- Filtros de fecha -->
+    <div style="display:flex;gap:14px;align-items:end;flex-wrap:wrap;background:#f5f5fa;padding:14px;border-radius:10px;margin-bottom:18px;border:2px solid #e0e0e8;">
+      <div style="display:flex;flex-direction:column;flex:1;min-width:150px;">
+        <label style="font-size:0.78rem;font-weight:700;color:#444;margin-bottom:5px;text-transform:uppercase;">Desde</label>
+        <input type="date" id="cont-fecha-desde" style="padding:9px 10px;font-size:0.95rem;border:2px solid #c8c8d8;border-radius:8px;">
+      </div>
+      <div style="display:flex;flex-direction:column;flex:1;min-width:150px;">
+        <label style="font-size:0.78rem;font-weight:700;color:#444;margin-bottom:5px;text-transform:uppercase;">Hasta</label>
+        <input type="date" id="cont-fecha-hasta" style="padding:9px 10px;font-size:0.95rem;border:2px solid #c8c8d8;border-radius:8px;">
+      </div>
+      <button onclick="setRangoCont('hoy')" style="padding:9px 14px;background:#e8c84a;color:#1a1a2e;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85rem;">Hoy</button>
+      <button onclick="setRangoCont('semana')" style="padding:9px 14px;background:#e8c84a;color:#1a1a2e;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85rem;">Semana</button>
+      <button onclick="setRangoCont('mes')" style="padding:9px 14px;background:#e8c84a;color:#1a1a2e;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85rem;">Mes</button>
+      <button onclick="setRangoCont('todo')" style="padding:9px 14px;background:#888;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85rem;">Todo</button>
+      <button onclick="renderContabilidad()" style="padding:10px 22px;background:#27500a;color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.95rem;">📊 Calcular</button>
+    </div>
+
+    <!-- Tarjetas con resultados -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:18px;">
+      <div style="background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(52,152,219,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">💰 ACTIVOS (STOCK)</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-activos">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Stock actual × Costo</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(155,89,182,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">🛒 COMPRAS</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-compras">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;" id="cont-compras-cant">0 facturas</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(231,76,60,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">💸 VENTAS</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-ventas">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;" id="cont-ventas-cant">0 facturas</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#f39c12,#d68910);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(243,156,18,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">📦 CMV</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-cmv">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Costo mercadería vendida</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#27500a,#3d8011);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(39,80,10,0.3);grid-column:span 2;">
+        <div style="font-size:0.95rem;opacity:0.95;letter-spacing:1px;font-weight:700;">✨ UTILIDAD BRUTA</div>
+        <div style="font-size:2.4rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-utilidad">$0</div>
+        <div style="font-size:0.85rem;opacity:0.9;margin-top:6px;" id="cont-margen">Margen: 0%</div>
+      </div>
+    </div>
+
+    <!-- Detalle de productos más vendidos -->
+    <div style="background:#f9f9fc;border:1px solid #e0e0ec;border-radius:10px;padding:14px;">
+      <div style="font-weight:700;color:#1a1a2e;margin-bottom:10px;font-size:1rem;">🏆 Top 10 productos más vendidos del período</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.88rem;" id="cont-tabla-top">
+          <thead style="background:#1a1a2e;color:#fff;">
+            <tr>
+              <th style="padding:8px;text-align:left;">#</th>
+              <th style="padding:8px;text-align:left;">Producto</th>
+              <th style="padding:8px;text-align:right;">Cantidad</th>
+              <th style="padding:8px;text-align:right;">Recaudado</th>
+              <th style="padding:8px;text-align:right;">Utilidad</th>
+            </tr>
+          </thead>
+          <tbody id="cont-top-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FLOTANTE DE VENTA -->
+<div class="modal-overlay" id="venta-modal" style="z-index:1500;">
+  <div class="venta-stockfacil" style="width:min(95vw,950px);max-height:92vh;overflow-y:auto;">
+    <!-- Encabezado tipo StockFacil -->
+    <div class="vsf-header">
+      <span class="vsf-titulo">💰 VENTA</span>
+      <div class="vsf-fecha">📅 <span id="vsf-fecha-actual"></span></div>
+      <div class="vsf-numero">N° Venta: <strong id="vsf-num-venta">—</strong></div>
+      <button onclick="cerrarVentanaVenta()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:1.2rem;cursor:pointer;font-weight:700;">✕</button>
+    </div>
+
+    <!-- Barra de entrada de producto -->
+    <div class="vsf-entrada">
+      <div class="vsf-input-grupo">
+        <label class="vsf-label">🔍 Código de barras</label>
+        <input type="text" id="venta-scan-input" class="vsf-input vsf-input-grande" placeholder="Escanear o escribir código..." autocomplete="off">
+      </div>
+      <button onclick="abrirCamara('venta')" class="vsf-btn-camara" title="Escanear con cámara">📷</button>
+      <div class="vsf-input-grupo">
+        <label class="vsf-label">🔎 Buscar artículo</label>
+        <input list="venta-productos-list" id="venta-producto-nombre" class="vsf-input" placeholder="Nombre, marca o código...">
         <datalist id="venta-productos-list"></datalist>
       </div>
-      <div><button class="btn-action btn-venta" id="btn-agregar-linea-venta" style="padding:8px 16px;">➕ Agregar</button></div>
+      <button class="vsf-btn-agregar" id="btn-agregar-linea-venta">➕ AGREGAR</button>
     </div>
 
-    <div style="overflow-x:auto; margin-top:16px;">
-      <table class="factura-table" id="venta-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead><tbody id="venta-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
+    <!-- Tabla de productos -->
+    <div class="vsf-tabla-cont">
+      <table class="vsf-tabla" id="venta-tabla">
+        <thead>
+          <tr>
+            <th style="width:130px;">Código</th>
+            <th style="width:85px;">Cantidad</th>
+            <th>Detalle</th>
+            <th style="width:100px;">Precio</th>
+            <th style="width:110px;">Subtotal</th>
+            <th style="width:35px;"></th>
+          </tr>
+        </thead>
+        <tbody id="venta-lineas-tbody"></tbody>
       </table>
+      <div class="vsf-tabla-vacia" id="vsf-vacio">— Aún no hay productos cargados —</div>
     </div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
-      <div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="venta-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="venta-match-indicator" style="font-size:0.75rem;"></span></div>
-      <div><button class="btn-action btn-venta" id="btn-confirmar-venta" style="background:#791f1f; color:#fff;">✅ Confirmar venta</button><button class="btn-action" id="btn-limpiar-venta" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div>
+
+    <!-- Footer con total grande -->
+    <div class="vsf-footer">
+      <div class="vsf-footer-izq">
+        <button class="vsf-btn-accion vsf-btn-cancelar" id="btn-limpiar-venta">❌ Cancelar</button>
+        <button class="vsf-btn-accion vsf-btn-guardar" id="btn-confirmar-venta">✅ Guardar</button>
+      </div>
+      <div class="vsf-footer-mid">
+        <div class="vsf-monto-real">
+          <label>Monto papel ($):</label>
+          <input type="text" id="venta-monto-real" placeholder="Opcional" class="vsf-input" style="width:130px;">
+          <span id="venta-match-indicator" style="font-size:0.75rem;"></span>
+        </div>
+      </div>
+      <div class="vsf-total-box">
+        <div class="vsf-total-label">TOTAL</div>
+        <div class="vsf-total-monto" id="venta-total-pesos">$0</div>
+      </div>
     </div>
   </div>
 </div>
@@ -383,7 +601,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <div class="modal-overlay" id="modal-del"><div class="modal"><div class="modal-title">¿Eliminar producto?</div><div id="modal-del-text"></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-confirm" onclick="confirmarEliminar()">Eliminar</button></div></div></div>
 
-<div class="modal-overlay" id="pago-modal">
+<div class="modal-overlay" id="pago-modal" style="z-index:2500;">
   <div class="modal">
     <div class="modal-title">💰 Pago del cliente</div>
     <div class="total-venta" id="pago-total-venta">Total: $0</div>
@@ -762,14 +980,46 @@ function agregarLineaVenta(){
 function eliminarLineaVenta(i){ventaLineas.splice(i,1);renderVentaTabla();}
 function renderVentaTabla(){
   const tbody=document.getElementById('venta-lineas-tbody'); if(!tbody)return;
-  if(ventaLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></td>'; document.getElementById('venta-total-pesos').innerText='$0'; return; }
+  const vacio=document.getElementById('vsf-vacio');
+  if(ventaLineas.length===0){
+    tbody.innerHTML='';
+    if(vacio) vacio.style.display='block';
+    document.getElementById('venta-total-pesos').innerText='$0';
+    actualizarNumVenta();
+    return;
+  }
+  if(vacio) vacio.style.display='none';
   let total=0, html='';
-  ventaLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="text" class="edit-cantidad-venta" value="${fmt(l.cantidad)}" style="width:80px;"></td><td><input type="text" class="edit-precio-venta" value="${fmt(l.precioVenta)}" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row-venta" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
-  tbody.innerHTML=html; document.getElementById('venta-total-pesos').innerHTML=`$${fmt(total)}`;
+  ventaLineas.forEach((l,i)=>{
+    total+=l.subtotal;
+    const prod = productos.find(p=>Number(p.id)===Number(l.prodId));
+    const codigo = prod ? (prod.barcode || '—') : '—';
+    html+=`<tr data-idx="${i}">
+      <td class="vsf-codigo">${codigo}</td>
+      <td><input type="text" class="edit-cantidad-venta" value="${fmt(l.cantidad)}"></td>
+      <td class="vsf-detalle">${l.nombre}</td>
+      <td><input type="text" class="edit-precio-venta" value="${fmt(l.precioVenta)}"></td>
+      <td class="vsf-subtotal">$${fmt(l.subtotal)}</td>
+      <td><button class="del-row-venta" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;font-size:1.2rem;">✕</button></td>
+    </tr>`;
+  });
+  tbody.innerHTML=html;
+  document.getElementById('venta-total-pesos').innerHTML=`$${fmt(total)}`;
   document.querySelectorAll('#venta-lineas-tbody .edit-cantidad-venta').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseNumero(inp.value); if(!isNaN(n) && n>0){ ventaLineas[i].cantidad = Math.round(n*1000)/1000; ventaLineas[i].subtotal=ventaLineas[i].cantidad*ventaLineas[i].precioVenta; renderVentaTabla(); actualizarMatchVenta(); } else{ inp.value=fmt(ventaLineas[i].cantidad); } }; });
   document.querySelectorAll('#venta-lineas-tbody .edit-precio-venta').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseNumero(inp.value); if(!isNaN(n) && n>=0){ ventaLineas[i].precioVenta=n; ventaLineas[i].subtotal=ventaLineas[i].cantidad*ventaLineas[i].precioVenta; renderVentaTabla(); actualizarMatchVenta(); } else{ inp.value=fmt(ventaLineas[i].precioVenta); } }; });
   document.querySelectorAll('#venta-lineas-tbody .del-row-venta').forEach(btn=>{ btn.onclick=()=>{ eliminarLineaVenta(parseInt(btn.getAttribute('data-idx'))); }; });
   actualizarMatchVenta();
+  actualizarNumVenta();
+}
+
+function actualizarNumVenta(){
+  const f = document.getElementById('vsf-fecha-actual');
+  const n = document.getElementById('vsf-num-venta');
+  if(f) f.textContent = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  if(n){
+    const proxNum = (facturas.filter(x=>x.tipo==='venta').length || 0) + 1;
+    n.textContent = String(proxNum).padStart(4,'0');
+  }
 }
 function actualizarMatchVenta(){ const total=ventaLineas.reduce((a,l)=>a+l.subtotal,0); const real=parseNumero(document.getElementById('venta-monto-real').value); const ind=document.getElementById('venta-match-indicator'); if(!isNaN(real)&&real>0){ const diff=Math.abs(total-real); ind.innerHTML=diff<0.01?'✅ Coincide':`⚠️ Diferencia: $${fmt(diff)}`; } else ind.innerHTML=''; }
 function limpiarVenta(){ ventaLineas=[]; renderVentaTabla(); document.getElementById('venta-monto-real').value=''; ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value=''; }
@@ -858,6 +1108,8 @@ async function confirmarVenta(){
   saveAll(); renderAll();
   toast(`✅ Venta #${fid} registrada: $${fmt(totalVenta)}`);
   ventaLineas = []; renderVentaTabla(); document.getElementById('venta-monto-real').value=''; ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value='';
+  // Cerrar la ventana flotante después de guardar
+  document.getElementById('venta-modal').classList.remove('open');
 }
 
 function iniciarScannerVenta(){ const inp=document.getElementById('venta-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } ventaSeleccionarProdId(p.id); agregarLineaVenta(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
@@ -902,7 +1154,169 @@ function anularFactura(fid){
 function calcPrecioVenta(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, util=parseNumero(document.getElementById('new-utilidad').value)||0; if(costo>0&&util>0) document.getElementById('new-precio').value=Math.round(costo*(1+util/100)); updatePreview(); }
 function calcUtilidad(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, venta=parseNumero(document.getElementById('new-precio').value)||0; if(costo>0&&venta>0) document.getElementById('new-utilidad').value=((venta-costo)/costo*100).toFixed(1); updatePreview(); }
 function updatePreview(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, venta=parseNumero(document.getElementById('new-precio').value)||0, box=document.getElementById('price-preview'); if(costo<=0&&venta<=0){box.style.display='none';return;} box.style.display='grid'; document.getElementById('prev-costo').textContent='$'+fmt(costo); document.getElementById('prev-venta').textContent='$'+fmt(venta); if(costo>0&&venta>0){ const util=((venta-costo)/costo*100).toFixed(1); document.getElementById('prev-util').textContent=util+'% (+$'+fmt(venta-costo)+')'; } else document.getElementById('prev-util').textContent='—'; }
-function showTab(name,btn){ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.getElementById('panel-'+name).classList.add('active'); btn.classList.add('active'); if(name==='movimientos') renderLog(); if(name==='facturas') renderFacturas(); if(name==='compra'){ actualizarDatalistCompra(); setTimeout(()=>document.getElementById('compra-scan-input').focus(),100); } if(name==='venta'){ actualizarDatalistVenta(); setTimeout(()=>document.getElementById('venta-scan-input').focus(),100); } }
+function showTab(name,btn){ 
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); 
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); 
+  document.getElementById('panel-'+name).classList.add('active'); 
+  btn.classList.add('active'); 
+  if(name==='movimientos') renderLog(); 
+  if(name==='facturas') renderFacturas(); 
+  if(name==='compra'){ actualizarDatalistCompra(); setTimeout(()=>document.getElementById('compra-scan-input').focus(),100); }
+  if(name==='venta'){ abrirVentanaVenta(); }
+  if(name==='contabilidad'){ setRangoCont('mes'); renderContabilidad(); }
+}
+
+// ========== CONTABILIDAD ==========
+function setRangoCont(rango){
+  const hoy = new Date();
+  const desde = document.getElementById('cont-fecha-desde');
+  const hasta = document.getElementById('cont-fecha-hasta');
+  const fmtFecha = d => d.toISOString().split('T')[0];
+  if(rango === 'hoy'){
+    desde.value = fmtFecha(hoy);
+    hasta.value = fmtFecha(hoy);
+  } else if(rango === 'semana'){
+    const lunes = new Date(hoy);
+    const dia = hoy.getDay();
+    const diff = dia === 0 ? -6 : 1 - dia;
+    lunes.setDate(hoy.getDate() + diff);
+    desde.value = fmtFecha(lunes);
+    hasta.value = fmtFecha(hoy);
+  } else if(rango === 'mes'){
+    const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+    desde.value = fmtFecha(inicio);
+    hasta.value = fmtFecha(hoy);
+  } else if(rango === 'todo'){
+    desde.value = '2020-01-01';
+    hasta.value = fmtFecha(hoy);
+  }
+  renderContabilidad();
+}
+
+function parseFechaFactura(fechaStr){
+  // El formato puede ser variado, intento parsear con Date directamente
+  const d = new Date(fechaStr);
+  if(!isNaN(d.getTime())) return d;
+  // Si viene con formato dd/mm/yyyy
+  const m = fechaStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if(m){
+    let y = parseInt(m[3]);
+    if(y < 100) y += 2000;
+    return new Date(y, parseInt(m[2])-1, parseInt(m[1]));
+  }
+  return null;
+}
+
+function renderContabilidad(){
+  const desdeStr = document.getElementById('cont-fecha-desde').value;
+  const hastaStr = document.getElementById('cont-fecha-hasta').value;
+  const desde = desdeStr ? new Date(desdeStr + 'T00:00:00') : new Date(2020,0,1);
+  const hasta = hastaStr ? new Date(hastaStr + 'T23:59:59') : new Date();
+
+  // ACTIVOS = stock actual × costo (siempre, no se filtra por fecha)
+  let activos = 0;
+  productos.forEach(p => {
+    const q = stock[p.id] || 0;
+    const c = p.costo || 0;
+    activos += q * c;
+  });
+
+  // Filtrar facturas por rango
+  let totalVentas = 0, totalCompras = 0, cmv = 0;
+  let cantVentas = 0, cantCompras = 0;
+  const ventasPorProducto = {};
+
+  facturas.forEach(f => {
+    if(f.anulada) return;
+    const fecha = parseFechaFactura(f.fecha);
+    if(!fecha) return;
+    if(fecha < desde || fecha > hasta) return;
+
+    if(f.tipo === 'venta'){
+      totalVentas += f.total || 0;
+      cantVentas++;
+      // Calcular CMV de esta venta
+      (f.lineas || []).forEach(l => {
+        const prod = productos.find(p => Number(p.id) === Number(l.prodId));
+        if(prod){
+          const costoLinea = (prod.costo || 0) * (l.cantidad || 0);
+          cmv += costoLinea;
+          // Acumular para top productos
+          if(!ventasPorProducto[prod.id]){
+            ventasPorProducto[prod.id] = { nombre: `${prod.marca} ${prod.nombre}`, cantidad: 0, recaudado: 0, costo: 0 };
+          }
+          ventasPorProducto[prod.id].cantidad += (l.cantidad || 0);
+          ventasPorProducto[prod.id].recaudado += (l.subtotal || 0);
+          ventasPorProducto[prod.id].costo += costoLinea;
+        }
+      });
+    } else if(f.tipo === 'compra'){
+      totalCompras += f.total || 0;
+      cantCompras++;
+    }
+  });
+
+  const utilidad = totalVentas - cmv;
+  const margen = totalVentas > 0 ? (utilidad / totalVentas * 100) : 0;
+
+  document.getElementById('cont-activos').textContent = '$' + fmt(activos);
+  document.getElementById('cont-ventas').textContent = '$' + fmt(totalVentas);
+  document.getElementById('cont-ventas-cant').textContent = `${cantVentas} factura${cantVentas!==1?'s':''}`;
+  document.getElementById('cont-compras').textContent = '$' + fmt(totalCompras);
+  document.getElementById('cont-compras-cant').textContent = `${cantCompras} factura${cantCompras!==1?'s':''}`;
+  document.getElementById('cont-cmv').textContent = '$' + fmt(cmv);
+  document.getElementById('cont-utilidad').textContent = '$' + fmt(utilidad);
+  document.getElementById('cont-margen').textContent = `Margen: ${margen.toFixed(1)}%`;
+
+  // Top productos
+  const top = Object.values(ventasPorProducto)
+    .sort((a,b) => b.cantidad - a.cantidad)
+    .slice(0, 10);
+  const tbody = document.getElementById('cont-top-tbody');
+  if(top.length === 0){
+    tbody.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:#999;font-style:italic;">Sin ventas en el período seleccionado</td></tr>';
+  } else {
+    tbody.innerHTML = top.map((p,i) => {
+      const utilP = p.recaudado - p.costo;
+      return `<tr style="background:${i%2?'#fff':'#f5f5fa'};border-bottom:1px solid #e8e8f0;">
+        <td style="padding:8px;font-weight:700;color:#888;">${i+1}</td>
+        <td style="padding:8px;font-weight:600;">${p.nombre}</td>
+        <td style="padding:8px;text-align:right;font-weight:700;">${fmt(p.cantidad)}</td>
+        <td style="padding:8px;text-align:right;color:#c0392b;font-weight:700;">$${fmt(p.recaudado)}</td>
+        <td style="padding:8px;text-align:right;color:#27500a;font-weight:800;">$${fmt(utilP)}</td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+function abrirVentanaVenta(){
+  document.getElementById('venta-modal').classList.add('open');
+  actualizarDatalistVenta();
+  actualizarNumVenta();
+  setTimeout(()=>{
+    const inp = document.getElementById('venta-scan-input');
+    if(inp) inp.focus();
+  }, 100);
+}
+
+function cerrarVentanaVenta(){
+  if(ventaLineas.length > 0){
+    if(!confirm('Hay productos cargados en la venta. ¿Cerrar igual y descartar?')) return;
+  }
+  document.getElementById('venta-modal').classList.remove('open');
+  ventaLineas = [];
+  renderVentaTabla();
+  document.getElementById('venta-monto-real').value='';
+  ventaProductoActualId = null;
+  document.getElementById('venta-producto-nombre').value='';
+}
+
+// Atajo de teclado V para abrir venta
+document.addEventListener('keydown', function(e){
+  if((e.key === 'v' || e.key === 'V') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+    abrirVentanaVenta();
+  }
+});
 function exportarBackup(){ const data={productos,stock,log,facturas,fecha:new Date().toISOString()}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`backup_minimarket_${new Date().toLocaleDateString('es-AR').replace(/\//g,'-')}.json`; a.click(); URL.revokeObjectURL(blob); toast('Backup guardado'); }
 function importarBackup(e){ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=function(ev){ try{ const data=JSON.parse(ev.target.result); if(!data.productos||!data.stock){toast('Archivo inválido');return;} if(!confirm(`Restaurar backup? Se perderán datos actuales.`)) return; productos=data.productos; stock=data.stock; log=data.log||[]; facturas=data.facturas||[]; nextId=Math.max(...productos.map(p=>p.id),99)+1; saveAll();renderAll(); toast(`Backup restaurado: ${productos.length} productos`); }catch(err){toast('Error al leer archivo')} }; reader.readAsText(file); e.target.value=''; }
 function renderAll(){ renderStock(); renderStats(); renderTotal(); renderFacturas(); renderLog(); actualizarDatalistCompra(); actualizarDatalistVenta(); }
