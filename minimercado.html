@@ -789,7 +789,9 @@ function agregarLineaVenta(){
   let prec = prod.precio || 0;
   if(prec<=0){toast("El producto no tiene precio de venta. Edite el producto.");return;}
   const antesStock=stock[prod.id]||0;
-  if(cant > antesStock+0.001){ toast(`Stock insuficiente: ${fmtUnidad(antesStock, prod.tipo)} disponible`); return; }
+  if(prod.tipo==='unidad' && antesStock <= 0){
+    if(!confirm(`⚠️ "${prod.nombre}" tiene stock 0. ¿Agregar igual a la venta?`)) return;
+  }
   ventaLineas.push({prodId:Number(prod.id), nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioVenta:prec, subtotal:cant*prec, stockAntes:antesStock, tipo:prod.tipo});
   renderVentaTabla();
 }
@@ -881,12 +883,12 @@ async function confirmarVenta(){
   const fid = Date.now();
   const lineasGuardar = [];
   for(const linea of ventaLineas){
-    const prod = productos.find(p=>p.id===linea.prodId);
+    const prod = productos.find(p=>Number(p.id)===Number(linea.prodId));
     if(!prod) continue;
-    const antes = stock[prod.id] || 0;
-    stock[prod.id] = antes - linea.cantidad;
-    lineasGuardar.push({ prodId: prod.id, cantidad: linea.cantidad, precioVenta: linea.precioVenta, subtotal: linea.subtotal, stockAntes: linea.stockAntes });
-    addLog('venta', prod, antes, stock[prod.id], linea.cantidad, fid);
+    const antes = stock[Number(prod.id)] || 0;
+    stock[Number(prod.id)] = antes - linea.cantidad;
+    lineasGuardar.push({ prodId: Number(prod.id), cantidad: linea.cantidad, precioVenta: linea.precioVenta, subtotal: linea.subtotal, stockAntes: linea.stockAntes });
+    addLog('venta', prod, antes, stock[Number(prod.id)], linea.cantidad, fid);
   }
   facturas.push({ id: fid, fecha: nowStr(), total: totalVenta, lineas: lineasGuardar, tipo: 'venta', anulada: false });
   saveAll(); renderAll();
@@ -894,8 +896,8 @@ async function confirmarVenta(){
   ventaLineas = []; renderVentaTabla(); document.getElementById('venta-monto-real').value=''; ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value='';
 }
 
-function iniciarScannerVenta(){ const inp=document.getElementById('venta-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } ventaSeleccionarProdId(p.id); agregarLineaVenta(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
-function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?p.id:null; }); }
+function iniciarScannerVenta(){ const inp=document.getElementById('venta-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } ventaSeleccionarProdId(Number(p.id)); agregarLineaVenta(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
+function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?Number(p.id):null; }); }
 
 function renderLog(){
   const el=document.getElementById('log-list');
