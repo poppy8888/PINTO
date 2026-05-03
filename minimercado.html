@@ -26,6 +26,12 @@
   padding: 10px 20px; font-size: 1rem; cursor: pointer; width: 100%;
 }
 .clave-card button:hover { background: #2a2a4a; }
+.clave-recordar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin-bottom: 16px; font-size: 0.9rem; color: #555;
+  cursor: pointer; user-select: none;
+}
+.clave-recordar input { width: auto; margin: 0; }
 .mensaje-error { color: #e24b4a; font-size: 0.8rem; margin-top: 10px; }
 
 /* ========== RESTO DE ESTILOS ========== */
@@ -177,6 +183,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="clave-card">
     <h2>🔐 Acceso MiniMarket La Reina</h2>
     <input type="password" id="clave-input" placeholder="Contraseña" autofocus>
+    <label class="clave-recordar">
+      <input type="checkbox" id="clave-recordar"> Recordarme en este dispositivo
+    </label>
     <button id="btn-validar">Ingresar</button>
     <div id="clave-error" class="mensaje-error"></div>
   </div>
@@ -203,6 +212,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button onclick="exportarBackup()" style="padding:6px 12px;border-radius:8px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.75rem;font-weight:700;cursor:pointer;">💾 Backup</button>
     <label style="padding:6px 12px;border-radius:8px;border:1px solid #8888aa;background:transparent;color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
     <label style="padding:6px 12px;border-radius:8px;border:none;background:#2a6e2a;color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/></label>
+    <button onclick="cerrarSesion()" style="padding:6px 12px;border-radius:8px;border:none;background:#8b2a2a;color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;">🚪 Cerrar sesión</button>
   </div>
 </div>
 
@@ -424,6 +434,7 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWDaRGHkye087DSZ6ll
 
 // ========== CLAVE DE ACCESO ==========
 const CLAVE_ACCESO = "admin123";
+const KEY_AUTH = "MINIMARKET_AUTH_RECORDADO";
 
 // ========== CLAVES DE ALMACENAMIENTO LOCAL ==========
 const KEY_P='mm_prods_v1', KEY_S='mm_stock_v1', KEY_L='mm_log_v1', KEY_F='mm_facturas_v1';
@@ -537,7 +548,8 @@ function renderStock(){
         <div class="item-edit-group" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
           <input type="text" id="barcode-${p.id}" class="item-edit-barcode" value="${p.barcode}" placeholder="Código" style="width:110px;">
           <input type="text" id="stock-${p.id}" class="item-edit-stock" value="${q}" style="width:80px;">
-          <input type="text" id="price-${p.id}" class="item-edit-price" value="${p.precio}" style="width:90px;">
+          <input type="text" id="costo-${p.id}" class="item-edit-costo" value="${p.costo||0}" placeholder="Costo" title="Precio de costo" style="width:90px;background:#eaf3ff;">
+          <input type="text" id="price-${p.id}" class="item-edit-price" value="${p.precio}" placeholder="Venta" title="Precio de venta" style="width:90px;">
           <select id="tipo-${p.id}" class="item-edit-tipo" onchange="cambiarTipoProducto(${p.id}, this.value)">
             <option value="unidad" ${p.tipo==='unidad'?'selected':''}>Unidad</option>
             <option value="peso" ${p.tipo==='peso'?'selected':''}>Peso (kg)</option>
@@ -555,6 +567,7 @@ function renderStock(){
   filtered.forEach(p=>{
     document.getElementById(`stock-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
     document.getElementById(`price-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
+    document.getElementById(`costo-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
     document.getElementById(`barcode-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
   });
 }
@@ -581,6 +594,7 @@ function guardarEdicionProducto(id){
   if(!prod)return;
   let nuevoStock = parseNumero(document.getElementById(`stock-${id}`).value);
   const nuevoPrecio = parseNumero(document.getElementById(`price-${id}`).value);
+  const nuevoCosto = parseNumero(document.getElementById(`costo-${id}`).value);
   const nuevoBarcode = document.getElementById(`barcode-${id}`).value.trim();
   let cambios=false;
   if(prod.tipo === 'unidad') nuevoStock = Math.round(nuevoStock);
@@ -595,12 +609,16 @@ function guardarEdicionProducto(id){
     prod.precio=nuevoPrecio;
     cambios=true;
   }
+  if(!isNaN(nuevoCosto) && Math.abs(nuevoCosto - (prod.costo||0)) > 0.001 && nuevoCosto>=0){
+    prod.costo=nuevoCosto;
+    cambios=true;
+  }
   if(nuevoBarcode!==prod.barcode){
     if(nuevoBarcode!==""&&productos.some(p=>p.id!==id&&p.barcode===nuevoBarcode)) toast("❌ Código ya usado");
     else { prod.barcode=nuevoBarcode; cambios=true; }
   }
-  if(cambios){ saveAll(); renderStats(); renderTotal(); toast(`Actualizado ${prod.marca} ${prod.nombre}`); }
-  else { document.getElementById(`stock-${id}`).value=fmt(stock[id]||0); document.getElementById(`price-${id}`).value=fmt(prod.precio); document.getElementById(`barcode-${id}`).value=prod.barcode; }
+  if(cambios){ saveAll(); renderStats(); renderTotal(); renderStock(); toast(`Actualizado ${prod.marca} ${prod.nombre}`); }
+  else { document.getElementById(`stock-${id}`).value=fmt(stock[id]||0); document.getElementById(`price-${id}`).value=fmt(prod.precio); document.getElementById(`costo-${id}`).value=fmt(prod.costo||0); document.getElementById(`barcode-${id}`).value=prod.barcode; }
 }
 
 function agregarProducto(){
@@ -900,7 +918,8 @@ function initEventos(){
   iniciarScannerCompra(); iniciarScannerVenta(); activarEnterCompra(); activarEnterVenta();
 }
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-function autenticar(){ return new Promise((resolve)=>{ const ov=document.getElementById('clave-overlay'), inp=document.getElementById('clave-input'), btn=document.getElementById('btn-validar'), err=document.getElementById('clave-error'); const validar=()=>{ if(inp.value===CLAVE_ACCESO){ ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); } else{ err.textContent='Contraseña incorrecta.'; inp.value=''; inp.focus(); } }; btn.onclick=validar; inp.onkeypress=e=>{if(e.key==='Enter')validar();}; inp.focus(); }); }
+function autenticar(){ return new Promise((resolve)=>{ const ov=document.getElementById('clave-overlay'), inp=document.getElementById('clave-input'), btn=document.getElementById('btn-validar'), err=document.getElementById('clave-error'), rec=document.getElementById('clave-recordar'); if(localStorage.getItem(KEY_AUTH)==="1"){ ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); return; } const validar=()=>{ if(inp.value===CLAVE_ACCESO){ if(rec && rec.checked){ localStorage.setItem(KEY_AUTH,"1"); } ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); } else{ err.textContent='Contraseña incorrecta.'; inp.value=''; inp.focus(); } }; btn.onclick=validar; inp.onkeypress=e=>{if(e.key==='Enter')validar();}; inp.focus(); }); }
+function cerrarSesion(){ if(confirm('¿Cerrar sesión en este dispositivo? Tendrás que volver a poner la clave.')){ localStorage.removeItem(KEY_AUTH); location.reload(); } }
 // ========== IMPORTAR CSV ==========
 let csvDatosPendientes = [];
 
