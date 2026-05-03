@@ -230,7 +230,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="mode-btn salida active" onclick="setMode('salida')">Vender</button>
     <button class="mode-btn compra" onclick="setMode('compra')">Agregar</button>
   </div>
-  <button onclick="abrirCamara()" style="padding:5px 12px;border-radius:8px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.8rem;font-weight:700;cursor:pointer;">📷 Cámara</button>
   <div class="scanner-status" id="scanner-status">Listo</div>
 </div>
 
@@ -315,7 +314,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="panel-compra" class="panel">
   <div class="add-product-card" style="border-color:#639922;">
     <div class="add-product-title" style="color:#27500a;">🧾 Cargar factura de COMPRA</div>
-    <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="compra-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
+    <div style="display:flex;gap:8px;align-items:end;flex-wrap:wrap;">
+      <div class="field-group" style="flex:1;min-width:200px;"><label class="field-label">🔍 Escanear código</label><input type="text" id="compra-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
+      <button onclick="abrirCamara('compra')" style="padding:8px 14px;border-radius:10px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.85rem;font-weight:700;cursor:pointer;height:38px;">📷 Cámara</button>
+    </div>
     
     <div class="manual-add">
       <div class="field-group">
@@ -341,7 +343,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="panel-venta" class="panel">
   <div class="add-product-card" style="border-color:#e24b4a;">
     <div class="add-product-title" style="color:#791f1f;">🧾 Cargar factura de VENTA</div>
-    <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="venta-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
+    <div style="display:flex;gap:8px;align-items:end;flex-wrap:wrap;">
+      <div class="field-group" style="flex:1;min-width:200px;"><label class="field-label">🔍 Escanear código</label><input type="text" id="venta-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
+      <button onclick="abrirCamara('venta')" style="padding:8px 14px;border-radius:10px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.85rem;font-weight:700;cursor:pointer;height:38px;">📷 Cámara</button>
+    </div>
 
     <div class="manual-add">
       <div class="field-group">
@@ -989,9 +994,10 @@ function confirmarImportCSV() {
 }
 
 // ========== CÁMARA ==========
-let camaraStream = null, camaraInterval = null, camarasFacingMode = 'environment';
+let camaraStream = null, camaraInterval = null, camarasFacingMode = 'environment', camaraDestino = 'venta';
 
-async function abrirCamara(){
+async function abrirCamara(destino){
+  camaraDestino = destino || 'venta';
   document.getElementById('camara-modal').classList.add('open');
   document.getElementById('camara-status').textContent = 'Iniciando cámara...';
   if(!window.ZXing){
@@ -1038,11 +1044,23 @@ function iniciarEscaneo(){
       if(result){
         const codigo = result.getText();
         if(navigator.vibrate) navigator.vibrate(100);
+        document.getElementById('camara-status').textContent = '✅ Código: ' + codigo;
         setTimeout(()=>{
           cerrarCamara();
-          document.getElementById('scanner-input').value = codigo;
-          processScanGlobal(codigo);
-        }, 300);
+          // Enviar al input correcto según el destino
+          if(camaraDestino === 'venta'){
+            const inp = document.getElementById('venta-scan-input');
+            inp.value = codigo;
+            // Disparar evento Enter manualmente
+            const ev = new KeyboardEvent('keydown', {key:'Enter'});
+            inp.dispatchEvent(ev);
+          } else if(camaraDestino === 'compra'){
+            const inp = document.getElementById('compra-scan-input');
+            inp.value = codigo;
+            const ev = new KeyboardEvent('keydown', {key:'Enter'});
+            inp.dispatchEvent(ev);
+          }
+        }, 400);
       }
     } catch(e){}
   }, 200);
