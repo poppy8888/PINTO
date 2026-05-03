@@ -5,17 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MiniMarket La Reina - Stock</title>
 <style>
+/* ========== CLAVE OVERLAY ========== */
+#clave-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85); z-index: 10000; display: flex;
+  align-items: center; justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.clave-card {
+  background: #fff; border-radius: 24px; padding: 32px; width: 320px;
+  text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+.clave-card h2 { margin-bottom: 20px; color: #1a1a2e; }
+.clave-card input {
+  width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc;
+  border-radius: 12px; margin-bottom: 20px; text-align: center;
+}
+.clave-card button {
+  background: #1a1a2e; color: white; border: none; border-radius: 30px;
+  padding: 10px 20px; font-size: 1rem; cursor: pointer; width: 100%;
+}
+.clave-card button:hover { background: #2a2a4a; }
+.mensaje-error { color: #e24b4a; font-size: 0.8rem; margin-top: 10px; }
+
+/* ========== RESTO DE ESTILOS ========== */
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f5;min-height:100vh;color:#1a1a2e}
-#clave-overlay{position:fixed;inset:0;background:#1a1a2e;display:flex;align-items:center;justify-content:center;z-index:9999}
-.clave-card{background:#fff;border-radius:20px;padding:40px 32px;width:320px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.4)}
-.clave-card h2{font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:20px}
-.clave-card input{width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:10px;font-size:1rem;margin-bottom:12px;outline:none}
-.clave-card input:focus{border-color:#e8c84a}
-.clave-card button{width:100%;padding:10px;background:#1a1a2e;color:#e8c84a;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer}
-.clave-card button:hover{background:#2a2a4a}
-.mensaje-error{color:#e24b4a;font-size:0.8rem;margin-top:8px;min-height:18px}
 .header{background:#1a1a2e;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .header-left{display:flex;align-items:center;gap:12px}
 .header-icon{width:40px;height:40px;background:#e8c84a;border-radius:12px;display:flex;align-items:center;justify-content:center}
@@ -123,253 +139,312 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .invoice-total.venta{color:#791f1f}
 .btn-anular{background:#f09595;color:#fff;border:none;padding:6px 12px;border-radius:10px;cursor:pointer;font-weight:bold}
 .btn-anular:disabled{background:#ccc;cursor:not-allowed}
+
+/* Modal para pago y vuelto */
 #pago-modal .modal { max-width: 350px; text-align: center; }
 #pago-modal .modal input { width: 100%; padding: 10px; font-size: 1.2rem; margin: 15px 0; text-align: center; }
 #pago-modal .vuelto { font-size: 1.8rem; font-weight: bold; color: #27500a; margin: 10px 0; }
 #pago-modal .total-venta { font-size: 1.2rem; background: #f0f0f5; padding: 8px; border-radius: 8px; }
-.manual-add { display: flex; gap: 10px; align-items: end; margin-top: 15px; margin-bottom: 15px; flex-wrap: wrap; }
-.manual-add .field-group { flex: 3; margin-bottom: 0; }
-.manual-add button { flex: 0 0 auto; height: 38px; margin-top: 0; }
-@media (max-width: 700px) { .manual-add { flex-direction: column; } .manual-add .field-group { width: 100%; } .manual-add button { width: 100%; } }
-.btn-sync { background: #1a1a2e; color: #e8c84a; border: 1px solid #e8c84a; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 700; margin-left: 8px; }
-.btn-sync:hover { background: #2a2a4a; }
 
-/* ===== CSV IMPORTER ===== */
-.csv-import-card { background:#fff; border-radius:14px; padding:20px; border:2px dashed #27a090; margin-bottom:20px; }
-.csv-import-title { font-size:1rem; font-weight:700; color:#0a5a50; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
-.csv-import-desc { font-size:0.8rem; color:#666; margin-bottom:16px; line-height:1.5; }
-.csv-format-table { width:100%; border-collapse:collapse; font-size:0.75rem; margin-bottom:16px; }
-.csv-format-table th { background:#0a5a50; color:#fff; padding:6px 10px; text-align:left; }
-.csv-format-table td { padding:5px 10px; border-bottom:1px solid #e0e0ec; font-family:monospace; }
-.csv-format-table tr:nth-child(even) td { background:#f5fbfa; }
-.csv-drop-zone { border:2px dashed #27a090; border-radius:12px; padding:28px; text-align:center; background:#f0fafa; cursor:pointer; transition:background 0.2s; margin-bottom:14px; }
-.csv-drop-zone:hover, .csv-drop-zone.drag-over { background:#d0f0ee; border-color:#0a5a50; }
-.csv-drop-zone .drop-icon { font-size:2.2rem; display:block; margin-bottom:8px; }
-.csv-drop-zone .drop-text { font-size:0.9rem; font-weight:600; color:#0a5a50; }
-.csv-drop-zone .drop-sub { font-size:0.75rem; color:#888; margin-top:4px; }
-.csv-options { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; align-items:center; }
-.csv-option-label { font-size:0.8rem; font-weight:600; color:#333; display:flex; align-items:center; gap:6px; cursor:pointer; }
-.csv-option-label input { accent-color:#0a5a50; }
-.csv-batch-size { display:flex; align-items:center; gap:8px; font-size:0.8rem; color:#333; }
-.csv-batch-size select { padding:4px 8px; border-radius:8px; border:1px solid #ccc; font-size:0.8rem; }
-.csv-preview-table-wrap { overflow-x:auto; max-height:260px; overflow-y:auto; border-radius:10px; border:1px solid #dde; margin-bottom:14px; }
-.csv-preview-table { width:100%; border-collapse:collapse; font-size:0.75rem; }
-.csv-preview-table th { background:#1a1a2e; color:#e8c84a; padding:6px 10px; position:sticky; top:0; text-align:left; }
-.csv-preview-table td { padding:5px 10px; border-bottom:1px solid #f0f0fa; }
-.csv-preview-table tr.row-ok td { background:#f0faf0; }
-.csv-preview-table tr.row-warn td { background:#fffbe6; }
-.csv-preview-table tr.row-dup td { background:#fff0f0; }
-.csv-status-badge { font-size:0.65rem; padding:2px 7px; border-radius:12px; font-weight:700; }
-.badge-ok { background:#c8f0c8; color:#155a15; }
-.badge-warn { background:#fef0b0; color:#7a5a00; }
-.badge-dup { background:#fddede; color:#7a0a0a; }
-.csv-progress-bar-wrap { background:#e8e8f0; border-radius:20px; height:14px; margin:10px 0; overflow:hidden; }
-.csv-progress-bar { height:100%; background:linear-gradient(90deg,#27a090,#e8c84a); border-radius:20px; transition:width 0.3s; width:0%; }
-.csv-log-box { background:#0f0f22; color:#7fffcc; font-size:0.72rem; font-family:monospace; border-radius:10px; padding:12px; max-height:140px; overflow-y:auto; margin-top:10px; white-space:pre-wrap; }
-.csv-summary { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
-.csv-sum-item { background:#f5f5fa; border-radius:10px; padding:10px; text-align:center; border:1px solid #e0e0ec; }
-.csv-sum-num { font-size:1.4rem; font-weight:800; }
-.csv-sum-num.green { color:#27500a; }
-.csv-sum-num.yellow { color:#a07800; }
-.csv-sum-num.red { color:#791f1f; }
-.csv-sum-num.blue { color:#0c447c; }
-.csv-sum-label { font-size:0.7rem; color:#888; margin-top:2px; }
-.btn-csv-import { background:#0a5a50; color:#fff; border:none; border-radius:10px; padding:10px 22px; font-size:0.9rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; }
-.btn-csv-import:disabled { background:#aaa; cursor:not-allowed; }
-.btn-csv-import:hover:not(:disabled) { background:#0d7a6a; }
-.btn-download-template { background:transparent; color:#0a5a50; border:1.5px solid #0a5a50; border-radius:10px; padding:8px 16px; font-size:0.8rem; font-weight:700; cursor:pointer; }
-.btn-download-template:hover { background:#e8faf8; }
-.csv-actions-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:4px; }
+/* Estilos para buscador manual simplificado */
+.manual-add {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+.manual-add .field-group {
+  flex: 3;
+  margin-bottom: 0;
+}
+.manual-add button {
+  flex: 0 0 auto;
+  height: 38px;
+  margin-top: 0;
+}
+@media (max-width: 700px) {
+  .manual-add { flex-direction: column; }
+  .manual-add .field-group { width: 100%; }
+  .manual-add button { width: 100%; }
+}
 </style>
 </head>
 <body>
-<div id="clave-overlay"><div class="clave-card"><h2>🔐 Acceso MiniMarket La Reina</h2><input type="password" id="clave-input" placeholder="Contraseña" autofocus><button id="btn-validar">Ingresar</button><div id="clave-error" class="mensaje-error"></div></div></div>
+
+<div id="clave-overlay">
+  <div class="clave-card">
+    <h2>🔐 Acceso MiniMarket La Reina</h2>
+    <input type="password" id="clave-input" placeholder="Contraseña" autofocus>
+    <button id="btn-validar">Ingresar</button>
+    <div id="clave-error" class="mensaje-error"></div>
+  </div>
+</div>
+
 <div id="app-contenido" style="display: none;">
 <div class="header">
-  <div class="header-left"><div class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2.2"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M8 7V5a2 2 0 0 1 4 0v2"/><line x1="12" y1="11" x2="12" y2="15"/><line x1="10" y1="13" x2="14" y2="13"/></svg></div><div><div class="header-title">Stock MiniMarket La Reina</div><div class="header-sub">Venta por unidad o peso</div></div></div>
-  <div style="display:flex;align-items:center;gap:10px"><div class="header-date" id="hdate"></div><button onclick="exportarBackup()" style="padding:6px 12px;border-radius:8px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.75rem;font-weight:700;cursor:pointer;">💾 Backup</button><label style="padding:6px 12px;border-radius:8px;border:1px solid #8888aa;background:transparent;color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label></div>
+  <div class="header-left">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2.2">
+        <rect x="2" y="7" width="20" height="10" rx="2"/>
+        <path d="M8 7V5a2 2 0 0 1 4 0v2"/>
+        <line x1="12" y1="11" x2="12" y2="15"/>
+        <line x1="10" y1="13" x2="14" y2="13"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">Stock MiniMarket La Reina</div>
+      <div class="header-sub">Venta por unidad o peso</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="header-date" id="hdate"></div>
+    <button onclick="exportarBackup()" style="padding:6px 12px;border-radius:8px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.75rem;font-weight:700;cursor:pointer;">💾 Backup</button>
+    <label style="padding:6px 12px;border-radius:8px;border:1px solid #8888aa;background:transparent;color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
+  </div>
 </div>
-<div class="total-banner"><div><div class="total-label">Total en stock</div><div class="total-num" id="total-num">0</div></div><div class="stats-compact"><div class="stat-compact"><div class="stat-label">Salidas</div><div class="stat-num" id="st-sal">0</div></div><div class="stat-compact"><div class="stat-label">Compras</div><div class="stat-num" id="st-com">0</div></div><div class="stat-compact"><div class="stat-label">Valor stock</div><div class="stat-num" id="st-val" style="font-size:1rem">$0</div></div></div><div class="total-right"><div class="mini-stat mini-sal"><div class="mini-label">Salidas</div><div class="mini-val" id="mini-sal">−0</div></div><div class="mini-stat mini-com"><div class="mini-label">Compras</div><div class="mini-val" id="mini-com">+0</div></div></div></div>
-<div class="scanner-bar"><div class="scanner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2"><line x1="2" y1="5" x2="2" y2="19"/><line x1="6" y1="5" x2="6" y2="19"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="14" y1="5" x2="14" y2="19"/><line x1="17" y1="5" x2="17" y2="19"/><line x1="20" y1="5" x2="20" y2="19"/></svg></div><input type="text" id="scanner-input" class="scanner-input" placeholder="Escanear código..." autocomplete="off"/><input type="text" id="scanner-qty" class="scanner-qty" value="1"/><div class="scanner-mode"><button class="mode-btn salida active" onclick="setMode('salida')">Vender</button><button class="mode-btn compra" onclick="setMode('compra')">Agregar</button></div><div class="scanner-status" id="scanner-status">Listo</div></div>
-<div class="tabs"><button class="tab active" onclick="showTab('stock',this)">📦 Stock</button><button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button><button class="tab" onclick="showTab('csvimport',this)">📂 Importar CSV</button><button class="tab" onclick="showTab('compra',this)">🛒 Compra</button><button class="tab" onclick="showTab('venta',this)">💰 Venta</button><button class="tab" onclick="showTab('facturas',this)">🧾 Facturas</button><button class="tab" onclick="showTab('movimientos',this)">📜 Movimientos</button></div>
-<div id="panel-stock" class="panel active"><div class="search-bar"><input type="text" id="search-product" placeholder="Buscar por marca, nombre o código..." autocomplete="off"><button onclick="renderStock()">🔍 Buscar</button></div><div id="stock-list"></div></div>
-<div id="panel-acciones" class="panel"><div class="add-product-card"><div class="add-product-title">➕ Agregar nuevo producto</div><div class="fields-grid"><div class="field-group"><div class="field-label">Marca</div><input type="text" id="new-marca" class="field-input" placeholder="Ej: Frutas"/></div><div class="field-group"><div class="field-label">Nombre</div><input type="text" id="new-nombre" class="field-input" placeholder="Ej: Manzana"/></div><div class="field-group"><div class="field-label">Código barras</div><input type="text" id="new-barcode" class="field-input" placeholder="Código para escáner"/></div><div class="field-group"><div class="field-label">Tipo de venta</div><select id="new-tipo" class="field-input"><option value="unidad">Unidad (precio por pieza)</option><option value="peso">Peso (precio por kg)</option></select></div><div class="field-group"><div class="field-label">Stock inicial</div><input type="text" id="new-stock" class="field-input" value="0"/></div><div class="field-group"><div class="field-label">Precio costo ($)</div><input type="text" id="new-costo" class="field-input" placeholder="Ej: 800" oninput="calcPrecioVenta()"/></div><div class="field-group"><div class="field-label">Utilidad (%)</div><input type="text" id="new-utilidad" class="field-input" placeholder="Ej: 40" oninput="calcPrecioVenta()"/></div><div class="field-group full"><div class="field-label">Precio venta ($)</div><input type="text" id="new-precio" class="field-input" placeholder="Automático" oninput="calcUtilidad()"/></div></div><div class="price-box" id="price-preview" style="display:none"><div class="price-item price-costo"><div class="price-item-label">Costo</div><div class="price-item-val" id="prev-costo">$0</div></div><div class="price-item price-venta"><div class="price-item-label">Venta</div><div class="price-item-val" id="prev-venta">$0</div></div><div class="price-item price-util" id="prev-util-box"><div class="price-item-label">Utilidad</div><div class="price-item-val" id="prev-util">0%</div></div></div><button class="btn-action btn-nuevo" style="margin-top:12px; background:#5a1a8a; color:#fff; border:none; padding:8px;" onclick="agregarProducto()">Guardar producto</button></div></div>
-<div id="panel-csvimport" class="panel">
-  <div class="csv-import-card">
-    <div class="csv-import-title">📂 Importar productos desde CSV / Excel</div>
-    <div class="csv-import-desc">
-      Cargá hasta <strong>750 productos</strong> de una sola vez. Podés hacerlo en lotes escalonados (ej: 100 por vez) para evitar problemas de sincronización. Los productos existentes con el mismo código de barras <strong>se actualizan</strong>; los nuevos se agregan.
+
+<div class="total-banner">
+  <div>
+    <div class="total-label">Total en stock</div>
+    <div class="total-num" id="total-num">0</div>
+  </div>
+  <div class="stats-compact">
+    <div class="stat-compact"><div class="stat-label">Salidas</div><div class="stat-num" id="st-sal">0</div></div>
+    <div class="stat-compact"><div class="stat-label">Compras</div><div class="stat-num" id="st-com">0</div></div>
+    <div class="stat-compact"><div class="stat-label">Valor stock</div><div class="stat-num" id="st-val" style="font-size:1rem">$0</div></div>
+  </div>
+  <div class="total-right">
+    <div class="mini-stat mini-sal"><div class="mini-label">Salidas</div><div class="mini-val" id="mini-sal">−0</div></div>
+    <div class="mini-stat mini-com"><div class="mini-label">Compras</div><div class="mini-val" id="mini-com">+0</div></div>
+  </div>
+</div>
+
+<div class="scanner-bar">
+  <div class="scanner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2"><line x1="2" y1="5" x2="2" y2="19"/><line x1="6" y1="5" x2="6" y2="19"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="14" y1="5" x2="14" y2="19"/><line x1="17" y1="5" x2="17" y2="19"/><line x1="20" y1="5" x2="20" y2="19"/></svg></div>
+  <input type="text" id="scanner-input" class="scanner-input" placeholder="Escanear código..." autocomplete="off"/>
+  <input type="text" id="scanner-qty" class="scanner-qty" value="1" style="width:80px;"/>
+  <div class="scanner-mode">
+    <button class="mode-btn salida active" onclick="setMode('salida')">Vender</button>
+    <button class="mode-btn compra" onclick="setMode('compra')">Agregar</button>
+  </div>
+  <div class="scanner-status" id="scanner-status">Listo</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('stock',this)">📦 Stock</button>
+  <button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button>
+  <button class="tab" onclick="showTab('compra',this)">🛒 Compra</button>
+  <button class="tab" onclick="showTab('venta',this)">💰 Venta</button>
+  <button class="tab" onclick="showTab('facturas',this)">🧾 Facturas</button>
+  <button class="tab" onclick="showTab('movimientos',this)">📜 Movimientos</button>
+</div>
+
+<div id="panel-stock" class="panel active">
+  <div class="search-bar">
+    <input type="text" id="search-product" placeholder="Buscar por marca, nombre o código..." autocomplete="off">
+    <button onclick="renderStock()">🔍 Buscar</button>
+  </div>
+  <div id="stock-list"></div>
+</div>
+
+<div id="panel-acciones" class="panel">
+  <div class="add-product-card">
+    <div class="add-product-title">➕ Agregar nuevo producto</div>
+    <div class="fields-grid">
+      <div class="field-group"><div class="field-label">Marca</div><input type="text" id="new-marca" class="field-input" placeholder="Ej: Frutas"/></div>
+      <div class="field-group"><div class="field-label">Nombre</div><input type="text" id="new-nombre" class="field-input" placeholder="Ej: Manzana"/></div>
+      <div class="field-group"><div class="field-label">Código barras</div><input type="text" id="new-barcode" class="field-input" placeholder="Código para escáner"/></div>
+      <div class="field-group"><div class="field-label">Tipo de venta</div><select id="new-tipo" class="field-input"><option value="unidad">Unidad (precio por pieza)</option><option value="peso">Peso (precio por kg)</option></select></div>
+      <div class="field-group"><div class="field-label">Stock inicial</div><input type="text" id="new-stock" class="field-input" value="0"/></div>
+      <div class="field-group"><div class="field-label">Precio costo ($)</div><input type="text" id="new-costo" class="field-input" placeholder="Ej: 800" oninput="calcPrecioVenta()"/></div>
+      <div class="field-group"><div class="field-label">Utilidad (%)</div><input type="text" id="new-utilidad" class="field-input" placeholder="Ej: 40" oninput="calcPrecioVenta()"/></div>
+      <div class="field-group full"><div class="field-label">Precio venta ($)</div><input type="text" id="new-precio" class="field-input" placeholder="Automático" oninput="calcUtilidad()"/></div>
+    </div>
+    <div class="price-box" id="price-preview" style="display:none">
+      <div class="price-item price-costo"><div class="price-item-label">Costo</div><div class="price-item-val" id="prev-costo">$0</div></div>
+      <div class="price-item price-venta"><div class="price-item-label">Venta</div><div class="price-item-val" id="prev-venta">$0</div></div>
+      <div class="price-item price-util" id="prev-util-box"><div class="price-item-label">Utilidad</div><div class="price-item-val" id="prev-util">0%</div></div>
+    </div>
+    <button class="btn-action btn-nuevo" style="margin-top:12px; background:#5a1a8a; color:#fff; border:none; padding:8px;" onclick="agregarProducto()">Guardar producto</button>
+  </div>
+</div>
+
+<!-- PANEL COMPRA: solo búsqueda manual simple -->
+<div id="panel-compra" class="panel">
+  <div class="add-product-card" style="border-color:#639922;">
+    <div class="add-product-title" style="color:#27500a;">🧾 Cargar factura de COMPRA</div>
+    <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="compra-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
+    
+    <div class="manual-add">
+      <div class="field-group">
+        <label class="field-label">🔎 Buscar producto</label>
+        <input list="compra-productos-list" id="compra-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código...">
+        <datalist id="compra-productos-list"></datalist>
+      </div>
+      <div><button class="btn-action btn-compra" id="btn-agregar-linea-compra" style="padding:8px 16px;">➕ Agregar</button></div>
     </div>
 
-    <!-- Formato esperado -->
-    <div style="margin-bottom:14px;">
-      <div style="font-size:0.8rem;font-weight:700;color:#333;margin-bottom:6px;">📋 Columnas requeridas en el CSV (la primer fila debe ser el encabezado):</div>
-      <table class="csv-format-table">
-        <thead><tr><th>Columna</th><th>Ejemplo</th><th>Descripción</th></tr></thead>
-        <tbody>
-          <tr><td>marca</td><td>Lácteos</td><td>Categoría o marca del producto</td></tr>
-          <tr><td>nombre</td><td>Leche entera 1L</td><td>Nombre del producto</td></tr>
-          <tr><td>precio</td><td>1500</td><td>Precio de venta</td></tr>
-          <tr><td>costo</td><td>1000</td><td>Precio de costo (puede estar vacío)</td></tr>
-          <tr><td>stock</td><td>24</td><td>Stock inicial (puede estar vacío = 0)</td></tr>
-          <tr><td>barcode</td><td>7790001234567</td><td>Código de barras (puede estar vacío)</td></tr>
-          <tr><td>tipo</td><td>unidad</td><td>"unidad" o "peso" (kg). Por defecto: unidad</td></tr>
-        </tbody>
+    <div style="overflow-x:auto; margin-top:16px;">
+      <table class="factura-table" id="compra-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th><tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
       </table>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn-download-template" onclick="descargarPlantillaCSV()">⬇️ Descargar plantilla CSV</button>
-        <button class="btn-download-template" onclick="descargarPlantillaEjemplo()">📄 Descargar ejemplo con 5 productos</button>
-      </div>
     </div>
-
-    <!-- Zona de carga -->
-    <div class="csv-drop-zone" id="csv-drop-zone" onclick="document.getElementById('csv-file-input').click()">
-      <span class="drop-icon">📁</span>
-      <div class="drop-text">Hacé clic o arrastrá tu archivo CSV aquí</div>
-      <div class="drop-sub">Archivos .csv — separados por coma (,) o punto y coma (;)</div>
-    </div>
-    <input type="file" id="csv-file-input" accept=".csv,.txt" style="display:none" onchange="cargarCSV(event)"/>
-
-    <!-- Opciones -->
-    <div class="csv-options">
-      <label class="csv-option-label">
-        <input type="radio" name="csv-mode" value="agregar" checked> ➕ Solo agregar nuevos
-      </label>
-      <label class="csv-option-label">
-        <input type="radio" name="csv-mode" value="actualizar"> 🔄 Agregar + actualizar existentes
-      </label>
-      <label class="csv-option-label">
-        <input type="radio" name="csv-mode" value="reemplazar"> ⚠️ Reemplazar TODO
-      </label>
-      <div class="csv-batch-size">
-        Lote de:
-        <select id="csv-batch-size">
-          <option value="50">50 productos</option>
-          <option value="100" selected>100 productos</option>
-          <option value="200">200 productos</option>
-          <option value="750">Todo de una vez</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Resumen -->
-    <div class="csv-summary" id="csv-summary" style="display:none">
-      <div class="csv-sum-item"><div class="csv-sum-num green" id="csv-cnt-total">0</div><div class="csv-sum-label">Total filas</div></div>
-      <div class="csv-sum-item"><div class="csv-sum-num blue" id="csv-cnt-nuevos">0</div><div class="csv-sum-label">Nuevos</div></div>
-      <div class="csv-sum-item"><div class="csv-sum-num yellow" id="csv-cnt-actualizar">0</div><div class="csv-sum-label">A actualizar</div></div>
-      <div class="csv-sum-item"><div class="csv-sum-num red" id="csv-cnt-error">0</div><div class="csv-sum-label">Con error</div></div>
-    </div>
-
-    <!-- Preview tabla -->
-    <div id="csv-preview-wrap" style="display:none">
-      <div style="font-size:0.8rem;font-weight:700;color:#333;margin-bottom:6px;">👁️ Vista previa (primeras 20 filas):</div>
-      <div class="csv-preview-table-wrap">
-        <table class="csv-preview-table">
-          <thead><tr><th>#</th><th>Marca</th><th>Nombre</th><th>Precio</th><th>Costo</th><th>Stock</th><th>Barcode</th><th>Tipo</th><th>Estado</th></tr></thead>
-          <tbody id="csv-preview-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Barra de progreso -->
-    <div id="csv-progress-wrap" style="display:none">
-      <div style="font-size:0.8rem;font-weight:600;margin-bottom:4px;" id="csv-progress-label">Importando lote 1 de 1...</div>
-      <div class="csv-progress-bar-wrap"><div class="csv-progress-bar" id="csv-progress-bar"></div></div>
-      <div class="csv-log-box" id="csv-log-box"></div>
-    </div>
-
-    <!-- Botones de acción -->
-    <div class="csv-actions-row" id="csv-actions-row" style="display:none">
-      <button class="btn-csv-import" id="btn-csv-importar" onclick="iniciarImportacionCSV()">
-        ⬆️ Importar productos
-      </button>
-      <button class="btn-download-template" onclick="limpiarCSV()">✕ Cancelar</button>
-      <span id="csv-lote-info" style="font-size:0.78rem;color:#666;"></span>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
+      <div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="compra-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="compra-match-indicator" style="font-size:0.75rem;"></span></div>
+      <div><button class="btn-action btn-compra" id="btn-confirmar-compra" style="background:#27500a; color:#fff;">✅ Confirmar compra</button><button class="btn-action" id="btn-limpiar-compra" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div>
     </div>
   </div>
 </div>
 
-<div id="panel-compra" class="panel"><div class="add-product-card" style="border-color:#639922;"><div class="add-product-title" style="color:#27500a;">🧾 Cargar factura de COMPRA</div><div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="compra-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div><div class="manual-add"><div class="field-group"><label class="field-label">🔎 Buscar producto</label><input list="compra-productos-list" id="compra-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código..."><datalist id="compra-productos-list"></datalist></div><div><button class="btn-action btn-compra" id="btn-agregar-linea-compra" style="padding:8px 16px;">➕ Agregar</button></div></div><div style="overflow-x:auto; margin-top:16px;"><table class="factura-table" id="compra-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th></tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot></table></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;"><div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="compra-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="compra-match-indicator" style="font-size:0.75rem;"></span></div><div><button class="btn-action btn-compra" id="btn-confirmar-compra" style="background:#27500a; color:#fff;">✅ Confirmar compra</button><button class="btn-action" id="btn-limpiar-compra" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div></div></div></div>
-<div id="panel-venta" class="panel"><div class="add-product-card" style="border-color:#e24b4a;"><div class="add-product-title" style="color:#791f1f;">🧾 Cargar factura de VENTA</div><div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="venta-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div><div class="manual-add"><div class="field-group"><label class="field-label">🔎 Buscar producto</label><input list="venta-productos-list" id="venta-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código..."><datalist id="venta-productos-list"></datalist></div><div><button class="btn-action btn-venta" id="btn-agregar-linea-venta" style="padding:8px 16px;">➕ Agregar</button></div></div><div style="overflow-x:auto; margin-top:16px;"><table class="factura-table" id="venta-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead><tbody id="venta-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot></table></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;"><div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="venta-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="venta-match-indicator" style="font-size:0.75rem;"></span></div><div><button class="btn-action btn-venta" id="btn-confirmar-venta" style="background:#791f1f; color:#fff;">✅ Confirmar venta</button><button class="btn-action" id="btn-limpiar-venta" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div></div></div></div>
+<!-- PANEL VENTA: solo búsqueda manual simple -->
+<div id="panel-venta" class="panel">
+  <div class="add-product-card" style="border-color:#e24b4a;">
+    <div class="add-product-title" style="color:#791f1f;">🧾 Cargar factura de VENTA</div>
+    <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="venta-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
+
+    <div class="manual-add">
+      <div class="field-group">
+        <label class="field-label">🔎 Buscar producto</label>
+        <input list="venta-productos-list" id="venta-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código...">
+        <datalist id="venta-productos-list"></datalist>
+      </div>
+      <div><button class="btn-action btn-venta" id="btn-agregar-linea-venta" style="padding:8px 16px;">➕ Agregar</button></div>
+    </div>
+
+    <div style="overflow-x:auto; margin-top:16px;">
+      <table class="factura-table" id="venta-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead><tbody id="venta-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
+      </table>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
+      <div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="venta-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="venta-match-indicator" style="font-size:0.75rem;"></span></div>
+      <div><button class="btn-action btn-venta" id="btn-confirmar-venta" style="background:#791f1f; color:#fff;">✅ Confirmar venta</button><button class="btn-action" id="btn-limpiar-venta" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div>
+    </div>
+  </div>
+</div>
+
 <div id="panel-facturas" class="panel"><div id="lista-facturas"></div></div>
 <div id="panel-movimientos" class="panel"><div id="log-list"></div></div>
+
 <div class="modal-overlay" id="modal-del"><div class="modal"><div class="modal-title">¿Eliminar producto?</div><div id="modal-del-text"></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-confirm" onclick="confirmarEliminar()">Eliminar</button></div></div></div>
-<div class="modal-overlay" id="pago-modal"><div class="modal"><div class="modal-title">💰 Pago del cliente</div><div class="total-venta" id="pago-total-venta">Total: $0</div><input type="text" id="monto-cliente" placeholder="Monto que entrega el cliente" autocomplete="off"><div class="vuelto" id="vuelto-mostrar">Vuelto: $0</div><div class="modal-btns"><button class="btn-cancel" id="cancelar-pago">Cancelar</button><button class="btn-confirm" id="confirmar-pago" style="background:#27500a;">Confirmar venta</button></div></div></div>
+
+<div class="modal-overlay" id="pago-modal">
+  <div class="modal">
+    <div class="modal-title">💰 Pago del cliente</div>
+    <div class="total-venta" id="pago-total-venta">Total: $0</div>
+    <input type="text" id="monto-cliente" placeholder="Monto que entrega el cliente" autocomplete="off">
+    <div class="vuelto" id="vuelto-mostrar">Vuelto: $0</div>
+    <div class="modal-btns">
+      <button class="btn-cancel" id="cancelar-pago">Cancelar</button>
+      <button class="btn-confirm" id="confirmar-pago" style="background:#27500a;">Confirmar venta</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 </div>
+
 <script>
-// ========== CONFIGURACIÓN ==========
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_oC2o2iW1-U0S692TwdSll-TpJebT4rjImNRMcyKiEfY0xis9yZuCLShKP_89vOg/exec";
-const CLAVE_ACCESO = "admin123";
-const KEY_P='mm_prods_v1', KEY_S='mm_stock_v1', KEY_L='mm_log_v1', KEY_F='mm_facturas_v1';
-
-let productos=[], stock={}, log=[], facturas=[];
-let scannerMode='salida', deleteTarget=null, nextId=100;
-let loading = false;
-
-// Funciones de utilidad
+// ========== UTILIDADES: PARSEO DE NÚMEROS CON COMA Y PUNTO DE MILES ==========
 function parseNumero(valor) {
   if (valor === undefined || valor === null || valor === '') return NaN;
-  let str = String(valor).trim().replace(',', '.');
+  let str = String(valor).trim();
+  str = str.replace(',', '.');
   let partes = str.split('.');
   if (partes.length > 1) {
     let entero = partes.slice(0, -1).join('');
     let decimal = partes[partes.length - 1];
     str = entero + '.' + decimal;
-  } else str = str.replace(/\./g, '');
+  } else {
+    str = str.replace(/\./g, '');
+  }
   let num = parseFloat(str);
   return isNaN(num) ? NaN : Math.round(num * 100) / 100;
 }
+
 function fmt(n) {
   if (isNaN(n) || n === undefined || n === null) return '0';
   let valor = Math.round(n * 100) / 100;
   if (Math.abs(valor - Math.round(valor)) < 0.001) return Math.round(valor).toLocaleString('es-AR');
   return valor.toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 }
-function fmtUnidad(valor, tipo) { return (tipo === 'peso') ? fmt(valor) + ' kg' : fmt(valor) + ' u'; }
+
+function fmtUnidad(valor, tipo) {
+  if (tipo === 'peso') return fmt(valor) + ' kg';
+  else return fmt(valor) + ' u';
+}
+
+// ========== URL DE APPS SCRIPT (cambiar si es necesario) ==========
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWDaRGHkye087DSZ6llaP2uZSJf074fu-BbKtOpRxCVbl-Vu0ravphH0K_5S3sgWg/exec";
+
+// ========== CLAVE DE ACCESO ==========
+const CLAVE_ACCESO = "admin123";
+
+// ========== CLAVES DE ALMACENAMIENTO LOCAL ==========
+const KEY_P='mm_prods_v1', KEY_S='mm_stock_v1', KEY_L='mm_log_v1', KEY_F='mm_facturas_v1';
+
+let productos=[], stock={}, log=[], facturas=[];
+let scannerMode='salida', deleteTarget=null, nextId=100;
+
 function nowStr(){const d=new Date();return d.toLocaleDateString('es-AR')+' '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}
 function calcTotal(){return productos.reduce((a,p)=>a+(stock[p.id]||0),0)}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 
-// Guardado local + nube
 async function saveAll(){
   localStorage.setItem(KEY_P,JSON.stringify(productos));
   localStorage.setItem(KEY_S,JSON.stringify(stock));
   localStorage.setItem(KEY_L,JSON.stringify(log));
   localStorage.setItem(KEY_F,JSON.stringify(facturas));
-  if(!SCRIPT_URL) return;
-  // Subir a la nube en segundo plano sin bloquear ni mostrar errores
+  if (!SCRIPT_URL) return;
   try{
-    const cbName='save_'+Date.now();
     const data={productos,stock,log,facturas};
-    const jsonStr=encodeURIComponent(JSON.stringify(data));
-    window[cbName]=function(result){
-      delete window[cbName];
-      document.getElementById('save-script')?.remove();
-    };
-    const s=document.createElement('script');
-    s.id='save-script';
-    s.src=SCRIPT_URL+'?accion=save&data='+jsonStr+'&callback='+cbName+'&t='+Date.now();
-    s.onerror=()=>{ delete window[cbName]; };
-    document.head.appendChild(s);
-    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; document.getElementById('save-script')?.remove(); } },10000);
-  }catch(err){ console.error('Error nube:',err); }
+    const formData=new FormData();
+    formData.append('data', JSON.stringify(data));
+    await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body: formData});
+    toast('✅ Guardado en la nube');
+  }catch(err){ toast('💾 Solo local'); }
 }
 
-// Carga desde nube usando JSONP
-// Carga inicial solo desde localStorage (la nube se actualiza al guardar)
+function loadFromJsonp(){
+  if(!SCRIPT_URL) return Promise.resolve(null);
+  return new Promise((resolve)=>{
+    const cbName='cb_'+Date.now();
+    window[cbName]=function(data){ delete window[cbName]; document.getElementById('jsonp-script')?.remove(); resolve(data); };
+    const s=document.createElement('script');
+    s.id='jsonp-script';
+    s.src=SCRIPT_URL+'?callback='+cbName+'&t='+Date.now();
+    s.onerror=()=>{ delete window[cbName]; resolve(null); };
+    document.head.appendChild(s);
+    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; resolve(null); } },5000);
+  });
+}
+
 async function loadAll(){
-  try{const p=localStorage.getItem(KEY_P);if(p)productos=JSON.parse(p)}catch(e){}
-  try{const s=localStorage.getItem(KEY_S);if(s)stock=JSON.parse(s)}catch(e){}
-  try{const l=localStorage.getItem(KEY_L);if(l)log=JSON.parse(l)}catch(e){}
-  try{const f=localStorage.getItem(KEY_F);if(f)facturas=JSON.parse(f)}catch(e){}
-  if(!productos.length){
-    productos=[
-      {id:1,nombre:'Manzana',marca:'Frutas',precio:800,costo:0,barcode:'',tipo:'peso'},
-      {id:2,nombre:'Pera',marca:'Frutas',precio:700,costo:0,barcode:'',tipo:'peso'},
-      {id:3,nombre:'Arroz 1kg',marca:'Alimentos',precio:1200,costo:0,barcode:'',tipo:'unidad'},
-      {id:4,nombre:'Leche 1L',marca:'Alimentos',precio:1100,costo:0,barcode:'',tipo:'unidad'}
-    ];
+  let loadedFromCloud=false;
+  if(SCRIPT_URL){
+    try{
+      const data=await loadFromJsonp();
+      if(data && data.productos){
+        productos=data.productos; stock=data.stock||{}; log=data.log||[]; facturas=data.facturas||[];
+        loadedFromCloud=true;
+        toast('📡 Datos desde la nube');
+      }
+    }catch(e){}
+  }
+  if(!loadedFromCloud){
+    try{const p=localStorage.getItem(KEY_P);if(p)productos=JSON.parse(p)}catch(e){}
+    try{const s=localStorage.getItem(KEY_S);if(s)stock=JSON.parse(s)}catch(e){}
+    try{const l=localStorage.getItem(KEY_L);if(l)log=JSON.parse(l)}catch(e){}
+    try{const f=localStorage.getItem(KEY_F);if(f)facturas=JSON.parse(f)}catch(e){}
+    if(!productos.length){
+      productos=[
+        {id:1,nombre:'Manzana',marca:'Frutas',precio:800,costo:0,barcode:'',tipo:'peso'},
+        {id:2,nombre:'Pera',marca:'Frutas',precio:700,costo:0,barcode:'',tipo:'peso'},
+        {id:3,nombre:'Arroz 1kg',marca:'Alimentos',precio:1200,costo:0,barcode:'',tipo:'unidad'},
+        {id:4,nombre:'Leche 1L',marca:'Alimentos',precio:1100,costo:0,barcode:'',tipo:'unidad'}
+      ];
+    }
+    toast('📀 Datos locales (ejemplo)');
   }
   productos.forEach(p=>{if(stock[p.id]===undefined)stock[p.id]=0;if(!p.costo)p.costo=0;if(!p.barcode)p.barcode='';if(!p.tipo)p.tipo='unidad';});
   nextId=Math.max(...productos.map(p=>p.id),99)+1;
@@ -377,8 +452,8 @@ async function loadAll(){
 }
 
 function addLog(tipo,prod,antes,despues,qty, facturaId=null){
-  let qtyRed = (prod.tipo === 'peso') ? Math.round(qty * 100) / 100 : Math.round(qty);
-  log.push({tipo,id:prod.id,nombre:prod.nombre,marca:prod.marca,antes,despues,qty:qtyRed,fecha:nowStr(),facturaId});
+  let qtyRedondeado = (prod.tipo === 'peso') ? Math.round(qty * 100) / 100 : Math.round(qty);
+  log.push({tipo,id:prod.id,nombre:prod.nombre,marca:prod.marca,antes,despues,qty:qtyRedondeado,fecha:nowStr(),facturaId});
 }
 function animateTotal(){const el=document.getElementById('total-num');el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');setTimeout(()=>el.classList.remove('pulse'),400)}
 function renderTotal(){
@@ -396,6 +471,7 @@ function renderStats(){
   document.getElementById('st-com').textContent=fmt(com);
   document.getElementById('st-val').textContent='$'+fmt(val);
 }
+
 function renderStock(){
   const searchTerm = document.getElementById('search-product').value.toLowerCase();
   let filtered = productos;
@@ -437,6 +513,7 @@ function renderStock(){
     document.getElementById(`barcode-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
   });
 }
+
 function cambiarTipoProducto(id, nuevoTipo) {
   const prod = productos.find(p=>p.id===id);
   if(!prod) return;
@@ -453,6 +530,7 @@ function cambiarTipoProducto(id, nuevoTipo) {
     }
   }
 }
+
 function guardarEdicionProducto(id){
   const prod=productos.find(p=>p.id===id);
   if(!prod)return;
@@ -479,6 +557,7 @@ function guardarEdicionProducto(id){
   if(cambios){ saveAll(); renderStats(); renderTotal(); toast(`Actualizado ${prod.marca} ${prod.nombre}`); }
   else { document.getElementById(`stock-${id}`).value=fmt(stock[id]||0); document.getElementById(`price-${id}`).value=fmt(prod.precio); document.getElementById(`barcode-${id}`).value=prod.barcode; }
 }
+
 function agregarProducto(){
   const marca=document.getElementById('new-marca').value.trim(), nombre=document.getElementById('new-nombre').value.trim(), precio=parseNumero(document.getElementById('new-precio').value)||0, costo=parseNumero(document.getElementById('new-costo').value)||0, barcode=document.getElementById('new-barcode').value.trim(), stockInicial=parseNumero(document.getElementById('new-stock').value)||0, tipo=document.getElementById('new-tipo').value;
   if(!marca||!nombre||isNaN(precio)||precio<=0){toast('Completá marca, nombre y precio válido');return;}
@@ -489,18 +568,41 @@ function agregarProducto(){
   const prod={id:nextId++,nombre,marca,precio,costo,barcode,tipo};
   productos.push(prod); stock[prod.id]=stockFinal;
   saveAll();renderAll();
-  document.getElementById('new-marca').value='';document.getElementById('new-nombre').value='';document.getElementById('new-precio').value='';document.getElementById('new-costo').value='';document.getElementById('new-utilidad').value='';document.getElementById('new-barcode').value='';document.getElementById('new-stock').value='0';
-  document.getElementById('price-preview').style.display='none';
+  document.getElementById('new-marca').value='';document.getElementById('new-nombre').value='';document.getElementById('new-precio').value='';document.getElementById('new-costo').value='';document.getElementById('new-utilidad').value='';document.getElementById('new-barcode').value='';document.getElementById('new-stock').value='0';document.getElementById('price-preview').style.display='none';
   toast(`✅ ${marca} ${nombre} (${tipo==='unidad'?'unidad':'kg'}) agregado`);
 }
+
 function pedirEliminar(id){deleteTarget=id;const prod=productos.find(p=>p.id===id);document.getElementById('modal-del-text').textContent=`Eliminar "${prod.marca} — ${prod.nombre}"`;document.getElementById('modal-del').classList.add('open');}
 function closeModal(){document.getElementById('modal-del').classList.remove('open');deleteTarget=null;}
 function confirmarEliminar(){if(!deleteTarget)return;productos=productos.filter(p=>p.id!==deleteTarget);delete stock[deleteTarget];saveAll();renderAll();closeModal();toast('Producto eliminado');}
+
 function setMode(mode){scannerMode=mode;document.querySelector('.mode-btn.salida').classList.toggle('active',mode==='salida');document.querySelector('.mode-btn.compra').classList.toggle('active',mode==='compra');document.getElementById('scanner-status').textContent=`Modo: ${mode==='salida'?'Vender':'Agregar'}`;}
+
 const scannerInput=document.getElementById('scanner-input');
 let scanBuffer='',scanTimer=null;
-scannerInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();const c=this.value.trim();if(c)processScanGlobal(c);this.value=''}});
-document.addEventListener('keydown',function(e){if(document.activeElement===scannerInput)return;if(e.key==='Enter'){if(scanBuffer.length>2)processScanGlobal(scanBuffer.trim());scanBuffer='';clearTimeout(scanTimer);return;}if(e.key.length===1){scanBuffer+=e.key;clearTimeout(scanTimer);scanTimer=setTimeout(()=>{scanBuffer=''},300)}});
+scannerInput.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const c=this.value.trim();
+    if(c) processScanGlobal(c);
+    this.value='';
+  }
+});
+document.addEventListener('keydown',function(e){
+  if(document.activeElement===scannerInput)return;
+  if(e.key==='Enter'){
+    if(scanBuffer.length>2) processScanGlobal(scanBuffer.trim());
+    scanBuffer='';
+    clearTimeout(scanTimer);
+    return;
+  }
+  if(e.key.length===1){
+    scanBuffer+=e.key;
+    clearTimeout(scanTimer);
+    scanTimer=setTimeout(()=>{scanBuffer=''},300);
+  }
+});
+
 function processScanGlobal(code){
   let qty = parseNumero(document.getElementById('scanner-qty').value);
   if(isNaN(qty)) qty=1;
@@ -519,28 +621,32 @@ function processScanGlobal(code){
   statusEl.className='scanner-status ok'; setTimeout(()=>{statusEl.textContent='Listo';statusEl.className='scanner-status'},2500);
   saveAll(); renderAll();
 }
-// COMPRA
+
+// ----- COMPRA -----
 let compraLineas=[], compraProductoActualId=null;
 function actualizarDatalistCompra(){ const d=document.getElementById('compra-productos-list'); if(d) d.innerHTML=productos.map(p=>`<option value="${p.marca} ${p.nombre} (Cód: ${p.barcode})">`).join(''); }
 function obtenerProdPorTexto(t){ for(let p of productos) if(`${p.marca} ${p.nombre} (Cód: ${p.barcode})`===t) return p; return null; }
-function compraSeleccionarProdId(id){ compraProductoActualId=id; const p=productos.find(p=>p.id===id); if(p){ document.getElementById('compra-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`; const cantLabel = document.getElementById('compra-cantidad-label'); const precioLabel = document.getElementById('compra-precio-label'); if(p.tipo==='peso'){ cantLabel.textContent='Cantidad (kg)'; precioLabel.textContent='Precio por kg ($)'; } else { cantLabel.textContent='Cantidad (unidades)'; precioLabel.textContent='Precio por unidad ($)'; } const inp=document.getElementById('compra-precio-costo'); if(inp&&(inp.value==''||parseNumero(inp.value)<=0)&&p.costo>0) inp.value=p.costo; } }
+function compraSeleccionarProdId(id){ 
+  compraProductoActualId=id; const p=productos.find(p=>p.id===id); 
+  if(p){ 
+    document.getElementById('compra-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`;
+  } 
+}
 function agregarLineaCompra(){
   if(!compraProductoActualId){ const t=document.getElementById('compra-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) compraProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
   const prod=productos.find(p=>p.id===compraProductoActualId); if(!prod){toast("Producto no encontrado");return;}
-  let cant = parseNumero(document.getElementById('compra-cantidad').value);
-  let prec = parseNumero(document.getElementById('compra-precio-costo').value);
-  if(isNaN(cant)||cant<=0){toast("Cantidad inválida");return;}
+  let cant = 1;  // cantidad por defecto 1 (luego pueden editar en tabla)
+  let prec = prod.costo || 0;
+  if(prec<=0){toast("El producto no tiene costo. Edite el producto o ingrese manualmente en la tabla.");return;}
   if(prod.tipo==='unidad') cant = Math.round(cant);
   else cant = Math.round(cant * 100) / 100;
-  if(isNaN(prec)||prec<=0) prec=prod.costo||0;
-  if(prec<=0){toast("Ingrese precio costo");return;}
   compraLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioCosto:prec, subtotal:cant*prec, costoAnterior:prod.costo, precioAnterior:prod.precio, stockAnterior:stock[prod.id]||0, tipo:prod.tipo});
-  renderCompraTabla(); document.getElementById('compra-cantidad').value='1'; document.getElementById('compra-precio-costo').value='';
+  renderCompraTabla();
 }
 function eliminarLineaCompra(i){compraLineas.splice(i,1);renderCompraTabla();}
 function renderCompraTabla(){
   const tbody=document.getElementById('compra-lineas-tbody'); if(!tbody)return;
-  if(compraLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></tr>'; document.getElementById('compra-total-pesos').innerText='$0'; return; }
+  if(compraLineas.length===0){ tbody.innerHTML='</td><td colspan="5" style="text-align:center">Sin líneas</td><tr>'; document.getElementById('compra-total-pesos').innerText='$0'; return; }
   let total=0, html='';
   compraLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="text" class="edit-cantidad" value="${fmt(l.cantidad)}" style="width:80px;"></td><td><input type="text" class="edit-precio" value="${fmt(l.precioCosto)}" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
   tbody.innerHTML=html; document.getElementById('compra-total-pesos').innerHTML=`$${fmt(total)}`;
@@ -568,30 +674,33 @@ function confirmarCompra(){
   compraLineas=[]; renderCompraTabla(); document.getElementById('compra-monto-real').value=''; compraProductoActualId=null; document.getElementById('compra-producto-nombre').value='';
 }
 function iniciarScannerCompra(){ const inp=document.getElementById('compra-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } compraSeleccionarProdId(p.id); agregarLineaCompra(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
-function activarEnterCompra(){ const nom=document.getElementById('compra-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); compraProductoActualId=p?p.id:null; compraSeleccionarProdId(compraProductoActualId); }); }
-// VENTA
+function activarEnterCompra(){ const nom=document.getElementById('compra-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); compraProductoActualId=p?p.id:null; }); }
+
+// ----- VENTA -----
 let ventaLineas=[], ventaProductoActualId=null;
+
 function actualizarDatalistVenta(){ const d=document.getElementById('venta-productos-list'); if(d) d.innerHTML=productos.map(p=>`<option value="${p.marca} ${p.nombre} (Cód: ${p.barcode})">`).join(''); }
-function ventaSeleccionarProdId(id){ ventaProductoActualId=id; const p=productos.find(p=>p.id===id); if(p){ document.getElementById('venta-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`; const cantLabel = document.getElementById('venta-cantidad-label'); const precioLabel = document.getElementById('venta-precio-label'); if(p.tipo==='peso'){ cantLabel.textContent='Cantidad (kg)'; precioLabel.textContent='Precio por kg ($)'; } else { cantLabel.textContent='Cantidad (unidades)'; precioLabel.textContent='Precio por unidad ($)'; } const inp=document.getElementById('venta-precio'); if(inp&&(inp.value==''||parseNumero(inp.value)<=0)&&p.precio>0) inp.value=p.precio; } }
+function ventaSeleccionarProdId(id){ 
+  ventaProductoActualId=id; const p=productos.find(p=>p.id===id); 
+  if(p){ 
+    document.getElementById('venta-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`;
+  } 
+}
 function agregarLineaVenta(){
   if(!ventaProductoActualId){ const t=document.getElementById('venta-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) ventaProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
   const prod=productos.find(p=>p.id===ventaProductoActualId); if(!prod){toast("Producto no encontrado");return;}
-  let cant = parseNumero(document.getElementById('venta-cantidad').value);
-  let prec = parseNumero(document.getElementById('venta-precio').value);
-  if(isNaN(cant)||cant<=0){toast("Cantidad inválida");return;}
-  if(prod.tipo==='unidad') cant = Math.round(cant);
-  else cant = Math.round(cant * 100) / 100;
-  if(isNaN(prec)||prec<=0) prec=prod.precio||0;
-  if(prec<=0){toast("Ingrese precio de venta");return;}
+  let cant = 1;
+  let prec = prod.precio || 0;
+  if(prec<=0){toast("El producto no tiene precio de venta. Edite el producto o ingrese manualmente en la tabla.");return;}
   const antesStock=stock[prod.id]||0;
   if(cant > antesStock+0.001){ toast(`Stock insuficiente: ${fmtUnidad(antesStock, prod.tipo)} disponible`); return; }
   ventaLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioVenta:prec, subtotal:cant*prec, stockAntes:antesStock, tipo:prod.tipo});
-  renderVentaTabla(); document.getElementById('venta-cantidad').value='1'; document.getElementById('venta-precio').value='';
+  renderVentaTabla();
 }
 function eliminarLineaVenta(i){ventaLineas.splice(i,1);renderVentaTabla();}
 function renderVentaTabla(){
   const tbody=document.getElementById('venta-lineas-tbody'); if(!tbody)return;
-  if(ventaLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></tr>'; document.getElementById('venta-total-pesos').innerText='$0'; return; }
+  if(ventaLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></td>'; document.getElementById('venta-total-pesos').innerText='$0'; return; }
   let total=0, html='';
   ventaLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="text" class="edit-cantidad-venta" value="${fmt(l.cantidad)}" style="width:80px;"></td><td><input type="text" class="edit-precio-venta" value="${fmt(l.precioVenta)}" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row-venta" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
   tbody.innerHTML=html; document.getElementById('venta-total-pesos').innerHTML=`$${fmt(total)}`;
@@ -602,6 +711,7 @@ function renderVentaTabla(){
 }
 function actualizarMatchVenta(){ const total=ventaLineas.reduce((a,l)=>a+l.subtotal,0); const real=parseNumero(document.getElementById('venta-monto-real').value); const ind=document.getElementById('venta-match-indicator'); if(!isNaN(real)&&real>0){ const diff=Math.abs(total-real); ind.innerHTML=diff<0.01?'✅ Coincide':`⚠️ Diferencia: $${fmt(diff)}`; } else ind.innerHTML=''; }
 function limpiarVenta(){ ventaLineas=[]; renderVentaTabla(); document.getElementById('venta-monto-real').value=''; ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value=''; }
+
 function pedirPagoYVuelto(totalVenta){
   return new Promise((resolve) => {
     const modal = document.getElementById('pago-modal');
@@ -613,11 +723,51 @@ function pedirPagoYVuelto(totalVenta){
     totalSpan.textContent = `Total: $${fmt(totalVenta)}`;
     montoInput.value = '';
     vueltoSpan.textContent = 'Vuelto: $0';
-    function calcularVuelto() { let pago = parseNumero(montoInput.value); if (isNaN(pago)) pago = 0; let vuelto = pago - totalVenta; if (vuelto < 0) vuelto = 0; vueltoSpan.textContent = `Vuelto: $${fmt(vuelto)}`; }
-    function onEnter(e) { if (e.key === 'Enter') { e.preventDefault(); let pago = parseNumero(montoInput.value); if (isNaN(pago)) pago = 0; let vuelto = pago - totalVenta; if (vuelto >= 0) { toast(`💵 Vuelto: $${fmt(vuelto)}`); limpiarEventos(); modal.classList.remove('open'); resolve(true); } else { toast("⚠️ El pago es insuficiente."); montoInput.focus(); } } }
-    function limpiarEventos() { montoInput.removeEventListener('input', calcularVuelto); montoInput.removeEventListener('keypress', onEnter); cancelarBtn.removeEventListener('click', onCancel); confirmarBtn.removeEventListener('click', onConfirm); }
+    function calcularVuelto() {
+      let pago = parseNumero(montoInput.value);
+      if (isNaN(pago)) pago = 0;
+      let vuelto = pago - totalVenta;
+      if (vuelto < 0) vuelto = 0;
+      vueltoSpan.textContent = `Vuelto: $${fmt(vuelto)}`;
+    }
+    function onEnter(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        let pago = parseNumero(montoInput.value);
+        if (isNaN(pago)) pago = 0;
+        let vuelto = pago - totalVenta;
+        if (vuelto >= 0) {
+          toast(`💵 Vuelto: $${fmt(vuelto)}`);
+          limpiarEventos();
+          modal.classList.remove('open');
+          resolve(true);
+        } else {
+          toast("⚠️ El pago es insuficiente.");
+          montoInput.focus();
+        }
+      }
+    }
+    function limpiarEventos() {
+      montoInput.removeEventListener('input', calcularVuelto);
+      montoInput.removeEventListener('keypress', onEnter);
+      cancelarBtn.removeEventListener('click', onCancel);
+      confirmarBtn.removeEventListener('click', onConfirm);
+    }
     function onCancel() { limpiarEventos(); modal.classList.remove('open'); resolve(false); }
-    function onConfirm() { let pago = parseNumero(montoInput.value); if (isNaN(pago)) pago = 0; let vuelto = pago - totalVenta; if (vuelto >= 0) { toast(`💵 Vuelto: $${fmt(vuelto)}`); limpiarEventos(); modal.classList.remove('open'); resolve(true); } else { toast("⚠️ El pago es insuficiente."); montoInput.focus(); } }
+    function onConfirm() {
+      let pago = parseNumero(montoInput.value);
+      if (isNaN(pago)) pago = 0;
+      let vuelto = pago - totalVenta;
+      if (vuelto >= 0) {
+        toast(`💵 Vuelto: $${fmt(vuelto)}`);
+        limpiarEventos();
+        modal.classList.remove('open');
+        resolve(true);
+      } else {
+        toast("⚠️ El pago es insuficiente.");
+        montoInput.focus();
+      }
+    }
     montoInput.addEventListener('input', calcularVuelto);
     montoInput.addEventListener('keypress', onEnter);
     cancelarBtn.addEventListener('click', onCancel);
@@ -626,6 +776,7 @@ function pedirPagoYVuelto(totalVenta){
     montoInput.focus();
   });
 }
+
 async function confirmarVenta(){
   if(!ventaLineas.length){toast("Sin líneas");return;}
   const totalVenta = ventaLineas.reduce((a,l)=>a+l.subtotal,0);
@@ -646,8 +797,10 @@ async function confirmarVenta(){
   toast(`✅ Venta #${fid} registrada: $${fmt(totalVenta)}`);
   ventaLineas = []; renderVentaTabla(); document.getElementById('venta-monto-real').value=''; ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value='';
 }
+
 function iniciarScannerVenta(){ const inp=document.getElementById('venta-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } ventaSeleccionarProdId(p.id); agregarLineaVenta(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
-function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?p.id:null; ventaSeleccionarProdId(ventaProductoActualId); }); }
+function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?p.id:null; }); }
+
 function renderLog(){
   const el=document.getElementById('log-list');
   if(!log.length){el.innerHTML='<div class="empty">Sin movimientos</div>';return}
@@ -687,253 +840,24 @@ function anularFactura(fid){
 function calcPrecioVenta(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, util=parseNumero(document.getElementById('new-utilidad').value)||0; if(costo>0&&util>0) document.getElementById('new-precio').value=Math.round(costo*(1+util/100)); updatePreview(); }
 function calcUtilidad(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, venta=parseNumero(document.getElementById('new-precio').value)||0; if(costo>0&&venta>0) document.getElementById('new-utilidad').value=((venta-costo)/costo*100).toFixed(1); updatePreview(); }
 function updatePreview(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, venta=parseNumero(document.getElementById('new-precio').value)||0, box=document.getElementById('price-preview'); if(costo<=0&&venta<=0){box.style.display='none';return;} box.style.display='grid'; document.getElementById('prev-costo').textContent='$'+fmt(costo); document.getElementById('prev-venta').textContent='$'+fmt(venta); if(costo>0&&venta>0){ const util=((venta-costo)/costo*100).toFixed(1); document.getElementById('prev-util').textContent=util+'% (+$'+fmt(venta-costo)+')'; } else document.getElementById('prev-util').textContent='—'; }
-function showTab(name,btn){ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.getElementById('panel-'+name).classList.add('active'); btn.classList.add('active'); if(name==='movimientos') renderLog(); if(name==='facturas') renderFacturas(); if(name==='compra'){ actualizarDatalistCompra(); setTimeout(()=>document.getElementById('compra-scan-input').focus(),100); } if(name==='venta'){ actualizarDatalistVenta(); setTimeout(()=>document.getElementById('venta-scan-input').focus(),100); } if(name==='csvimport'){ /* actualizar estado duplicados */ if(csvFilas.length) mostrarPreviewCSV(); } }
+function showTab(name,btn){ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.getElementById('panel-'+name).classList.add('active'); btn.classList.add('active'); if(name==='movimientos') renderLog(); if(name==='facturas') renderFacturas(); if(name==='compra'){ actualizarDatalistCompra(); setTimeout(()=>document.getElementById('compra-scan-input').focus(),100); } if(name==='venta'){ actualizarDatalistVenta(); setTimeout(()=>document.getElementById('venta-scan-input').focus(),100); } }
 function exportarBackup(){ const data={productos,stock,log,facturas,fecha:new Date().toISOString()}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`backup_minimarket_${new Date().toLocaleDateString('es-AR').replace(/\//g,'-')}.json`; a.click(); URL.revokeObjectURL(blob); toast('Backup guardado'); }
-function importarBackup(e){ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=function(ev){ try{ const data=JSON.parse(ev.target.result); if(!data.productos||!data.stock){toast('Archivo inválido');return;} if(!confirm(`Restaurar backup? Se perderán datos actuales.`)) return; productos=data.productos; stock=data.stock; log=data.log||[]; facturas=data.facturas||[]; nextId=Math.max(...productos.map(p=>p.id),99)+1; saveAll();renderAll(); toast(`Backup restaurado: ${productos.length} productos`); }catch(err){ toast('Error al leer archivo: '+err.message); } }; reader.readAsText(file); e.target.value=''; }
+function importarBackup(e){ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=function(ev){ try{ const data=JSON.parse(ev.target.result); if(!data.productos||!data.stock){toast('Archivo inválido');return;} if(!confirm(`Restaurar backup? Se perderán datos actuales.`)) return; productos=data.productos; stock=data.stock; log=data.log||[]; facturas=data.facturas||[]; nextId=Math.max(...productos.map(p=>p.id),99)+1; saveAll();renderAll(); toast(`Backup restaurado: ${productos.length} productos`); }catch(err){toast('Error al leer archivo')} }; reader.readAsText(file); e.target.value=''; }
 function renderAll(){ renderStock(); renderStats(); renderTotal(); renderFacturas(); renderLog(); actualizarDatalistCompra(); actualizarDatalistVenta(); }
-function initEventos(){ document.getElementById('btn-agregar-linea-compra')?.addEventListener('click',agregarLineaCompra); document.getElementById('btn-confirmar-compra')?.addEventListener('click',confirmarCompra); document.getElementById('btn-limpiar-compra')?.addEventListener('click',limpiarCompra); document.getElementById('compra-monto-real')?.addEventListener('input',actualizarMatchCompra); document.getElementById('btn-agregar-linea-venta')?.addEventListener('click',agregarLineaVenta); document.getElementById('btn-confirmar-venta')?.addEventListener('click',confirmarVenta); document.getElementById('btn-limpiar-venta')?.addEventListener('click',limpiarVenta); document.getElementById('venta-monto-real')?.addEventListener('input',actualizarMatchVenta); iniciarScannerCompra(); iniciarScannerVenta(); activarEnterCompra(); activarEnterVenta(); }
+function initEventos(){
+  document.getElementById('btn-agregar-linea-compra')?.addEventListener('click',agregarLineaCompra);
+  document.getElementById('btn-confirmar-compra')?.addEventListener('click',confirmarCompra);
+  document.getElementById('btn-limpiar-compra')?.addEventListener('click',limpiarCompra);
+  document.getElementById('compra-monto-real')?.addEventListener('input',actualizarMatchCompra);
+  document.getElementById('btn-agregar-linea-venta')?.addEventListener('click',agregarLineaVenta);
+  document.getElementById('btn-confirmar-venta')?.addEventListener('click',confirmarVenta);
+  document.getElementById('btn-limpiar-venta')?.addEventListener('click',limpiarVenta);
+  document.getElementById('venta-monto-real')?.addEventListener('input',actualizarMatchVenta);
+  iniciarScannerCompra(); iniciarScannerVenta(); activarEnterCompra(); activarEnterVenta();
+}
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 function autenticar(){ return new Promise((resolve)=>{ const ov=document.getElementById('clave-overlay'), inp=document.getElementById('clave-input'), btn=document.getElementById('btn-validar'), err=document.getElementById('clave-error'); const validar=()=>{ if(inp.value===CLAVE_ACCESO){ ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); } else{ err.textContent='Contraseña incorrecta.'; inp.value=''; inp.focus(); } }; btn.onclick=validar; inp.onkeypress=e=>{if(e.key==='Enter')validar();}; inp.focus(); }); }
-autenticar().then(()=>{ (async()=>{await loadAll();renderAll();initEventos();initCSVImporter();})(); });
-
-// ============================================================
-// IMPORTADOR CSV ESCALONADO
-// ============================================================
-let csvFilas = [];       // todas las filas parseadas del CSV
-let csvLoteActual = 0;   // índice del lote actual
-let csvImportando = false;
-
-function initCSVImporter() {
-  const zona = document.getElementById('csv-drop-zone');
-  if (!zona) return;
-  zona.addEventListener('dragover', e => { e.preventDefault(); zona.classList.add('drag-over'); });
-  zona.addEventListener('dragleave', () => zona.classList.remove('drag-over'));
-  zona.addEventListener('drop', e => {
-    e.preventDefault(); zona.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) procesarArchivoCSV(file);
-  });
-}
-
-function cargarCSV(event) {
-  const file = event.target.files[0];
-  if (file) procesarArchivoCSV(file);
-  event.target.value = '';
-}
-
-function procesarArchivoCSV(file) {
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const texto = e.target.result;
-    const filas = parsearCSV(texto);
-    if (!filas || filas.length === 0) { toast('❌ CSV vacío o inválido'); return; }
-    csvFilas = filas;
-    csvLoteActual = 0;
-    mostrarPreviewCSV();
-  };
-  reader.readAsText(file, 'UTF-8');
-}
-
-function parsearCSV(texto) {
-  // Detectar separador: ; o ,
-  const primeraLinea = texto.split('\n')[0];
-  const sep = (primeraLinea.split(';').length > primeraLinea.split(',').length) ? ';' : ',';
-  const lineas = texto.trim().split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  if (lineas.length < 2) return [];
-  const headers = lineas[0].split(sep).map(h => h.trim().toLowerCase().replace(/[^a-záéíóúñ_0-9]/gi, ''));
-  const colMap = {};
-  const aliases = {
-    marca: ['marca','brand','categoria','category'],
-    nombre: ['nombre','name','producto','product','descripcion','description'],
-    precio: ['precio','price','precioventa','preciov','pventa'],
-    costo: ['costo','cost','preciocosto','precioc','pcosto'],
-    stock: ['stock','cantidad','qty','quantity','inicial'],
-    barcode: ['barcode','codigo','code','ean','codigobarra','codigobarras'],
-    tipo: ['tipo','type','unidad','unit']
-  };
-  for (const [campo, alts] of Object.entries(aliases)) {
-    for (let i = 0; i < headers.length; i++) {
-      if (alts.some(a => headers[i].includes(a))) { colMap[campo] = i; break; }
-    }
-  }
-  if (colMap.nombre === undefined || colMap.precio === undefined) {
-    toast('❌ El CSV debe tener columnas "nombre" y "precio"'); return [];
-  }
-  const resultado = [];
-  for (let i = 1; i < lineas.length; i++) {
-    const cols = splitCSVLine(lineas[i], sep);
-    const get = (campo) => colMap[campo] !== undefined ? (cols[colMap[campo]] || '').trim() : '';
-    const nombre = get('nombre');
-    const marca = get('marca') || 'General';
-    const precioRaw = parseNumero(get('precio'));
-    const costoRaw = parseNumero(get('costo')) || 0;
-    const stockRaw = parseNumero(get('stock')) || 0;
-    const barcode = get('barcode');
-    const tipoRaw = get('tipo').toLowerCase();
-    const tipo = (tipoRaw === 'peso' || tipoRaw === 'kg') ? 'peso' : 'unidad';
-    let estado = 'ok', estadoMsg = 'Nuevo';
-    if (!nombre) { estado = 'error'; estadoMsg = 'Sin nombre'; }
-    else if (isNaN(precioRaw) || precioRaw <= 0) { estado = 'warn'; estadoMsg = 'Precio inválido'; }
-    else {
-      const existente = productos.find(p => p.barcode && barcode && p.barcode === barcode);
-      if (existente) { estado = 'dup'; estadoMsg = 'Actualiza'; }
-    }
-    resultado.push({ nombre, marca, precio: isNaN(precioRaw) ? 0 : precioRaw, costo: isNaN(costoRaw) ? 0 : costoRaw, stock: isNaN(stockRaw) ? 0 : stockRaw, barcode, tipo, estado, estadoMsg, fila: i });
-  }
-  return resultado;
-}
-
-function splitCSVLine(linea, sep) {
-  const cols = []; let curr = ''; let inQuotes = false;
-  for (let i = 0; i < linea.length; i++) {
-    const c = linea[i];
-    if (c === '"') { inQuotes = !inQuotes; }
-    else if (c === sep && !inQuotes) { cols.push(curr); curr = ''; }
-    else { curr += c; }
-  }
-  cols.push(curr);
-  return cols.map(c => c.replace(/^"|"$/g, '').trim());
-}
-
-function mostrarPreviewCSV() {
-  const total = csvFilas.length;
-  const nuevos = csvFilas.filter(f => f.estado === 'ok').length;
-  const actualizar = csvFilas.filter(f => f.estado === 'dup').length;
-  const errores = csvFilas.filter(f => f.estado === 'error' || f.estado === 'warn').length;
-  document.getElementById('csv-cnt-total').textContent = total;
-  document.getElementById('csv-cnt-nuevos').textContent = nuevos;
-  document.getElementById('csv-cnt-actualizar').textContent = actualizar;
-  document.getElementById('csv-cnt-error').textContent = errores;
-  document.getElementById('csv-summary').style.display = 'grid';
-  // Preview primeras 20
-  const preview = csvFilas.slice(0, 20);
-  const tbody = document.getElementById('csv-preview-tbody');
-  tbody.innerHTML = preview.map((f, i) => {
-    const claseRow = f.estado === 'ok' ? 'row-ok' : f.estado === 'dup' ? 'row-dup' : 'row-warn';
-    const claseBadge = f.estado === 'ok' ? 'badge-ok' : f.estado === 'dup' ? 'badge-warn' : 'badge-dup';
-    return `<tr class="${claseRow}">
-      <td>${f.fila}</td><td>${f.marca}</td><td>${f.nombre}</td>
-      <td>$${fmt(f.precio)}</td><td>$${fmt(f.costo)}</td>
-      <td>${fmt(f.stock)}</td><td>${f.barcode||'—'}</td><td>${f.tipo}</td>
-      <td><span class="csv-status-badge ${claseBadge}">${f.estadoMsg}</span></td>
-    </tr>`;
-  }).join('');
-  document.getElementById('csv-preview-wrap').style.display = 'block';
-  document.getElementById('csv-actions-row').style.display = 'flex';
-  // Info de lotes
-  const batchSize = parseInt(document.getElementById('csv-batch-size').value);
-  const nLotes = Math.ceil(total / batchSize);
-  document.getElementById('csv-lote-info').textContent = `${total} productos en ${nLotes} lote${nLotes > 1 ? 's' : ''} de ${batchSize}`;
-}
-
-async function iniciarImportacionCSV() {
-  if (csvImportando) return;
-  if (!csvFilas.length) { toast('No hay datos para importar'); return; }
-  const modo = document.querySelector('input[name="csv-mode"]:checked').value;
-  if (modo === 'reemplazar') {
-    if (!confirm(`⚠️ Modo REEMPLAZAR: se eliminarán TODOS los ${productos.length} productos actuales y se cargarán los ${csvFilas.length} del CSV. ¿Confirmar?`)) return;
-  }
-  const batchSize = parseInt(document.getElementById('csv-batch-size').value);
-  const lotes = [];
-  for (let i = 0; i < csvFilas.length; i += batchSize) lotes.push(csvFilas.slice(i, i + batchSize));
-  if (modo === 'reemplazar') { productos = []; stock = {}; nextId = 100; }
-  document.getElementById('csv-progress-wrap').style.display = 'block';
-  document.getElementById('btn-csv-importar').disabled = true;
-  csvImportando = true;
-  let logBox = document.getElementById('csv-log-box');
-  logBox.textContent = '';
-  let totalAgregados = 0, totalActualizados = 0, totalOmitidos = 0;
-  for (let li = 0; li < lotes.length; li++) {
-    const lote = lotes[li];
-    const pct = Math.round(((li) / lotes.length) * 100);
-    document.getElementById('csv-progress-bar').style.width = pct + '%';
-    document.getElementById('csv-progress-label').textContent = `Importando lote ${li + 1} de ${lotes.length} (${pct}%)...`;
-    logBox.textContent += `\n▶ Lote ${li + 1}/${lotes.length} (${lote.length} productos)\n`;
-    logBox.scrollTop = logBox.scrollHeight;
-    for (const fila of lote) {
-      if (fila.estado === 'error') { logBox.textContent += `  ✗ Fila ${fila.fila}: sin nombre, omitida\n`; totalOmitidos++; continue; }
-      if (fila.precio <= 0 && modo !== 'actualizar') { logBox.textContent += `  ⚠ ${fila.nombre}: precio 0, omitido\n`; totalOmitidos++; continue; }
-      const existente = fila.barcode ? productos.find(p => p.barcode === fila.barcode) : null;
-      const existeNombre = !existente ? productos.find(p => p.nombre.toLowerCase() === fila.nombre.toLowerCase() && p.marca.toLowerCase() === fila.marca.toLowerCase()) : null;
-      if (existente && (modo === 'actualizar' || modo === 'reemplazar')) {
-        existente.nombre = fila.nombre; existente.marca = fila.marca;
-        if (fila.precio > 0) existente.precio = fila.precio;
-        if (fila.costo > 0) existente.costo = fila.costo;
-        existente.tipo = fila.tipo;
-        if (fila.stock > 0) stock[existente.id] = fila.stock;
-        logBox.textContent += `  ↺ Actualizado: ${fila.marca} — ${fila.nombre}\n`;
-        totalActualizados++;
-      } else if (existeNombre && modo === 'agregar') {
-        logBox.textContent += `  = Omitido (ya existe): ${fila.nombre}\n`;
-        totalOmitidos++;
-      } else if (!existente) {
-        const np = { id: nextId++, nombre: fila.nombre, marca: fila.marca, precio: fila.precio, costo: fila.costo, barcode: fila.barcode, tipo: fila.tipo };
-        productos.push(np);
-        stock[np.id] = fila.tipo === 'unidad' ? Math.round(fila.stock) : Math.round(fila.stock * 100) / 100;
-        logBox.textContent += `  ✓ Agregado: ${fila.marca} — ${fila.nombre} ($${fmt(fila.precio)})\n`;
-        totalAgregados++;
-      }
-    }
-    // Guardar después de cada lote
-    localStorage.setItem(KEY_P, JSON.stringify(productos));
-    localStorage.setItem(KEY_S, JSON.stringify(stock));
-    logBox.textContent += `  💾 Lote ${li + 1} guardado localmente\n`;
-    logBox.scrollTop = logBox.scrollHeight;
-    // Pausa entre lotes para no bloquear el hilo
-    await new Promise(r => setTimeout(r, 120));
-  }
-  // Sincronizar a la nube al final
-  document.getElementById('csv-progress-label').textContent = '☁️ Sincronizando con la nube...';
-  document.getElementById('csv-progress-bar').style.width = '95%';
-  logBox.textContent += `\n☁️ Subiendo a la nube...\n`; logBox.scrollTop = logBox.scrollHeight;
-  try {
-    await saveAll();
-    logBox.textContent += `✅ Sincronización en la nube OK\n`; logBox.scrollTop = logBox.scrollHeight;
-  } catch(e) {
-    logBox.textContent += `⚠️ Error nube: ${e.message} (datos guardados localmente)\n`; logBox.scrollTop = logBox.scrollHeight;
-  }
-  document.getElementById('csv-progress-bar').style.width = '100%';
-  document.getElementById('csv-progress-label').textContent = `✅ Importación completa`;
-  logBox.textContent += `\n═══════════════════════════\n✅ RESUMEN FINAL:\n  Agregados: ${totalAgregados}\n  Actualizados: ${totalActualizados}\n  Omitidos: ${totalOmitidos}\n  Total productos en sistema: ${productos.length}\n`;
-  logBox.scrollTop = logBox.scrollHeight;
-  renderAll();
-  toast(`✅ Importados ${totalAgregados} nuevos, ${totalActualizados} actualizados`);
-  csvImportando = false;
-  document.getElementById('btn-csv-importar').disabled = false;
-}
-
-function limpiarCSV() {
-  csvFilas = []; csvLoteActual = 0;
-  document.getElementById('csv-summary').style.display = 'none';
-  document.getElementById('csv-preview-wrap').style.display = 'none';
-  document.getElementById('csv-progress-wrap').style.display = 'none';
-  document.getElementById('csv-actions-row').style.display = 'none';
-  document.getElementById('csv-progress-bar').style.width = '0%';
-  document.getElementById('csv-log-box').textContent = '';
-}
-
-function descargarPlantillaCSV() {
-  const contenido = 'marca,nombre,precio,costo,stock,barcode,tipo\n';
-  const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'plantilla_productos.csv'; a.click(); URL.revokeObjectURL(a.href);
-  toast('📄 Plantilla descargada');
-}
-
-function descargarPlantillaEjemplo() {
-  const contenido = [
-    'marca,nombre,precio,costo,stock,barcode,tipo',
-    'Lácteos,Leche entera 1L,1500,1000,24,7790001234561,unidad',
-    'Lácteos,Yogur frutado 190g,800,550,30,7790001234562,unidad',
-    'Almacén,Arroz largo fino 1kg,1800,1200,15,7790001234563,unidad',
-    'Frutas,Manzana roja,1200,800,10,,peso',
-    'Bebidas,Agua mineral 500ml,600,400,48,7790001234564,unidad'
-  ].join('\n');
-  const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'ejemplo_productos.csv'; a.click(); URL.revokeObjectURL(a.href);
-  toast('📄 Ejemplo descargado');
-}
+autenticar().then(()=>{ (async()=>{await loadAll();renderAll();initEventos();})(); });
 </script>
 </body>
 </html>
