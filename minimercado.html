@@ -329,21 +329,26 @@ async function saveAll(){
   localStorage.setItem(KEY_S,JSON.stringify(stock));
   localStorage.setItem(KEY_L,JSON.stringify(log));
   localStorage.setItem(KEY_F,JSON.stringify(facturas));
-  if (!SCRIPT_URL) return;
-  // Usar no-cors + form-urlencoded para evitar bloqueo de CORS en GitHub Pages
-  try{
+  if(!SCRIPT_URL) return;
+  // Guardar via JSONP GET (evita el bloqueo CORS del POST en Google Apps Script)
+  return new Promise((resolve)=>{
+    const cbName='save_'+Date.now();
     const data={productos,stock,log,facturas};
-    const formData=new URLSearchParams();
-    formData.append('data', JSON.stringify(data));
-    await fetch(SCRIPT_URL, {
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:formData
-    });
-    // no-cors no devuelve respuesta legible, pero llega al servidor
-    toast('✅ Guardado en la nube');
-  }catch(err){ console.error(err); toast('💾 Solo local'); }
+    const jsonStr=encodeURIComponent(JSON.stringify(data));
+    window[cbName]=function(result){
+      delete window[cbName];
+      document.getElementById('save-script')?.remove();
+      if(result && result.status==='success') toast('✅ Guardado en la nube');
+      else toast('⚠️ Error nube: '+(result?.message||'sin respuesta'));
+      resolve(result);
+    };
+    const s=document.createElement('script');
+    s.id='save-script';
+    s.src=SCRIPT_URL+'?accion=save&data='+jsonStr+'&callback='+cbName+'&t='+Date.now();
+    s.onerror=()=>{ delete window[cbName]; toast('💾 Solo local'); resolve(null); };
+    document.head.appendChild(s);
+    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; document.getElementById('save-script')?.remove(); toast('⏱️ Timeout nube, guardado local'); resolve(null); } },10000);
+  });
 }
 
 // Carga desde nube usando JSONP
