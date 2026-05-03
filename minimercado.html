@@ -243,8 +243,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button class="mode-btn salida active" onclick="setMode('salida')">Vender</button>
     <button class="mode-btn compra" onclick="setMode('compra')">Agregar</button>
   </div>
+  <button onclick="abrirCamara()" style="padding:5px 12px;border-radius:8px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.8rem;font-weight:700;cursor:pointer;" title="Escanear con cámara del celular">📷 Cámara</button>
   <div class="scanner-status" id="scanner-status">Listo</div>
 </div>
+
+<!-- MODAL CÁMARA -->
+<div class="modal-overlay" id="camara-modal" style="z-index:3000;background:rgba(0,0,0,0.92);">
+  <div style="background:#1a1a2e;border-radius:20px;padding:20px;width:min(95vw,420px);text-align:center;">
+    <div style="font-size:1rem;font-weight:700;color:#e8c84a;margin-bottom:12px;">📷 Escaneá el código de barras</div>
+    <div style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;">
+      <video id="camara-video" autoplay playsinline style="width:100%;max-height:300px;display:block;"></video>
+      <canvas id="camara-canvas" style="display:none;"></canvas>
+      <!-- línea de escaneo animada -->
+      <div id="scan-line" style="position:absolute;left:0;right:0;height:2px;background:#e8c84a;box-shadow:0 0 8px #e8c84a;animation:scanline 2s linear infinite;top:50%;"></div>
+      <!-- marco de esquinas -->
+      <div style="position:absolute;inset:20px;border:2px solid rgba(232,200,74,0.4);border-radius:8px;pointer-events:none;"></div>
+    </div>
+    <div id="camara-status" style="margin-top:10px;font-size:0.8rem;color:#8888aa;">Apuntá la cámara al código de barras...</div>
+    <div id="camara-resultado" style="margin-top:8px;font-size:1rem;font-weight:700;color:#97c459;min-height:24px;"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;justify-content:center;">
+      <button onclick="cambiarCamara()" style="padding:8px 16px;border-radius:10px;border:1px solid #444;background:#2a2a4a;color:#fff;cursor:pointer;font-size:0.8rem;">🔄 Cambiar cámara</button>
+      <button onclick="cerrarCamara()" style="padding:8px 20px;border-radius:10px;border:none;background:#e24b4a;color:#fff;cursor:pointer;font-weight:700;">✕ Cerrar</button>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes scanline{0%{top:15%}50%{top:85%}100%{top:15%}}
+</style>
 
 <div class="tabs">
   <button class="tab active" onclick="showTab('stock',this)">📦 Stock</button>
@@ -489,7 +514,18 @@ async function loadAll(){
     }
     toast('📀 Datos locales (ejemplo)');
   }
-  productos.forEach(p=>{if(stock[p.id]===undefined)stock[p.id]=0;if(!p.costo)p.costo=0;if(!p.barcode)p.barcode='';if(!p.tipo)p.tipo='unidad';if(p.stockMin===undefined)p.stockMin=0;});
+  productos.forEach(p=>{
+    p.id = Number(p.id);
+    if(stock[p.id]===undefined)stock[p.id]=0;
+    if(!p.costo)p.costo=0;
+    if(!p.barcode)p.barcode='';
+    if(!p.tipo)p.tipo='unidad';
+    if(p.stockMin===undefined)p.stockMin=0;
+  });
+  // Normalizar keys del stock a número
+  const stockNorm={};
+  for(const k in stock) stockNorm[Number(k)]=stock[k];
+  stock=stockNorm;
   nextId=Math.max(...productos.map(p=>p.id),99)+1;
   if(!facturas)facturas=[];
 }
@@ -687,20 +723,20 @@ let compraLineas=[], compraProductoActualId=null;
 function actualizarDatalistCompra(){ const d=document.getElementById('compra-productos-list'); if(d) d.innerHTML=productos.map(p=>`<option value="${p.marca} ${p.nombre} (Cód: ${p.barcode})">`).join(''); }
 function obtenerProdPorTexto(t){ for(let p of productos) if(`${p.marca} ${p.nombre} (Cód: ${p.barcode})`===t) return p; return null; }
 function compraSeleccionarProdId(id){ 
-  compraProductoActualId=id; const p=productos.find(p=>p.id===id); 
+  compraProductoActualId=Number(id); const p=productos.find(p=>Number(p.id)===Number(id)); 
   if(p){ 
     document.getElementById('compra-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`;
   } 
 }
 function agregarLineaCompra(){
-  if(!compraProductoActualId){ const t=document.getElementById('compra-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) compraProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
-  const prod=productos.find(p=>p.id===compraProductoActualId); if(!prod){toast("Producto no encontrado");return;}
-  let cant = 1;  // cantidad por defecto 1 (luego pueden editar en tabla)
+  if(!compraProductoActualId){ const t=document.getElementById('compra-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) compraProductoActualId=Number(p.id); else{ toast("Seleccione producto válido"); return; } }
+  const prod=productos.find(p=>Number(p.id)===Number(compraProductoActualId)); if(!prod){toast("Producto no encontrado");return;}
+  let cant = 1;
   let prec = prod.costo || 0;
-  if(prec<=0){toast("El producto no tiene costo. Edite el producto o ingrese manualmente en la tabla.");return;}
+  // Si no tiene costo igual deja agregar con costo 0 (editable en tabla)
   if(prod.tipo==='unidad') cant = Math.round(cant);
   else cant = Math.round(cant * 100) / 100;
-  compraLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioCosto:prec, subtotal:cant*prec, costoAnterior:prod.costo, precioAnterior:prod.precio, stockAnterior:stock[prod.id]||0, tipo:prod.tipo});
+  compraLineas.push({prodId:Number(prod.id), nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioCosto:prec, subtotal:cant*prec, costoAnterior:prod.costo, precioAnterior:prod.precio, stockAnterior:stock[prod.id]||0, tipo:prod.tipo});
   renderCompraTabla();
 }
 function eliminarLineaCompra(i){compraLineas.splice(i,1);renderCompraTabla();}
@@ -741,20 +777,20 @@ let ventaLineas=[], ventaProductoActualId=null;
 
 function actualizarDatalistVenta(){ const d=document.getElementById('venta-productos-list'); if(d) d.innerHTML=productos.map(p=>`<option value="${p.marca} ${p.nombre} (Cód: ${p.barcode})">`).join(''); }
 function ventaSeleccionarProdId(id){ 
-  ventaProductoActualId=id; const p=productos.find(p=>p.id===id); 
+  ventaProductoActualId=Number(id); const p=productos.find(p=>Number(p.id)===Number(id)); 
   if(p){ 
     document.getElementById('venta-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`;
   } 
 }
 function agregarLineaVenta(){
-  if(!ventaProductoActualId){ const t=document.getElementById('venta-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) ventaProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
-  const prod=productos.find(p=>p.id===ventaProductoActualId); if(!prod){toast("Producto no encontrado");return;}
+  if(!ventaProductoActualId){ const t=document.getElementById('venta-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) ventaProductoActualId=Number(p.id); else{ toast("Seleccione producto válido"); return; } }
+  const prod=productos.find(p=>Number(p.id)===Number(ventaProductoActualId)); if(!prod){toast("Producto no encontrado");return;}
   let cant = 1;
   let prec = prod.precio || 0;
-  if(prec<=0){toast("El producto no tiene precio de venta. Edite el producto o ingrese manualmente en la tabla.");return;}
+  if(prec<=0){toast("El producto no tiene precio de venta. Edite el producto.");return;}
   const antesStock=stock[prod.id]||0;
   if(cant > antesStock+0.001){ toast(`Stock insuficiente: ${fmtUnidad(antesStock, prod.tipo)} disponible`); return; }
-  ventaLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioVenta:prec, subtotal:cant*prec, stockAntes:antesStock, tipo:prod.tipo});
+  ventaLineas.push({prodId:Number(prod.id), nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioVenta:prec, subtotal:cant*prec, stockAntes:antesStock, tipo:prod.tipo});
   renderVentaTabla();
 }
 function eliminarLineaVenta(i){ventaLineas.splice(i,1);renderVentaTabla();}
@@ -1091,6 +1127,109 @@ function confirmarImportCSV() {
   saveAll();
   renderAll();
   toast(`✅ CSV importado: ${agregados} nuevos, ${actualizados} actualizados`);
+}
+
+
+// ========== CÁMARA: LECTOR DE CÓDIGOS DE BARRAS ==========
+let camaraStream = null;
+let camaraInterval = null;
+let camarasFacingMode = 'environment'; // trasera por defecto
+let zxingReader = null;
+
+async function abrirCamara(){
+  document.getElementById('camara-modal').classList.add('open');
+  document.getElementById('camara-resultado').textContent = '';
+  document.getElementById('camara-status').textContent = 'Iniciando cámara...';
+
+  // Cargar ZXing si no está cargado
+  if(!window.ZXing){
+    await new Promise((resolve, reject)=>{
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+      s.onload = resolve;
+      s.onerror = ()=>{ document.getElementById('camara-status').textContent='❌ Error cargando librería. Necesitás internet.'; reject(); };
+      document.head.appendChild(s);
+    }).catch(()=>{ return; });
+  }
+
+  iniciarStream();
+}
+
+async function iniciarStream(){
+  try {
+    if(camaraStream){ camaraStream.getTracks().forEach(t=>t.stop()); }
+    const constraints = { video: { facingMode: camarasFacingMode, width:{ideal:1280}, height:{ideal:720} } };
+    camaraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    const video = document.getElementById('camara-video');
+    video.srcObject = camaraStream;
+    await video.play();
+    document.getElementById('camara-status').textContent = 'Apuntá al código de barras...';
+    iniciarEscaneo();
+  } catch(err){
+    document.getElementById('camara-status').textContent = '❌ No se pudo acceder a la cámara. Verificá los permisos.';
+  }
+}
+
+function iniciarEscaneo(){
+  if(camaraInterval) clearInterval(camaraInterval);
+  if(!window.ZXing) return;
+
+  const hints = new Map();
+  const formats = [
+    ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+    ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
+    ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
+    ZXing.BarcodeFormat.ITF, ZXing.BarcodeFormat.QR_CODE
+  ];
+  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+  hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+  const reader = new ZXing.MultiFormatReader();
+  reader.setHints(hints);
+
+  const video = document.getElementById('camara-video');
+  const canvas = document.getElementById('camara-canvas');
+  const ctx = canvas.getContext('2d');
+
+  camaraInterval = setInterval(()=>{
+    if(video.readyState !== video.HAVE_ENOUGH_DATA) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    try {
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
+      const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
+      const result = reader.decode(binaryBitmap);
+      if(result){
+        const codigo = result.getText();
+        document.getElementById('camara-resultado').textContent = '✅ ' + codigo;
+        document.getElementById('camara-status').textContent = 'Código detectado!';
+        // Vibrar si el celular lo soporta
+        if(navigator.vibrate) navigator.vibrate(100);
+        // Procesar el código
+        setTimeout(()=>{
+          cerrarCamara();
+          document.getElementById('scanner-input').value = codigo;
+          processScanGlobal(codigo);
+        }, 400);
+      }
+    } catch(e){ /* Sin resultado todavía */ }
+  }, 200);
+}
+
+function cambiarCamara(){
+  camarasFacingMode = camarasFacingMode === 'environment' ? 'user' : 'environment';
+  if(camaraInterval) clearInterval(camaraInterval);
+  iniciarStream();
+}
+
+function cerrarCamara(){
+  if(camaraInterval) clearInterval(camaraInterval);
+  if(camaraStream) camaraStream.getTracks().forEach(t=>t.stop());
+  camaraStream = null;
+  camaraInterval = null;
+  document.getElementById('camara-modal').classList.remove('open');
+  document.getElementById('camara-video').srcObject = null;
 }
 
 autenticar().then(()=>{ (async()=>{await loadAll();renderAll();initEventos();})(); });
