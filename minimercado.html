@@ -8,6 +8,14 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f5;min-height:100vh;color:#1a1a2e}
+#clave-overlay{position:fixed;inset:0;background:#1a1a2e;display:flex;align-items:center;justify-content:center;z-index:9999}
+.clave-card{background:#fff;border-radius:20px;padding:40px 32px;width:320px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.4)}
+.clave-card h2{font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:20px}
+.clave-card input{width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:10px;font-size:1rem;margin-bottom:12px;outline:none}
+.clave-card input:focus{border-color:#e8c84a}
+.clave-card button{width:100%;padding:10px;background:#1a1a2e;color:#e8c84a;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer}
+.clave-card button:hover{background:#2a2a4a}
+.mensaje-error{color:#e24b4a;font-size:0.8rem;margin-top:8px;min-height:18px}
 .header{background:#1a1a2e;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .header-left{display:flex;align-items:center;gap:12px}
 .header-icon{width:40px;height:40px;background:#e8c84a;border-radius:12px;display:flex;align-items:center;justify-content:center}
@@ -359,11 +367,9 @@ async function loadAll(){
     productos=[
       {id:1,nombre:'Manzana',marca:'Frutas',precio:800,costo:0,barcode:'',tipo:'peso'},
       {id:2,nombre:'Pera',marca:'Frutas',precio:700,costo:0,barcode:'',tipo:'peso'},
-        {id:3,nombre:'Arroz 1kg',marca:'Alimentos',precio:1200,costo:0,barcode:'',tipo:'unidad'},
-        {id:4,nombre:'Leche 1L',marca:'Alimentos',precio:1100,costo:0,barcode:'',tipo:'unidad'}
-      ];
-    }
-    toast('📀 Datos locales (ejemplo)');
+      {id:3,nombre:'Arroz 1kg',marca:'Alimentos',precio:1200,costo:0,barcode:'',tipo:'unidad'},
+      {id:4,nombre:'Leche 1L',marca:'Alimentos',precio:1100,costo:0,barcode:'',tipo:'unidad'}
+    ];
   }
   productos.forEach(p=>{if(stock[p.id]===undefined)stock[p.id]=0;if(!p.costo)p.costo=0;if(!p.barcode)p.barcode='';if(!p.tipo)p.tipo='unidad';});
   nextId=Math.max(...productos.map(p=>p.id),99)+1;
