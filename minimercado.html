@@ -5,30 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MiniMarket La Reina - Stock</title>
 <style>
-/* ========== CLAVE OVERLAY ========== */
-#clave-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85); z-index: 10000; display: flex;
-  align-items: center; justify-content: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-.clave-card {
-  background: #fff; border-radius: 24px; padding: 32px; width: 320px;
-  text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-.clave-card h2 { margin-bottom: 20px; color: #1a1a2e; }
-.clave-card input {
-  width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc;
-  border-radius: 12px; margin-bottom: 20px; text-align: center;
-}
-.clave-card button {
-  background: #1a1a2e; color: white; border: none; border-radius: 30px;
-  padding: 10px 20px; font-size: 1rem; cursor: pointer; width: 100%;
-}
-.clave-card button:hover { background: #2a2a4a; }
-.mensaje-error { color: #e24b4a; font-size: 0.8rem; margin-top: 10px; }
-
-/* ========== RESTO DE ESTILOS ========== */
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f5;min-height:100vh;color:#1a1a2e}
@@ -139,297 +115,96 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .invoice-total.venta{color:#791f1f}
 .btn-anular{background:#f09595;color:#fff;border:none;padding:6px 12px;border-radius:10px;cursor:pointer;font-weight:bold}
 .btn-anular:disabled{background:#ccc;cursor:not-allowed}
-
-/* Modal para pago y vuelto */
 #pago-modal .modal { max-width: 350px; text-align: center; }
 #pago-modal .modal input { width: 100%; padding: 10px; font-size: 1.2rem; margin: 15px 0; text-align: center; }
 #pago-modal .vuelto { font-size: 1.8rem; font-weight: bold; color: #27500a; margin: 10px 0; }
 #pago-modal .total-venta { font-size: 1.2rem; background: #f0f0f5; padding: 8px; border-radius: 8px; }
-
-/* Estilos para buscador manual simplificado */
-.manual-add {
-  display: flex;
-  gap: 10px;
-  align-items: end;
-  margin-top: 15px;
-  margin-bottom: 15px;
-  flex-wrap: wrap;
-}
-.manual-add .field-group {
-  flex: 3;
-  margin-bottom: 0;
-}
-.manual-add button {
-  flex: 0 0 auto;
-  height: 38px;
-  margin-top: 0;
-}
-@media (max-width: 700px) {
-  .manual-add { flex-direction: column; }
-  .manual-add .field-group { width: 100%; }
-  .manual-add button { width: 100%; }
-}
+.manual-add { display: flex; gap: 10px; align-items: end; margin-top: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+.manual-add .field-group { flex: 3; margin-bottom: 0; }
+.manual-add button { flex: 0 0 auto; height: 38px; margin-top: 0; }
+@media (max-width: 700px) { .manual-add { flex-direction: column; } .manual-add .field-group { width: 100%; } .manual-add button { width: 100%; } }
+.btn-sync { background: #1a1a2e; color: #e8c84a; border: 1px solid #e8c84a; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 700; margin-left: 8px; }
+.btn-sync:hover { background: #2a2a4a; }
 </style>
 </head>
 <body>
-
-<div id="clave-overlay">
-  <div class="clave-card">
-    <h2>🔐 Acceso MiniMarket La Reina</h2>
-    <input type="password" id="clave-input" placeholder="Contraseña" autofocus>
-    <button id="btn-validar">Ingresar</button>
-    <div id="clave-error" class="mensaje-error"></div>
-  </div>
-</div>
-
+<div id="clave-overlay"><div class="clave-card"><h2>🔐 Acceso MiniMarket La Reina</h2><input type="password" id="clave-input" placeholder="Contraseña" autofocus><button id="btn-validar">Ingresar</button><div id="clave-error" class="mensaje-error"></div></div></div>
 <div id="app-contenido" style="display: none;">
 <div class="header">
-  <div class="header-left">
-    <div class="header-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2.2">
-        <rect x="2" y="7" width="20" height="10" rx="2"/>
-        <path d="M8 7V5a2 2 0 0 1 4 0v2"/>
-        <line x1="12" y1="11" x2="12" y2="15"/>
-        <line x1="10" y1="13" x2="14" y2="13"/>
-      </svg>
-    </div>
-    <div>
-      <div class="header-title">Stock MiniMarket La Reina</div>
-      <div class="header-sub">Venta por unidad o peso</div>
-    </div>
-  </div>
-  <div style="display:flex;align-items:center;gap:10px">
-    <div class="header-date" id="hdate"></div>
-    <button onclick="exportarBackup()" style="padding:6px 12px;border-radius:8px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.75rem;font-weight:700;cursor:pointer;">💾 Backup</button>
-    <label style="padding:6px 12px;border-radius:8px;border:1px solid #8888aa;background:transparent;color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
-  </div>
+  <div class="header-left"><div class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2.2"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M8 7V5a2 2 0 0 1 4 0v2"/><line x1="12" y1="11" x2="12" y2="15"/><line x1="10" y1="13" x2="14" y2="13"/></svg></div><div><div class="header-title">Stock MiniMarket La Reina</div><div class="header-sub">Venta por unidad o peso</div></div></div>
+  <div style="display:flex;align-items:center;gap:10px"><div class="header-date" id="hdate"></div><button onclick="exportarBackup()" style="padding:6px 12px;border-radius:8px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.75rem;font-weight:700;cursor:pointer;">💾 Backup</button><button onclick="syncNow()" class="btn-sync">🔄 Sincronizar</button><label style="padding:6px 12px;border-radius:8px;border:1px solid #8888aa;background:transparent;color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label></div>
 </div>
-
-<div class="total-banner">
-  <div>
-    <div class="total-label">Total en stock</div>
-    <div class="total-num" id="total-num">0</div>
-  </div>
-  <div class="stats-compact">
-    <div class="stat-compact"><div class="stat-label">Salidas</div><div class="stat-num" id="st-sal">0</div></div>
-    <div class="stat-compact"><div class="stat-label">Compras</div><div class="stat-num" id="st-com">0</div></div>
-    <div class="stat-compact"><div class="stat-label">Valor stock</div><div class="stat-num" id="st-val" style="font-size:1rem">$0</div></div>
-  </div>
-  <div class="total-right">
-    <div class="mini-stat mini-sal"><div class="mini-label">Salidas</div><div class="mini-val" id="mini-sal">−0</div></div>
-    <div class="mini-stat mini-com"><div class="mini-label">Compras</div><div class="mini-val" id="mini-com">+0</div></div>
-  </div>
-</div>
-
-<div class="scanner-bar">
-  <div class="scanner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2"><line x1="2" y1="5" x2="2" y2="19"/><line x1="6" y1="5" x2="6" y2="19"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="14" y1="5" x2="14" y2="19"/><line x1="17" y1="5" x2="17" y2="19"/><line x1="20" y1="5" x2="20" y2="19"/></svg></div>
-  <input type="text" id="scanner-input" class="scanner-input" placeholder="Escanear código..." autocomplete="off"/>
-  <input type="text" id="scanner-qty" class="scanner-qty" value="1" style="width:80px;"/>
-  <div class="scanner-mode">
-    <button class="mode-btn salida active" onclick="setMode('salida')">Vender</button>
-    <button class="mode-btn compra" onclick="setMode('compra')">Agregar</button>
-  </div>
-  <div class="scanner-status" id="scanner-status">Listo</div>
-</div>
-
-<div class="tabs">
-  <button class="tab active" onclick="showTab('stock',this)">📦 Stock</button>
-  <button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button>
-  <button class="tab" onclick="showTab('compra',this)">🛒 Compra</button>
-  <button class="tab" onclick="showTab('venta',this)">💰 Venta</button>
-  <button class="tab" onclick="showTab('facturas',this)">🧾 Facturas</button>
-  <button class="tab" onclick="showTab('movimientos',this)">📜 Movimientos</button>
-</div>
-
-<div id="panel-stock" class="panel active">
-  <div class="search-bar">
-    <input type="text" id="search-product" placeholder="Buscar por marca, nombre o código..." autocomplete="off">
-    <button onclick="renderStock()">🔍 Buscar</button>
-  </div>
-  <div id="stock-list"></div>
-</div>
-
-<div id="panel-acciones" class="panel">
-  <div class="add-product-card">
-    <div class="add-product-title">➕ Agregar nuevo producto</div>
-    <div class="fields-grid">
-      <div class="field-group"><div class="field-label">Marca</div><input type="text" id="new-marca" class="field-input" placeholder="Ej: Frutas"/></div>
-      <div class="field-group"><div class="field-label">Nombre</div><input type="text" id="new-nombre" class="field-input" placeholder="Ej: Manzana"/></div>
-      <div class="field-group"><div class="field-label">Código barras</div><input type="text" id="new-barcode" class="field-input" placeholder="Código para escáner"/></div>
-      <div class="field-group"><div class="field-label">Tipo de venta</div><select id="new-tipo" class="field-input"><option value="unidad">Unidad (precio por pieza)</option><option value="peso">Peso (precio por kg)</option></select></div>
-      <div class="field-group"><div class="field-label">Stock inicial</div><input type="text" id="new-stock" class="field-input" value="0"/></div>
-      <div class="field-group"><div class="field-label">Precio costo ($)</div><input type="text" id="new-costo" class="field-input" placeholder="Ej: 800" oninput="calcPrecioVenta()"/></div>
-      <div class="field-group"><div class="field-label">Utilidad (%)</div><input type="text" id="new-utilidad" class="field-input" placeholder="Ej: 40" oninput="calcPrecioVenta()"/></div>
-      <div class="field-group full"><div class="field-label">Precio venta ($)</div><input type="text" id="new-precio" class="field-input" placeholder="Automático" oninput="calcUtilidad()"/></div>
-    </div>
-    <div class="price-box" id="price-preview" style="display:none">
-      <div class="price-item price-costo"><div class="price-item-label">Costo</div><div class="price-item-val" id="prev-costo">$0</div></div>
-      <div class="price-item price-venta"><div class="price-item-label">Venta</div><div class="price-item-val" id="prev-venta">$0</div></div>
-      <div class="price-item price-util" id="prev-util-box"><div class="price-item-label">Utilidad</div><div class="price-item-val" id="prev-util">0%</div></div>
-    </div>
-    <button class="btn-action btn-nuevo" style="margin-top:12px; background:#5a1a8a; color:#fff; border:none; padding:8px;" onclick="agregarProducto()">Guardar producto</button>
-  </div>
-</div>
-
-<!-- PANEL COMPRA: solo búsqueda manual simple -->
-<div id="panel-compra" class="panel">
-  <div class="add-product-card" style="border-color:#639922;">
-    <div class="add-product-title" style="color:#27500a;">🧾 Cargar factura de COMPRA</div>
-    <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="compra-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
-    
-    <div class="manual-add">
-      <div class="field-group">
-        <label class="field-label">🔎 Buscar producto</label>
-        <input list="compra-productos-list" id="compra-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código...">
-        <datalist id="compra-productos-list"></datalist>
-      </div>
-      <div><button class="btn-action btn-compra" id="btn-agregar-linea-compra" style="padding:8px 16px;">➕ Agregar</button></div>
-    </div>
-
-    <div style="overflow-x:auto; margin-top:16px;">
-      <table class="factura-table" id="compra-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th><tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
-      </table>
-    </div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
-      <div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="compra-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="compra-match-indicator" style="font-size:0.75rem;"></span></div>
-      <div><button class="btn-action btn-compra" id="btn-confirmar-compra" style="background:#27500a; color:#fff;">✅ Confirmar compra</button><button class="btn-action" id="btn-limpiar-compra" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div>
-    </div>
-  </div>
-</div>
-
-<!-- PANEL VENTA: solo búsqueda manual simple -->
-<div id="panel-venta" class="panel">
-  <div class="add-product-card" style="border-color:#e24b4a;">
-    <div class="add-product-title" style="color:#791f1f;">🧾 Cargar factura de VENTA</div>
-    <div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="venta-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div>
-
-    <div class="manual-add">
-      <div class="field-group">
-        <label class="field-label">🔎 Buscar producto</label>
-        <input list="venta-productos-list" id="venta-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código...">
-        <datalist id="venta-productos-list"></datalist>
-      </div>
-      <div><button class="btn-action btn-venta" id="btn-agregar-linea-venta" style="padding:8px 16px;">➕ Agregar</button></div>
-    </div>
-
-    <div style="overflow-x:auto; margin-top:16px;">
-      <table class="factura-table" id="venta-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead><tbody id="venta-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
-      </table>
-    </div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
-      <div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="venta-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="venta-match-indicator" style="font-size:0.75rem;"></span></div>
-      <div><button class="btn-action btn-venta" id="btn-confirmar-venta" style="background:#791f1f; color:#fff;">✅ Confirmar venta</button><button class="btn-action" id="btn-limpiar-venta" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div>
-    </div>
-  </div>
-</div>
-
+<div class="total-banner"><div><div class="total-label">Total en stock</div><div class="total-num" id="total-num">0</div></div><div class="stats-compact"><div class="stat-compact"><div class="stat-label">Salidas</div><div class="stat-num" id="st-sal">0</div></div><div class="stat-compact"><div class="stat-label">Compras</div><div class="stat-num" id="st-com">0</div></div><div class="stat-compact"><div class="stat-label">Valor stock</div><div class="stat-num" id="st-val" style="font-size:1rem">$0</div></div></div><div class="total-right"><div class="mini-stat mini-sal"><div class="mini-label">Salidas</div><div class="mini-val" id="mini-sal">−0</div></div><div class="mini-stat mini-com"><div class="mini-label">Compras</div><div class="mini-val" id="mini-com">+0</div></div></div></div>
+<div class="scanner-bar"><div class="scanner-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1a1a2e" stroke-width="2"><line x1="2" y1="5" x2="2" y2="19"/><line x1="6" y1="5" x2="6" y2="19"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="14" y1="5" x2="14" y2="19"/><line x1="17" y1="5" x2="17" y2="19"/><line x1="20" y1="5" x2="20" y2="19"/></svg></div><input type="text" id="scanner-input" class="scanner-input" placeholder="Escanear código..." autocomplete="off"/><input type="text" id="scanner-qty" class="scanner-qty" value="1"/><div class="scanner-mode"><button class="mode-btn salida active" onclick="setMode('salida')">Vender</button><button class="mode-btn compra" onclick="setMode('compra')">Agregar</button></div><div class="scanner-status" id="scanner-status">Listo</div></div>
+<div class="tabs"><button class="tab active" onclick="showTab('stock',this)">📦 Stock</button><button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button><button class="tab" onclick="showTab('compra',this)">🛒 Compra</button><button class="tab" onclick="showTab('venta',this)">💰 Venta</button><button class="tab" onclick="showTab('facturas',this)">🧾 Facturas</button><button class="tab" onclick="showTab('movimientos',this)">📜 Movimientos</button></div>
+<div id="panel-stock" class="panel active"><div class="search-bar"><input type="text" id="search-product" placeholder="Buscar por marca, nombre o código..." autocomplete="off"><button onclick="renderStock()">🔍 Buscar</button></div><div id="stock-list"></div></div>
+<div id="panel-acciones" class="panel"><div class="add-product-card"><div class="add-product-title">➕ Agregar nuevo producto</div><div class="fields-grid"><div class="field-group"><div class="field-label">Marca</div><input type="text" id="new-marca" class="field-input" placeholder="Ej: Frutas"/></div><div class="field-group"><div class="field-label">Nombre</div><input type="text" id="new-nombre" class="field-input" placeholder="Ej: Manzana"/></div><div class="field-group"><div class="field-label">Código barras</div><input type="text" id="new-barcode" class="field-input" placeholder="Código para escáner"/></div><div class="field-group"><div class="field-label">Tipo de venta</div><select id="new-tipo" class="field-input"><option value="unidad">Unidad (precio por pieza)</option><option value="peso">Peso (precio por kg)</option></select></div><div class="field-group"><div class="field-label">Stock inicial</div><input type="text" id="new-stock" class="field-input" value="0"/></div><div class="field-group"><div class="field-label">Precio costo ($)</div><input type="text" id="new-costo" class="field-input" placeholder="Ej: 800" oninput="calcPrecioVenta()"/></div><div class="field-group"><div class="field-label">Utilidad (%)</div><input type="text" id="new-utilidad" class="field-input" placeholder="Ej: 40" oninput="calcPrecioVenta()"/></div><div class="field-group full"><div class="field-label">Precio venta ($)</div><input type="text" id="new-precio" class="field-input" placeholder="Automático" oninput="calcUtilidad()"/></div></div><div class="price-box" id="price-preview" style="display:none"><div class="price-item price-costo"><div class="price-item-label">Costo</div><div class="price-item-val" id="prev-costo">$0</div></div><div class="price-item price-venta"><div class="price-item-label">Venta</div><div class="price-item-val" id="prev-venta">$0</div></div><div class="price-item price-util" id="prev-util-box"><div class="price-item-label">Utilidad</div><div class="price-item-val" id="prev-util">0%</div></div></div><button class="btn-action btn-nuevo" style="margin-top:12px; background:#5a1a8a; color:#fff; border:none; padding:8px;" onclick="agregarProducto()">Guardar producto</button></div></div>
+<div id="panel-compra" class="panel"><div class="add-product-card" style="border-color:#639922;"><div class="add-product-title" style="color:#27500a;">🧾 Cargar factura de COMPRA</div><div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="compra-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div><div class="manual-add"><div class="field-group"><label class="field-label">🔎 Buscar producto</label><input list="compra-productos-list" id="compra-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código..."><datalist id="compra-productos-list"></datalist></div><div><button class="btn-action btn-compra" id="btn-agregar-linea-compra" style="padding:8px 16px;">➕ Agregar</button></div></div><div style="overflow-x:auto; margin-top:16px;"><table class="factura-table" id="compra-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th></tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot></table></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;"><div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="compra-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="compra-match-indicator" style="font-size:0.75rem;"></span></div><div><button class="btn-action btn-compra" id="btn-confirmar-compra" style="background:#27500a; color:#fff;">✅ Confirmar compra</button><button class="btn-action" id="btn-limpiar-compra" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div></div></div></div>
+<div id="panel-venta" class="panel"><div class="add-product-card" style="border-color:#e24b4a;"><div class="add-product-title" style="color:#791f1f;">🧾 Cargar factura de VENTA</div><div class="field-group"><label class="field-label">🔍 Escanear código</label><input type="text" id="venta-scan-input" class="field-input" placeholder="Escanea el código..." autocomplete="off"></div><div class="manual-add"><div class="field-group"><label class="field-label">🔎 Buscar producto</label><input list="venta-productos-list" id="venta-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código..."><datalist id="venta-productos-list"></datalist></div><div><button class="btn-action btn-venta" id="btn-agregar-linea-venta" style="padding:8px 16px;">➕ Agregar</button></div></div><div style="overflow-x:auto; margin-top:16px;"><table class="factura-table" id="venta-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead><tbody id="venta-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot></table></div><div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;"><div class="field-group" style="flex-direction:row; align-items:center; gap:8px;"><span class="field-label">Monto factura papel ($):</span><input type="text" id="venta-monto-real" class="field-input" placeholder="Opcional" style="width:140px;"><span id="venta-match-indicator" style="font-size:0.75rem;"></span></div><div><button class="btn-action btn-venta" id="btn-confirmar-venta" style="background:#791f1f; color:#fff;">✅ Confirmar venta</button><button class="btn-action" id="btn-limpiar-venta" style="background:#ccc; color:#333; margin-left:8px;">🗑️ Limpiar</button></div></div></div></div>
 <div id="panel-facturas" class="panel"><div id="lista-facturas"></div></div>
 <div id="panel-movimientos" class="panel"><div id="log-list"></div></div>
-
 <div class="modal-overlay" id="modal-del"><div class="modal"><div class="modal-title">¿Eliminar producto?</div><div id="modal-del-text"></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-confirm" onclick="confirmarEliminar()">Eliminar</button></div></div></div>
-
-<div class="modal-overlay" id="pago-modal">
-  <div class="modal">
-    <div class="modal-title">💰 Pago del cliente</div>
-    <div class="total-venta" id="pago-total-venta">Total: $0</div>
-    <input type="text" id="monto-cliente" placeholder="Monto que entrega el cliente" autocomplete="off">
-    <div class="vuelto" id="vuelto-mostrar">Vuelto: $0</div>
-    <div class="modal-btns">
-      <button class="btn-cancel" id="cancelar-pago">Cancelar</button>
-      <button class="btn-confirm" id="confirmar-pago" style="background:#27500a;">Confirmar venta</button>
-    </div>
-  </div>
-</div>
-
+<div class="modal-overlay" id="pago-modal"><div class="modal"><div class="modal-title">💰 Pago del cliente</div><div class="total-venta" id="pago-total-venta">Total: $0</div><input type="text" id="monto-cliente" placeholder="Monto que entrega el cliente" autocomplete="off"><div class="vuelto" id="vuelto-mostrar">Vuelto: $0</div><div class="modal-btns"><button class="btn-cancel" id="cancelar-pago">Cancelar</button><button class="btn-confirm" id="confirmar-pago" style="background:#27500a;">Confirmar venta</button></div></div></div>
 <div class="toast" id="toast"></div>
 </div>
-
 <script>
-// ========== UTILIDADES: PARSEO DE NÚMEROS CON COMA Y PUNTO DE MILES ==========
+// ========== CONFIGURACIÓN ==========
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSx9P2qiGn9Osk4ZCFuxXnPWm1uW2dWE8b446Ms7e6PnzTpqHvKTF1Q_TaMW7l9jo/exec"; // <--- REEMPLAZAR POR TU URL
+const CLAVE_ACCESO = "admin123";
+const KEY_P='mm_prods_v1', KEY_S='mm_stock_v1', KEY_L='mm_log_v1', KEY_F='mm_facturas_v1';
+
+let productos=[], stock={}, log=[], facturas=[];
+let scannerMode='salida', deleteTarget=null, nextId=100;
+let loading = false;
+
+// Funciones de utilidad
 function parseNumero(valor) {
   if (valor === undefined || valor === null || valor === '') return NaN;
-  let str = String(valor).trim();
-  str = str.replace(',', '.');
+  let str = String(valor).trim().replace(',', '.');
   let partes = str.split('.');
   if (partes.length > 1) {
     let entero = partes.slice(0, -1).join('');
     let decimal = partes[partes.length - 1];
     str = entero + '.' + decimal;
-  } else {
-    str = str.replace(/\./g, '');
-  }
+  } else str = str.replace(/\./g, '');
   let num = parseFloat(str);
   return isNaN(num) ? NaN : Math.round(num * 100) / 100;
 }
-
 function fmt(n) {
   if (isNaN(n) || n === undefined || n === null) return '0';
   let valor = Math.round(n * 100) / 100;
   if (Math.abs(valor - Math.round(valor)) < 0.001) return Math.round(valor).toLocaleString('es-AR');
   return valor.toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 }
-
-function fmtUnidad(valor, tipo) {
-  if (tipo === 'peso') return fmt(valor) + ' kg';
-  else return fmt(valor) + ' u';
-}
-
-// ========== URL DE APPS SCRIPT (cambiar si es necesario) ==========
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSx9P2qiGn9Osk4ZCFuxXnPWm1uW2dWE8b446Ms7e6PnzTpqHvKTF1Q_TaMW7l9jo/exec";
-
-// ========== CLAVE DE ACCESO ==========
-const CLAVE_ACCESO = "admin123";
-
-// ========== CLAVES DE ALMACENAMIENTO LOCAL ==========
-const KEY_P='mm_prods_v1', KEY_S='mm_stock_v1', KEY_L='mm_log_v1', KEY_F='mm_facturas_v1';
-
-let productos=[], stock={}, log=[], facturas=[];
-let scannerMode='salida', deleteTarget=null, nextId=100;
-
+function fmtUnidad(valor, tipo) { return (tipo === 'peso') ? fmt(valor) + ' kg' : fmt(valor) + ' u'; }
 function nowStr(){const d=new Date();return d.toLocaleDateString('es-AR')+' '+d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}
 function calcTotal(){return productos.reduce((a,p)=>a+(stock[p.id]||0),0)}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 
-async function loadFromJsonp() {
-  if (!SCRIPT_URL) {
-    console.log("No hay URL de script definida.");
-    return Promise.resolve(null);
-  }
-
-  return new Promise((resolve) => {
-    console.log("Cargando datos desde la nube...");
-    const callbackName = 'cb_' + Date.now();
-    const script = document.createElement('script');
-    const url = `${SCRIPT_URL}?callback=${callbackName}&t=${Date.now()}`;
-
-    window[callbackName] = function(data) {
-      console.log("Datos recibidos desde la nube.");
-      delete window[callbackName];
-      document.body.removeChild(script);
-      resolve(data);
-    };
-
-    script.src = url;
-    script.onerror = () => {
-      console.warn("Error al cargar datos desde la nube.");
-      delete window[callbackName];
-      document.body.removeChild(script);
-      resolve(null);
-    };
-    document.body.appendChild(script);
-
-    // Timeout por si la carga se demora mucho
-    setTimeout(() => {
-      if (window[callbackName]) {
-        console.warn("Timeout cargando datos desde la nube.");
-        delete window[callbackName];
-        document.body.removeChild(script);
-        resolve(null);
-      }
-    }, 8000);
-  });
+// Guardado local + nube
+async function saveAll(){
+  localStorage.setItem(KEY_P,JSON.stringify(productos));
+  localStorage.setItem(KEY_S,JSON.stringify(stock));
+  localStorage.setItem(KEY_L,JSON.stringify(log));
+  localStorage.setItem(KEY_F,JSON.stringify(facturas));
+  if (!SCRIPT_URL) return;
+  try{
+    const data={productos,stock,log,facturas};
+    const formData=new URLSearchParams();
+    formData.append('data', JSON.stringify(data));
+    const response = await fetch(SCRIPT_URL, {
+      method:'POST',
+      mode:'cors',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:formData
+    });
+    const result = await response.json();
+    if(result.status==='success') toast('✅ Guardado en la nube');
+    else toast('⚠️ Error en la nube: '+ (result.message||''));
+  }catch(err){ console.error(err); toast('💾 Solo local'); }
 }
 
+// Carga desde nube usando JSONP
 function loadFromJsonp(){
   if(!SCRIPT_URL) return Promise.resolve(null);
   return new Promise((resolve)=>{
@@ -440,10 +215,31 @@ function loadFromJsonp(){
     s.src=SCRIPT_URL+'?callback='+cbName+'&t='+Date.now();
     s.onerror=()=>{ delete window[cbName]; resolve(null); };
     document.head.appendChild(s);
-    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; resolve(null); } },5000);
+    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; resolve(null); } },8000);
   });
 }
 
+// Sincronización manual (forzar subida y descarga)
+async function syncNow() {
+  if(loading) return toast('Ya hay una sincronización en curso');
+  loading = true;
+  toast('🔄 Subiendo datos a la nube...');
+  await saveAll();
+  toast('📡 Descargando datos desde la nube...');
+  const data = await loadFromJsonp();
+  if(data && data.productos){
+    productos = data.productos;
+    stock = data.stock || {};
+    log = data.log || [];
+    facturas = data.facturas || [];
+    nextId = Math.max(...productos.map(p=>p.id),99)+1;
+    renderAll();
+    toast('✅ Sincronización completa');
+  } else toast('⚠️ No se pudieron cargar datos desde la nube');
+  loading = false;
+}
+
+// Carga inicial desde nube o localStorage
 async function loadAll(){
   let loadedFromCloud=false;
   if(SCRIPT_URL){
@@ -477,8 +273,8 @@ async function loadAll(){
 }
 
 function addLog(tipo,prod,antes,despues,qty, facturaId=null){
-  let qtyRedondeado = (prod.tipo === 'peso') ? Math.round(qty * 100) / 100 : Math.round(qty);
-  log.push({tipo,id:prod.id,nombre:prod.nombre,marca:prod.marca,antes,despues,qty:qtyRedondeado,fecha:nowStr(),facturaId});
+  let qtyRed = (prod.tipo === 'peso') ? Math.round(qty * 100) / 100 : Math.round(qty);
+  log.push({tipo,id:prod.id,nombre:prod.nombre,marca:prod.marca,antes,despues,qty:qtyRed,fecha:nowStr(),facturaId});
 }
 function animateTotal(){const el=document.getElementById('total-num');el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');setTimeout(()=>el.classList.remove('pulse'),400)}
 function renderTotal(){
@@ -496,7 +292,6 @@ function renderStats(){
   document.getElementById('st-com').textContent=fmt(com);
   document.getElementById('st-val').textContent='$'+fmt(val);
 }
-
 function renderStock(){
   const searchTerm = document.getElementById('search-product').value.toLowerCase();
   let filtered = productos;
@@ -538,7 +333,6 @@ function renderStock(){
     document.getElementById(`barcode-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
   });
 }
-
 function cambiarTipoProducto(id, nuevoTipo) {
   const prod = productos.find(p=>p.id===id);
   if(!prod) return;
@@ -555,7 +349,6 @@ function cambiarTipoProducto(id, nuevoTipo) {
     }
   }
 }
-
 function guardarEdicionProducto(id){
   const prod=productos.find(p=>p.id===id);
   if(!prod)return;
@@ -582,7 +375,6 @@ function guardarEdicionProducto(id){
   if(cambios){ saveAll(); renderStats(); renderTotal(); toast(`Actualizado ${prod.marca} ${prod.nombre}`); }
   else { document.getElementById(`stock-${id}`).value=fmt(stock[id]||0); document.getElementById(`price-${id}`).value=fmt(prod.precio); document.getElementById(`barcode-${id}`).value=prod.barcode; }
 }
-
 function agregarProducto(){
   const marca=document.getElementById('new-marca').value.trim(), nombre=document.getElementById('new-nombre').value.trim(), precio=parseNumero(document.getElementById('new-precio').value)||0, costo=parseNumero(document.getElementById('new-costo').value)||0, barcode=document.getElementById('new-barcode').value.trim(), stockInicial=parseNumero(document.getElementById('new-stock').value)||0, tipo=document.getElementById('new-tipo').value;
   if(!marca||!nombre||isNaN(precio)||precio<=0){toast('Completá marca, nombre y precio válido');return;}
@@ -593,41 +385,18 @@ function agregarProducto(){
   const prod={id:nextId++,nombre,marca,precio,costo,barcode,tipo};
   productos.push(prod); stock[prod.id]=stockFinal;
   saveAll();renderAll();
-  document.getElementById('new-marca').value='';document.getElementById('new-nombre').value='';document.getElementById('new-precio').value='';document.getElementById('new-costo').value='';document.getElementById('new-utilidad').value='';document.getElementById('new-barcode').value='';document.getElementById('new-stock').value='0';document.getElementById('price-preview').style.display='none';
+  document.getElementById('new-marca').value='';document.getElementById('new-nombre').value='';document.getElementById('new-precio').value='';document.getElementById('new-costo').value='';document.getElementById('new-utilidad').value='';document.getElementById('new-barcode').value='';document.getElementById('new-stock').value='0';
+  document.getElementById('price-preview').style.display='none';
   toast(`✅ ${marca} ${nombre} (${tipo==='unidad'?'unidad':'kg'}) agregado`);
 }
-
 function pedirEliminar(id){deleteTarget=id;const prod=productos.find(p=>p.id===id);document.getElementById('modal-del-text').textContent=`Eliminar "${prod.marca} — ${prod.nombre}"`;document.getElementById('modal-del').classList.add('open');}
 function closeModal(){document.getElementById('modal-del').classList.remove('open');deleteTarget=null;}
 function confirmarEliminar(){if(!deleteTarget)return;productos=productos.filter(p=>p.id!==deleteTarget);delete stock[deleteTarget];saveAll();renderAll();closeModal();toast('Producto eliminado');}
-
 function setMode(mode){scannerMode=mode;document.querySelector('.mode-btn.salida').classList.toggle('active',mode==='salida');document.querySelector('.mode-btn.compra').classList.toggle('active',mode==='compra');document.getElementById('scanner-status').textContent=`Modo: ${mode==='salida'?'Vender':'Agregar'}`;}
-
 const scannerInput=document.getElementById('scanner-input');
 let scanBuffer='',scanTimer=null;
-scannerInput.addEventListener('keydown',function(e){
-  if(e.key==='Enter'){
-    e.preventDefault();
-    const c=this.value.trim();
-    if(c) processScanGlobal(c);
-    this.value='';
-  }
-});
-document.addEventListener('keydown',function(e){
-  if(document.activeElement===scannerInput)return;
-  if(e.key==='Enter'){
-    if(scanBuffer.length>2) processScanGlobal(scanBuffer.trim());
-    scanBuffer='';
-    clearTimeout(scanTimer);
-    return;
-  }
-  if(e.key.length===1){
-    scanBuffer+=e.key;
-    clearTimeout(scanTimer);
-    scanTimer=setTimeout(()=>{scanBuffer=''},300);
-  }
-});
-
+scannerInput.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();const c=this.value.trim();if(c)processScanGlobal(c);this.value=''}});
+document.addEventListener('keydown',function(e){if(document.activeElement===scannerInput)return;if(e.key==='Enter'){if(scanBuffer.length>2)processScanGlobal(scanBuffer.trim());scanBuffer='';clearTimeout(scanTimer);return;}if(e.key.length===1){scanBuffer+=e.key;clearTimeout(scanTimer);scanTimer=setTimeout(()=>{scanBuffer=''},300)}});
 function processScanGlobal(code){
   let qty = parseNumero(document.getElementById('scanner-qty').value);
   if(isNaN(qty)) qty=1;
@@ -646,32 +415,28 @@ function processScanGlobal(code){
   statusEl.className='scanner-status ok'; setTimeout(()=>{statusEl.textContent='Listo';statusEl.className='scanner-status'},2500);
   saveAll(); renderAll();
 }
-
-// ----- COMPRA -----
+// COMPRA
 let compraLineas=[], compraProductoActualId=null;
 function actualizarDatalistCompra(){ const d=document.getElementById('compra-productos-list'); if(d) d.innerHTML=productos.map(p=>`<option value="${p.marca} ${p.nombre} (Cód: ${p.barcode})">`).join(''); }
 function obtenerProdPorTexto(t){ for(let p of productos) if(`${p.marca} ${p.nombre} (Cód: ${p.barcode})`===t) return p; return null; }
-function compraSeleccionarProdId(id){ 
-  compraProductoActualId=id; const p=productos.find(p=>p.id===id); 
-  if(p){ 
-    document.getElementById('compra-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`;
-  } 
-}
+function compraSeleccionarProdId(id){ compraProductoActualId=id; const p=productos.find(p=>p.id===id); if(p){ document.getElementById('compra-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`; const cantLabel = document.getElementById('compra-cantidad-label'); const precioLabel = document.getElementById('compra-precio-label'); if(p.tipo==='peso'){ cantLabel.textContent='Cantidad (kg)'; precioLabel.textContent='Precio por kg ($)'; } else { cantLabel.textContent='Cantidad (unidades)'; precioLabel.textContent='Precio por unidad ($)'; } const inp=document.getElementById('compra-precio-costo'); if(inp&&(inp.value==''||parseNumero(inp.value)<=0)&&p.costo>0) inp.value=p.costo; } }
 function agregarLineaCompra(){
   if(!compraProductoActualId){ const t=document.getElementById('compra-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) compraProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
   const prod=productos.find(p=>p.id===compraProductoActualId); if(!prod){toast("Producto no encontrado");return;}
-  let cant = 1;  // cantidad por defecto 1 (luego pueden editar en tabla)
-  let prec = prod.costo || 0;
-  if(prec<=0){toast("El producto no tiene costo. Edite el producto o ingrese manualmente en la tabla.");return;}
+  let cant = parseNumero(document.getElementById('compra-cantidad').value);
+  let prec = parseNumero(document.getElementById('compra-precio-costo').value);
+  if(isNaN(cant)||cant<=0){toast("Cantidad inválida");return;}
   if(prod.tipo==='unidad') cant = Math.round(cant);
   else cant = Math.round(cant * 100) / 100;
+  if(isNaN(prec)||prec<=0) prec=prod.costo||0;
+  if(prec<=0){toast("Ingrese precio costo");return;}
   compraLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioCosto:prec, subtotal:cant*prec, costoAnterior:prod.costo, precioAnterior:prod.precio, stockAnterior:stock[prod.id]||0, tipo:prod.tipo});
-  renderCompraTabla();
+  renderCompraTabla(); document.getElementById('compra-cantidad').value='1'; document.getElementById('compra-precio-costo').value='';
 }
 function eliminarLineaCompra(i){compraLineas.splice(i,1);renderCompraTabla();}
 function renderCompraTabla(){
   const tbody=document.getElementById('compra-lineas-tbody'); if(!tbody)return;
-  if(compraLineas.length===0){ tbody.innerHTML='</td><td colspan="5" style="text-align:center">Sin líneas</td><tr>'; document.getElementById('compra-total-pesos').innerText='$0'; return; }
+  if(compraLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></tr>'; document.getElementById('compra-total-pesos').innerText='$0'; return; }
   let total=0, html='';
   compraLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="text" class="edit-cantidad" value="${fmt(l.cantidad)}" style="width:80px;"></td><td><input type="text" class="edit-precio" value="${fmt(l.precioCosto)}" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
   tbody.innerHTML=html; document.getElementById('compra-total-pesos').innerHTML=`$${fmt(total)}`;
@@ -699,33 +464,30 @@ function confirmarCompra(){
   compraLineas=[]; renderCompraTabla(); document.getElementById('compra-monto-real').value=''; compraProductoActualId=null; document.getElementById('compra-producto-nombre').value='';
 }
 function iniciarScannerCompra(){ const inp=document.getElementById('compra-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } compraSeleccionarProdId(p.id); agregarLineaCompra(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
-function activarEnterCompra(){ const nom=document.getElementById('compra-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); compraProductoActualId=p?p.id:null; }); }
-
-// ----- VENTA -----
+function activarEnterCompra(){ const nom=document.getElementById('compra-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); compraProductoActualId=p?p.id:null; compraSeleccionarProdId(compraProductoActualId); }); }
+// VENTA
 let ventaLineas=[], ventaProductoActualId=null;
-
 function actualizarDatalistVenta(){ const d=document.getElementById('venta-productos-list'); if(d) d.innerHTML=productos.map(p=>`<option value="${p.marca} ${p.nombre} (Cód: ${p.barcode})">`).join(''); }
-function ventaSeleccionarProdId(id){ 
-  ventaProductoActualId=id; const p=productos.find(p=>p.id===id); 
-  if(p){ 
-    document.getElementById('venta-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`;
-  } 
-}
+function ventaSeleccionarProdId(id){ ventaProductoActualId=id; const p=productos.find(p=>p.id===id); if(p){ document.getElementById('venta-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`; const cantLabel = document.getElementById('venta-cantidad-label'); const precioLabel = document.getElementById('venta-precio-label'); if(p.tipo==='peso'){ cantLabel.textContent='Cantidad (kg)'; precioLabel.textContent='Precio por kg ($)'; } else { cantLabel.textContent='Cantidad (unidades)'; precioLabel.textContent='Precio por unidad ($)'; } const inp=document.getElementById('venta-precio'); if(inp&&(inp.value==''||parseNumero(inp.value)<=0)&&p.precio>0) inp.value=p.precio; } }
 function agregarLineaVenta(){
   if(!ventaProductoActualId){ const t=document.getElementById('venta-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) ventaProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
   const prod=productos.find(p=>p.id===ventaProductoActualId); if(!prod){toast("Producto no encontrado");return;}
-  let cant = 1;
-  let prec = prod.precio || 0;
-  if(prec<=0){toast("El producto no tiene precio de venta. Edite el producto o ingrese manualmente en la tabla.");return;}
+  let cant = parseNumero(document.getElementById('venta-cantidad').value);
+  let prec = parseNumero(document.getElementById('venta-precio').value);
+  if(isNaN(cant)||cant<=0){toast("Cantidad inválida");return;}
+  if(prod.tipo==='unidad') cant = Math.round(cant);
+  else cant = Math.round(cant * 100) / 100;
+  if(isNaN(prec)||prec<=0) prec=prod.precio||0;
+  if(prec<=0){toast("Ingrese precio de venta");return;}
   const antesStock=stock[prod.id]||0;
   if(cant > antesStock+0.001){ toast(`Stock insuficiente: ${fmtUnidad(antesStock, prod.tipo)} disponible`); return; }
   ventaLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioVenta:prec, subtotal:cant*prec, stockAntes:antesStock, tipo:prod.tipo});
-  renderVentaTabla();
+  renderVentaTabla(); document.getElementById('venta-cantidad').value='1'; document.getElementById('venta-precio').value='';
 }
 function eliminarLineaVenta(i){ventaLineas.splice(i,1);renderVentaTabla();}
 function renderVentaTabla(){
   const tbody=document.getElementById('venta-lineas-tbody'); if(!tbody)return;
-  if(ventaLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></td>'; document.getElementById('venta-total-pesos').innerText='$0'; return; }
+  if(ventaLineas.length===0){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center">Sin líneas</td></tr>'; document.getElementById('venta-total-pesos').innerText='$0'; return; }
   let total=0, html='';
   ventaLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="text" class="edit-cantidad-venta" value="${fmt(l.cantidad)}" style="width:80px;"></td><td><input type="text" class="edit-precio-venta" value="${fmt(l.precioVenta)}" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row-venta" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
   tbody.innerHTML=html; document.getElementById('venta-total-pesos').innerHTML=`$${fmt(total)}`;
@@ -736,7 +498,6 @@ function renderVentaTabla(){
 }
 function actualizarMatchVenta(){ const total=ventaLineas.reduce((a,l)=>a+l.subtotal,0); const real=parseNumero(document.getElementById('venta-monto-real').value); const ind=document.getElementById('venta-match-indicator'); if(!isNaN(real)&&real>0){ const diff=Math.abs(total-real); ind.innerHTML=diff<0.01?'✅ Coincide':`⚠️ Diferencia: $${fmt(diff)}`; } else ind.innerHTML=''; }
 function limpiarVenta(){ ventaLineas=[]; renderVentaTabla(); document.getElementById('venta-monto-real').value=''; ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value=''; }
-
 function pedirPagoYVuelto(totalVenta){
   return new Promise((resolve) => {
     const modal = document.getElementById('pago-modal');
@@ -748,51 +509,11 @@ function pedirPagoYVuelto(totalVenta){
     totalSpan.textContent = `Total: $${fmt(totalVenta)}`;
     montoInput.value = '';
     vueltoSpan.textContent = 'Vuelto: $0';
-    function calcularVuelto() {
-      let pago = parseNumero(montoInput.value);
-      if (isNaN(pago)) pago = 0;
-      let vuelto = pago - totalVenta;
-      if (vuelto < 0) vuelto = 0;
-      vueltoSpan.textContent = `Vuelto: $${fmt(vuelto)}`;
-    }
-    function onEnter(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        let pago = parseNumero(montoInput.value);
-        if (isNaN(pago)) pago = 0;
-        let vuelto = pago - totalVenta;
-        if (vuelto >= 0) {
-          toast(`💵 Vuelto: $${fmt(vuelto)}`);
-          limpiarEventos();
-          modal.classList.remove('open');
-          resolve(true);
-        } else {
-          toast("⚠️ El pago es insuficiente.");
-          montoInput.focus();
-        }
-      }
-    }
-    function limpiarEventos() {
-      montoInput.removeEventListener('input', calcularVuelto);
-      montoInput.removeEventListener('keypress', onEnter);
-      cancelarBtn.removeEventListener('click', onCancel);
-      confirmarBtn.removeEventListener('click', onConfirm);
-    }
+    function calcularVuelto() { let pago = parseNumero(montoInput.value); if (isNaN(pago)) pago = 0; let vuelto = pago - totalVenta; if (vuelto < 0) vuelto = 0; vueltoSpan.textContent = `Vuelto: $${fmt(vuelto)}`; }
+    function onEnter(e) { if (e.key === 'Enter') { e.preventDefault(); let pago = parseNumero(montoInput.value); if (isNaN(pago)) pago = 0; let vuelto = pago - totalVenta; if (vuelto >= 0) { toast(`💵 Vuelto: $${fmt(vuelto)}`); limpiarEventos(); modal.classList.remove('open'); resolve(true); } else { toast("⚠️ El pago es insuficiente."); montoInput.focus(); } } }
+    function limpiarEventos() { montoInput.removeEventListener('input', calcularVuelto); montoInput.removeEventListener('keypress', onEnter); cancelarBtn.removeEventListener('click', onCancel); confirmarBtn.removeEventListener('click', onConfirm); }
     function onCancel() { limpiarEventos(); modal.classList.remove('open'); resolve(false); }
-    function onConfirm() {
-      let pago = parseNumero(montoInput.value);
-      if (isNaN(pago)) pago = 0;
-      let vuelto = pago - totalVenta;
-      if (vuelto >= 0) {
-        toast(`💵 Vuelto: $${fmt(vuelto)}`);
-        limpiarEventos();
-        modal.classList.remove('open');
-        resolve(true);
-      } else {
-        toast("⚠️ El pago es insuficiente.");
-        montoInput.focus();
-      }
-    }
+    function onConfirm() { let pago = parseNumero(montoInput.value); if (isNaN(pago)) pago = 0; let vuelto = pago - totalVenta; if (vuelto >= 0) { toast(`💵 Vuelto: $${fmt(vuelto)}`); limpiarEventos(); modal.classList.remove('open'); resolve(true); } else { toast("⚠️ El pago es insuficiente."); montoInput.focus(); } }
     montoInput.addEventListener('input', calcularVuelto);
     montoInput.addEventListener('keypress', onEnter);
     cancelarBtn.addEventListener('click', onCancel);
@@ -801,7 +522,6 @@ function pedirPagoYVuelto(totalVenta){
     montoInput.focus();
   });
 }
-
 async function confirmarVenta(){
   if(!ventaLineas.length){toast("Sin líneas");return;}
   const totalVenta = ventaLineas.reduce((a,l)=>a+l.subtotal,0);
@@ -822,10 +542,8 @@ async function confirmarVenta(){
   toast(`✅ Venta #${fid} registrada: $${fmt(totalVenta)}`);
   ventaLineas = []; renderVentaTabla(); document.getElementById('venta-monto-real').value=''; ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value='';
 }
-
 function iniciarScannerVenta(){ const inp=document.getElementById('venta-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } ventaSeleccionarProdId(p.id); agregarLineaVenta(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
-function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?p.id:null; }); }
-
+function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?p.id:null; ventaSeleccionarProdId(ventaProductoActualId); }); }
 function renderLog(){
   const el=document.getElementById('log-list');
   if(!log.length){el.innerHTML='<div class="empty">Sin movimientos</div>';return}
@@ -867,19 +585,9 @@ function calcUtilidad(){ const costo=parseNumero(document.getElementById('new-co
 function updatePreview(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, venta=parseNumero(document.getElementById('new-precio').value)||0, box=document.getElementById('price-preview'); if(costo<=0&&venta<=0){box.style.display='none';return;} box.style.display='grid'; document.getElementById('prev-costo').textContent='$'+fmt(costo); document.getElementById('prev-venta').textContent='$'+fmt(venta); if(costo>0&&venta>0){ const util=((venta-costo)/costo*100).toFixed(1); document.getElementById('prev-util').textContent=util+'% (+$'+fmt(venta-costo)+')'; } else document.getElementById('prev-util').textContent='—'; }
 function showTab(name,btn){ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.getElementById('panel-'+name).classList.add('active'); btn.classList.add('active'); if(name==='movimientos') renderLog(); if(name==='facturas') renderFacturas(); if(name==='compra'){ actualizarDatalistCompra(); setTimeout(()=>document.getElementById('compra-scan-input').focus(),100); } if(name==='venta'){ actualizarDatalistVenta(); setTimeout(()=>document.getElementById('venta-scan-input').focus(),100); } }
 function exportarBackup(){ const data={productos,stock,log,facturas,fecha:new Date().toISOString()}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`backup_minimarket_${new Date().toLocaleDateString('es-AR').replace(/\//g,'-')}.json`; a.click(); URL.revokeObjectURL(blob); toast('Backup guardado'); }
-function importarBackup(e){ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=function(ev){ try{ const data=JSON.parse(ev.target.result); if(!data.productos||!data.stock){toast('Archivo inválido');return;} if(!confirm(`Restaurar backup? Se perderán datos actuales.`)) return; productos=data.productos; stock=data.stock; log=data.log||[]; facturas=data.facturas||[]; nextId=Math.max(...productos.map(p=>p.id),99)+1; saveAll();renderAll(); toast(`Backup restaurado: ${productos.length} productos`); }catch(err){toast('Error al leer archivo')} }; reader.readAsText(file); e.target.value=''; }
+function importarBackup(e){ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=function(ev){ try{ const data=JSON.parse(ev.target.result); if(!data.productos||!data.stock){toast('Archivo inválido');return;} if(!confirm(`Restaurar backup? Se perderán datos actuales.`)) return; productos=data.productos; stock=data.stock; log=data.log||[]; facturas=data.facturas||[]; nextId=Math.max(...productos.map(p=>p.id),99)+1; saveAll();renderAll(); toast(`Backup restaurado: ${productos.length} productos`); }catch(err){ toast('Error al leer archivo: '+err.message); } }; reader.readAsText(file); e.target.value=''; }
 function renderAll(){ renderStock(); renderStats(); renderTotal(); renderFacturas(); renderLog(); actualizarDatalistCompra(); actualizarDatalistVenta(); }
-function initEventos(){
-  document.getElementById('btn-agregar-linea-compra')?.addEventListener('click',agregarLineaCompra);
-  document.getElementById('btn-confirmar-compra')?.addEventListener('click',confirmarCompra);
-  document.getElementById('btn-limpiar-compra')?.addEventListener('click',limpiarCompra);
-  document.getElementById('compra-monto-real')?.addEventListener('input',actualizarMatchCompra);
-  document.getElementById('btn-agregar-linea-venta')?.addEventListener('click',agregarLineaVenta);
-  document.getElementById('btn-confirmar-venta')?.addEventListener('click',confirmarVenta);
-  document.getElementById('btn-limpiar-venta')?.addEventListener('click',limpiarVenta);
-  document.getElementById('venta-monto-real')?.addEventListener('input',actualizarMatchVenta);
-  iniciarScannerCompra(); iniciarScannerVenta(); activarEnterCompra(); activarEnterVenta();
-}
+function initEventos(){ document.getElementById('btn-agregar-linea-compra')?.addEventListener('click',agregarLineaCompra); document.getElementById('btn-confirmar-compra')?.addEventListener('click',confirmarCompra); document.getElementById('btn-limpiar-compra')?.addEventListener('click',limpiarCompra); document.getElementById('compra-monto-real')?.addEventListener('input',actualizarMatchCompra); document.getElementById('btn-agregar-linea-venta')?.addEventListener('click',agregarLineaVenta); document.getElementById('btn-confirmar-venta')?.addEventListener('click',confirmarVenta); document.getElementById('btn-limpiar-venta')?.addEventListener('click',limpiarVenta); document.getElementById('venta-monto-real')?.addEventListener('input',actualizarMatchVenta); iniciarScannerCompra(); iniciarScannerVenta(); activarEnterCompra(); activarEnterVenta(); }
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 function autenticar(){ return new Promise((resolve)=>{ const ov=document.getElementById('clave-overlay'), inp=document.getElementById('clave-input'), btn=document.getElementById('btn-validar'), err=document.getElementById('clave-error'); const validar=()=>{ if(inp.value===CLAVE_ACCESO){ ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); } else{ err.textContent='Contraseña incorrecta.'; inp.value=''; inp.focus(); } }; btn.onclick=validar; inp.onkeypress=e=>{if(e.key==='Enter')validar();}; inp.focus(); }); }
 autenticar().then(()=>{ (async()=>{await loadAll();renderAll();initEventos();})(); });
