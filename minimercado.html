@@ -390,19 +390,44 @@ function nowStr(){const d=new Date();return d.toLocaleDateString('es-AR')+' '+d.
 function calcTotal(){return productos.reduce((a,p)=>a+(stock[p.id]||0),0)}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 
-async function saveAll(){
-  localStorage.setItem(KEY_P,JSON.stringify(productos));
-  localStorage.setItem(KEY_S,JSON.stringify(stock));
-  localStorage.setItem(KEY_L,JSON.stringify(log));
-  localStorage.setItem(KEY_F,JSON.stringify(facturas));
-  if (!SCRIPT_URL) return;
-  try{
-    const data={productos,stock,log,facturas};
-    const formData=new FormData();
-    formData.append('data', JSON.stringify(data));
-    await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body: formData});
-    toast('✅ Guardado en la nube');
-  }catch(err){ toast('💾 Solo local'); }
+async function loadFromJsonp() {
+  if (!SCRIPT_URL) {
+    console.log("No hay URL de script definida.");
+    return Promise.resolve(null);
+  }
+
+  return new Promise((resolve) => {
+    console.log("Cargando datos desde la nube...");
+    const callbackName = 'cb_' + Date.now();
+    const script = document.createElement('script');
+    const url = `${SCRIPT_URL}?callback=${callbackName}&t=${Date.now()}`;
+
+    window[callbackName] = function(data) {
+      console.log("Datos recibidos desde la nube.");
+      delete window[callbackName];
+      document.body.removeChild(script);
+      resolve(data);
+    };
+
+    script.src = url;
+    script.onerror = () => {
+      console.warn("Error al cargar datos desde la nube.");
+      delete window[callbackName];
+      document.body.removeChild(script);
+      resolve(null);
+    };
+    document.body.appendChild(script);
+
+    // Timeout por si la carga se demora mucho
+    setTimeout(() => {
+      if (window[callbackName]) {
+        console.warn("Timeout cargando datos desde la nube.");
+        delete window[callbackName];
+        document.body.removeChild(script);
+        resolve(null);
+      }
+    }, 8000);
+  });
 }
 
 function loadFromJsonp(){
