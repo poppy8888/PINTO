@@ -102,6 +102,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .item-util-percent{font-size:0.7rem;min-width:60px;text-align:center;color:#639922}
 .del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:1rem;padding:0 4px}
 .del-btn:hover{color:#e24b4a}
+.stock-bajo{background:#fff3cd!important;border-color:#f5c842!important;}
+.stock-critico{background:#fde8e8!important;border-color:#e24b4a!important;}
+.stock-badge-min{font-size:0.65rem;padding:2px 7px;border-radius:10px;font-weight:700;margin-left:4px;}
+.stock-badge-min.bajo{background:#f5c842;color:#7a5800;}
+.stock-badge-min.critico{background:#e24b4a;color:#fff;}
+.alerta-stock-banner{background:#c0392b;color:#fff;padding:9px 24px;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer;transition:0.2s;}
+.alerta-stock-banner.oculto{display:none;}
+.alerta-stock-banner:hover{background:#a93226;}
+.alerta-stock-banner span.cnt{background:rgba(255,255,255,0.25);border-radius:10px;padding:2px 10px;font-size:0.9rem;}
 .btn-save-edit{background:#639922;color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.7rem}
 .log-item{background:#fff;border:1px solid #e8e8f0;border-radius:12px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .log-main{font-size:0.85rem;font-weight:500}
@@ -202,6 +211,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="header-date" id="hdate"></div>
     <button onclick="exportarBackup()" style="padding:6px 12px;border-radius:8px;border:none;background:#e8c84a;color:#1a1a2e;font-size:0.75rem;font-weight:700;cursor:pointer;">💾 Backup</button>
     <label style="padding:6px 12px;border-radius:8px;border:1px solid #8888aa;background:transparent;color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
+    <label style="padding:6px 12px;border-radius:8px;border:none;background:#2a6e2a;color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;" title="Importar productos desde CSV de planilla de stock">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/></label>
   </div>
 </div>
 
@@ -219,6 +229,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="mini-stat mini-sal"><div class="mini-label">Salidas</div><div class="mini-val" id="mini-sal">−0</div></div>
     <div class="mini-stat mini-com"><div class="mini-label">Compras</div><div class="mini-val" id="mini-com">+0</div></div>
   </div>
+</div>
+
+<div class="alerta-stock-banner oculto" id="alerta-stock-banner" onclick="irAStockBajo()">
+  ⚠️ Productos con stock bajo: <span class="cnt" id="alerta-stock-cnt">0</span> — Clic para ver
 </div>
 
 <div class="scanner-bar">
@@ -261,6 +275,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field-group"><div class="field-label">Precio costo ($)</div><input type="text" id="new-costo" class="field-input" placeholder="Ej: 800" oninput="calcPrecioVenta()"/></div>
       <div class="field-group"><div class="field-label">Utilidad (%)</div><input type="text" id="new-utilidad" class="field-input" placeholder="Ej: 40" oninput="calcPrecioVenta()"/></div>
       <div class="field-group full"><div class="field-label">Precio venta ($)</div><input type="text" id="new-precio" class="field-input" placeholder="Automático" oninput="calcUtilidad()"/></div>
+      <div class="field-group"><div class="field-label">Stock mínimo (alerta)</div><input type="text" id="new-stockmin" class="field-input" placeholder="Ej: 5" value="0"/></div>
     </div>
     <div class="price-box" id="price-preview" style="display:none">
       <div class="price-item price-costo"><div class="price-item-label">Costo</div><div class="price-item-val" id="prev-costo">$0</div></div>
@@ -337,6 +352,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="modal-btns">
       <button class="btn-cancel" id="cancelar-pago">Cancelar</button>
       <button class="btn-confirm" id="confirmar-pago" style="background:#27500a;">Confirmar venta</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="csv-modal" style="z-index:2000;">
+  <div class="modal" style="width:min(95vw,680px);max-height:90vh;overflow-y:auto;padding:20px;">
+    <div class="modal-title" style="font-size:1rem;font-weight:700;margin-bottom:12px;">📊 Importar productos desde CSV</div>
+    <div id="csv-resumen" style="font-size:0.8rem;color:#555;margin-bottom:10px;"></div>
+    <div style="font-size:0.75rem;color:#888;margin-bottom:8px;">Vista previa (primeros 10 filas). Revisá antes de confirmar.</div>
+    <div style="overflow-x:auto;">
+      <table id="csv-preview-table" style="width:100%;border-collapse:collapse;font-size:0.75rem;">
+        <thead id="csv-thead" style="background:#1a1a2e;color:#fff;"></thead>
+        <tbody id="csv-tbody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:14px;padding:10px;background:#fff8e1;border-radius:8px;font-size:0.75rem;color:#7a5800;">
+      <strong>⚠️ Modo de importación:</strong><br>
+      <label style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;cursor:pointer;">
+        <input type="radio" name="csv-mode" value="agregar" checked> Agregar/actualizar (conserva productos existentes)
+      </label><br>
+      <label style="display:inline-flex;align-items:center;gap:6px;margin-top:4px;cursor:pointer;">
+        <input type="radio" name="csv-mode" value="reemplazar"> Reemplazar todo (borra productos actuales)
+      </label>
+    </div>
+    <div id="csv-errores" style="margin-top:10px;font-size:0.75rem;color:#c0392b;"></div>
+    <div class="modal-btns" style="margin-top:16px;">
+      <button class="btn-cancel" onclick="document.getElementById('csv-modal').classList.remove('open');document.getElementById('csv-file-input').value='';">Cancelar</button>
+      <button id="btn-confirmar-csv" class="btn-confirm" style="background:#2a6e2a;" onclick="confirmarImportCSV()">✅ Confirmar importación</button>
     </div>
   </div>
 </div>
@@ -446,7 +489,7 @@ async function loadAll(){
     }
     toast('📀 Datos locales (ejemplo)');
   }
-  productos.forEach(p=>{if(stock[p.id]===undefined)stock[p.id]=0;if(!p.costo)p.costo=0;if(!p.barcode)p.barcode='';if(!p.tipo)p.tipo='unidad';});
+  productos.forEach(p=>{if(stock[p.id]===undefined)stock[p.id]=0;if(!p.costo)p.costo=0;if(!p.barcode)p.barcode='';if(!p.tipo)p.tipo='unidad';if(p.stockMin===undefined)p.stockMin=0;});
   nextId=Math.max(...productos.map(p=>p.id),99)+1;
   if(!facturas)facturas=[];
 }
@@ -485,14 +528,24 @@ function renderStock(){
     html+=`<div class="brand-group"><div class="brand-header"><span class="brand-pill">${marca}</span><span class="brand-count">${fmtUnidad(tot, items[0]?.tipo)}</span></div>`;
     items.forEach(p=>{
       const q=stock[p.id]||0;
+      const min=p.stockMin||0;
       const util = (p.costo>0 && p.precio>0) ? (((p.precio-p.costo)/p.costo)*100).toFixed(1) : '0';
-      html+=`<div class="item-row" data-id="${p.id}">
+      const esCritico = min>0 && q===0;
+      const esBajo    = min>0 && q>0 && q<=min;
+      const rowClass  = esCritico ? 'item-row stock-critico' : esBajo ? 'item-row stock-bajo' : 'item-row';
+      const badgeHtml = esCritico
+        ? `<span class="stock-badge-min critico">⛔ SIN STOCK</span>`
+        : esBajo
+        ? `<span class="stock-badge-min bajo">⚠️ Bajo mín (${min})</span>`
+        : (min>0 ? `<span style="font-size:0.65rem;color:#aaa;">mín: ${min}</span>` : '');
+      html+=`<div class="${rowClass}" data-id="${p.id}">
         <span class="item-barcode">${p.barcode||'sin código'}</span>
-        <div class="item-name"><strong>${p.marca}</strong> ${p.nombre}</div>
+        <div class="item-name"><strong>${p.marca}</strong> ${p.nombre} ${badgeHtml}</div>
         <div class="item-edit-group" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
           <input type="text" id="barcode-${p.id}" class="item-edit-barcode" value="${p.barcode}" placeholder="Código" style="width:110px;">
           <input type="text" id="stock-${p.id}" class="item-edit-stock" value="${q}" style="width:80px;">
           <input type="text" id="price-${p.id}" class="item-edit-price" value="${p.precio}" style="width:90px;">
+          <input type="text" id="stockmin-${p.id}" class="item-edit-stock" value="${min}" placeholder="Mín" style="width:60px;border-color:#f5c842;" title="Stock mínimo">
           <select id="tipo-${p.id}" class="item-edit-tipo" onchange="cambiarTipoProducto(${p.id}, this.value)">
             <option value="unidad" ${p.tipo==='unidad'?'selected':''}>Unidad</option>
             <option value="peso" ${p.tipo==='peso'?'selected':''}>Peso (kg)</option>
@@ -511,7 +564,9 @@ function renderStock(){
     document.getElementById(`stock-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
     document.getElementById(`price-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
     document.getElementById(`barcode-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
+    document.getElementById(`stockmin-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
   });
+  renderAlertaBanner();
 }
 
 function cambiarTipoProducto(id, nuevoTipo) {
@@ -537,6 +592,7 @@ function guardarEdicionProducto(id){
   let nuevoStock = parseNumero(document.getElementById(`stock-${id}`).value);
   const nuevoPrecio = parseNumero(document.getElementById(`price-${id}`).value);
   const nuevoBarcode = document.getElementById(`barcode-${id}`).value.trim();
+  const nuevoMin = parseNumero(document.getElementById(`stockmin-${id}`)?.value)||0;
   let cambios=false;
   if(prod.tipo === 'unidad') nuevoStock = Math.round(nuevoStock);
   else nuevoStock = Math.round(nuevoStock * 100) / 100;
@@ -554,21 +610,25 @@ function guardarEdicionProducto(id){
     if(nuevoBarcode!==""&&productos.some(p=>p.id!==id&&p.barcode===nuevoBarcode)) toast("❌ Código ya usado");
     else { prod.barcode=nuevoBarcode; cambios=true; }
   }
-  if(cambios){ saveAll(); renderStats(); renderTotal(); toast(`Actualizado ${prod.marca} ${prod.nombre}`); }
+  if(!isNaN(nuevoMin) && nuevoMin!==(prod.stockMin||0)){
+    prod.stockMin=nuevoMin;
+    cambios=true;
+  }
+  if(cambios){ saveAll(); renderStats(); renderTotal(); renderAlertaBanner(); toast(`Actualizado ${prod.marca} ${prod.nombre}`); }
   else { document.getElementById(`stock-${id}`).value=fmt(stock[id]||0); document.getElementById(`price-${id}`).value=fmt(prod.precio); document.getElementById(`barcode-${id}`).value=prod.barcode; }
 }
 
 function agregarProducto(){
-  const marca=document.getElementById('new-marca').value.trim(), nombre=document.getElementById('new-nombre').value.trim(), precio=parseNumero(document.getElementById('new-precio').value)||0, costo=parseNumero(document.getElementById('new-costo').value)||0, barcode=document.getElementById('new-barcode').value.trim(), stockInicial=parseNumero(document.getElementById('new-stock').value)||0, tipo=document.getElementById('new-tipo').value;
+  const marca=document.getElementById('new-marca').value.trim(), nombre=document.getElementById('new-nombre').value.trim(), precio=parseNumero(document.getElementById('new-precio').value)||0, costo=parseNumero(document.getElementById('new-costo').value)||0, barcode=document.getElementById('new-barcode').value.trim(), stockInicial=parseNumero(document.getElementById('new-stock').value)||0, tipo=document.getElementById('new-tipo').value, stockMin=parseNumero(document.getElementById('new-stockmin').value)||0;
   if(!marca||!nombre||isNaN(precio)||precio<=0){toast('Completá marca, nombre y precio válido');return;}
   if(barcode&&productos.some(p=>p.barcode===barcode)){toast('❌ Código ya existe');return;}
   if(isNaN(stockInicial)) stockInicial=0;
   let stockFinal = (tipo === 'unidad') ? Math.round(stockInicial) : Math.round(stockInicial * 100) / 100;
   if(isNaN(costo)) costo=0;
-  const prod={id:nextId++,nombre,marca,precio,costo,barcode,tipo};
+  const prod={id:nextId++,nombre,marca,precio,costo,barcode,tipo,stockMin:stockMin||0};
   productos.push(prod); stock[prod.id]=stockFinal;
   saveAll();renderAll();
-  document.getElementById('new-marca').value='';document.getElementById('new-nombre').value='';document.getElementById('new-precio').value='';document.getElementById('new-costo').value='';document.getElementById('new-utilidad').value='';document.getElementById('new-barcode').value='';document.getElementById('new-stock').value='0';document.getElementById('price-preview').style.display='none';
+  document.getElementById('new-marca').value='';document.getElementById('new-nombre').value='';document.getElementById('new-precio').value='';document.getElementById('new-costo').value='';document.getElementById('new-utilidad').value='';document.getElementById('new-barcode').value='';document.getElementById('new-stock').value='0';document.getElementById('new-stockmin').value='0';document.getElementById('price-preview').style.display='none';
   toast(`✅ ${marca} ${nombre} (${tipo==='unidad'?'unidad':'kg'}) agregado`);
 }
 
@@ -843,7 +903,37 @@ function updatePreview(){ const costo=parseNumero(document.getElementById('new-c
 function showTab(name,btn){ document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); document.getElementById('panel-'+name).classList.add('active'); btn.classList.add('active'); if(name==='movimientos') renderLog(); if(name==='facturas') renderFacturas(); if(name==='compra'){ actualizarDatalistCompra(); setTimeout(()=>document.getElementById('compra-scan-input').focus(),100); } if(name==='venta'){ actualizarDatalistVenta(); setTimeout(()=>document.getElementById('venta-scan-input').focus(),100); } }
 function exportarBackup(){ const data={productos,stock,log,facturas,fecha:new Date().toISOString()}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`backup_minimarket_${new Date().toLocaleDateString('es-AR').replace(/\//g,'-')}.json`; a.click(); URL.revokeObjectURL(blob); toast('Backup guardado'); }
 function importarBackup(e){ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=function(ev){ try{ const data=JSON.parse(ev.target.result); if(!data.productos||!data.stock){toast('Archivo inválido');return;} if(!confirm(`Restaurar backup? Se perderán datos actuales.`)) return; productos=data.productos; stock=data.stock; log=data.log||[]; facturas=data.facturas||[]; nextId=Math.max(...productos.map(p=>p.id),99)+1; saveAll();renderAll(); toast(`Backup restaurado: ${productos.length} productos`); }catch(err){toast('Error al leer archivo')} }; reader.readAsText(file); e.target.value=''; }
-function renderAll(){ renderStock(); renderStats(); renderTotal(); renderFacturas(); renderLog(); actualizarDatalistCompra(); actualizarDatalistVenta(); }
+function renderAlertaBanner(){
+  const bajos = productos.filter(p => {
+    const min = p.stockMin||0;
+    if(min<=0) return false;
+    return (stock[p.id]||0) <= min;
+  });
+  const banner = document.getElementById('alerta-stock-banner');
+  const cnt    = document.getElementById('alerta-stock-cnt');
+  if(bajos.length>0){
+    banner.classList.remove('oculto');
+    const criticos = bajos.filter(p=>(stock[p.id]||0)===0).length;
+    cnt.textContent = bajos.length;
+    banner.innerHTML = `⚠️ <strong>${bajos.length} producto${bajos.length>1?'s':''} con stock bajo</strong>${criticos?' · '+criticos+' sin stock':''} <span class="cnt">${bajos.length}</span> — Clic para ver`;
+  } else {
+    banner.classList.add('oculto');
+  }
+}
+
+function irAStockBajo(){
+  // Ir al tab de stock y hacer scroll al primer producto con alerta
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-stock').classList.add('active');
+  document.querySelector('.tab').classList.add('active');
+  setTimeout(()=>{
+    const el = document.querySelector('.item-row.stock-critico, .item-row.stock-bajo');
+    if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+  }, 100);
+}
+
+function renderAll(){ renderStock(); renderStats(); renderTotal(); renderFacturas(); renderLog(); actualizarDatalistCompra(); actualizarDatalistVenta(); renderAlertaBanner(); }
 function initEventos(){
   document.getElementById('btn-agregar-linea-compra')?.addEventListener('click',agregarLineaCompra);
   document.getElementById('btn-confirmar-compra')?.addEventListener('click',confirmarCompra);
@@ -857,6 +947,152 @@ function initEventos(){
 }
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 function autenticar(){ return new Promise((resolve)=>{ const ov=document.getElementById('clave-overlay'), inp=document.getElementById('clave-input'), btn=document.getElementById('btn-validar'), err=document.getElementById('clave-error'); const validar=()=>{ if(inp.value===CLAVE_ACCESO){ ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); } else{ err.textContent='Contraseña incorrecta.'; inp.value=''; inp.focus(); } }; btn.onclick=validar; inp.onkeypress=e=>{if(e.key==='Enter')validar();}; inp.focus(); }); }
+
+// ========== IMPORTAR CSV DESDE PLANILLA DE STOCK ==========
+// Columnas esperadas: CODIGO, DETALLE, FAMILIA, PROVEEDOR, MARCA, P.COSTO, P.VENTA, IVA, P.LISTA2, P.LISTA3, P.MAYOR, STOCK, STOCK MIN, STOCK IDEAL
+
+let csvDatosPendientes = [];
+
+function parsearCSV(texto) {
+  // Detectar separador: ; o ,
+  const lineas = texto.split(/\r?\n/).filter(l => l.trim());
+  if (!lineas.length) return { headers: [], rows: [] };
+  const sep = (lineas[0].split(';').length > lineas[0].split(',').length) ? ';' : ',';
+  const headers = lineas[0].split(sep).map(h => h.trim().replace(/^"|"$/g, '').toUpperCase());
+  const rows = [];
+  for (let i = 1; i < lineas.length; i++) {
+    const cols = lineas[i].split(sep).map(c => c.trim().replace(/^"|"$/g, ''));
+    if (cols.every(c => !c)) continue;
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = cols[idx] || ''; });
+    rows.push(obj);
+  }
+  return { headers, rows };
+}
+
+function mapearFila(row) {
+  // Mapeo flexible de columnas
+  const get = (...keys) => { for (const k of keys) { if (row[k] !== undefined && row[k] !== '') return row[k]; } return ''; };
+  const num = v => { const n = parseNumero(v); return isNaN(n) ? 0 : n; };
+
+  const codigo = get('CODIGO','CÓDIGO','COD','ID');
+  const nombre = get('DETALLE','NOMBRE','DESCRIPCION','DESCRIPCIÓN','PRODUCTO');
+  const marca  = get('MARCA','BRAND');
+  const familia= get('FAMILIA','CATEGORIA','CATEGORÍA','RUBRO');
+  const costo  = num(get('P.COSTO','COSTO','PRECIO COSTO','PCOSTO'));
+  const precio = num(get('P.VENTA','PRECIO','VENTA','P VENTA','PVENTA','PRECIO VENTA'));
+  const stockV = num(get('STOCK','CANTIDAD','CANT'));
+  const barcode= get('CODIGO','CÓDIGO','COD','BARCODE','EAN');
+  const tipo   = 'unidad';
+
+  const stockMin = num(get('STOCK MIN','STOCKMIN','STOCK MINIMO','STOCK MÍNIMO','MIN','MINIMO','MÍNIMO'));
+
+  return { codigo, nombre, marca, familia, costo, precio, stockV, barcode, tipo, stockMin };
+}
+
+function importarCSV(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const { headers, rows } = parsearCSV(ev.target.result);
+      if (!rows.length) { toast('❌ CSV vacío o sin datos'); return; }
+
+      // Previsualización
+      const thead = document.getElementById('csv-thead');
+      const tbody = document.getElementById('csv-tbody');
+      const camposShow = ['CODIGO','CÓDIGO','DETALLE','NOMBRE','MARCA','FAMILIA','P.COSTO','COSTO','P.VENTA','PRECIO','STOCK','CANTIDAD'];
+      const colsShow = headers.filter(h => camposShow.some(c => h.includes(c))).slice(0,8);
+
+      thead.innerHTML = '<tr>' + colsShow.map(h=>`<th style="padding:4px 8px;white-space:nowrap;">${h}</th>`).join('') + '</tr>';
+
+      let errores = 0;
+      csvDatosPendientes = [];
+      tbody.innerHTML = '';
+
+      rows.forEach((row, i) => {
+        const m = mapearFila(row);
+        if (!m.nombre) { errores++; return; }
+        csvDatosPendientes.push(m);
+        if (i < 10) {
+          const tr = document.createElement('tr');
+          tr.style.background = i % 2 === 0 ? '#f9f9ff' : '#fff';
+          tr.innerHTML = colsShow.map(h => `<td style="padding:3px 8px;white-space:nowrap;">${row[h]||''}</td>`).join('');
+          tbody.appendChild(tr);
+        }
+      });
+
+      document.getElementById('csv-resumen').innerHTML =
+        `<strong>${csvDatosPendientes.length} productos</strong> encontrados en el CSV` +
+        (errores ? ` · <span style="color:#c0392b;">${errores} filas sin nombre (ignoradas)</span>` : '');
+      document.getElementById('csv-errores').textContent = '';
+      document.getElementById('csv-modal').classList.add('open');
+    } catch(err) {
+      toast('❌ Error al leer CSV: ' + err.message);
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function confirmarImportCSV() {
+  const mode = document.querySelector('input[name="csv-mode"]:checked').value;
+  if (!csvDatosPendientes.length) { toast('Sin datos'); return; }
+
+  if (mode === 'reemplazar') {
+    if (!confirm(`¿Reemplazar TODOS los productos actuales (${productos.length}) con los ${csvDatosPendientes.length} del CSV?`)) return;
+    productos = [];
+    stock = {};
+    log = [];
+    nextId = 100;
+  }
+
+  let agregados = 0, actualizados = 0;
+
+  csvDatosPendientes.forEach(m => {
+    // Buscar por código de barras o nombre exacto
+    let existente = null;
+    if (m.barcode) existente = productos.find(p => p.barcode === m.barcode);
+    if (!existente && m.nombre) existente = productos.find(p => p.nombre.toLowerCase() === m.nombre.toLowerCase());
+
+    if (existente) {
+      // Actualizar precio y costo, mantener stock si ya tiene
+      existente.costo = m.costo || existente.costo;
+      existente.precio = m.precio || existente.precio;
+      if (m.marca) existente.marca = m.marca;
+      if (m.familia) existente.marca = m.familia; // familia → marca si no hay marca
+      if (m.marca) existente.marca = m.marca;
+      if (m.stockMin > 0) existente.stockMin = m.stockMin;
+      // Actualizar stock solo si el existente es 0 o viene del CSV
+      if (stock[existente.id] === 0 && m.stockV > 0) stock[existente.id] = m.stockV;
+      actualizados++;
+    } else {
+      const id = nextId++;
+      const nuevo = {
+        id,
+        nombre: m.nombre,
+        marca: m.marca || m.familia || 'General',
+        precio: m.precio,
+        costo: m.costo,
+        barcode: m.barcode || '',
+        tipo: m.tipo,
+        stockMin: m.stockMin || 0
+      };
+      productos.push(nuevo);
+      stock[id] = m.stockV;
+      agregados++;
+    }
+  });
+
+  document.getElementById('csv-modal').classList.remove('open');
+  document.getElementById('csv-file-input') && (document.getElementById('csv-file-input').value = '');
+  csvDatosPendientes = [];
+
+  saveAll();
+  renderAll();
+  toast(`✅ CSV importado: ${agregados} nuevos, ${actualizados} actualizados`);
+}
+
 autenticar().then(()=>{ (async()=>{await loadAll();renderAll();initEventos();})(); });
 </script>
 </body>
