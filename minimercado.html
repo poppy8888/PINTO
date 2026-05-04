@@ -37,8 +37,55 @@
 /* ========== RESTO DE ESTILOS ========== */
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#dcdce0;min-height:100vh;color:#1a1a2e}
-.header{background:#1a1a2e;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background: linear-gradient(135deg, #1e5b9e 0%, #4a90d9 25%, #6bb0ed 50%, #4a90d9 75%, #1e5b9e 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 18s ease infinite;
+  min-height:100vh;color:#1a1a2e;
+}
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Logo decorativo de fondo en el escritorio (corona grande tipo StockFacil) */
+.escritorio-logo{
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:0;
+  pointer-events:none;
+  opacity:0.55;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+  user-select:none;
+}
+.escritorio-logo svg{
+  width:280px;height:280px;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,0.25));
+}
+.escritorio-logo .marca{
+  font-family:'Segoe Script','Brush Script MT',cursive;
+  font-size:3.6rem;font-weight:700;
+  color:#fff;
+  text-shadow:0 4px 14px rgba(0,0,0,0.4);
+  margin-top:-20px;
+  letter-spacing:1px;
+}
+.escritorio-logo .sub{
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+  font-size:1.1rem;color:#fff;font-weight:600;
+  letter-spacing:4px;
+  text-shadow:0 2px 8px rgba(0,0,0,0.35);
+  margin-top:6px;
+  text-transform:uppercase;
+}
+
+/* El contenido tiene que ir por encima del logo de fondo */
+.header,.tabs,.panel,.modal-overlay{position:relative;z-index:1;}
+.header{background:rgba(26,26,46,0.92);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;backdrop-filter:blur(8px);}
 .logo-icon{width:48px;height:48px;}
 .header-title{font-size:1.7rem;font-weight:800;color:#fff;letter-spacing:0.5px;}
 .header-sub{font-size:0.85rem;color:#a0a0c0;font-weight:500;}
@@ -73,9 +120,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .scanner-status{font-size:0.85rem;min-width:140px;text-align:right;font-weight:600;}
 .scanner-status.ok{color:#97c459}
 .scanner-status.err{color:#f09595}
-.tabs{display:flex;flex-wrap:wrap;margin:18px 24px 0;background:transparent;border:none;padding:0;gap:6px;}
-.tab{flex:1 1 auto;min-width:160px;padding:18px 22px;border:1px solid #c8c8d0;background:#f0f0f0;cursor:pointer;font-size:1rem;font-weight:600;color:#333;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:6px;transition:all 0.1s ease;letter-spacing:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
-.tab:hover{background:#e0e0e0;border-color:#a0a0a8;}
+.tabs{display:flex;flex-wrap:wrap;margin:18px 24px 0;background:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.4);padding:8px;gap:6px;border-radius:10px;backdrop-filter:blur(6px);box-shadow:0 4px 16px rgba(0,0,0,0.15);}
+.tab{flex:1 1 auto;min-width:160px;padding:18px 22px;border:1px solid #c8c8d0;background:#f8f8fa;cursor:pointer;font-size:1rem;font-weight:600;color:#333;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:6px;transition:all 0.1s ease;letter-spacing:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
+.tab:hover{background:#e8e8ec;border-color:#a0a0a8;}
 .tab.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}
 @media (max-width:768px){.tab{font-size:0.9rem;padding:14px 12px;min-width:130px;}}
 .panel{display:none;padding:16px 24px 24px}
@@ -367,6 +414,61 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <input type="text" id="scanner-input"/>
   <input type="text" id="scanner-qty" value="1"/>
   <div id="scanner-status">Listo</div>
+</div>
+
+<!-- Logo decorativo del escritorio (se ve detrás de todo) -->
+<div class="escritorio-logo">
+  <svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+    <!-- Sombra base -->
+    <ellipse cx="100" cy="170" rx="70" ry="6" fill="rgba(0,0,0,0.2)"/>
+    
+    <!-- Cuerpo de la corona (relleno dorado con gradiente) -->
+    <defs>
+      <linearGradient id="oroGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" style="stop-color:#fff4a0"/>
+        <stop offset="40%" style="stop-color:#ffd54a"/>
+        <stop offset="100%" style="stop-color:#c08020"/>
+      </linearGradient>
+      <radialGradient id="rubiGrad" cx="50%" cy="40%" r="60%">
+        <stop offset="0%" style="stop-color:#ff8080"/>
+        <stop offset="60%" style="stop-color:#c0252b"/>
+        <stop offset="100%" style="stop-color:#7a0c0c"/>
+      </radialGradient>
+      <radialGradient id="esmeraldaGrad" cx="50%" cy="40%" r="60%">
+        <stop offset="0%" style="stop-color:#7be374"/>
+        <stop offset="60%" style="stop-color:#27500a"/>
+        <stop offset="100%" style="stop-color:#143f00"/>
+      </radialGradient>
+    </defs>
+    
+    <!-- Forma principal de corona -->
+    <path d="M 25 140 L 35 60 L 60 95 L 100 35 L 140 95 L 165 60 L 175 140 Z" 
+          fill="url(#oroGrad)" stroke="#8a5a10" stroke-width="2" stroke-linejoin="round"/>
+    
+    <!-- Banda inferior de la corona -->
+    <rect x="22" y="138" width="156" height="22" rx="3" fill="url(#oroGrad)" stroke="#8a5a10" stroke-width="2"/>
+    
+    <!-- Detalle banda inferior -->
+    <line x1="22" y1="148" x2="178" y2="148" stroke="#8a5a10" stroke-width="1" opacity="0.5"/>
+    
+    <!-- Joyas en las puntas de la corona -->
+    <circle cx="35" cy="58" r="6" fill="url(#rubiGrad)" stroke="#8a5a10" stroke-width="1.5"/>
+    <circle cx="100" cy="33" r="8" fill="url(#esmeraldaGrad)" stroke="#8a5a10" stroke-width="1.5"/>
+    <circle cx="165" cy="58" r="6" fill="url(#rubiGrad)" stroke="#8a5a10" stroke-width="1.5"/>
+    
+    <!-- Joyas en la banda inferior -->
+    <circle cx="50" cy="149" r="5" fill="url(#rubiGrad)" stroke="#8a5a10" stroke-width="1"/>
+    <circle cx="80" cy="149" r="5" fill="url(#esmeraldaGrad)" stroke="#8a5a10" stroke-width="1"/>
+    <circle cx="100" cy="149" r="6" fill="url(#rubiGrad)" stroke="#8a5a10" stroke-width="1.5"/>
+    <circle cx="120" cy="149" r="5" fill="url(#esmeraldaGrad)" stroke="#8a5a10" stroke-width="1"/>
+    <circle cx="150" cy="149" r="5" fill="url(#rubiGrad)" stroke="#8a5a10" stroke-width="1"/>
+    
+    <!-- Brillito reflejo arriba -->
+    <ellipse cx="40" cy="80" rx="3" ry="10" fill="rgba(255,255,255,0.5)" transform="rotate(-15 40 80)"/>
+    <ellipse cx="120" cy="55" rx="3" ry="14" fill="rgba(255,255,255,0.4)" transform="rotate(15 120 55)"/>
+  </svg>
+  <div class="marca">Reina Mi Amor</div>
+  <div class="sub">Sistema de Gestión</div>
 </div>
 
 <!-- MODAL CSV -->
