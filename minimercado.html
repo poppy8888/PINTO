@@ -149,10 +149,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-anular:disabled{background:#ccc;cursor:not-allowed}
 
 /* Modal para pago y vuelto */
-#pago-modal .modal { max-width: 350px; text-align: center; }
-#pago-modal .modal input { width: 100%; padding: 10px; font-size: 1.2rem; margin: 15px 0; text-align: center; }
-#pago-modal .vuelto { font-size: 1.8rem; font-weight: bold; color: #27500a; margin: 10px 0; }
-#pago-modal .total-venta { font-size: 1.2rem; background: #f0f0f5; padding: 8px; border-radius: 8px; }
+#pago-modal .modal { max-width: 460px; padding:20px; font-family:'Segoe UI',Tahoma,Arial,sans-serif; }
+#pago-modal .modal-title { font-size:1.05rem; font-weight:700; color:#333; border-bottom:1px solid #d0d0d0; padding-bottom:8px; margin-bottom:14px; }
+#pago-modal .total-venta { 
+  background:#1a1a2e; color:#fff; padding:12px 18px; border-radius:5px; 
+  display:flex; justify-content:space-between; align-items:center; margin:0 0 14px;
+}
+#pago-modal .total-venta .lbl { font-size:0.78rem; color:#aaa; letter-spacing:1.5px; font-weight:600; }
+#pago-modal .total-venta .val { font-size:1.85rem; font-weight:700; font-family:'Consolas',monospace; color:#fff; }
+#pago-modal .lbl-monto { display:block; font-size:0.75rem; font-weight:600; color:#555; margin:0 0 5px; text-transform:uppercase; letter-spacing:0.5px; }
+#pago-modal .modal input { 
+  width:100%; padding:14px 16px; font-size:2rem; font-weight:700; 
+  margin:0 0 14px; text-align:right; font-family:'Consolas',monospace; 
+  border:2px solid #4a7eb8; border-radius:5px; background:#fffef0; color:#1a1a2e; outline:none; 
+}
+#pago-modal .modal input:focus { border-color:#1f5f9e; box-shadow:0 0 0 3px rgba(74,126,184,0.25); }
+#pago-modal .vuelto-box {
+  background:#eaf3de; border:2px solid #639922; border-radius:5px; padding:14px 18px;
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;
+}
+#pago-modal .vuelto-box.negativo { background:#fdecec; border-color:#c0392b; }
+#pago-modal .vuelto-lbl { font-size:0.78rem; font-weight:700; color:#27500a; letter-spacing:1.5px; }
+#pago-modal .vuelto-box.negativo .vuelto-lbl { color:#c0392b; }
+#pago-modal .vuelto { font-size:2.4rem; font-weight:800; color:#27500a; font-family:'Consolas',monospace; line-height:1; }
+#pago-modal .vuelto-box.negativo .vuelto { color:#c0392b; }
+#pago-modal .modal-btns { display:flex; gap:10px; justify-content:flex-end; }
+#pago-modal .btn-cancel { padding:9px 18px; border:1px solid #aaa; background:#e8e8e8; color:#444; border-radius:3px; font-weight:600; cursor:pointer; font-size:0.9rem; }
+#pago-modal .btn-cancel:hover { background:#d8d8d8; }
+#pago-modal .btn-confirm { padding:9px 22px; border:1px solid #1f5005 !important; background:#27500a !important; color:#fff; border-radius:3px; font-weight:600; cursor:pointer; font-size:0.9rem; }
+#pago-modal .btn-confirm:hover { background:#1f3e07 !important; }
+#pago-modal .botones-rapidos { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+#pago-modal .btn-rapido { flex:1; min-width:70px; padding:8px 4px; background:#fff; border:1px solid #c0c0c8; border-radius:4px; font-size:0.85rem; font-weight:600; cursor:pointer; color:#333; font-family:'Consolas',monospace; }
+#pago-modal .btn-rapido:hover { background:#1a1a2e; color:#fff; border-color:#1a1a2e; }
 
 /* Estilos para buscador manual simplificado */
 .manual-add {
@@ -177,102 +205,104 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .manual-add .field-group { width: 100%; }
   .manual-add button { width: 100%; }
 }
-/* ===== ESTILO VENTA TIPO STOCKFACIL ===== */
+/* ===== ESTILO VENTA TIPO STOCKFACIL - PROFESIONAL ===== */
 .venta-stockfacil{
-  background:#fff;border-radius:14px;padding:10px;
-  box-shadow:0 4px 18px rgba(0,0,0,0.08);
+  background:#ececec;border-radius:6px;padding:12px;
+  border:1px solid #b8b8b8;
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
 }
 .vsf-header{
   display:flex;justify-content:space-between;align-items:center;
-  background:linear-gradient(135deg,#1a1a2e,#3a2e5e);
-  color:#fff;padding:8px 16px;border-radius:10px;margin-bottom:10px;
+  background:#dcdce0;border:1px solid #b8b8b8;
+  color:#1a1a2e;padding:8px 14px;border-radius:4px;margin-bottom:10px;
   flex-wrap:wrap;gap:10px;flex-shrink:0;
 }
-.vsf-titulo{font-size:1.25rem;font-weight:800;letter-spacing:1px;}
-.vsf-fecha,.vsf-numero{font-size:0.95rem;}
-.vsf-numero strong{color:#e8c84a;font-size:1.1rem;}
+.vsf-titulo{font-size:1rem;font-weight:700;color:#333;letter-spacing:0;}
+.vsf-fecha,.vsf-numero{font-size:0.82rem;color:#555;}
+.vsf-numero strong{color:#791f1f;font-size:0.9rem;font-weight:700;}
 
 .vsf-entrada{
   display:grid;grid-template-columns:1.2fr 50px 1.2fr auto;
-  gap:10px;align-items:end;margin-bottom:10px;
-  background:#f5f5fa;padding:10px;border-radius:10px;border:2px solid #e0e0e8;flex-shrink:0;
+  gap:8px;align-items:end;margin-bottom:8px;
+  background:#f5f5f5;padding:8px;border-radius:4px;border:1px solid #c8c8c8;flex-shrink:0;
 }
 .vsf-input-grupo{display:flex;flex-direction:column;}
-.vsf-label{font-size:0.78rem;font-weight:700;color:#444;margin-bottom:5px;text-transform:uppercase;}
+.vsf-label{font-size:0.72rem;font-weight:600;color:#555;margin-bottom:3px;text-transform:none;}
 .vsf-input{
-  padding:10px 12px;font-size:1rem;border:2px solid #c8c8d8;
-  border-radius:8px;background:#fff;outline:none;transition:0.15s;
+  padding:6px 8px;font-size:0.88rem;border:1px solid #a8a8b0;
+  border-radius:3px;background:#fff;outline:none;
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:#222;
 }
-.vsf-input:focus{border-color:#791f1f;box-shadow:0 0 0 3px rgba(121,31,31,0.15);}
-.vsf-input-grande{font-size:1.15rem;font-weight:600;letter-spacing:1px;}
+.vsf-input:focus{border-color:#4a7eb8;box-shadow:0 0 0 2px rgba(74,126,184,0.2);}
+.vsf-input-grande{font-size:0.95rem;font-weight:600;letter-spacing:0.5px;}
 
 .vsf-btn-camara{
-  background:#e8c84a;border:none;border-radius:8px;font-size:1.6rem;
-  cursor:pointer;height:44px;width:50px;transition:0.15s;
+  background:#f0c040;border:1px solid #b89020;border-radius:3px;font-size:1.2rem;
+  cursor:pointer;height:32px;width:50px;
 }
-.vsf-btn-camara:hover{background:#f0d260;transform:scale(1.05);}
+.vsf-btn-camara:hover{background:#e8c84a;}
 
 .vsf-btn-agregar{
-  background:#27500a;color:#fff;border:none;padding:10px 22px;
-  border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;
-  height:44px;letter-spacing:0.5px;transition:0.15s;
+  background:#3d8011;color:#fff;border:1px solid #2a5a08;padding:6px 16px;
+  border-radius:3px;font-size:0.85rem;font-weight:600;cursor:pointer;
+  height:32px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;
 }
-.vsf-btn-agregar:hover{background:#1f3e07;}
+.vsf-btn-agregar:hover{background:#2f6608;}
 
 .vsf-tabla-cont{
-  border:2px solid #d0d0e0;border-radius:10px;overflow:auto;
-  background:#fff;margin-bottom:10px;flex:1;min-height:0;position:relative;
+  border:1px solid #b8b8b8;border-radius:3px;overflow:auto;
+  background:#fff;margin-bottom:8px;flex:1;min-height:0;position:relative;
 }
-.vsf-tabla{width:100%;border-collapse:collapse;font-size:0.95rem;}
+.vsf-tabla{width:100%;border-collapse:collapse;font-size:0.85rem;font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
 .vsf-tabla thead{
-  background:linear-gradient(180deg,#3a2e5e,#1a1a2e);color:#fff;
+  background:#c5c5cc;color:#1a1a2e;
   position:sticky;top:0;z-index:10;
 }
 .vsf-tabla thead::after{
-  content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:#1a1a2e;
+  content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:#888;
 }
-.vsf-tabla th{padding:10px 8px;text-align:left;font-size:0.85rem;font-weight:700;letter-spacing:0.4px;}
-.vsf-tabla td{padding:8px;border-bottom:1px solid #e8e8f0;}
-.vsf-tabla tbody tr:hover{background:#f5f0fa;}
+.vsf-tabla th{padding:6px 8px;text-align:left;font-size:0.78rem;font-weight:600;border-right:1px solid #aaa;}
+.vsf-tabla td{padding:5px 8px;border-bottom:1px solid #e0e0e0;border-right:1px solid #ececec;}
+.vsf-tabla tbody tr:hover{background:#f0f4ff;}
 .vsf-tabla tbody tr:last-child td{border-bottom:none;}
 .vsf-tabla input{
-  padding:6px 8px;font-size:0.95rem;border:1px solid #ccc;border-radius:6px;
-  width:100%;font-weight:600;
+  padding:4px 6px;font-size:0.85rem;border:1px solid #c0c0c8;border-radius:2px;
+  width:100%;font-weight:500;font-family:'Segoe UI',Tahoma,Arial,sans-serif;
 }
-.vsf-tabla .vsf-codigo{font-family:monospace;font-size:0.85rem;color:#666;}
-.vsf-tabla .vsf-detalle{font-weight:600;color:#1a1a2e;}
-.vsf-tabla .vsf-subtotal{font-weight:800;color:#27500a;font-size:1.05rem;text-align:right;}
+.vsf-tabla .vsf-codigo{font-family:'Consolas',monospace;font-size:0.78rem;color:#666;}
+.vsf-tabla .vsf-detalle{font-weight:500;color:#1a1a2e;}
+.vsf-tabla .vsf-subtotal{font-weight:700;color:#1a1a2e;font-size:0.92rem;text-align:right;font-family:'Consolas',monospace;}
 .vsf-tabla-vacia{
-  padding:60px 20px;text-align:center;color:#999;font-style:italic;
-  font-size:0.95rem;
+  padding:40px 20px;text-align:center;color:#999;font-style:italic;
+  font-size:0.85rem;
 }
 
 .vsf-footer{
-  display:grid;grid-template-columns:1fr 1fr auto;gap:14px;
-  align-items:center;background:#f5f5fa;padding:10px;border-radius:10px;
-  border:2px solid #e0e0e8;flex-wrap:wrap;flex-shrink:0;
+  display:grid;grid-template-columns:1fr 1fr auto;gap:10px;
+  align-items:center;background:#dcdce0;padding:8px;border-radius:4px;
+  border:1px solid #b8b8b8;flex-wrap:wrap;flex-shrink:0;
 }
-.vsf-footer-izq{display:flex;gap:10px;flex-wrap:wrap;}
+.vsf-footer-izq{display:flex;gap:6px;flex-wrap:wrap;}
 .vsf-footer-mid{display:flex;justify-content:center;}
-.vsf-monto-real{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.vsf-monto-real label{font-size:0.85rem;font-weight:700;color:#444;}
+.vsf-monto-real{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.vsf-monto-real label{font-size:0.78rem;font-weight:600;color:#444;}
 
 .vsf-btn-accion{
-  padding:10px 20px;border:none;border-radius:10px;font-size:0.95rem;
-  font-weight:800;cursor:pointer;letter-spacing:0.5px;transition:0.15s;
+  padding:7px 16px;border:1px solid;border-radius:3px;font-size:0.85rem;
+  font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;
 }
-.vsf-btn-cancelar{background:#888;color:#fff;}
-.vsf-btn-cancelar:hover{background:#666;}
-.vsf-btn-guardar{background:#791f1f;color:#fff;}
+.vsf-btn-cancelar{background:#e8e8e8;color:#444;border-color:#aaa;}
+.vsf-btn-cancelar:hover{background:#d8d8d8;}
+.vsf-btn-guardar{background:#791f1f;color:#fff;border-color:#5a1414;}
 .vsf-btn-guardar:hover{background:#5a1414;}
 
 .vsf-total-box{
-  background:linear-gradient(135deg,#27500a,#3d8011);
-  color:#fff;padding:10px 24px;border-radius:12px;
-  min-width:200px;text-align:right;box-shadow:0 4px 12px rgba(39,80,10,0.3);
+  background:#1a1a2e;
+  color:#fff;padding:8px 22px;border-radius:4px;
+  min-width:180px;text-align:right;border:1px solid #000;
 }
-.vsf-total-label{font-size:0.78rem;font-weight:700;letter-spacing:2px;opacity:0.9;}
-.vsf-total-monto{font-size:1.8rem;font-weight:900;line-height:1;margin-top:2px;}
+.vsf-total-label{font-size:0.7rem;font-weight:600;letter-spacing:1.5px;opacity:0.85;}
+.vsf-total-monto{font-size:1.7rem;font-weight:700;line-height:1;margin-top:2px;font-family:'Consolas',monospace;color:#7be374;}
 
 @media (max-width:768px){
   .vsf-entrada{grid-template-columns:1fr 50px;grid-template-rows:auto auto auto;}
@@ -280,8 +310,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .vsf-btn-agregar{grid-column:1/3;}
   .vsf-footer{grid-template-columns:1fr;}
   .vsf-total-box{text-align:center;}
-  .vsf-total-monto{font-size:1.8rem;}
-  .vsf-titulo{font-size:1.2rem;}
+  .vsf-total-monto{font-size:1.4rem;}
+  .vsf-titulo{font-size:0.95rem;}
 }
 </style>
 </head>
@@ -761,7 +791,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
 
     <!-- Selector de cliente y forma de pago -->
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px;background:#fff8e1;padding:10px;border-radius:10px;border:2px solid #f5c842;flex-shrink:0;">
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:8px;background:#f5f5f5;padding:8px;border-radius:4px;border:1px solid #c8c8c8;flex-shrink:0;">
       <div class="vsf-input-grupo">
         <label class="vsf-label">👤 Cliente</label>
         <select id="venta-cliente" class="vsf-input" style="height:42px;">
@@ -840,12 +870,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="modal-overlay" id="pago-modal" style="z-index:2500;">
   <div class="modal">
     <div class="modal-title">💰 Pago del cliente</div>
-    <div class="total-venta" id="pago-total-venta">Total: $0</div>
-    <input type="text" id="monto-cliente" placeholder="Monto que entrega el cliente" autocomplete="off">
-    <div class="vuelto" id="vuelto-mostrar">Vuelto: $0</div>
+    <div class="total-venta">
+      <span class="lbl">TOTAL A PAGAR</span>
+      <span class="val" id="pago-total-venta">$0</span>
+    </div>
+    <label class="lbl-monto">Monto que entrega el cliente</label>
+    <input type="text" id="monto-cliente" placeholder="0" autocomplete="off" inputmode="decimal">
+    <div class="botones-rapidos" id="botones-rapidos-pago"></div>
+    <div class="vuelto-box" id="vuelto-box">
+      <span class="vuelto-lbl">VUELTO</span>
+      <span class="vuelto" id="vuelto-mostrar">$0</span>
+    </div>
     <div class="modal-btns">
       <button class="btn-cancel" id="cancelar-pago">Cancelar</button>
-      <button class="btn-confirm" id="confirmar-pago" style="background:#27500a;">Confirmar venta</button>
+      <button class="btn-confirm" id="confirmar-pago">✓ Confirmar venta</button>
     </div>
   </div>
 </div>
@@ -1313,38 +1351,70 @@ function pedirPagoYVuelto(totalVenta){
     const totalSpan = document.getElementById('pago-total-venta');
     const montoInput = document.getElementById('monto-cliente');
     const vueltoSpan = document.getElementById('vuelto-mostrar');
+    const vueltoBox = document.getElementById('vuelto-box');
     const cancelarBtn = document.getElementById('cancelar-pago');
     const confirmarBtn = document.getElementById('confirmar-pago');
-    totalSpan.textContent = `Total: $${fmt(totalVenta)}`;
+    const botonesRapidosCont = document.getElementById('botones-rapidos-pago');
+    
+    totalSpan.textContent = `$${fmt(totalVenta)}`;
     montoInput.value = '';
-    vueltoSpan.textContent = 'Vuelto: $0';
+    vueltoSpan.textContent = '$0';
+    vueltoBox.classList.remove('negativo');
+    
+    // Botones rápidos con sugerencias inteligentes
+    const sugerencias = [];
+    sugerencias.push(totalVenta);  // Justo
+    // Redondeos al alza
+    if(totalVenta < 1000) sugerencias.push(1000, 2000, 5000);
+    else if(totalVenta < 5000){
+      sugerencias.push(Math.ceil(totalVenta/1000)*1000);
+      sugerencias.push(5000, 10000);
+    } else if(totalVenta < 10000){
+      sugerencias.push(Math.ceil(totalVenta/1000)*1000);
+      sugerencias.push(10000, 20000);
+    } else if(totalVenta < 20000){
+      sugerencias.push(Math.ceil(totalVenta/1000)*1000);
+      sugerencias.push(20000, 50000);
+    } else {
+      sugerencias.push(Math.ceil(totalVenta/1000)*1000);
+      sugerencias.push(Math.ceil(totalVenta/10000)*10000);
+      sugerencias.push(50000, 100000);
+    }
+    // Quitar duplicados y filtrar
+    const uniq = [...new Set(sugerencias)].filter(v => v >= totalVenta).slice(0,4);
+    botonesRapidosCont.innerHTML = uniq.map(v => 
+      `<button type="button" class="btn-rapido" data-monto="${v}">${v===totalVenta?'JUSTO':'$'+fmt(v)}</button>`
+    ).join('');
+    botonesRapidosCont.querySelectorAll('.btn-rapido').forEach(btn => {
+      btn.onclick = () => {
+        montoInput.value = btn.getAttribute('data-monto');
+        calcularVuelto();
+        montoInput.focus();
+      };
+    });
+    
     function calcularVuelto() {
       let pago = parseNumero(montoInput.value);
       if (isNaN(pago)) pago = 0;
       let vuelto = pago - totalVenta;
-      if (vuelto < 0) vuelto = 0;
-      vueltoSpan.textContent = `Vuelto: $${fmt(vuelto)}`;
+      if(vuelto < 0){
+        vueltoBox.classList.add('negativo');
+        vueltoSpan.textContent = `-$${fmt(Math.abs(vuelto))}`;
+      } else {
+        vueltoBox.classList.remove('negativo');
+        vueltoSpan.textContent = `$${fmt(vuelto)}`;
+      }
     }
+    
     function onEnter(e) {
       if (e.key === 'Enter') {
         e.preventDefault();
-        let pago = parseNumero(montoInput.value);
-        if (isNaN(pago)) pago = 0;
-        let vuelto = pago - totalVenta;
-        if (vuelto >= 0) {
-          toast(`💵 Vuelto: $${fmt(vuelto)}`);
-          limpiarEventos();
-          modal.classList.remove('open');
-          resolve(true);
-        } else {
-          toast("⚠️ El pago es insuficiente.");
-          montoInput.focus();
-        }
+        onConfirm();
       }
     }
     function limpiarEventos() {
       montoInput.removeEventListener('input', calcularVuelto);
-      montoInput.removeEventListener('keypress', onEnter);
+      montoInput.removeEventListener('keydown', onEnter);
       cancelarBtn.removeEventListener('click', onCancel);
       confirmarBtn.removeEventListener('click', onConfirm);
     }
@@ -1364,11 +1434,11 @@ function pedirPagoYVuelto(totalVenta){
       }
     }
     montoInput.addEventListener('input', calcularVuelto);
-    montoInput.addEventListener('keypress', onEnter);
+    montoInput.addEventListener('keydown', onEnter);
     cancelarBtn.addEventListener('click', onCancel);
     confirmarBtn.addEventListener('click', onConfirm);
     modal.classList.add('open');
-    montoInput.focus();
+    setTimeout(()=>montoInput.focus(), 100);
   });
 }
 
