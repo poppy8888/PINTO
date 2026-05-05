@@ -1195,7 +1195,9 @@ body{
 
 <div class="toast" id="toast"></div>
 </div><!-- cierre app-pc -->
-</div><!-- cierre app-contenido -->
+
+<!-- MODALES COMPARTIDOS -->
+
 
 <script>
 // ========== UTILIDADES: PARSEO DE NÚMEROS CON COMA Y PUNTO DE MILES ==========
@@ -2579,13 +2581,13 @@ function esCelular(){
 function iniciarInterfazSegunDispositivo(){
   if(esCelular()){
     document.getElementById('app-movil').style.display = 'block';
-    document.getElementById('app-pc').style.display = 'none';
+    document.getElementById('app-pc').style.visibility = 'hidden'; document.getElementById('app-pc').style.height = '0'; document.getElementById('app-pc').style.overflow = 'hidden'; document.getElementById('app-pc').style.position = 'absolute';
     actualizarResumenMovil();
     actualizarFechaHora();
     setInterval(actualizarFechaHora, 60000);
   } else {
     document.getElementById('app-movil').style.display = 'none';
-    document.getElementById('app-pc').style.display = 'block';
+    document.getElementById('app-pc').style.visibility = 'visible'; document.getElementById('app-pc').style.height = ''; document.getElementById('app-pc').style.overflow = ''; document.getElementById('app-pc').style.position = '';
   }
 }
 
