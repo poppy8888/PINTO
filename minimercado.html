@@ -84,7 +84,7 @@ body{
 }
 
 /* El contenido tiene que ir por encima del logo de fondo */
-.header,.tabs,.panel,.modal-overlay{position:relative;z-index:1;}
+.header,.tabs,.panel{position:relative;z-index:1;}
 .header{background:rgba(26,26,46,0.92);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;backdrop-filter:blur(8px);}
 .logo-icon{width:48px;height:48px;}
 .header-title{font-size:1.7rem;font-weight:800;color:#fff;letter-spacing:0.5px;}
@@ -1019,6 +1019,8 @@ body{
   </div>
 </div>
 
+</div><!-- cierre app-pc -->
+
 <!-- MODAL FLOTANTE DE VENTA -->
 <div class="modal-overlay" id="venta-modal" style="z-index:1500;">
   <div class="venta-stockfacil" style="width:min(95vw,950px);height:75vh;display:flex;flex-direction:column;overflow:hidden;">
@@ -1194,10 +1196,8 @@ body{
 </div>
 
 <div class="toast" id="toast"></div>
-</div><!-- cierre app-pc -->
 
-<!-- MODALES COMPARTIDOS -->
-
+</div><!-- cierre app-contenido -->
 
 <script>
 // ========== UTILIDADES: PARSEO DE NÚMEROS CON COMA Y PUNTO DE MILES ==========
@@ -2581,13 +2581,13 @@ function esCelular(){
 function iniciarInterfazSegunDispositivo(){
   if(esCelular()){
     document.getElementById('app-movil').style.display = 'block';
-    document.getElementById('app-pc').style.visibility = 'hidden'; document.getElementById('app-pc').style.height = '0'; document.getElementById('app-pc').style.overflow = 'hidden'; document.getElementById('app-pc').style.position = 'absolute';
+    document.getElementById('app-pc').style.display = 'none';
     actualizarResumenMovil();
     actualizarFechaHora();
     setInterval(actualizarFechaHora, 60000);
   } else {
     document.getElementById('app-movil').style.display = 'none';
-    document.getElementById('app-pc').style.visibility = 'visible'; document.getElementById('app-pc').style.height = ''; document.getElementById('app-pc').style.overflow = ''; document.getElementById('app-pc').style.position = '';
+    document.getElementById('app-pc').style.display = 'block';
   }
 }
 
