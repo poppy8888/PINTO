@@ -94,8 +94,49 @@ header p { font-size: 12px; opacity: 0.85; }
 }
 .contacto:hover { border-color: #25D366; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 .contacto.enviado { background: #EAFAF1; border-color: #27AE60; }
+.contacto.invalido { background: #FADBD8; border-color: #E74C3C; opacity: 0.85; }
+.invalido-msg {
+  background: #C0392B; color: white; border-radius: 6px;
+  padding: 6px; font-size: 10px; text-align: center; font-weight: bold;
+  margin-top: 2px;
+}
+
+/* LOGIN OVERLAY */
+#login-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #1A5276, #6C3483);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+#login-box {
+  background: white; border-radius: 12px; padding: 30px 25px;
+  max-width: 360px; width: 100%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  text-align: center;
+}
+#login-box h2 { color: #1A5276; margin-bottom: 6px; font-size: 20px; }
+#login-box p { color: #666; font-size: 13px; margin-bottom: 18px; }
+#login-input {
+  width: 100%; padding: 12px 14px; font-size: 15px;
+  border: 2px solid #ddd; border-radius: 8px; outline: none;
+  margin-bottom: 12px; transition: border-color 0.2s;
+}
+#login-input:focus { border-color: #1A5276; }
+#login-btn {
+  width: 100%; padding: 12px; font-size: 15px; font-weight: bold;
+  background: #1A5276; color: white; border: none; border-radius: 8px;
+  cursor: pointer; transition: background 0.2s;
+}
+#login-btn:hover { background: #154360; }
+#login-error {
+  color: #C0392B; font-size: 12px; margin-top: 10px;
+  min-height: 16px;
+}
+body.locked { overflow: hidden; }
 .idx { font-size: 10px; color: #bbb; }
-.num { font-size: 12px; font-weight: bold; color: #2C3E50; margin: 2px 0 7px; }
+.nombre { font-size: 13px; font-weight: bold; color: #1A5276; margin: 2px 0 0; line-height: 1.2; }
+.nombre.sin { color: #999; font-style: italic; font-weight: normal; }
+.num { font-size: 11px; color: #666; margin: 0 0 7px; }
 .badge-ok {
   position: absolute; top: 6px; right: 6px;
   background: #27AE60; color: white; border-radius: 50%;
@@ -116,7 +157,50 @@ header p { font-size: 12px; opacity: 0.85; }
 }
 </style>
 </head>
-<body>
+<body class="locked">
+
+<!-- ====================================================== -->
+<!-- LOGIN — CAMBIA LA CLAVE EN LA LÍNEA QUE DICE: CLAVE = -->
+<!-- ====================================================== -->
+<div id="login-overlay">
+  <div id="login-box">
+    <h2>🔒 Acceso restringido</h2>
+    <p>Hotel Vista del Sol — Ingresá la clave</p>
+    <input type="password" id="login-input" placeholder="Clave" autofocus>
+    <button id="login-btn" onclick="checkLogin()">Ingresar</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<script>
+// ⚠️ CAMBIÁ LA CLAVE ACÁ ABAJO ⚠️
+const CLAVE = "hotel2025";
+
+function checkLogin() {
+  const input = document.getElementById('login-input').value;
+  const err = document.getElementById('login-error');
+  if (input === CLAVE) {
+    sessionStorage.setItem('hotel_auth', '1');
+    document.getElementById('login-overlay').style.display = 'none';
+    document.body.classList.remove('locked');
+  } else {
+    err.textContent = '❌ Clave incorrecta';
+    document.getElementById('login-input').value = '';
+    document.getElementById('login-input').focus();
+  }
+}
+
+// Permitir entrar con Enter
+document.getElementById('login-input').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') checkLogin();
+});
+
+// Si ya entró antes en esta sesión, no volver a pedir
+if (sessionStorage.getItem('hotel_auth') === '1') {
+  document.getElementById('login-overlay').style.display = 'none';
+  document.body.classList.remove('locked');
+}
+</script>
 
 <header>
   <h1>🏨 Hotel Vista del Sol — Aviso WhatsApp Hackeado</h1>
@@ -131,10 +215,31 @@ header p { font-size: 12px; opacity: 0.85; }
 
 <div class="msg-box">
   <strong>📋 Mensaje a enviar:</strong>
-  AVISO - Hotel Vista del Sol: Nuestro WhatsApp fue hackeado. No respondas mensajes pidiendo dinero o datos. Para consultas llamanos al [TU NUMERO]. Disculpa los inconvenientes.
+  Hotel Vista del Sol alerta a sus clientes de la utilización indebida del nombre del Hotel y de la cuenta de WhatsApp por parte de autores desconocidos, los cuales valiéndose de ardid y engaño solicitan transferencias por reservas y promociones no autorizadas, a CBU que no son de pertenencia de nuestra empresa. Se hace saber que la administración no se responsabiliza por los daños económicos ocasionados por terceras personas ajenas a nuestro emprendimiento comercial, haciendo saber que se encuentra en investigación la denuncia penal radicada en el día de la fecha para dar con los autores de la defraudación.
+  <br><br>
+  📞 Para consultas o reservas, comunicarse al: <strong>+54 9 3857 40-7420</strong>
 </div>
 <div class="aviso">
   ⚠️ <strong>Para no ser bloqueado:</strong> Enviá de a 5 mensajes, esperá 2 minutos, seguí. No mandes todos juntos.
+</div>
+
+<!-- ZONA DE PRUEBA -->
+<div style="margin: 10px 16px; background: #FCF3CF; border: 2px dashed #F39C12; border-radius: 10px; padding: 12px;">
+  <div style="font-size: 13px; font-weight: bold; color: #7D6608; margin-bottom: 8px;">
+    🧪 Prueba — Número de tu señora
+  </div>
+  <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+    <div style="font-size: 13px; color: #2C3E50; font-weight: bold;">+54 9 385 520-6123</div>
+    <a id="btn-prueba" class="btn-wa" style="width: auto; padding: 6px 14px;" target="_blank">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      Probar envío
+    </a>
+  </div>
+  <div style="font-size: 11px; color: #7D6608; margin-top: 6px;">
+    Si este sí llega, los números de la lista que dan error es porque esa persona no tiene WhatsApp activo.
+  </div>
 </div>
 
 <div class="tabs-wrap" id="tabs"></div>
@@ -158,11 +263,531 @@ const GRUPOS = [
   ["+5491156549930", "+5493874116562", "+5493884133622", "+5493844478466", "+5493843417579", "+5493402542053", "+5493857405050", "+5493857413633", "+5493492582139", "+5493857473126", "+5493491444518", "+5493857405660", "+5491150154280", "+5493435069342", "+5491139121954", "+5493415825807", "+5493564662169", "+5493854740025", "+5493462625742", "+5493404533100", "+5493492517020", "+5493844405461", "+5491153151599", "+5493872117750", "+5491140997689", "+5493875050152", "+5492615020610", "+5492346414992", "+5493857485154", "+5493873516425", "+5493856977638", "+5491167098686", "+5491159058721", "+5493854091288", "+5493385552510", "+5493813480040", "+5493857472546", "+5493416091234", "+5493471670873", "+5493873616031"],
   ["+5493468543408", "+5492234497010", "+5493644151706", "+5491166138555", "+5493857465505", "+5493857400331", "+5493857406483", "+5493857465738", "+5491159311821", "+5493857466671", "+5493857477571", "+5493415876094", "+5493855027187", "+5493534095062", "+5493857475328", "+5493491433336", "+5492954306703", "+5493482443083", "+5493434057052", "+5493401437909", "+5493815209451", "+5493844469711", "+5491154958788", "+5493436410341", "+5493404632814"],
 ];
+const NOMBRES = {
+  "5493857470050": "Omar",
+  "5493415876527": "Hugo Hernández Central",
+  "5493857460395": "Angela",
+  "5491152965650": "Booking Agustina",
+  "5493857465786": "Valeria Limpia",
+  "5493857473984": "Nori",
+  "5493857442772": "Nini",
+  "5493844416820": "Olguita",
+  "5493855381397": "Gaby",
+  "5493857446838": "Naty",
+  "5493844515046": "Jueza",
+  "549385384695": "Dr. Z",
+  "5493491420300": "Kinesio Ceres",
+  "549385802777": "Termad Cabañas",
+  "5492901510768": "Tierra Del Fuego",
+  "5493857485859": "Caro _ Trabajo",
+  "5491154926714": "Doc Emilio",
+  "5493857435313": "Lucuana Torres",
+  "5492901511593": "Anabel",
+  "5493857463060": "Francisco",
+  "5493467629505": "Polano",
+  "5492234554222": "Ani Santin Artista",
+  "5493857476558": "Sra . Ramona",
+  "5492994670525": "Ibañez Huesped",
+  "5493857477920": "Sole Mama De Cami",
+  "5493408682640": "Meli PELU",
+  "5493844438091": "Humberto contreras",
+  "5493857448330": "PACHUU!11",
+  "5493564671101": "Diego Luna Pile",
+  "5493857460012": "Cami",
+  "5493857408835": "Kichy Iturre",
+  "5491149757061": "Ishii",
+  "5491135845670": "Perez ClienteSss",
+  "5493415301005": "Boimg",
+  "5493414626808": "Marido Adri",
+  "5492966528856": "Belu",
+  "5491140927934": "Juan",
+  "5493414384658": "INES ROSARIO",
+  "5493414471669": "Ef",
+  "5491126464467": "Sr. NERI BUSCA",
+  "5493414655814": "Arguelles",
+  "5493857417651": "Diego Alcortaaa",
+  "5491147750254": "Oscar PEREZ",
+  "5491134571990": "Robot Chat Matias",
+  "5493857461470": "Rosana Mami Lourdes",
+  "54915416723": "Joaquin Noe",
+  "5493814985280": "Quien 1",
+  "5493857473550": "Negro Rojas",
+  "5493857417023": "CESAR",
+  "5493401422277": "Cafe Chevallier",
+  "5493854112985": "Hoyos",
+  "5493855052237": "Nahuel",
+  "5493491442244": "ABERTURAS CERES",
+  "5493414266389": "Centro D Piel",
+  "5493487450015": "Clien",
+  "5493884480254": "Jhonatan",
+  "5493816776650": "Huesp",
+  "5491147729297": "Carla VICTORIO",
+  "5493857481120": "Luciano Banco",
+  "5493875122159": "Clientes Leila",
+  "5493464448321": "Matias Fumigadores",
+  "5493857472004": "ANTO",
+  "5493857474721": "Tessio Remis",
+  "54938384157": "Num CuentaDIRE",
+  "5493857442480": "Pimpin",
+  "5493844407507": "Aldo Guzman",
+  "5493857675855": "Luisina Aguirre",
+  "54955251750": "Codigo Internet",
+  "5493857674465": "Nora De tata",
+  "5493814493052": "Siyo sgo",
+  "5493313657520": "joshua alonso",
+  "5493857461522": "Marido CARLA",
+  "5493857483837": "Crescimbeni Ra",
+  "5493857416723": "Joaquín",
+  "5493855864127": "Mirna",
+  "5493873134853": "+54 3873 13-4853",
+  "5493426101879": "Santiag CLIENTE",
+  "5493471678448": "+5493471678448 21/04",
+  "5493471522512": "+54 3471 52-2512",
+  "5493857472877": "Fernando Duro",
+  "5491166775949": "+5491166775949 26/07/2025",
+  "5492213035369": "+5492213035369 27/07/2025",
+  "5491164780418": "Aranda",
+  "5491127881170": "+54 11 2788-1170",
+  "5493454657567": "ROQUE GY CAMPOS",
+  "5493857441709": "Alexis Albañil",
+  "5493416187483": "+54 341 618-7483",
+  "549347665602": "Andres Juan Carlos Bressan",
+  "5491160900123": "22/12",
+  "5492224539045": "2224 53-9045",
+  "5493857413185": "Lony Tunes",
+  "5493855904432": "Niña Radio",
+  "5493854782795": "385 478-2795",
+  "5493855746354": "Sra Silvia",
+  "5493413503967": "Reserva 05/11",
+  "5491160252902": "Clientes Médicos Manzo",
+  "5493813004316": "Novati Tucuman",
+  "5493413220171": "Don Juan",
+  "5493533453231": "Dani Giovanetti",
+  "5493404490344": "30/03",
+  "5491164796336": "Cliente Axion",
+  "5491135005016": "Gab Maldonado",
+  "5493844564019": "Rox",
+  "5491176360973": "Reserva 4/2/25 Schneider",
+  "5493857407811": "Moni",
+  "5493855903171": "FLAQUITA",
+  "5493857406338": "Ale Legui!",
+  "5493857444408": "Sil",
+  "5493855795000": "PANORAMA WhatsApp",
+  "5491136342592": "José Aranda",
+  "5493516170207": "Regugio termas",
+  "5491134306522": "Anchito",
+  "5493854937923": "Reserva 29/3/2025",
+  "5493468529000": "MOREL CLIENTE FINO",
+  "5493455289399": "Reserva 15/11/24",
+  "5492664583352": "Abigail",
+  "5493844416877": "Laura Zocca",
+  "5493416922780": "Gustavo",
+  "5491125750106": "Carmen",
+  "5493857447031": "ANDREA ..",
+  "5493425528810": "Gorda Del Wsp",
+  "5493415836480": "Reserva 19/11/24",
+  "5493844432067": "Ali",
+  "5493857676981": "Fa Chaparro",
+  "5491144002528": "Reserv 17/1",
+  "5493329600226": "Reserva 19/04",
+  "5493857403485": "Huguito Luz",
+  "5493857400431": "Peca",
+  "5493857402890": "Diego Pineda",
+  "5491130192075": "Reserva 9/2/25",
+  "5493815948981": "Graciela Periodista",
+  "5493857416509": "Ivan Rojas",
+  "5491140241264": "Maximo Palacio",
+  "5493856985941": "Reserva 29/3/25",
+  "5493857483037": "Lily Galeano",
+  "5491144465212": "Doc.Alfredo",
+  "5493844453705": "Pocho Metzler",
+  "5491150210266": "Venecitaa",
+  "5493855827070": "Abrahm POSNET Santiago",
+  "5493491507908": "Vicky Negro",
+  "5493857446746": "Mara",
+  "5493856410488": "Reserva 9/11",
+  "5493857403816": "Gera Glardon",
+  "5493876839438": "Richard Cabra Corral",
+  "5492216321135": "Reserva 13y21/11",
+  "5493857404311": "Rolito",
+  "5493816094757": "Contador Afagro",
+  "5493857401407": "Tini",
+  "5493857472629": "Silvina De luis",
+  "5492323659854": "Reserv 21/02/25",
+  "5491131895461": "Reserva 1/2",
+  "5493406644281": "Felix",
+  "5493844479504": "Sergio Mussio",
+  "5493854384695": "Dr. Z 2",
+  "5493857405074": "Anita Sánchez Hija",
+  "5493857412823": "Fernando",
+  "5493564662587": "Valangiano Javier",
+  "5493854354868": "Clinica Sgo Pie",
+  "5493857402644": "Delfi",
+  "5493416955095": "Gust Amigo De Gretel",
+  "5493857403319": "Prado Claudio",
+  "5491166505434": "Reserva Julio",
+  "5493857403395": "Fabri",
+  "5493541613282": "Quini Ro",
+  "5493794044424": "Reserv 26/12",
+  "5491157042458": "Reserv 14/1",
+  "5493857407300": "Omar 2",
+  "5493843403699": "Reserva 16/2",
+  "5493844568692": "Odontologo CRIST",
+  "5493515571810": "Gauna",
+  "5493857460017": "Maria Limpieza",
+  "5493857674863": "GACHU GUILLI",
+  "5493491694235": "ALPES",
+  "5491141417903": "RESERVA 14/5/25",
+  "5493857676997": "Ana María",
+  "5493857676202": "Pachu",
+  "5491158472963": "Edu Cocina",
+  "5493814697111": "Isaias",
+  "5493492619315": "Mario Colucci Cliente",
+  "5491137932037": "Zamora (?",
+  "5493425050707": "Casol Luis Cliente",
+  "5493857411343": "Nando San Pablo",
+  "5493854072864": "Combi Diego Br",
+  "5491151275117": "Cliente Prieto Prieto",
+  "5493857675598": "Sergio Ganem",
+  "5493857412833": "Lucas Atalas",
+  "5493885884697": "SOBRINA DE POUCH",
+  "5493844531624": "Direct tv anatuya",
+  "5493857463032": "Miriam Tortas",
+  "5493854102266": "Popi",
+  "5493857411273": "Cecilia Arte",
+  "5493857460743": "Vieja Nuevo",
+  "5493857486534": "Hija",
+  "5493857461063": "Corta Pasto",
+  "5493857674285": "SUSY.",
+  "5493857474985": "Rositaa",
+  "5493725401873": "Diego Via 1",
+  "5493515145596": "Gustavo Sueldo Cliente",
+  "5493844567735": "Yudith",
+  "5493844560739": "Darioo",
+  "5493857406692": "Estela Comidas",
+  "5491132871671": "Reserva 5/2/25",
+  "5493816291290": "Reserva 18/1/25",
+  "5493856883050": "Just Productos",
+  "5493857472011": "Gaby  De  SANDRA",
+  "5493857461130": "Diego P.",
+  "5493492582152": "Edmundo",
+  "5493857401349": "Emi Pibito",
+  "5493854086465": "Reserva 03/04/2025",
+  "5493513535454": "Fabri Mentira",
+  "5493857410881": "Maca",
+  "5493876845181": "Maru Botana",
+  "5493413291613": "Gretell",
+  "5493855051709": "Vero",
+  "5493854867944": "Marisel Sgo",
+  "5493857410566": "29",
+  "5491133937451": "Reserva 8/3/25",
+  "5493413723025": "Autos Renault",
+  "5491154106862": "Reserva 26/4/ 25",
+  "5493844402746": "SILVINA",
+  "5493857404387": "Pico Palacios",
+  "5492901466471": "Gey Gey",
+  "5493517541676": "Reserva 01",
+  "5493844415812": "Karina",
+  "5493857413560": "Diana",
+  "5493857487190": "Juancho",
+  "5493854041954": "Reserva 29/3/25 3 hab",
+  "5491139014892": "Reserva 8/3/25",
+  "5493855163327": "Mary",
+  "5491131402102": "Anitaaa Amiga",
+  "5493857406346": "Cristi",
+  "5493416068600": "Carla Alonso",
+  "5493857676324": "Pepe Ciancia",
+  "5493857443534": "Norma Vajillas Norma",
+  "5493857403520": "Lily Secoti",
+  "5493857485422": "Johana",
+  "5491126492980": "Reserva 8/03/25",
+  "5493857415839": "Juanchula",
+  "5493564507509": "Colchones",
+  "5491141657351": "REAL DIEGO",
+  "5493406427643": "DON ANGEL",
+  "5493844475707": "Hotel Pascana Icaño",
+  "5493857400288": "Angela Nuevo",
+  "5493491413925": "Norma Contador",
+  "5493513109747": "Avena Testigo",
+  "5493413155556": "LOAY CLIENTE *RINGO*",
+  "5493886824226": "Reserva 23/2/25",
+  "5493854355881": "Agustin Orieta",
+  "5493874045686": "Reserva 3/11.",
+  "5493844515822": "AZAR INTERNET",
+  "5493857417565": "Lore Chávez",
+  "5491154243419": "Daniel Chapa",
+  "5493857408026": "Angela Nuevo 2",
+  "5493464694571": "Reserva 13/04",
+  "5493491413924": "CONTADOR",
+  "5491134748505": "Davila Julio Cliente",
+  "5493857400022": "Guzman",
+  "5491135835078": "RAMPONI 4/07",
+  "5493489516671": "Reserva 15/04",
+  "5493855407212": "Picoo Padrino",
+  "5493857473888": "Loba",
+  "5493491543777": "Chino Musimundo",
+  "5491160287385": "Romina Huesp De Silv",
+  "5493857408240": "Jose aballay",
+  "5491167829055": "Fabi Primo Bs As",
+  "5493815672825": "Angelito",
+  "5491166595057": "RESERVA 6/07/25",
+  "5493857676162": "Bandera Client",
+  "5493541589776": "Vanina",
+  "5491132155489": "Ani",
+  "5493857410477": "Juampi",
+  "5492215927836": "Beatriz Clienta",
+  "5491162267018": "Jose Aranda",
+  "5491152401034": "Reserva 8/11",
+  "5492474667672": "Juan Acevedo",
+  "5493854412922": "Esco",
+  "5492214779597": "MARASCUTTI CLIEN",
+  "5491166281711": "Mal Tipo",
+  "5493434649803": "Reynoso.Client Booking",
+  "5491137978434": "Reserva 17/02/25",
+  "5493534014005": "Fabri",
+  "5493412120279": "Oscar Gonzales Nilda Vitin",
+  "5493843401234": "Reserva 14/11 24",
+  "5493415004509": "Rodas",
+  "5491150398065": "Reserva 6/11",
+  "5493874122270": ".",
+  "5493857489167": "Reserva 31/12",
+  "5493857488228": "Ivan",
+  "5491124634018": "Reserva 17/11/24",
+  "5493857401777": "Carla Pachilla",
+  "5492664408392": "Claudio Grupo",
+  "5493884754770": "Reserva 7/12",
+  "5493855114082": "Escribana",
+  "5493857400244": "Lucas Celu",
+  "5493857409386": "Victor Bravo",
+  "5493416285028": "Masco Amigo",
+  "5493857473982": "Maira Farias",
+  "5492342530087": "Reserva 15/5/25",
+  "5493454185689": "Zz",
+  "5493856174948": "Sole",
+  "5493815367714": "Reserva 3/11",
+  "5493857407676": "Ganon",
+  "5493854382437": "Proveedor Limpieza",
+  "5493857402825": "PROFE vale",
+  "5493857406161": "Sucho",
+  "5493857488678": "Luisandres",
+  "5493857675790": "Luisitooo",
+  "5493416443941": "Reserva 14/3 25",
+  "5491161557540": "TIA AMANDA",
+  "5491136151534": "Tarjeta Naranja",
+  "5493857412376": "Roxana Mama Luly",
+  "5491165374959": "Salcedo MUNICIPIO",
+  "5493857476300": "Huguito Azu",
+  "5491158215093": "Reserva 01/12/2024",
+  "5493857414561": "Weishein Carla",
+  "5493413585379": "Doc Duboi",
+  "5493856678280": "Reserva 9/11",
+  "5493857488180": "Estelita",
+  "5493857475115": "Hernan Limpia",
+  "5491168289369": "Mimi",
+  "5493444578365": "Reserva 21/10/2024",
+  "5493482523874": "Odasso Jose",
+  "5493492591658": "Reserva 16/02",
+  "5493857403895": "Sebi Ortiz",
+  "5491160275527": "Sebi García",
+  "5491136849335": "Reserva 2 Y 5/12/2024",
+  "5493854758485": "Lily Don Borello",
+  "5491131274753": "Reserva 04/05/25",
+  "5493857445657": "Vale Nuevo",
+  "5493857449655": "Fabricio Panaderia",
+  "5491136544728": "javi Amigo De JUAN escu",
+  "5492235235758": "Hospitales Ushuaia",
+  "5491141403120": "RIOS",
+  "5493857488503": "Romina Juampi",
+  "5491134653997": "Sebastian VOSA",
+  "5493492413066": "ROBERTO SWIL",
+  "5491133790909": "Reserv 30/1/25",
+  "5493855186024": "Dr Pedro Rolando Ferreyra",
+  "5493857444331": "Norita",
+  "5493413677354": "Sicologa DALI",
+  "5491144216405": "Norman Kinesio Polo",
+  "5491122500918": "Reserva 3/2/25",
+  "5493416759710": "Toncovich Diego",
+  "5493854933629": "RECALDE JOSE",
+  "5491166098561": "Reserva 24/11/2024",
+  "5493857444877": "Lia",
+  "5493471625874": "Maru",
+  "5493857487579": "Pato",
+  "5493416000480": "PERITO SANCOR",
+  "5493414680607": "Diegui",
+  "5492266535412": "Locaa",
+  "5493857417770": "Lorenzp Jardinero",
+  "5493424473536": "Reserva 30/4/25",
+  "5491159499952": "Reserv 17/1",
+  "5493855718877": "Tarjet Naranja",
+  "5493844473134": "Gaby Hever",
+  "5493878610542": "Reserva 20/1/25 Luza",
+  "5493456417550": "Vigo",
+  "5493857485899": "Hna isa",
+  "5493857400944": "Guillermo",
+  "5493492636848": "Miguel Campo",
+  "5491157502603": "Federico Valdez CLIENTE",
+  "5491135806377": "RESERVA 31/5/25",
+  "5493857470942": "Lurdes",
+  "5493857475245": "Noe Gomez",
+  "5493413141340": "Reserva 29/3/25",
+  "5493844539070": "Anabelaa Odontologo",
+  "5493857511793": "Carla Nuevo",
+  "5491155028942": "Hernan Cantante",
+  "5493856226728": "Reserva 9 Y 10/11.",
+  "5491162911242": "Reserva 25/02/25",
+  "5491165885663": "Reserva 16/5/25",
+  "5491157319800": "Reserv 28/2",
+  "5493857675289": "Camila",
+  "5493498608857": "Regalini Cliente",
+  "5493854385732": "Mercedes Farias",
+  "5493857405571": "Mimi",
+  "5491140239894": "Agencia Viajes",
+  "5493856791194": "POSNER SGO",
+  "5491124579104": "Reserva 21/2/25",
+  "5491166211978": "No Recibir",
+  "5493854965969": "Mariano Chef",
+  "5493857674123": "Fabri Amigo stef",
+  "5492494067240": "Reserva 30/03/2025",
+  "5493854973582": "Decoración",
+  "5493857470402": "Oscar Farias",
+  "5491169680408": "Marce",
+  "5493857407419": "Hotel Celu",
+  "5491144498834": "Reserva 31/5/25",
+  "5491140258528": "RESERVA 1/06/25 Goris",
+  "5491163981329": "Cancelo 31/0//25",
+  "5491164842196": "RESERVA 31/05/25",
+  "5493424791055": "RESERVA 2/6/25",
+  "5493416209351": "RESERVA 12/7/25",
+  "5492216385457": "RESERVA 20/7/25",
+  "5493415609577": "RESERVA 18/7/25 Valori",
+  "5493873555666": "Cliente 6/6/25",
+  "5493424353023": "RESERVA 21/07/25",
+  "5492494579006": "RESERVA 20/06/25",
+  "5491131610254": "RESERVA 26/07/25",
+  "5493329521782": "RESERVA 19/06/25 Vila",
+  "5492214885627": "RESERVA 17/07/25",
+  "5493426154162": "RESERVA 15/09/25",
+  "5493874862794": "RESERVA 18/06/25 Lombardi",
+  "5493426146603": "RESERVA 11/07/25",
+  "5492266479152": "RESERV 17/7/25",
+  "5491154933637": "RESERVA 2/8/25",
+  "5491141438532": "RESERV 19/7/25",
+  "5491158472247": "RESERV 26/7/25",
+  "5493855985592": "Reserva 01/07",
+  "5492236177345": "Reserva 07/07",
+  "5493855869522": "Reserva 01/07",
+  "5491127282276": "RESERV 19/7/25",
+  "5492477353638": "RESERV 7/7/25 Herrera",
+  "5491161898295": "RESERV 23/7/25",
+  "5493855838493": "RESERV 10/07/25 Gatti",
+  "5493454026143": "NO HOSPEDAR Ciandra",
+  "5491167271337": "Reserva 20/7/25",
+  "5493572543089": "Reserva 10/07",
+  "5493426103553": "Reserva 10/07/",
+  "5493413486423": "Reser 10/07/25",
+  "5493444578353": "Reserva 11/07 Norma",
+  "5492215910259": "Reserva 22/07/2025 martinez",
+  "5493515603724": "RESERVA 12/7/25 Tapia",
+  "5493476568085": "RESERVA 13/7/24",
+  "5491153795618": "13/7/2025 Solis",
+  "5491130753272": "RESERVA 15/7/25",
+  "5493416023695": "RESERVA 12/08/25",
+  "5491151483181": "RESERVA 26/07/25",
+  "5493644679116": "RESERVA 21/07/25",
+  "5493874422244": "RESERVA 23/07/25 HOY",
+  "5492615383312": "Reserva 25/07/2025",
+  "5492323335449": "Reserva 25/07/2025",
+  "5492945606991": "Reserva 10/09/25",
+  "5493434548291": "RESERVA 9/09/25",
+  "5493571458377": "No Hospedar",
+  "5491163630218": "RESERV 23/10/25 Cutuli",
+  "5493416904979": "Leticia",
+  "5491141704298": "Reserva 28/07/2025",
+  "5493704610248": "Dalosso Walter",
+  "5491156549930": "Karina IACHINO Iachino",
+  "5493874116562": "RESERVA 8/08/25",
+  "5493884133622": "Cliente ARMANDO",
+  "5493844478466": "WiFi Tecnico",
+  "5493843417579": "Reserva 16/10/2025",
+  "5493402542053": "Reserva 17/10/2025",
+  "5493857405050": "Jarra",
+  "5493857413633": "Rey Pasto",
+  "5493857473126": "Ramón Chapa",
+  "5493491444518": "DOLY MAROZZI",
+  "5493857405660": "Ezequiel Panad",
+  "5491150154280": "+541150154280 29/10",
+  "5493435069342": "Reserva 23/12/25",
+  "5491139121954": "Reserva 20/12/2025",
+  "5493415825807": "Reserva 14-15/02/2026",
+  "5493564662169": "Reserva 27/12/2025",
+  "5493854740025": "Reserva 30/12/2025",
+  "5493462625742": "Reserva 13/11",
+  "5493404533100": "Reserva 06/01",
+  "5493492517020": "Reserva 06/01/2026",
+  "5493844405461": "Reserva 07/01/2026",
+  "5491153151599": "18/02/2026",
+  "5493872117750": "19/02/2026",
+  "5491140997689": "Reserva 15/03/2026",
+  "5493875050152": "Reserva 19/03/2026",
+  "5492615020610": "Reserva 23/03/2026",
+  "5492346414992": "Reserva 27/03/2026",
+  "5493857485154": "Leon Guaracher",
+  "5493873516425": "Reserva 05/04/2026",
+  "5493856977638": "Reserva 12/01/2026",
+  "5491167098686": "Reserva 16/01/2026",
+  "5491159058721": "Reserva 30/01/2026",
+  "5493854091288": "Reserva 03/02/2026",
+  "5493385552510": "Reserva 9/02/2026",
+  "5493813480040": "Reserva 9/2/2026",
+  "5493857472546": "Bianchi",
+  "5493416091234": "...",
+  "5493471670873": "Reserva 12/01/2026 Kunicic",
+  "5493873616031": "Martin",
+  "5493468543408": "Reserva 24/10",
+  "5492234497010": "Reserva",
+  "5493644151706": "Sr Mauricio",
+  "5491166138555": "Jorge Arregla",
+  "5493857465505": "Carla Acosta",
+  "5493857400331": "Sabrina Basual",
+  "5493857406483": "Stefany Alonso",
+  "5493857465738": "Maribe Deliver",
+  "5491159311821": "Cliente Riquel",
+  "5493857466671": "Ivan Rojas Nue",
+  "5493857477571": "Pocho Cancha",
+  "5493415876094": "Cliente Maria",
+  "5493855027187": "San Luis Limpi",
+  "5493534095062": "Carlos Castro",
+  "5493857475328": "Lobito",
+  "5493491433336": "Gaby Sancor",
+  "5492954306703": "ClieJuan Cruz",
+  "5493482443083": "Cliente. 1",
+  "5493434057052": "HAFFNER CLIENT",
+  "5493401437909": "Leandro TRUCOL",
+  "5493815209451": "Daniel Ybarra",
+  "5493844469711": "No Hospedarrrr",
+  "5491154958788": "Nohospedar",
+  "5493436410341": "Ileana Mernes",
+  "5493404632814": "ClienteBellon",
+};
 const COLORES = ['#1A5276', '#6C3483', '#1E8449', '#B7950B', '#922B21', '#117A65', '#784212', '#1F618D', '#6E2F7F', '#196F3D', '#935116', '#1A252F', '#512E5F', '#0B5345'];
-const MENSAJE = encodeURIComponent(`AVISO - Hotel Vista del Sol: Nuestro WhatsApp fue hackeado. No respondas mensajes pidiendo dinero o datos. Para consultas llamanos al [TU NUMERO]. Disculpa los inconvenientes.`);
+const MENSAJE = encodeURIComponent(`Hotel Vista del Sol alerta a sus clientes de la utilización indebida del nombre del Hotel y de la cuenta de WhatsApp por parte de autores desconocidos, los cuales valiéndose de ardid y engaño solicitan transferencias por reservas y promociones no autorizadas, a CBU que no son de pertenencia de nuestra empresa. Se hace saber que la administración no se responsabiliza por los daños económicos ocasionados por terceras personas ajenas a nuestro emprendimiento comercial, haciendo saber que se encuentra en investigación la denuncia penal radicada en el día de la fecha para dar con los autores de la defraudación.
+
+📞 Para consultas o reservas, comunicarse al: +54 9 3857 40-7420`);
 
 function getKey(g) { return `hotel_grupo_${g}`; }
 function getEnviados(g) { return JSON.parse(localStorage.getItem(getKey(g)) || '{}'); }
+
+// Validar número de WhatsApp argentino
+// Formato correcto: +549 + 10 dígitos = 13 dígitos totales
+// Excluye 0800 y 0810 (no tienen WhatsApp)
+function esNumeroValido(num) {
+  const limpio = num.replace('+', '');
+  if (limpio.length !== 13) return false;
+  if (!limpio.startsWith('549')) return false;
+  const prefijo = limpio.substring(3, 6);
+  if (prefijo === '800' || prefijo === '810') return false;
+  return true;
+}
 function setEnviado(g, num) {
   const e = getEnviados(g); e[num] = true;
   localStorage.setItem(getKey(g), JSON.stringify(e));
@@ -217,28 +842,39 @@ function renderPanel(gi, filtro) {
 
   GRUPOS[gi].forEach((num, i) => {
     const enviado = !!e[num];
+    const valido = esNumeroValido(num);
     if(filtro==='enviados' && !enviado) return;
     if(filtro==='pendientes' && enviado) return;
     const numLimpio = num.replace('+','');
     const waLink = `https://wa.me/${numLimpio}?text=${MENSAJE}`;
     const div = document.createElement('div');
-    div.className = 'contacto' + (enviado?' enviado':'');
+    div.className = 'contacto' + (enviado?' enviado':'') + (!valido?' invalido':'');
+    
+    const botonOcontenido = !valido
+      ? `<div class="invalido-msg">⚠️ Número inválido<br>(no enviar)</div>`
+      : `<a class="btn-wa ${enviado?'sent':''}" href="${waLink}" target="_blank"
+          onclick="setTimeout(()=>{setEnviado(${gi},'${num}');actualizarTodo();renderPanel(${gi},filtros[${gi}]);},2000)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          ${enviado?'✓ Enviado':'WhatsApp'}
+        </a>
+        <label class="check-label">
+          <input type="checkbox" ${enviado?'checked':''}
+            onchange="toggleEnviado(${gi},'${num}',this.checked)">
+          Marcar enviado
+        </label>`;
+    
+    const nombre = NOMBRES[numLimpio] || null;
+    const nombreHTML = nombre 
+      ? `<div class="nombre">${nombre}</div>`
+      : `<div class="nombre sin">Sin nombre</div>`;
     div.innerHTML = `
       ${enviado?'<div class="badge-ok">✓</div>':''}
       <div class="idx">#${i+1}</div>
+      ${nombreHTML}
       <div class="num">${num}</div>
-      <a class="btn-wa ${enviado?'sent':''}" href="${waLink}" target="_blank"
-        onclick="setTimeout(()=>{setEnviado(${gi},'${num}');actualizarTodo();renderPanel(${gi},filtros[${gi}]);},2000)">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-        ${enviado?'✓ Enviado':'WhatsApp'}
-      </a>
-      <label class="check-label">
-        <input type="checkbox" ${enviado?'checked':''}
-          onchange="toggleEnviado(${gi},'${num}',this.checked)">
-        Marcar enviado
-      </label>
+      ${botonOcontenido}
     `;
     grid.appendChild(div);
   });
@@ -289,6 +925,9 @@ GRUPOS.forEach((grupo, i) => {
 // Inicializar
 actualizarTodo();
 activarTab(0);
+
+// Configurar botón de prueba
+document.getElementById('btn-prueba').href = `https://wa.me/5493855206123?text=${MENSAJE}`;
 </script>
 </body>
 </html>
