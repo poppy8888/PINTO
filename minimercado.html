@@ -252,7 +252,25 @@ body{
   .manual-add .field-group { width: 100%; }
   .manual-add button { width: 100%; }
 }
-/* ===== ESTILO VENTA TIPO STOCKFACIL - PROFESIONAL ===== */
+/* ===== MOBILE INTERFACE ===== */
+#app-movil{
+  min-height:100vh;
+  background: linear-gradient(135deg, #1e5b9e 0%, #4a90d9 25%, #6bb0ed 50%, #4a90d9 75%, #1e5b9e 100%);
+  background-size:400% 400%;
+  animation:gradientShift 18s ease infinite;
+}
+#movil-consulta-input::placeholder,
+#movil-stock-input::placeholder{color:rgba(255,255,255,0.6);}
+.movil-producto-card{
+  background:rgba(255,255,255,0.95);border-radius:14px;
+  padding:18px;margin-bottom:12px;cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
+.movil-producto-nombre{font-size:1rem;font-weight:700;color:#1a1a2e;margin-bottom:6px;}
+.movil-producto-precio{font-size:2rem;font-weight:900;color:#791f1f;font-family:'Consolas',monospace;}
+.movil-producto-stock{font-size:0.85rem;color:#666;margin-top:4px;}
+.movil-producto-codigo{font-size:0.75rem;color:#999;font-family:monospace;}
+.movil-sin-resultado{text-align:center;color:rgba(255,255,255,0.7);padding:40px 20px;font-size:1rem;}
 .venta-stockfacil{
   background:#ececec;border-radius:6px;padding:12px;
   border:1px solid #b8b8b8;
@@ -377,6 +395,124 @@ body{
 </div>
 
 <div id="app-contenido" style="display: none;">
+
+<!-- ========== INTERFAZ MÓVIL ========== -->
+<div id="app-movil" style="display:none;">
+  <!-- Header móvil -->
+  <div style="background:rgba(26,26,46,0.95);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:38px;height:38px;background:#e8c84a;border-radius:10px;display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="#1a1a2e"><path d="M2 18 L4 8 L8 12 L12 5 L16 12 L20 8 L22 18 Z"/><rect x="2" y="18" width="20" height="2.5" rx="0.5"/></svg>
+      </div>
+      <div>
+        <div style="color:#fff;font-weight:800;font-size:1rem;line-height:1;">👑 Reina Mi Amor</div>
+        <div style="color:#8888aa;font-size:0.72rem;">Sistema de gestión</div>
+      </div>
+    </div>
+    <button onclick="cerrarSesion()" style="background:none;border:1px solid #555;color:#aaa;padding:6px 12px;border-radius:6px;font-size:0.75rem;cursor:pointer;">Salir</button>
+  </div>
+
+  <!-- Pantalla HOME móvil -->
+  <div id="movil-home" style="padding:24px 16px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:0.85rem;color:#fff;opacity:0.8;" id="movil-fecha-hora"></div>
+    </div>
+    
+    <!-- Botones grandes -->
+    <div style="display:flex;flex-direction:column;gap:16px;max-width:400px;margin:0 auto;">
+      
+      <button onclick="movilIrA('venta')" style="
+        background:linear-gradient(135deg,#791f1f,#c0392b);
+        color:#fff;border:none;border-radius:16px;
+        padding:28px 20px;font-size:1.4rem;font-weight:800;
+        cursor:pointer;display:flex;align-items:center;gap:16px;
+        box-shadow:0 8px 24px rgba(192,57,43,0.4);
+        font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+        letter-spacing:0.5px;
+      ">
+        <span style="font-size:2rem;">💰</span>
+        <div style="text-align:left;">
+          <div>VENTA</div>
+          <div style="font-size:0.8rem;font-weight:400;opacity:0.85;margin-top:2px;">Registrar una venta</div>
+        </div>
+      </button>
+
+      <button onclick="movilIrA('consulta')" style="
+        background:linear-gradient(135deg,#1e5b9e,#4a90d9);
+        color:#fff;border:none;border-radius:16px;
+        padding:28px 20px;font-size:1.4rem;font-weight:800;
+        cursor:pointer;display:flex;align-items:center;gap:16px;
+        box-shadow:0 8px 24px rgba(74,126,184,0.4);
+        font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+        letter-spacing:0.5px;
+      ">
+        <span style="font-size:2rem;">🔍</span>
+        <div style="text-align:left;">
+          <div>CONSULTA</div>
+          <div style="font-size:0.8rem;font-weight:400;opacity:0.85;margin-top:2px;">Ver precio y stock</div>
+        </div>
+      </button>
+
+      <button onclick="movilIrA('stock')" style="
+        background:linear-gradient(135deg,#27500a,#3d8011);
+        color:#fff;border:none;border-radius:16px;
+        padding:28px 20px;font-size:1.4rem;font-weight:800;
+        cursor:pointer;display:flex;align-items:center;gap:16px;
+        box-shadow:0 8px 24px rgba(39,80,10,0.4);
+        font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+        letter-spacing:0.5px;
+      ">
+        <span style="font-size:2rem;">📦</span>
+        <div style="text-align:left;">
+          <div>STOCK</div>
+          <div style="font-size:0.8rem;font-weight:400;opacity:0.85;margin-top:2px;">Ver inventario</div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Resumen rápido -->
+    <div style="margin-top:28px;background:rgba(255,255,255,0.1);border-radius:14px;padding:16px;max-width:400px;margin-left:auto;margin-right:auto;">
+      <div style="color:#fff;font-size:0.8rem;font-weight:700;margin-bottom:12px;opacity:0.8;letter-spacing:1px;text-transform:uppercase;">Resumen del día</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px;text-align:center;">
+          <div style="color:#aaa;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;">Ventas hoy</div>
+          <div style="color:#fff;font-size:1.4rem;font-weight:800;margin-top:4px;" id="movil-ventas-hoy">$0</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px;text-align:center;">
+          <div style="color:#aaa;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;">Productos</div>
+          <div style="color:#fff;font-size:1.4rem;font-weight:800;margin-top:4px;" id="movil-total-prods">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pantalla CONSULTA móvil -->
+  <div id="movil-consulta" style="display:none;padding:16px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <button onclick="movilVolver()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:40px;height:40px;border-radius:10px;font-size:1.2rem;cursor:pointer;">←</button>
+      <div style="color:#fff;font-size:1.1rem;font-weight:700;">🔍 Consulta de precio</div>
+    </div>
+    <input type="text" id="movil-consulta-input" placeholder="Escribí nombre o escaneá código..." 
+      style="width:100%;padding:16px;font-size:1rem;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.15);color:#fff;outline:none;margin-bottom:14px;"
+      oninput="movilBuscarProducto(this.value)">
+    <div id="movil-consulta-resultado"></div>
+  </div>
+
+  <!-- Pantalla STOCK móvil -->
+  <div id="movil-stock-panel" style="display:none;padding:16px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <button onclick="movilVolver()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:40px;height:40px;border-radius:10px;font-size:1.2rem;cursor:pointer;">←</button>
+      <div style="color:#fff;font-size:1.1rem;font-weight:700;">📦 Stock</div>
+    </div>
+    <input type="text" id="movil-stock-input" placeholder="Buscar producto..." 
+      style="width:100%;padding:16px;font-size:1rem;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.15);color:#fff;outline:none;margin-bottom:14px;"
+      oninput="movilBuscarStock(this.value)">
+    <div id="movil-stock-resultado"></div>
+  </div>
+</div>
+
+<!-- ========== INTERFAZ PC (la que ya tenemos) ========== -->
+<div id="app-pc">
 <div class="header">
   <div class="header-left">
     <div class="header-icon">
@@ -537,7 +673,7 @@ body{
       <div class="field-group"><div class="field-label">Marca</div><input type="text" id="new-marca" class="field-input" placeholder="Ej: Frutas"/></div>
       <div class="field-group"><div class="field-label">Nombre</div><input type="text" id="new-nombre" class="field-input" placeholder="Ej: Manzana"/></div>
       <div class="field-group"><div class="field-label">Código barras</div><input type="text" id="new-barcode" class="field-input" placeholder="Código para escáner"/></div>
-      <div class="field-group"><div class="field-label">Tipo de venta</div><select id="new-tipo" class="field-input"><option value="unidad">Unidad (precio por pieza)</option><option value="peso">Peso (precio por kg)</option></select></div>
+      <div class="field-group"><div class="field-label">Tipo de venta</div><select id="new-tipo" class="field-input"><option value="unidad">Unidad (precio por pieza)</option><option value="peso">Peso (precio por kg)</option><option value="litro">Líquido (precio por litro)</option></select></div>
       <div class="field-group"><div class="field-label">Stock inicial</div><input type="text" id="new-stock" class="field-input" value="0"/></div>
       <div class="field-group"><div class="field-label">Precio costo ($)</div><input type="text" id="new-costo" class="field-input" placeholder="Ej: 800" oninput="calcPrecioVenta()"/></div>
       <div class="field-group"><div class="field-label">Utilidad (%)</div><input type="text" id="new-utilidad" class="field-input" placeholder="Ej: 40" oninput="calcPrecioVenta()"/></div>
@@ -992,8 +1128,74 @@ body{
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- MODAL PESO / LITRO -->
+<div class="modal-overlay" id="peso-litro-modal" style="z-index:2600;">
+  <div class="modal" style="width:min(95vw,420px);padding:24px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+    
+    <!-- Header del producto -->
+    <div style="background:#1a1a2e;color:#fff;padding:12px 16px;border-radius:6px;margin-bottom:16px;">
+      <div style="font-size:0.75rem;opacity:0.8;letter-spacing:1px;text-transform:uppercase;">Producto</div>
+      <div style="font-size:1rem;font-weight:700;margin-top:2px;" id="pl-titulo">—</div>
+      <div style="font-size:0.85rem;color:#e8c84a;margin-top:4px;" id="pl-precio-kg">$0 por kg</div>
+    </div>
+
+    <!-- Dos inputs: cantidad Y precio -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      
+      <!-- Input cantidad (gramos/ml) -->
+      <div>
+        <label style="font-size:0.72rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px;" id="pl-unidad-label">Cantidad (g)</label>
+        <div style="position:relative;">
+          <input type="text" id="pl-input" inputmode="decimal" placeholder="0"
+            style="width:100%;padding:12px 32px 12px 10px;font-size:1.5rem;font-weight:700;border:2px solid #4a7eb8;border-radius:6px;background:#fffef0;color:#1a1a2e;outline:none;font-family:'Consolas',monospace;text-align:right;box-sizing:border-box;">
+          <span id="pl-unidad-grande" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:0.7rem;font-weight:700;color:#888;">g</span>
+        </div>
+      </div>
+
+      <!-- Input precio -->
+      <div>
+        <label style="font-size:0.72rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px;">Por precio ($)</label>
+        <div style="position:relative;">
+          <input type="text" id="pl-input-precio" inputmode="decimal" placeholder="0"
+            style="width:100%;padding:12px 10px 12px 22px;font-size:1.5rem;font-weight:700;border:2px solid #27500a;border-radius:6px;background:#f0f8e8;color:#1a1a2e;outline:none;font-family:'Consolas',monospace;text-align:right;box-sizing:border-box;">
+          <span style="position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:0.85rem;font-weight:700;color:#27500a;">$</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultado GRANDE y visible -->
+    <div style="background:#1a1a2e;border-radius:10px;padding:16px 18px;margin-bottom:14px;">
+      <div style="font-size:0.7rem;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;" id="pl-detalle-calculo">Ingresá gramos o precio</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div style="font-size:0.75rem;color:#aaa;margin-bottom:2px;">Cantidad</div>
+          <div style="font-size:1.4rem;font-weight:800;color:#fff;font-family:'Consolas',monospace;" id="pl-resultado">—</div>
+        </div>
+        <div style="font-size:1.5rem;color:#555;">→</div>
+        <div style="text-align:right;">
+          <div style="font-size:0.75rem;color:#aaa;margin-bottom:2px;">Total a cobrar</div>
+          <div style="font-size:2rem;font-weight:900;color:#7be374;font-family:'Consolas',monospace;" id="pl-precio-total">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones rápidos -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:0.7rem;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;" id="pl-label-rapidos">Cantidades rápidas (g)</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;" id="pl-botones-rapidos"></div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="modal-btns">
+      <button class="btn-cancel" id="pl-cancelar">Cancelar</button>
+      <button id="pl-confirmar" style="padding:10px 24px;background:#27500a;color:#fff;border:1px solid #1f3e07;border-radius:4px;font-size:0.95rem;font-weight:700;cursor:pointer;">✓ Agregar</button>
+    </div>
+  </div>
 </div>
+
+<div class="toast" id="toast"></div>
+</div><!-- cierre app-pc -->
+</div><!-- cierre app-contenido -->
 
 <script>
 // ========== UTILIDADES: PARSEO DE NÚMEROS CON COMA Y PUNTO DE MILES ==========
@@ -1021,8 +1223,9 @@ function fmt(n) {
 }
 
 function fmtUnidad(valor, tipo) {
-  if (tipo === 'peso') return fmt(valor) + ' kg';
-  else return fmt(valor) + ' u';
+  if (tipo === 'peso')  return fmt(valor) + ' kg';
+  if (tipo === 'litro') return fmt(valor) + ' L';
+  return fmt(valor) + ' u';
 }
 
 // ========== URL DE APPS SCRIPT (cambiar si es necesario) ==========
@@ -1119,7 +1322,7 @@ async function loadAll(){
 }
 
 function addLog(tipo,prod,antes,despues,qty, facturaId=null){
-  let qtyRedondeado = (prod.tipo === 'peso') ? Math.round(qty * 100) / 100 : Math.round(qty);
+  let qtyRedondeado = (prod.tipo === 'unidad') ? Math.round(qty) : Math.round(qty * 1000) / 1000;
   log.push({tipo,id:prod.id,nombre:prod.nombre,marca:prod.marca,antes,despues,qty:qtyRedondeado,fecha:nowStr(),facturaId});
 }
 function animateTotal(){const el=document.getElementById('total-num');el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');setTimeout(()=>el.classList.remove('pulse'),400)}
@@ -1164,6 +1367,7 @@ function renderStock(){
           <select id="tipo-${p.id}" class="item-edit-tipo" onchange="cambiarTipoProducto(${p.id}, this.value)">
             <option value="unidad" ${p.tipo==='unidad'?'selected':''}>Unidad</option>
             <option value="peso" ${p.tipo==='peso'?'selected':''}>Peso (kg)</option>
+            <option value="litro" ${p.tipo==='litro'?'selected':''}>Líquido (L)</option>
           </select>
           <button class="btn-save-edit" onclick="guardarEdicionProducto(${p.id})">💾</button>
         </div>
@@ -1209,7 +1413,7 @@ function guardarEdicionProducto(id){
   const nuevoBarcode = document.getElementById(`barcode-${id}`).value.trim();
   let cambios=false;
   if(prod.tipo === 'unidad') nuevoStock = Math.round(nuevoStock);
-  else nuevoStock = Math.round(nuevoStock * 100) / 100;
+  else nuevoStock = Math.round(nuevoStock * 1000) / 1000;
   if(!isNaN(nuevoStock) && Math.abs(nuevoStock - (stock[id]||0)) > 0.001){
     const antes=stock[id]||0;
     stock[id]=nuevoStock;
@@ -1237,7 +1441,7 @@ function agregarProducto(){
   if(!marca||!nombre||isNaN(precio)||precio<=0){toast('Completá marca, nombre y precio válido');return;}
   if(barcode&&productos.some(p=>p.barcode===barcode)){toast('❌ Código ya existe');return;}
   if(isNaN(stockInicial)) stockInicial=0;
-  let stockFinal = (tipo === 'unidad') ? Math.round(stockInicial) : Math.round(stockInicial * 100) / 100;
+  let stockFinal = (tipo === 'unidad') ? Math.round(stockInicial) : Math.round(stockInicial * 1000) / 1000;
   if(isNaN(costo)) costo=0;
   const prod={id:nextId++,nombre,marca,precio,costo,barcode,tipo};
   productos.push(prod); stock[prod.id]=stockFinal;
@@ -1392,15 +1596,147 @@ function ventaSeleccionarProdId(id){
   } 
 }
 function agregarLineaVenta(){
-  if(!ventaProductoActualId){ const t=document.getElementById('venta-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) ventaProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
-  const prod=productos.find(p=>p.id===ventaProductoActualId); if(!prod){toast("Producto no encontrado");return;}
-  let cant = 1;
+  if(!ventaProductoActualId){ 
+    const t=document.getElementById('venta-producto-nombre').value; 
+    const p=obtenerProdPorTexto(t); 
+    if(p) ventaProductoActualId=p.id; 
+    else{ toast("Seleccione producto válido"); return; } 
+  }
+  const prod=productos.find(p=>p.id===ventaProductoActualId); 
+  if(!prod){toast("Producto no encontrado");return;}
   let prec = prod.precio || 0;
-  if(prec<=0){toast("El producto no tiene precio de venta. Edite el producto o ingrese manualmente en la tabla.");return;}
+  if(prec<=0){toast("El producto no tiene precio de venta.");return;}
+  
+  // Si es peso o litro → abrir modal para ingresar cantidad
+  if(prod.tipo === 'peso' || prod.tipo === 'litro'){
+    abrirModalPesoLitro(prod, prec);
+    return;
+  }
+  
+  // Unidad normal
+  let cant = 1;
   const antesStock=stock[prod.id]||0;
-  if(cant > antesStock+0.001){ toast(`Stock insuficiente: ${fmtUnidad(antesStock, prod.tipo)} disponible`); return; }
   ventaLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioVenta:prec, subtotal:cant*prec, stockAntes:antesStock, tipo:prod.tipo});
+  ventaProductoActualId=null;
+  document.getElementById('venta-producto-nombre').value='';
   renderVentaTabla();
+}
+
+// ========== MODAL PESO / LITRO BIDIRECCIONAL ==========
+function abrirModalPesoLitro(prod, prec){
+  const esLitro = prod.tipo === 'litro';
+  const unidadChica = esLitro ? 'ml' : 'g';
+  const unidadGrande = esLitro ? 'L' : 'kg';
+  const factor = 1000;
+
+  document.getElementById('pl-titulo').textContent = `${prod.marca} — ${prod.nombre}`;
+  document.getElementById('pl-precio-kg').textContent = `$${fmt(prec)} por ${unidadGrande}`;
+  document.getElementById('pl-unidad-label').textContent = `Cantidad (${unidadChica})`;
+  document.getElementById('pl-unidad-grande').textContent = unidadChica;
+  document.getElementById('pl-label-rapidos').textContent = `Cantidades rápidas (${unidadChica})`;
+  document.getElementById('pl-input').value = '';
+  document.getElementById('pl-input-precio').value = '';
+  document.getElementById('pl-resultado').textContent = '—';
+  document.getElementById('pl-precio-total').textContent = '$0';
+  document.getElementById('pl-detalle-calculo').textContent = 'Ingresá gramos o precio';
+
+  const rapidos = esLitro ? [100,250,500,1000,2000] : [100,250,500,1000,2000];
+  document.getElementById('pl-botones-rapidos').innerHTML = rapidos.map(v =>
+    `<button onclick="plSetCantidad(${v})"
+      style="padding:8px 4px;background:#fff;border:1px solid #c0c0c8;border-radius:4px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Consolas',monospace;">
+      ${v < 1000 ? v : (v/1000)+'k'}
+    </button>`
+  ).join('');
+
+  let ultimoEdito = 'cantidad';
+  const inpCant   = document.getElementById('pl-input');
+  const inpPrecio = document.getElementById('pl-input-precio');
+
+  function fmtCantidad(kg){
+    // Muestra con hasta 3 decimales si es necesario
+    if(kg >= 1) return kg.toFixed(3).replace(/\.?0+$/, '') + ' ' + unidadGrande;
+    const pequeño = (kg * factor);
+    return Math.round(pequeño) + ' ' + unidadChica + ' (' + kg.toFixed(3) + ' ' + unidadGrande + ')';
+  }
+
+  function calcularDesdeCantidad(){
+    ultimoEdito = 'cantidad';
+    inpPrecio.value = ''; // limpiar el otro campo
+    inpPrecio.style.borderColor = '#c0c0c8';
+    inpCant.style.borderColor   = '#4a7eb8';
+    const cantChica = parseNumero(inpCant.value);
+    if(!isNaN(cantChica) && cantChica > 0){
+      const cantidad = cantChica / factor;
+      const total    = Math.round(cantidad * prec * 100) / 100;
+      document.getElementById('pl-resultado').textContent = fmtCantidad(cantidad);
+      document.getElementById('pl-detalle-calculo').textContent = `${cantChica} ${unidadChica} × $${fmt(prec)} / ${unidadGrande}`;
+      document.getElementById('pl-precio-total').textContent = '$' + fmt(total);
+    } else {
+      document.getElementById('pl-resultado').textContent = '—';
+      document.getElementById('pl-precio-total').textContent = '$0';
+      document.getElementById('pl-detalle-calculo').textContent = 'Ingresá gramos o precio';
+    }
+  }
+
+  function calcularDesdePrecio(){
+    ultimoEdito = 'precio';
+    inpCant.value = ''; // limpiar el otro campo
+    inpCant.style.borderColor   = '#c0c0c8';
+    inpPrecio.style.borderColor = '#27500a';
+    const pesos = parseNumero(inpPrecio.value);
+    if(!isNaN(pesos) && pesos > 0 && prec > 0){
+      const cantidad = pesos / prec;                          // en kg o L
+      const cantChica = Math.round(cantidad * factor * 10) / 10; // en g o ml con 1 decimal
+      document.getElementById('pl-resultado').textContent = fmtCantidad(cantidad);
+      document.getElementById('pl-detalle-calculo').textContent = `$${fmt(pesos)} ÷ $${fmt(prec)} / ${unidadGrande} = ${cantChica} ${unidadChica}`;
+      document.getElementById('pl-precio-total').textContent = '$' + fmt(pesos);
+    } else {
+      document.getElementById('pl-resultado').textContent = '—';
+      document.getElementById('pl-precio-total').textContent = '$0';
+      document.getElementById('pl-detalle-calculo').textContent = 'Ingresá gramos o precio';
+    }
+  }
+
+  window.plSetCantidad = function(val){
+    inpCant.value = val;
+    calcularDesdeCantidad();
+    inpCant.focus();
+  };
+
+  inpCant.oninput   = calcularDesdeCantidad;
+  inpPrecio.oninput = calcularDesdePrecio;
+
+  document.getElementById('pl-confirmar').onclick = () => {
+    let cantidad = 0;
+    const antesStock = stock[prod.id] || 0;
+
+    if(ultimoEdito === 'precio'){
+      const pesos = parseNumero(inpPrecio.value);
+      if(isNaN(pesos) || pesos <= 0){ toast('Ingresá un precio'); inpPrecio.focus(); return; }
+      cantidad = Math.round((pesos / prec) * 1000) / 1000;
+      ventaLineas.push({ prodId: prod.id, nombre: `${prod.marca} — ${prod.nombre}`, cantidad, precioVenta: pesos/cantidad, subtotal: pesos, stockAntes: antesStock, tipo: prod.tipo });
+    } else {
+      const cantChica = parseNumero(inpCant.value);
+      if(isNaN(cantChica) || cantChica <= 0){ toast('Ingresá una cantidad'); inpCant.focus(); return; }
+      cantidad = Math.round((cantChica / factor) * 1000) / 1000;
+      const subtotal = Math.round(cantidad * prec * 100) / 100;
+      ventaLineas.push({ prodId: prod.id, nombre: `${prod.marca} — ${prod.nombre}`, cantidad, precioVenta: prec, subtotal, stockAntes: antesStock, tipo: prod.tipo });
+    }
+
+    document.getElementById('peso-litro-modal').classList.remove('open');
+    ventaProductoActualId = null;
+    document.getElementById('venta-producto-nombre').value = '';
+    renderVentaTabla();
+    toast(`✅ ${prod.nombre}: ${fmtUnidad(cantidad, prod.tipo)}`);
+    setTimeout(()=>document.getElementById('venta-scan-input').focus(), 100);
+  };
+
+  inpCant.onkeydown   = (e) => { if(e.key==='Enter') document.getElementById('pl-confirmar').click(); };
+  inpPrecio.onkeydown = (e) => { if(e.key==='Enter') document.getElementById('pl-confirmar').click(); };
+  document.getElementById('pl-cancelar').onclick = () => { document.getElementById('peso-litro-modal').classList.remove('open'); };
+
+  document.getElementById('peso-litro-modal').classList.add('open');
+  setTimeout(()=>inpCant.focus(), 100);
 }
 function eliminarLineaVenta(i){ventaLineas.splice(i,1);renderVentaTabla();}
 function renderVentaTabla(){
@@ -2234,7 +2570,140 @@ function initEventos(){
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 function autenticar(){ return new Promise((resolve)=>{ const ov=document.getElementById('clave-overlay'), inp=document.getElementById('clave-input'), btn=document.getElementById('btn-validar'), err=document.getElementById('clave-error'), rec=document.getElementById('clave-recordar'); if(localStorage.getItem(KEY_AUTH)==="1"){ ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); return; } const validar=()=>{ if(inp.value===CLAVE_ACCESO){ if(rec && rec.checked){ localStorage.setItem(KEY_AUTH,"1"); } ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); } else{ err.textContent='Contraseña incorrecta.'; inp.value=''; inp.focus(); } }; btn.onclick=validar; inp.onkeypress=e=>{if(e.key==='Enter')validar();}; inp.focus(); }); }
 function cerrarSesion(){ if(confirm('¿Cerrar sesión en este dispositivo? Tendrás que volver a poner la clave.')){ localStorage.removeItem(KEY_AUTH); location.reload(); } }
-// ========== IMPORTAR CSV ==========
+// ========== INTERFAZ MÓVIL ==========
+function esCelular(){
+  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) 
+    || window.innerWidth < 768;
+}
+
+function iniciarInterfazSegunDispositivo(){
+  if(esCelular()){
+    document.getElementById('app-movil').style.display = 'block';
+    document.getElementById('app-pc').style.display = 'none';
+    actualizarResumenMovil();
+    actualizarFechaHora();
+    setInterval(actualizarFechaHora, 60000);
+  } else {
+    document.getElementById('app-movil').style.display = 'none';
+    document.getElementById('app-pc').style.display = 'block';
+  }
+}
+
+function actualizarFechaHora(){
+  const el = document.getElementById('movil-fecha-hora');
+  if(!el) return;
+  const ahora = new Date();
+  el.textContent = ahora.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}) 
+    + ' · ' + ahora.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+}
+
+function actualizarResumenMovil(){
+  // Ventas del día
+  const hoy = new Date().toLocaleDateString('es-AR');
+  const ventasHoy = facturas
+    .filter(f => f.tipo==='venta' && !f.anulada && f.fecha && f.fecha.includes(hoy))
+    .reduce((a,f) => a + (f.total||0), 0);
+  const elVH = document.getElementById('movil-ventas-hoy');
+  if(elVH) elVH.textContent = '$' + fmt(ventasHoy);
+  const elTP = document.getElementById('movil-total-prods');
+  if(elTP) elTP.textContent = productos.length;
+}
+
+function movilIrA(pantalla){
+  document.getElementById('movil-home').style.display = 'none';
+  document.getElementById('movil-consulta').style.display = 'none';
+  document.getElementById('movil-stock-panel').style.display = 'none';
+
+  if(pantalla === 'consulta'){
+    document.getElementById('movil-consulta').style.display = 'block';
+    setTimeout(()=>document.getElementById('movil-consulta-input').focus(), 200);
+  } else if(pantalla === 'stock'){
+    document.getElementById('movil-stock-panel').style.display = 'block';
+    movilBuscarStock('');
+    setTimeout(()=>document.getElementById('movil-stock-input').focus(), 200);
+  } else if(pantalla === 'venta'){
+    movilVolver();
+    abrirVentanaVenta();
+  }
+}
+
+function movilVolver(){
+  document.getElementById('movil-home').style.display = 'block';
+  document.getElementById('movil-consulta').style.display = 'none';
+  document.getElementById('movil-stock-panel').style.display = 'none';
+  document.getElementById('movil-consulta-input').value = '';
+  document.getElementById('movil-consulta-resultado').innerHTML = '';
+  document.getElementById('movil-stock-input').value = '';
+  document.getElementById('movil-stock-resultado').innerHTML = '';
+  actualizarResumenMovil();
+}
+
+function movilBuscarProducto(query){
+  const cont = document.getElementById('movil-consulta-resultado');
+  if(!query || query.trim().length < 2){
+    cont.innerHTML = '';
+    return;
+  }
+  const q = query.toLowerCase().trim();
+  const encontrados = productos.filter(p =>
+    (p.nombre||'').toLowerCase().includes(q) ||
+    (p.marca||'').toLowerCase().includes(q) ||
+    (p.barcode||'').includes(q)
+  ).slice(0, 8);
+
+  if(!encontrados.length){
+    cont.innerHTML = '<div class="movil-sin-resultado">Sin resultados para "'+query+'"</div>';
+    return;
+  }
+
+  cont.innerHTML = encontrados.map(p => {
+    const q = stock[p.id] || 0;
+    const unidad = p.tipo === 'peso' ? 'kg' : p.tipo === 'litro' ? 'L' : 'u';
+    const colorStock = q <= 0 ? '#c0392b' : q <= 3 ? '#e67e22' : '#27500a';
+    return `<div class="movil-producto-card">
+      <div class="movil-producto-codigo">${p.barcode || 'Sin código'}</div>
+      <div class="movil-producto-nombre">${p.marca} ${p.nombre}</div>
+      <div class="movil-producto-precio">$${fmt(p.precio)}</div>
+      <div class="movil-producto-stock" style="color:${colorStock};">
+        Stock: <strong>${fmt(q)} ${unidad}</strong>
+        ${p.tipo !== 'unidad' ? ` · $${fmt(p.precio)} por ${unidad}` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function movilBuscarStock(query){
+  const cont = document.getElementById('movil-stock-resultado');
+  const q = (query||'').toLowerCase().trim();
+  let lista = productos;
+  if(q.length >= 2){
+    lista = productos.filter(p =>
+      (p.nombre||'').toLowerCase().includes(q) ||
+      (p.marca||'').toLowerCase().includes(q) ||
+      (p.barcode||'').includes(q)
+    );
+  }
+  lista = lista.slice(0, 30);
+  if(!lista.length){
+    cont.innerHTML = '<div class="movil-sin-resultado">Sin productos</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(p => {
+    const qty = stock[p.id] || 0;
+    const unidad = p.tipo === 'peso' ? 'kg' : p.tipo === 'litro' ? 'L' : 'u';
+    const colorStock = qty <= 0 ? '#c0392b' : qty <= (p.stockMin||3) ? '#e67e22' : '#27500a';
+    return `<div class="movil-producto-card" style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;">
+      <div>
+        <div class="movil-producto-nombre" style="font-size:0.9rem;">${p.marca} ${p.nombre}</div>
+        <div class="movil-producto-codigo">${p.barcode || '—'}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:1.3rem;font-weight:800;color:${colorStock};font-family:'Consolas',monospace;">${fmt(qty)}</div>
+        <div style="font-size:0.75rem;color:#888;">${unidad}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
 let csvDatosPendientes = [];
 
 function parsearCSV(texto) {
@@ -2413,7 +2882,7 @@ function cerrarCamara(){
   document.getElementById('camara-video').srcObject = null;
 }
 
-autenticar().then(()=>{ (async()=>{await loadAll();renderAll();initEventos();})(); });
+autenticar().then(()=>{ (async()=>{ await loadAll(); renderAll(); initEventos(); iniciarInterfazSegunDispositivo(); })(); });
 </script>
 </body>
 </html>
