@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hotel Vista del Sol - Envio de Avisos</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #f0f4f8; }
+
+header {
+  background: linear-gradient(135deg, #1A5276, #6C3483);
+  color: white; padding: 14px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+header h1 { font-size: 18px; margin-bottom: 2px; }
+header p { font-size: 12px; opacity: 0.85; }
+
+.stats-global {
+  display: flex; gap: 10px; padding: 10px 16px;
+  background: white; border-bottom: 2px solid #eee; flex-wrap: wrap;
+}
+.stat { background: #f8f9fa; border-radius: 8px; padding: 6px 14px; font-size: 12px; border: 1px solid #e0e0e0; text-align:center; }
+.stat span { font-weight: bold; font-size: 18px; display: block; }
+.stat.e span { color: #1E8449; }
+.stat.p span { color: #B7950B; }
+.stat.t span { color: #1A5276; }
+
+.msg-box {
+  margin: 10px 16px 0;
+  background: #EBF5FB; border: 1px solid #AED6F1;
+  border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #1A5276;
+}
+.msg-box strong { display: block; margin-bottom: 4px; }
+
+.aviso {
+  margin: 8px 16px 10px;
+  background: #FEF9E7; border: 1px solid #F9E79F;
+  border-radius: 8px; padding: 8px 14px; font-size: 12px; color: #7D6608;
+}
+
+/* TABS */
+.tabs-wrap {
+  overflow-x: auto; background: white;
+  border-bottom: 2px solid #ddd;
+  display: flex; padding: 0 8px;
+  position: sticky; top: 0; z-index: 50;
+}
+.tab {
+  padding: 10px 14px; cursor: pointer;
+  font-size: 12px; white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  color: #666; transition: all 0.2s;
+  display: flex; align-items: center; gap: 5px;
+}
+.tab:hover { color: #1A5276; }
+.tab.active { color: white; border-bottom-color: transparent; }
+.tab .badge {
+  background: rgba(255,255,255,0.3);
+  border-radius: 10px; padding: 1px 6px; font-size: 10px;
+}
+.tab .badge.done { background: #27AE60; color: white; }
+
+/* PANEL */
+.panel { display: none; padding: 12px 16px; }
+.panel.active { display: block; }
+
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; flex-wrap: wrap; gap: 8px;
+}
+.panel-title { font-size: 14px; font-weight: bold; color: #2C3E50; }
+.panel-stats { font-size: 12px; color: #666; }
+
+.filtros {
+  display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;
+}
+.btn-f {
+  padding: 4px 12px; border-radius: 20px;
+  border: 1px solid #ccc; background: white;
+  cursor: pointer; font-size: 11px;
+}
+.btn-f.active { color: white; border-color: transparent; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.contacto {
+  background: white; border-radius: 8px; padding: 10px;
+  border: 2px solid #e0e0e0; position: relative; transition: all 0.15s;
+}
+.contacto:hover { border-color: #25D366; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.contacto.enviado { background: #EAFAF1; border-color: #27AE60; }
+.idx { font-size: 10px; color: #bbb; }
+.num { font-size: 12px; font-weight: bold; color: #2C3E50; margin: 2px 0 7px; }
+.badge-ok {
+  position: absolute; top: 6px; right: 6px;
+  background: #27AE60; color: white; border-radius: 50%;
+  width: 16px; height: 16px; font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-wa {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  background: #25D366; color: white; border: none; border-radius: 6px;
+  padding: 6px; font-size: 11px; cursor: pointer; width: 100%;
+  text-decoration: none; font-weight: bold;
+}
+.btn-wa:hover { background: #128C7E; }
+.btn-wa.sent { background: #aaa; }
+.check-label {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; color: #888; margin-top: 6px; cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏨 Hotel Vista del Sol — Aviso WhatsApp Hackeado</h1>
+  <p>Cada pestaña es un grupo de 40 contactos — Una persona por grupo</p>
+</header>
+
+<div class="stats-global">
+  <div class="stat t"><span id="g-total">545</span>Total</div>
+  <div class="stat e"><span id="g-env">0</span>Enviados ✅</div>
+  <div class="stat p"><span id="g-pen">545</span>Pendientes ⏳</div>
+</div>
+
+<div class="msg-box">
+  <strong>📋 Mensaje a enviar:</strong>
+  AVISO - Hotel Vista del Sol: Nuestro WhatsApp fue hackeado. No respondas mensajes pidiendo dinero o datos. Para consultas llamanos al [TU NUMERO]. Disculpa los inconvenientes.
+</div>
+<div class="aviso">
+  ⚠️ <strong>Para no ser bloqueado:</strong> Enviá de a 5 mensajes, esperá 2 minutos, seguí. No mandes todos juntos.
+</div>
+
+<div class="tabs-wrap" id="tabs"></div>
+
+<div id="panels"></div>
+
+<script>
+const GRUPOS = [
+  ["+5493857470050", "+5493415876527", "+5493857460395", "+5491152965650", "+5493857465786", "+5493874858135", "+5493857473984", "+5493857442772", "+5493844416820", "+5493855381397", "+5493857446838", "+5493844515046", "+549385384695", "+5493491420300", "+549385802777", "+5493854213283", "+5492901510768", "+5498108108983", "+5493857485859", "+5491146232924", "+5491154926714", "+5493491420797", "+5493857435313", "+5491145855544", "+5492901511593", "+5493857463060", "+5493467629505", "+5492234554222", "+5493855407204", "+5493857476558", "+5492994670525", "+5493857477920", "+5498002660533", "+5493408682640", "+5493844438091", "+5493857448330", "+5491122494772", "+5493564671101", "+5493857460012", "+5493857408835"],
+  ["+5491149757061", "+5491135845670", "+5498101224683", "+5491142032012", "+5493415301005", "+5493414626808", "+5492966528856", "+5498002220772", "+5491140927934", "+5493414384658", "+5493414471669", "+5491126464467", "+5493414655814", "+5493854502862", "+5493857417651", "+5491147750254", "+5491134571990", "+5493857461470", "+54915416723", "+5493814985280", "+5491142439638", "+5491151284670", "+5493857473550", "+5493854395600", "+5493857417023", "+5493401422277", "+5493854112985", "+5493855052237", "+5493491442244", "+5493414266389", "+5493854215757", "+5493487450015", "+5493884480254", "+5493816776650", "+5491147729297", "+5493857481120", "+5493875122159", "+5493854211741", "+5491143405900", "+5493464448321"],
+  ["+5493857472004", "+5493857474721", "+54938384157", "+5493857403322", "+5493857442480", "+5493844407507", "+5493857675855", "+54955251750", "+5498103334732", "+5493857674465", "+5493814493052", "+5493313657520", "+5493857461522", "+5493857483837", "+5493857416723", "+5493426315014", "+5493855864127", "+5493873134853", "+5493426101879", "+5493471678448", "+5493471522512", "+5491149387126", "+5491135990707", "+5493857472877", "+5491121593186", "+5491166775949", "+5492213035369", "+5493876045942", "+5491164780418", "+5491127881170", "+5493454657567", "+5493857441709", "+5493416187483", "+549347665602", "+5491160900123", "+5492224539045", "+5493857413185", "+5491141589495", "+5493855904432", "+5493854782795"],
+  ["+5493855746354", "+5493413503967", "+5493857674186", "+5491160252902", "+5493813004316", "+5493413220171", "+5493533453231", "+5493404490344", "+5491164796336", "+5491135005016", "+5493854084957", "+5493844564019", "+5491176360973", "+5493857407811", "+5493855903171", "+5493857406338", "+5493857444408", "+5493855795000", "+5491136342592", "+5493516170207", "+5491134306522", "+5493854937923", "+5493468529000", "+5493455289399", "+5492664583352", "+5493844416877", "+5493416922780", "+5491125750106", "+5493857447031", "+5493425528810", "+5493415836480", "+5493844432067", "+5493857676981", "+5491144002528", "+5493329600226", "+5493857403485", "+5493857400431", "+5493857402890", "+5491130192075", "+5493815948981"],
+  ["+5493857416509", "+5491140241264", "+5493856985941", "+5493857483037", "+5491144465212", "+5493844453705", "+5491150210266", "+5493854111445", "+5493855827070", "+5493491507908", "+5493857446746", "+5493856410488", "+5493857403816", "+5493876839438", "+5492216321135", "+5493857404311", "+5493816094757", "+5493857401407", "+5493857472629", "+5492323659854", "+5491131895461", "+5493406644281", "+5493844479504", "+5493854384695", "+5493857405074", "+5493857412823", "+5493564662587", "+5493854354868", "+5493857402644", "+5493416955095", "+5493857403319", "+5491166505434", "+5493857403395", "+5493541613282", "+5493794044424", "+5491157042458", "+5493857407300", "+5493843403699", "+5493844568692", "+5493857401543"],
+  ["+5493515571810", "+5493857460017", "+5493857674863", "+5493491694235", "+5491141417903", "+5493857676997", "+5493857676202", "+5491158472963", "+5493814697111", "+5493492619315", "+5491137932037", "+5493425050707", "+5493857411343", "+5493854072864", "+5491151275117", "+5493857675598", "+5493857412833", "+5493885884697", "+5493844531624", "+5493857477186", "+5493857463032", "+5493854102266", "+5493857411273", "+5493857460743", "+5493857486534", "+5493857461063", "+5493857674285", "+5493857474985", "+5493725401873", "+5493515145596", "+5493844567735", "+5493844560739", "+5493857406692", "+5491132871671", "+5493816291290", "+5493856883050", "+5493857472011", "+5493857461130", "+5493492582152", "+5493857401349"],
+  ["+5493854086465", "+5493513535454", "+5493857410881", "+5493855822673", "+5493876845181", "+5493413291613", "+5493855051709", "+5493854867944", "+5493857410566", "+5491133937451", "+5493413723025", "+5491154106862", "+5493844402746", "+5493857404387", "+5492901466471", "+5493517541676", "+5493844415812", "+5493857413560", "+5493857487190", "+5493854041954", "+5491139014892", "+5493855163327", "+5491131402102", "+5493857406346", "+5493416068600", "+5493857676324", "+5493857443534", "+5493857403520", "+5493857485422", "+5491126492980", "+5493857415839", "+5493564507509", "+5491141657351", "+5493406427643", "+5493844475707", "+5493857400288", "+5493491413925", "+5493513109747", "+5493413155556", "+5493886824226"],
+  ["+5493854355881", "+5493874045686", "+5493844515822", "+5493857417565", "+5491154243419", "+5493857408026", "+5493464694571", "+5493491413924", "+5491134748505", "+5493857400022", "+5491135835078", "+5493489516671", "+5493857486668", "+5493855407212", "+5493857473888", "+5493491543777", "+5491160287385", "+5493857408240", "+5493857463247", "+5491167829055", "+5493815672825", "+5491166595057", "+5493857676162", "+5493541589776", "+5491132155489", "+5493857410477", "+5492215927836", "+5491162267018", "+5491152401034", "+5492474667672", "+5493854412922", "+5492214779597", "+5491166281711", "+5493434649803", "+5493857461093", "+5491137978434", "+5493534014005", "+5493412120279", "+5493843401234", "+5493415004509"],
+  ["+5491150398065", "+5493874122270", "+5493857489167", "+5493857488228", "+5491124634018", "+5493857401777", "+5492664408392", "+5493884754770", "+5493855114082", "+5493857400244", "+5493857409386", "+5493416285028", "+5493857473982", "+5492342530087", "+5493454185689", "+5493856174948", "+5493815367714", "+5493857407676", "+5493854382437", "+5493857402825", "+5493857406161", "+5493857488678", "+5493857675790", "+5493416443941", "+5491161557540", "+5491136151534", "+5493857412376", "+5491165374959", "+5493857476300", "+5491158215093", "+5493857414561", "+5493413585379", "+5493856678280", "+5493857488180", "+5493857475115", "+5491168289369", "+5493444578365", "+5493482523874", "+5493492591658", "+5493856790693"],
+  ["+5493857403895", "+5491160275527", "+5491136849335", "+5493854758485", "+5491131274753", "+5493857445657", "+5493857449655", "+5491136544728", "+5492235235758", "+5491141403120", "+5493857488503", "+5491134653997", "+5493492413066", "+5491133790909", "+5493855186024", "+5493857444331", "+5493413677354", "+5491144216405", "+5491122500918", "+5493416759710", "+5493854933629", "+5491166098561", "+5493857444877", "+5493471625874", "+5493857487579", "+5493416000480", "+5493414680607", "+5492266535412", "+5493857473810", "+5493857417770", "+5493424473536", "+5491159499952", "+5493855718877", "+5493844473134", "+5493878610542", "+5493456417550", "+5493857485899", "+5493857400944", "+5493416627526", "+5493492636848"],
+  ["+5491157502603", "+5491135806377", "+5493857470942", "+5493857475245", "+5493413141340", "+5493844539070", "+5493857511793", "+5491155028942", "+5493856226728", "+5491162911242", "+5491165885663", "+5491157319800", "+5493857675289", "+5493498608857", "+5493854385732", "+5493857405571", "+5491140239894", "+5493856791194", "+5491124579104", "+5491166211978", "+5493854965969", "+5493857674123", "+5492494067240", "+5493854973582", "+5493854220507", "+5493857470402", "+5491169680408", "+5493857407419", "+5491144498834", "+5491140258528", "+5491163981329", "+5491164842196", "+5493424791055", "+5493416209351", "+5492216385457", "+5493415609577", "+5493873555666", "+5493424353023", "+5492494579006", "+5491131610254"],
+  ["+5493329521782", "+5492214885627", "+5493426154162", "+5493874862794", "+5493426146603", "+5492266479152", "+5491154933637", "+5491141438532", "+5491158472247", "+5493855985592", "+5492236177345", "+5493855869522", "+5491127282276", "+5492477353638", "+5491161898295", "+5493855838493", "+5493454026143", "+5491167271337", "+5493572543089", "+5493426103553", "+5493413486423", "+5493444578353", "+5492215910259", "+5493515603724", "+5493476568085", "+5491153795618", "+5491130753272", "+5493416023695", "+5491151483181", "+5493644679116", "+5493874422244", "+5492615383312", "+5492323335449", "+5492945606991", "+5493434548291", "+5493571458377", "+5491163630218", "+5493416904979", "+5491141704298", "+5493704610248"],
+  ["+5491156549930", "+5493874116562", "+5493884133622", "+5493844478466", "+5493843417579", "+5493402542053", "+5493857405050", "+5493857413633", "+5493492582139", "+5493857473126", "+5493491444518", "+5493857405660", "+5491150154280", "+5493435069342", "+5491139121954", "+5493415825807", "+5493564662169", "+5493854740025", "+5493462625742", "+5493404533100", "+5493492517020", "+5493844405461", "+5491153151599", "+5493872117750", "+5491140997689", "+5493875050152", "+5492615020610", "+5492346414992", "+5493857485154", "+5493873516425", "+5493856977638", "+5491167098686", "+5491159058721", "+5493854091288", "+5493385552510", "+5493813480040", "+5493857472546", "+5493416091234", "+5493471670873", "+5493873616031"],
+  ["+5493468543408", "+5492234497010", "+5493644151706", "+5491166138555", "+5493857465505", "+5493857400331", "+5493857406483", "+5493857465738", "+5491159311821", "+5493857466671", "+5493857477571", "+5493415876094", "+5493855027187", "+5493534095062", "+5493857475328", "+5493491433336", "+5492954306703", "+5493482443083", "+5493434057052", "+5493401437909", "+5493815209451", "+5493844469711", "+5491154958788", "+5493436410341", "+5493404632814"],
+];
+const COLORES = ['#1A5276', '#6C3483', '#1E8449', '#B7950B', '#922B21', '#117A65', '#784212', '#1F618D', '#6E2F7F', '#196F3D', '#935116', '#1A252F', '#512E5F', '#0B5345'];
+const MENSAJE = encodeURIComponent(`AVISO - Hotel Vista del Sol: Nuestro WhatsApp fue hackeado. No respondas mensajes pidiendo dinero o datos. Para consultas llamanos al [TU NUMERO]. Disculpa los inconvenientes.`);
+
+function getKey(g) { return `hotel_grupo_${g}`; }
+function getEnviados(g) { return JSON.parse(localStorage.getItem(getKey(g)) || '{}'); }
+function setEnviado(g, num) {
+  const e = getEnviados(g); e[num] = true;
+  localStorage.setItem(getKey(g), JSON.stringify(e));
+}
+function toggleEnviado(g, num, checked) {
+  const e = getEnviados(g);
+  if(checked) e[num]=true; else delete e[num];
+  localStorage.setItem(getKey(g), JSON.stringify(e));
+  actualizarTodo();
+  renderPanel(g, filtros[g]);
+}
+
+const filtros = {};
+
+function actualizarTodo() {
+  let totalEnv = 0;
+  GRUPOS.forEach((g, i) => {
+    const e = getEnviados(i);
+    totalEnv += Object.keys(e).length;
+    // Actualizar badge tab
+    const badge = document.getElementById(`badge-${i}`);
+    const env = Object.keys(e).length;
+    if(badge) {
+      badge.textContent = env + '/' + g.length;
+      badge.className = env === g.length ? 'badge done' : 'badge';
+    }
+    // Stats del panel
+    const ps = document.getElementById(`pstats-${i}`);
+    if(ps) ps.textContent = `${env} enviados / ${g.length - env} pendientes`;
+  });
+  document.getElementById('g-env').textContent = totalEnv;
+  document.getElementById('g-pen').textContent = 545 - totalEnv;
+}
+
+function renderPanel(gi, filtro) {
+  filtro = filtro || 'todos';
+  filtros[gi] = filtro;
+  const e = getEnviados(gi);
+  const grid = document.getElementById(`grid-${gi}`);
+  if(!grid) return;
+  grid.innerHTML = '';
+
+  // Actualizar botones filtro
+  ['todos','pendientes','enviados'].forEach(f => {
+    const btn = document.getElementById(`f-${gi}-${f}`);
+    if(btn) {
+      btn.className = 'btn-f' + (f===filtro?' active':'');
+      if(f===filtro) btn.style.background = COLORES[gi % COLORES.length];
+      else btn.style.background = '';
+    }
+  });
+
+  GRUPOS[gi].forEach((num, i) => {
+    const enviado = !!e[num];
+    if(filtro==='enviados' && !enviado) return;
+    if(filtro==='pendientes' && enviado) return;
+    const numLimpio = num.replace('+','');
+    const waLink = `https://wa.me/${numLimpio}?text=${MENSAJE}`;
+    const div = document.createElement('div');
+    div.className = 'contacto' + (enviado?' enviado':'');
+    div.innerHTML = `
+      ${enviado?'<div class="badge-ok">✓</div>':''}
+      <div class="idx">#${i+1}</div>
+      <div class="num">${num}</div>
+      <a class="btn-wa ${enviado?'sent':''}" href="${waLink}" target="_blank"
+        onclick="setTimeout(()=>{setEnviado(${gi},'${num}');actualizarTodo();renderPanel(${gi},filtros[${gi}]);},2000)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        ${enviado?'✓ Enviado':'WhatsApp'}
+      </a>
+      <label class="check-label">
+        <input type="checkbox" ${enviado?'checked':''}
+          onchange="toggleEnviado(${gi},'${num}',this.checked)">
+        Marcar enviado
+      </label>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function activarTab(gi) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', i===gi);
+    t.style.background = i===gi ? COLORES[i%COLORES.length] : '';
+    t.style.color = i===gi ? 'white' : '';
+  });
+  document.querySelectorAll('.panel').forEach((p,i) => {
+    p.classList.toggle('active', i===gi);
+  });
+  renderPanel(gi, filtros[gi]);
+}
+
+// Construir tabs y panels
+const tabsEl = document.getElementById('tabs');
+const panelsEl = document.getElementById('panels');
+
+GRUPOS.forEach((grupo, i) => {
+  // Tab
+  const tab = document.createElement('div');
+  tab.className = 'tab';
+  tab.onclick = () => activarTab(i);
+  tab.innerHTML = `Grupo ${i+1} <span class="badge" id="badge-${i}">0/${grupo.length}</span>`;
+  tabsEl.appendChild(tab);
+
+  // Panel
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.innerHTML = `
+    <div class="panel-header">
+      <div class="panel-title" style="color:${COLORES[i%COLORES.length]}">Grupo ${i+1} — ${grupo.length} contactos</div>
+      <div class="panel-stats" id="pstats-${i}">0 enviados</div>
+    </div>
+    <div class="filtros">
+      <button id="f-${i}-todos" class="btn-f active" onclick="renderPanel(${i},'todos')">Todos</button>
+      <button id="f-${i}-pendientes" class="btn-f" onclick="renderPanel(${i},'pendientes')">Pendientes</button>
+      <button id="f-${i}-enviados" class="btn-f" onclick="renderPanel(${i},'enviados')">Enviados</button>
+    </div>
+    <div class="grid" id="grid-${i}"></div>
+  `;
+  panelsEl.appendChild(panel);
+});
+
+// Inicializar
+actualizarTodo();
+activarTab(0);
+</script>
+</body>
+</html>
