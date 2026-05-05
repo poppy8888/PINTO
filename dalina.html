@@ -136,7 +136,14 @@ body.locked { overflow: hidden; }
 .idx { font-size: 10px; color: #bbb; }
 .nombre { font-size: 13px; font-weight: bold; color: #1A5276; margin: 2px 0 0; line-height: 1.2; }
 .nombre.sin { color: #999; font-style: italic; font-weight: normal; }
-.num { font-size: 11px; color: #666; margin: 0 0 7px; }
+.num { 
+  font-size: 11px; color: #666; margin: 0 0 7px; 
+  cursor: pointer; padding: 2px 4px; border-radius: 4px;
+  transition: background 0.15s;
+  display: inline-block;
+}
+.num:hover { background: #FEF9E7; color: #B7950B; }
+.num::after { content: ' 📋'; opacity: 0.5; font-size: 10px; }
 .badge-ok {
   position: absolute; top: 6px; right: 6px;
   background: #27AE60; color: white; border-radius: 50%;
@@ -151,6 +158,31 @@ body.locked { overflow: hidden; }
 }
 .btn-wa:hover { background: #128C7E; }
 .btn-wa.sent { background: #aaa; }
+.btn-sms {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  background: #3498DB; color: white; border: none; border-radius: 6px;
+  padding: 6px; font-size: 11px; cursor: pointer; width: 100%;
+  text-decoration: none; font-weight: bold; margin-top: 4px;
+}
+.btn-sms:hover { background: #2874A6; }
+.btn-sms.sent { background: #aaa; }
+.btn-copy {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  background: #6C3483; color: white; border: none; border-radius: 6px;
+  padding: 6px; font-size: 11px; cursor: pointer; width: 100%;
+  text-decoration: none; font-weight: bold; margin-top: 4px;
+}
+.btn-copy:hover { background: #512E5F; }
+
+/* Toast notification */
+#toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+  background: #2C3E50; color: white; padding: 12px 24px;
+  border-radius: 8px; font-size: 14px; z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+#toast.show { opacity: 1; }
 .check-label {
   display: flex; align-items: center; gap: 5px;
   font-size: 10px; color: #888; margin-top: 6px; cursor: pointer;
@@ -214,10 +246,14 @@ if (sessionStorage.getItem('hotel_auth') === '1') {
 </div>
 
 <div class="msg-box">
-  <strong>📋 Mensaje a enviar:</strong>
+  <strong>📋 Mensaje WhatsApp (largo):</strong>
   Hotel Vista del Sol alerta a sus clientes de la utilización indebida del nombre del Hotel y de la cuenta de WhatsApp por parte de autores desconocidos, los cuales valiéndose de ardid y engaño solicitan transferencias por reservas y promociones no autorizadas, a CBU que no son de pertenencia de nuestra empresa. Se hace saber que la administración no se responsabiliza por los daños económicos ocasionados por terceras personas ajenas a nuestro emprendimiento comercial, haciendo saber que se encuentra en investigación la denuncia penal radicada en el día de la fecha para dar con los autores de la defraudación.
   <br><br>
   📞 Para consultas o reservas, comunicarse al: <strong>+54 9 3857 40-7420</strong>
+</div>
+<div class="msg-box" style="background: #D6EAF8; border-color: #5DADE2;">
+  <strong>✉️ Mensaje SMS (corto):</strong>
+  Hotel Vista del Sol: nuestro WhatsApp fue hackeado. Hay denuncia penal. NO transferir dinero a CBU que digan ser nuestros. Consultas: +54 9 3857 40-7420.
 </div>
 <div class="aviso">
   ⚠️ <strong>Para no ser bloqueado:</strong> Enviá de a 5 mensajes, esperá 2 minutos, seguí. No mandes todos juntos.
@@ -245,6 +281,8 @@ if (sessionStorage.getItem('hotel_auth') === '1') {
 <div class="tabs-wrap" id="tabs"></div>
 
 <div id="panels"></div>
+
+<div id="toast"></div>
 
 <script>
 const GRUPOS = [
@@ -774,8 +812,63 @@ const MENSAJE = encodeURIComponent(`Hotel Vista del Sol alerta a sus clientes de
 
 📞 Para consultas o reservas, comunicarse al: +54 9 3857 40-7420`);
 
+const MENSAJE_SMS = encodeURIComponent(`Hotel Vista del Sol: nuestro WhatsApp fue hackeado. Hay denuncia penal. NO transferir dinero a CBU que digan ser nuestros. Consultas: +54 9 3857 40-7420.`);
+
 function getKey(g) { return `hotel_grupo_${g}`; }
 function getEnviados(g) { return JSON.parse(localStorage.getItem(getKey(g)) || '{}'); }
+
+// Mostrar notificación temporal
+function mostrarToast(texto) {
+  const toast = document.getElementById('toast');
+  toast.textContent = texto;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// Copiar mensaje al portapapeles
+async function copiarMensaje() {
+  const texto = decodeURIComponent(MENSAJE);
+  try {
+    await navigator.clipboard.writeText(texto);
+    mostrarToast('✅ Mensaje copiado — pegalo donde quieras');
+  } catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      mostrarToast('✅ Mensaje copiado');
+    } catch(err) {
+      mostrarToast('❌ No se pudo copiar');
+    }
+    document.body.removeChild(ta);
+  }
+}
+
+// Copiar número de teléfono al portapapeles
+async function copiarNumero(num) {
+  try {
+    await navigator.clipboard.writeText(num);
+    mostrarToast(`📞 Número copiado: ${num}`);
+  } catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = num;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      mostrarToast(`📞 Número copiado: ${num}`);
+    } catch(err) {
+      mostrarToast('❌ No se pudo copiar');
+    }
+    document.body.removeChild(ta);
+  }
+}
 
 // Validar número de WhatsApp argentino
 // Formato correcto: +549 + 10 dígitos = 13 dígitos totales
@@ -847,6 +940,7 @@ function renderPanel(gi, filtro) {
     if(filtro==='pendientes' && enviado) return;
     const numLimpio = num.replace('+','');
     const waLink = `https://wa.me/${numLimpio}?text=${MENSAJE}`;
+    const smsLink = `sms:${num}?&body=${MENSAJE_SMS}`;
     const div = document.createElement('div');
     div.className = 'contacto' + (enviado?' enviado':'') + (!valido?' invalido':'');
     
@@ -859,6 +953,13 @@ function renderPanel(gi, filtro) {
           </svg>
           ${enviado?'✓ Enviado':'WhatsApp'}
         </a>
+        <a class="btn-sms" href="${smsLink}"
+          onclick="setTimeout(()=>{setEnviado(${gi},'${num}');actualizarTodo();renderPanel(${gi},filtros[${gi}]);},2000)">
+          ✉️ SMS
+        </a>
+        <button class="btn-copy" onclick="copiarMensaje()">
+          📋 Copiar mensaje
+        </button>
         <label class="check-label">
           <input type="checkbox" ${enviado?'checked':''}
             onchange="toggleEnviado(${gi},'${num}',this.checked)">
@@ -873,7 +974,7 @@ function renderPanel(gi, filtro) {
       ${enviado?'<div class="badge-ok">✓</div>':''}
       <div class="idx">#${i+1}</div>
       ${nombreHTML}
-      <div class="num">${num}</div>
+      <div class="num" onclick="copiarNumero('${num}')" title="Tocá para copiar el número">${num}</div>
       ${botonOcontenido}
     `;
     grid.appendChild(div);
