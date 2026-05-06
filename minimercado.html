@@ -137,7 +137,7 @@ body{
 .field-group.full{grid-column:1/-1}
 .field-label{font-size:0.7rem;font-weight:600;color:#555}
 .field-input{padding:6px 10px;border:1px solid #ddd;border-radius:10px;font-size:0.85rem}
-.price-box{background:#1a1a2e;border-radius:12px;padding:10px;margin-top:6px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.price-box{background:#1a1a2e;border-radius:12px;padding:10px;margin-top:6px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .price-item-label{font-size:0.65rem;color:#8888aa}
 .price-item-val{font-size:0.95rem;font-weight:700}
 .price-costo .price-item-val{color:#85b7eb}
@@ -680,14 +680,32 @@ body{
       <div class="field-group"><div class="field-label">Código barras</div><input type="text" id="new-barcode" class="field-input" placeholder="Código para escáner"/></div>
       <div class="field-group"><div class="field-label">Tipo de venta</div><select id="new-tipo" class="field-input"><option value="unidad">Unidad (precio por pieza)</option><option value="peso">Peso (precio por kg)</option><option value="litro">Líquido (precio por litro)</option></select></div>
       <div class="field-group"><div class="field-label">Stock inicial</div><input type="text" id="new-stock" class="field-input" value="0"/></div>
-      <div class="field-group"><div class="field-label">Precio costo ($)</div><input type="text" id="new-costo" class="field-input" placeholder="Ej: 800" oninput="calcPrecioVenta()"/></div>
-      <div class="field-group"><div class="field-label">Utilidad (%)</div><input type="text" id="new-utilidad" class="field-input" placeholder="Ej: 40" oninput="calcPrecioVenta()"/></div>
-      <div class="field-group full"><div class="field-label">Precio venta ($)</div><input type="text" id="new-precio" class="field-input" placeholder="Automático" oninput="calcUtilidad()"/></div>
+      <div class="field-group"><div class="field-label">💲 Precio costo ($)</div><input type="text" id="new-costo" class="field-input" placeholder="Ej: 800" oninput="calcPrecioVenta(); newActualizarListas();" style="background:#eaf3ff;font-weight:600;"/></div>
+      <div class="field-group"><div class="field-label">📊 Utilidad (%)</div><input type="text" id="new-utilidad" class="field-input" placeholder="Ej: 40" oninput="calcPrecioVenta(); newActualizarListas();"/></div>
+      <div class="field-group full"><div class="field-label">🏷️ Precio venta Lista 1 ($)</div><input type="text" id="new-precio" class="field-input" placeholder="Automático" oninput="calcUtilidad()"/></div>
+      <!-- Separador listas adicionales -->
+      <div class="field-group full" style="border-top:1px dashed #ccc;padding-top:10px;margin-top:4px;">
+        <div style="font-size:0.75rem;font-weight:700;color:#555;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📋 Listas de precios adicionales</div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">📋 Utilidad Lista 2 (%)</div>
+        <input type="text" id="new-utilidad-l2" class="field-input" placeholder="Ej: 20" oninput="newActualizarListas()" style="background:#f0f8e8;"/>
+      </div>
+      <div class="field-group">
+        <div class="field-label">📋 Precio Lista 2 ($)</div>
+        <input type="text" id="new-precio-l2" class="field-input" placeholder="Automático" readonly style="background:#f0f8e8;font-weight:600;color:#27500a;"/>
+      </div>
+      <div class="field-group full">
+        <div class="field-label">🏠 Precio Casa ($) <span style="font-size:0.68rem;color:#888;">— se iguala al costo automáticamente</span></div>
+        <input type="text" id="new-precio-casa" class="field-input" placeholder="Igual al costo" readonly style="background:#fdf0f0;font-weight:600;color:#791f1f;"/>
+      </div>
     </div>
     <div class="price-box" id="price-preview" style="display:none">
       <div class="price-item price-costo"><div class="price-item-label">Costo</div><div class="price-item-val" id="prev-costo">$0</div></div>
-      <div class="price-item price-venta"><div class="price-item-label">Venta</div><div class="price-item-val" id="prev-venta">$0</div></div>
+      <div class="price-item price-venta"><div class="price-item-label">Venta L1</div><div class="price-item-val" id="prev-venta">$0</div></div>
       <div class="price-item price-util" id="prev-util-box"><div class="price-item-label">Utilidad</div><div class="price-item-val" id="prev-util">0%</div></div>
+      <div class="price-item" style=""><div class="price-item-label" style="color:#8888aa;">Lista 2</div><div class="price-item-val" id="prev-l2" style="color:#97c459;">$0</div></div>
+      <div class="price-item" style=""><div class="price-item-label" style="color:#8888aa;">Casa</div><div class="price-item-val" id="prev-casa" style="color:#85b7eb;">$0</div></div>
     </div>
     <button class="btn-action btn-nuevo" style="margin-top:12px; background:#5a1a8a; color:#fff; border:none; padding:8px;" onclick="agregarProducto()">Guardar producto</button>
   </div>
@@ -2197,10 +2215,13 @@ function agregarProducto(){
   if(isNaN(stockInicial)) stockInicial=0;
   let stockFinal = (tipo === 'unidad') ? Math.round(stockInicial) : Math.round(stockInicial * 1000) / 1000;
   if(isNaN(costo)) costo=0;
-  const prod={id:nextId++,nombre,marca,precio,costo,barcode,tipo};
+  const precioL2 = parseNumero(document.getElementById('new-precio-l2').value) || precio;
+  const precioCasa = parseNumero(document.getElementById('new-precio-casa').value) || costo;
+  const prod={id:nextId++,nombre,marca,precio,costo,precioCasa,precioLista2:precioL2,barcode,tipo,stockMin:0,stockIdeal:0,proveedorId:null,notas:''};
   productos.push(prod); stock[prod.id]=stockFinal;
   saveAll();renderAll();
   document.getElementById('new-marca').value='';document.getElementById('new-nombre').value='';document.getElementById('new-precio').value='';document.getElementById('new-costo').value='';document.getElementById('new-utilidad').value='';document.getElementById('new-barcode').value='';document.getElementById('new-stock').value='0';document.getElementById('price-preview').style.display='none';
+  document.getElementById('new-utilidad-l2').value='';document.getElementById('new-precio-l2').value='';document.getElementById('new-precio-casa').value='';
   toast(`✅ ${marca} ${nombre} (${tipo==='unidad'?'unidad':'kg'}) agregado`);
 }
 
@@ -2900,9 +2921,44 @@ function anularFactura(fid){
   }
   f.anulada=true; saveAll(); renderAll(); toast(`Factura ${f.tipo} #${fid} anulada`);
 }
+function newActualizarListas(){
+  const costo = parseNumero(document.getElementById('new-costo').value) || 0;
+  // Casa = siempre igual al costo
+  const casaEl = document.getElementById('new-precio-casa');
+  if(casaEl) casaEl.value = costo > 0 ? Math.round(costo) : '';
+  // Lista 2 = costo × (1 + utilidad-l2/100)
+  const utilL2El = document.getElementById('new-utilidad-l2');
+  const precioL2El = document.getElementById('new-precio-l2');
+  if(utilL2El && precioL2El && costo > 0){
+    const utilL2 = parseNumero(utilL2El.value);
+    if(!isNaN(utilL2) && utilL2 >= 0){
+      precioL2El.value = Math.round(costo * (1 + utilL2 / 100));
+    } else {
+      precioL2El.value = '';
+    }
+  }
+  updatePreview();
+}
 function calcPrecioVenta(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, util=parseNumero(document.getElementById('new-utilidad').value)||0; if(costo>0&&util>0) document.getElementById('new-precio').value=Math.round(costo*(1+util/100)); updatePreview(); }
 function calcUtilidad(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, venta=parseNumero(document.getElementById('new-precio').value)||0; if(costo>0&&venta>0) document.getElementById('new-utilidad').value=((venta-costo)/costo*100).toFixed(1); updatePreview(); }
-function updatePreview(){ const costo=parseNumero(document.getElementById('new-costo').value)||0, venta=parseNumero(document.getElementById('new-precio').value)||0, box=document.getElementById('price-preview'); if(costo<=0&&venta<=0){box.style.display='none';return;} box.style.display='grid'; document.getElementById('prev-costo').textContent='$'+fmt(costo); document.getElementById('prev-venta').textContent='$'+fmt(venta); if(costo>0&&venta>0){ const util=((venta-costo)/costo*100).toFixed(1); document.getElementById('prev-util').textContent=util+'% (+$'+fmt(venta-costo)+')'; } else document.getElementById('prev-util').textContent='—'; }
+function updatePreview(){
+  const costo=parseNumero(document.getElementById('new-costo').value)||0;
+  const venta=parseNumero(document.getElementById('new-precio').value)||0;
+  const box=document.getElementById('price-preview');
+  if(costo<=0&&venta<=0){box.style.display='none';return;}
+  box.style.display='grid';
+  document.getElementById('prev-costo').textContent='$'+fmt(costo);
+  document.getElementById('prev-venta').textContent='$'+fmt(venta);
+  if(costo>0&&venta>0){ const util=((venta-costo)/costo*100).toFixed(1); document.getElementById('prev-util').textContent=util+'% (+$'+fmt(venta-costo)+')'; }
+  else document.getElementById('prev-util').textContent='—';
+  // Lista 2 y Casa en el preview
+  const prevL2 = document.getElementById('prev-l2');
+  const prevCasa = document.getElementById('prev-casa');
+  const precioL2El = document.getElementById('new-precio-l2');
+  const casaEl = document.getElementById('new-precio-casa');
+  if(prevL2 && precioL2El) prevL2.textContent = precioL2El.value ? '$'+fmt(parseNumero(precioL2El.value)) : '—';
+  if(prevCasa && casaEl) prevCasa.textContent = casaEl.value ? '$'+fmt(parseNumero(casaEl.value)) : '—';
+}
 function showTab(name,btn){ 
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); 
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); 
