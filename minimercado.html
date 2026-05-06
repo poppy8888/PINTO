@@ -607,6 +607,353 @@ body{
   <div class="sub">Sistema de Gestión</div>
 </div>
 
+<!-- PANEL DESCUENTOS Y PROMOCIONES -->
+<div id="panel-descuentos" class="panel">
+  <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
+    <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#8b1a8b,#c0392b);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+      <span style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">🏷️ DESCUENTOS Y PROMOCIONES</span>
+      <button onclick="abrirModalDescuento()" style="padding:10px 22px;background:#e8c84a;color:#1a1a2e;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.95rem;">➕ NUEVO</button>
+    </div>
+
+    <!-- Info de uso -->
+    <div style="background:#fff8e1;border:1px solid #f5c842;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:0.82rem;color:#7a5800;">
+      💡 Los descuentos activos se aplican automáticamente al agregar productos en Venta. Podés usarlos también manualmente al cobrar.
+    </div>
+
+    <!-- Lista de descuentos activos -->
+    <div id="desc-lista" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:20px;"></div>
+
+    <!-- Historial de descuentos aplicados -->
+    <div style="background:#f9f9fc;border:1px solid #e0e0ec;border-radius:10px;padding:14px;margin-top:16px;">
+      <div style="font-weight:700;color:#1a1a2e;margin-bottom:10px;">📋 Últimas aplicaciones de descuento en ventas</div>
+      <div id="desc-historial" style="font-size:0.85rem;color:#666;">— Sin registros —</div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL GASTOS OPERATIVOS -->
+<div id="panel-gastos" class="panel">
+  <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
+    <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+      <span style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">💸 GASTOS OPERATIVOS</span>
+      <button onclick="abrirModalGasto()" style="padding:10px 22px;background:#e8c84a;color:#1a1a2e;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.95rem;">➕ REGISTRAR GASTO</button>
+    </div>
+
+    <!-- Filtro rango -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#f5f5fa;padding:12px;border-radius:10px;margin-bottom:16px;border:1px solid #ddd;">
+      <input type="date" id="gasto-desde" style="padding:8px;border:1px solid #ccc;border-radius:8px;font-size:0.9rem;">
+      <span style="color:#888;font-size:0.85rem;">hasta</span>
+      <input type="date" id="gasto-hasta" style="padding:8px;border:1px solid #ccc;border-radius:8px;font-size:0.9rem;">
+      <button onclick="setRangoGastos('hoy')" style="padding:8px 14px;background:#e8c84a;color:#1a1a2e;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.82rem;">Hoy</button>
+      <button onclick="setRangoGastos('semana')" style="padding:8px 14px;background:#e8c84a;color:#1a1a2e;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.82rem;">Semana</button>
+      <button onclick="setRangoGastos('mes')" style="padding:8px 14px;background:#e8c84a;color:#1a1a2e;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.82rem;">Mes</button>
+      <button onclick="setRangoGastos('todo')" style="padding:8px 14px;background:#888;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.82rem;">Todo</button>
+      <button onclick="renderGastos()" style="padding:9px 20px;background:#c0392b;color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;">🔍 Filtrar</button>
+    </div>
+
+    <!-- Resumen por categoría -->
+    <div id="gastos-resumen" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px;"></div>
+
+    <!-- Tabla gastos -->
+    <div style="overflow-x:auto;border:1px solid #ddd;border-radius:10px;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+        <thead style="background:linear-gradient(180deg,#c0392b,#1a1a2e);color:#fff;position:sticky;top:0;">
+          <tr>
+            <th style="padding:10px 8px;text-align:left;">Fecha</th>
+            <th style="padding:10px 8px;text-align:left;">Concepto</th>
+            <th style="padding:10px 8px;text-align:left;">Categoría</th>
+            <th style="padding:10px 8px;text-align:right;">Monto</th>
+            <th style="padding:10px 8px;text-align:left;">Forma de pago</th>
+            <th style="padding:10px 8px;text-align:center;width:60px;">🗑️</th>
+          </tr>
+        </thead>
+        <tbody id="gastos-tbody"></tbody>
+        <tfoot>
+          <tr style="background:#1a1a2e;color:#fff;font-weight:800;">
+            <td colspan="3" style="padding:10px 8px;">TOTAL DEL PERÍODO</td>
+            <td style="padding:10px 8px;text-align:right;font-size:1.1rem;" id="gastos-total">$0</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL CAJA / TURNO DEL DÍA -->
+<div id="panel-caja" class="panel">
+  <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
+    <div style="background:linear-gradient(135deg,#1a1a2e,#2c5f2e);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:18px;">
+      <div style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">🏦 CAJA / TURNO DEL DÍA</div>
+      <div id="caja-estado-badge" style="font-size:0.85rem;margin-top:4px;opacity:0.85;">— Sin turno abierto —</div>
+    </div>
+
+    <!-- Sin turno: botón abrir -->
+    <div id="caja-sin-turno">
+      <div style="text-align:center;padding:30px 20px;">
+        <div style="font-size:3rem;margin-bottom:12px;">🔒</div>
+        <div style="font-size:1.1rem;font-weight:700;color:#333;margin-bottom:8px;">No hay turno abierto</div>
+        <div style="font-size:0.85rem;color:#666;margin-bottom:20px;">Abrí el turno para registrar el efectivo inicial y hacer seguimiento de lo cobrado hoy.</div>
+        <button onclick="abrirTurno()" style="padding:14px 36px;background:#27500a;color:#fff;border:none;border-radius:12px;font-size:1.1rem;font-weight:800;cursor:pointer;">🟢 Abrir turno</button>
+      </div>
+    </div>
+
+    <!-- Con turno abierto -->
+    <div id="caja-con-turno" style="display:none;">
+      <!-- Resumen del turno -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px;" id="caja-kpis"></div>
+
+      <!-- Desglose por forma de pago -->
+      <div style="background:#f0f8e8;border:2px solid #639922;border-radius:10px;padding:16px;margin-bottom:18px;">
+        <div style="font-weight:700;color:#27500a;margin-bottom:12px;font-size:1rem;">💳 Recaudado por forma de pago (turno actual)</div>
+        <div id="caja-pago-detalle" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;"></div>
+      </div>
+
+      <!-- Efectivo en caja -->
+      <div style="background:#fff8e1;border:2px solid #f5c842;border-radius:10px;padding:16px;margin-bottom:18px;">
+        <div style="font-weight:700;color:#7a5800;margin-bottom:10px;font-size:1rem;">💵 Efectivo en caja</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:end;">
+          <div>
+            <div style="font-size:0.72rem;font-weight:600;color:#7a5800;margin-bottom:4px;">Fondo inicial</div>
+            <div style="font-size:1.5rem;font-weight:800;color:#333;" id="caja-fondo-label">$0</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;font-weight:600;color:#27500a;margin-bottom:4px;">+ Ventas efectivo</div>
+            <div style="font-size:1.5rem;font-weight:800;color:#27500a;" id="caja-efectivo-ventas">$0</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;font-weight:600;color:#c0392b;margin-bottom:4px;">− Gastos efectivo</div>
+            <div style="font-size:1.5rem;font-weight:800;color:#c0392b;" id="caja-efectivo-gastos">$0</div>
+          </div>
+        </div>
+        <div style="margin-top:14px;background:#1a1a2e;border-radius:8px;padding:14px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:0.85rem;color:#e8c84a;font-weight:700;letter-spacing:1px;">EFECTIVO ESPERADO EN CAJA</div>
+          <div style="font-size:2rem;font-weight:900;color:#e8c84a;" id="caja-efectivo-total">$0</div>
+        </div>
+      </div>
+
+      <!-- Últimas ventas del turno -->
+      <div style="background:#f9f9fc;border:1px solid #e0e0ec;border-radius:10px;padding:14px;margin-bottom:16px;">
+        <div style="font-weight:700;color:#1a1a2e;margin-bottom:10px;">🧾 Ventas del turno</div>
+        <div id="caja-ventas-lista" style="max-height:220px;overflow-y:auto;font-size:0.85rem;"></div>
+      </div>
+
+      <!-- Cerrar turno -->
+      <div style="text-align:center;padding:10px;">
+        <button onclick="cerrarTurno()" style="padding:12px 32px;background:#c0392b;color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:800;cursor:pointer;">🔴 Cerrar turno y ver resumen</button>
+      </div>
+    </div>
+
+    <!-- Historial de turnos cerrados -->
+    <div style="margin-top:20px;border-top:2px solid #eee;padding-top:18px;">
+      <div style="font-weight:700;color:#1a1a2e;margin-bottom:12px;font-size:1rem;">📜 Historial de turnos anteriores</div>
+      <div id="caja-historial" style="font-size:0.85rem;color:#666;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO DESCUENTO -->
+<div class="modal-overlay" id="desc-modal" style="z-index:2900;">
+  <div class="modal" style="width:min(95vw,500px);padding:22px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+    <div style="background:linear-gradient(135deg,#8b1a8b,#c0392b);color:#fff;padding:10px 14px;border-radius:5px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:1rem;font-weight:700;" id="desc-modal-titulo">🏷️ Nuevo descuento</span>
+      <button onclick="document.getElementById('desc-modal').classList.remove('open');" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:28px;height:28px;border-radius:5px;font-size:1rem;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div class="field-group full" style="grid-column:1/-1;">
+        <label class="field-label">Nombre / descripción</label>
+        <input type="text" id="desc-nombre" class="field-input" placeholder="Ej: 10% off fin de semana, 3x2 gaseosas...">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Tipo de descuento</label>
+        <select id="desc-tipo" class="field-input" onchange="renderDescTipoFields()">
+          <option value="porcentaje">% Porcentaje sobre total</option>
+          <option value="monto_fijo">$ Monto fijo off</option>
+          <option value="nxm">N lleva M (ej: 3×2)</option>
+          <option value="precio_especial">Precio especial por producto</option>
+        </select>
+      </div>
+      <div class="field-group" id="desc-campo-valor">
+        <label class="field-label" id="desc-valor-label">Valor (%)</label>
+        <input type="number" id="desc-valor" class="field-input" placeholder="Ej: 10" min="0">
+      </div>
+    </div>
+
+    <!-- Campos extra N×M -->
+    <div id="desc-campo-nxm" style="display:none;background:#f0f8e8;border:1px solid #639922;border-radius:8px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#27500a;margin-bottom:8px;">Configuración N lleva M</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label class="field-label">Lleva N unidades</label><input type="number" id="desc-n" class="field-input" value="3" min="2"></div>
+        <div><label class="field-label">Paga M unidades</label><input type="number" id="desc-m" class="field-input" value="2" min="1"></div>
+      </div>
+    </div>
+
+    <!-- Campo producto específico para precio especial -->
+    <div id="desc-campo-producto" style="display:none;margin-bottom:12px;">
+      <label class="field-label">Producto al que aplica (opcional)</label>
+      <input list="desc-productos-list" id="desc-producto" class="field-input" placeholder="Nombre o código de producto...">
+      <datalist id="desc-productos-list"></datalist>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div class="field-group">
+        <label class="field-label">📅 Vigencia desde</label>
+        <input type="date" id="desc-desde" class="field-input">
+      </div>
+      <div class="field-group">
+        <label class="field-label">📅 Vigencia hasta</label>
+        <input type="date" id="desc-hasta" class="field-input">
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-bottom:16px;">
+      <label class="field-label">Notas / condiciones</label>
+      <input type="text" id="desc-notas" class="field-input" placeholder="Ej: Solo fin de semana, mín. $5000, etc.">
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #ddd;padding-top:12px;">
+      <button onclick="document.getElementById('desc-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:3px;font-weight:600;cursor:pointer;">Cancelar</button>
+      <button onclick="guardarDescuento()" style="padding:9px 22px;background:#8b1a8b;color:#fff;border:1px solid #5a0a5a;border-radius:3px;font-weight:700;cursor:pointer;">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO GASTO -->
+<div class="modal-overlay" id="gasto-modal" style="z-index:2900;">
+  <div class="modal" style="width:min(95vw,440px);padding:22px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+    <div style="background:linear-gradient(135deg,#c0392b,#1a1a2e);color:#fff;padding:10px 14px;border-radius:5px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:1rem;font-weight:700;">💸 Registrar Gasto</span>
+      <button onclick="document.getElementById('gasto-modal').classList.remove('open');" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:28px;height:28px;border-radius:5px;font-size:1rem;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="display:grid;gap:12px;">
+      <div class="field-group">
+        <label class="field-label">📝 Concepto</label>
+        <input type="text" id="gasto-concepto" class="field-input" placeholder="Ej: Bolsas, alquiler de febrero, luz...">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="field-group">
+          <label class="field-label">📂 Categoría</label>
+          <select id="gasto-categoria" class="field-input">
+            <option value="servicios">🔌 Servicios (luz, gas, agua)</option>
+            <option value="alquiler">🏠 Alquiler</option>
+            <option value="sueldos">👷 Sueldos</option>
+            <option value="insumos">🛍️ Insumos (bolsas, limpieza)</option>
+            <option value="impuestos">🧾 Impuestos / tasas</option>
+            <option value="mantenimiento">🔧 Mantenimiento</option>
+            <option value="transporte">🚗 Transporte / flete</option>
+            <option value="publicidad">📢 Publicidad</option>
+            <option value="banco">🏦 Comisiones / banco</option>
+            <option value="otro">📋 Otro</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">💳 Forma de pago</label>
+          <select id="gasto-pago" class="field-input">
+            <option value="efectivo">💵 Efectivo</option>
+            <option value="transferencia">📱 Transferencia</option>
+            <option value="tarjeta">💳 Tarjeta</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="field-group">
+          <label class="field-label">💲 Monto ($)</label>
+          <input type="number" id="gasto-monto" class="field-input" placeholder="Ej: 15000" min="0">
+        </div>
+        <div class="field-group">
+          <label class="field-label">📅 Fecha</label>
+          <input type="date" id="gasto-fecha" class="field-input">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">📎 Notas</label>
+        <input type="text" id="gasto-notas" class="field-input" placeholder="Comprobante, período, etc.">
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #ddd;padding-top:12px;margin-top:12px;">
+      <button onclick="document.getElementById('gasto-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:3px;font-weight:600;cursor:pointer;">Cancelar</button>
+      <button onclick="guardarGasto()" style="padding:9px 22px;background:#c0392b;color:#fff;border:1px solid #8b0000;border-radius:3px;font-weight:700;cursor:pointer;">💾 Guardar gasto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ABRIR TURNO -->
+<div class="modal-overlay" id="turno-modal" style="z-index:2900;">
+  <div class="modal" style="width:min(95vw,400px);padding:22px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+    <div style="background:linear-gradient(135deg,#27500a,#1a1a2e);color:#fff;padding:10px 14px;border-radius:5px;margin-bottom:16px;">
+      <div style="font-size:1rem;font-weight:700;">🟢 Abrir turno de caja</div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label class="field-label">💵 Fondo inicial en caja ($)</label>
+      <input type="number" id="turno-fondo" class="field-input" placeholder="Ej: 5000" min="0" style="font-size:1.4rem;font-weight:700;text-align:right;padding:12px;">
+    </div>
+    <div style="margin-bottom:16px;">
+      <label class="field-label">📝 Observaciones (opcional)</label>
+      <input type="text" id="turno-obs" class="field-input" placeholder="Notas del turno...">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="document.getElementById('turno-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:3px;font-weight:600;cursor:pointer;">Cancelar</button>
+      <button onclick="confirmarAbrirTurno()" style="padding:9px 22px;background:#27500a;color:#fff;border:1px solid #1f3e07;border-radius:3px;font-weight:700;cursor:pointer;">🟢 Abrir turno</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RESUMEN CIERRE DE TURNO -->
+<div class="modal-overlay" id="cierre-modal" style="z-index:2900;">
+  <div class="modal" style="width:min(95vw,520px);padding:22px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;max-height:90vh;overflow-y:auto;">
+    <div style="background:linear-gradient(135deg,#c0392b,#1a1a2e);color:#fff;padding:14px 18px;border-radius:5px;margin-bottom:16px;">
+      <div style="font-size:1.1rem;font-weight:800;">🔴 Resumen de cierre de turno</div>
+    </div>
+    <div id="cierre-resumen"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;border-top:1px solid #ddd;padding-top:12px;">
+      <button onclick="document.getElementById('cierre-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:3px;font-weight:600;cursor:pointer;">Cancelar (no cerrar)</button>
+      <button onclick="confirmarCierreTurno()" style="padding:9px 22px;background:#c0392b;color:#fff;border:1px solid #8b0000;border-radius:3px;font-weight:700;cursor:pointer;">✅ Confirmar cierre</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DESCUENTO EN VENTA -->
+<div class="modal-overlay" id="desc-venta-modal" style="z-index:3100;">
+  <div class="modal" style="width:min(95vw,420px);padding:22px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+    <div style="background:linear-gradient(135deg,#8b1a8b,#c0392b);color:#fff;padding:10px 14px;border-radius:5px;margin-bottom:16px;">
+      <div style="font-size:1rem;font-weight:700;">🏷️ Aplicar descuento a esta venta</div>
+    </div>
+    <div style="margin-bottom:12px;font-size:0.85rem;color:#555;">Total actual: <strong id="desc-venta-total-actual" style="font-size:1.1rem;color:#1a1a2e;">$0</strong></div>
+    
+    <div style="margin-bottom:12px;">
+      <label class="field-label">Seleccionar descuento activo</label>
+      <select id="desc-venta-select" class="field-input" onchange="previsualizarDescuento()" style="height:38px;">
+        <option value="">— Elegir descuento —</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label class="field-label">O ingresar % de descuento manual</label>
+      <input type="number" id="desc-venta-manual" class="field-input" placeholder="Ej: 10" min="0" max="100" oninput="previsualizarDescuento()">
+    </div>
+
+    <div id="desc-venta-preview" style="background:#f0f8e8;border:2px solid #639922;border-radius:8px;padding:12px;margin-bottom:16px;display:none;">
+      <div style="display:flex;justify-content:space-between;font-size:0.82rem;">
+        <span>Total original:</span><span id="dv-original">$0</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:0.82rem;color:#c0392b;">
+        <span>Descuento:</span><span id="dv-descuento">-$0</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:1.2rem;font-weight:800;color:#27500a;margin-top:6px;border-top:1px solid #ddd;padding-top:6px;">
+        <span>Total a cobrar:</span><span id="dv-final">$0</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="document.getElementById('desc-venta-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:3px;font-weight:600;cursor:pointer;">Cancelar</button>
+      <button onclick="aplicarDescuentoVenta()" style="padding:9px 22px;background:#8b1a8b;color:#fff;border:1px solid #5a0a5a;border-radius:3px;font-weight:700;cursor:pointer;">✅ Aplicar descuento</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL CSV -->
 <div class="modal-overlay" id="csv-modal" style="z-index:2000;">
   <div class="modal" style="width:min(95vw,680px);max-height:90vh;overflow-y:auto;padding:20px;">
@@ -657,6 +1004,9 @@ body{
   <button class="tab" onclick="showTab('proveedores',this)">🚚 Proveedores</button>
   <button class="tab" onclick="showTab('cuentas',this)">💳 Cuentas Corrientes</button>
   <button class="tab" onclick="showTab('estadisticas',this)">📈 Estadísticas</button>
+  <button class="tab" onclick="showTab('descuentos',this)">🏷️ Descuentos</button>
+  <button class="tab" onclick="showTab('gastos',this)">💸 Gastos</button>
+  <button class="tab" onclick="showTab('caja',this)">🏦 Caja/Turno</button>
 </div>
 
 <div id="panel-stock" class="panel active">
@@ -836,6 +1186,16 @@ body{
         <div style="font-size:0.95rem;opacity:0.95;letter-spacing:1px;font-weight:700;">✨ UTILIDAD BRUTA</div>
         <div style="font-size:2.4rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-utilidad">$0</div>
         <div style="font-size:0.85rem;opacity:0.9;margin-top:6px;" id="cont-margen">Margen: 0%</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#c0392b,#922b21);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(192,57,43,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">💸 GASTOS OPERATIVOS</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-gastos">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Del período seleccionado</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#1a5276,#2471a3);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(26,82,118,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">💎 UTILIDAD NETA</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-utilidad-neta">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Bruta − Gastos operativos</div>
       </div>
     </div>
 
@@ -1072,6 +1432,26 @@ body{
   </div>
 </div>
 
+<!-- MODAL TICKET DE VENTA -->
+<div class="modal-overlay" id="ticket-modal" style="z-index:4000;">
+  <div style="background:#fff;border-radius:16px;width:min(95vw,420px);max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.4);overflow:hidden;">
+    <!-- Header del modal -->
+    <div style="background:linear-gradient(135deg,#1a1a2e,#2c5f2e);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+      <div style="font-size:1rem;font-weight:700;">🧾 Ticket de Venta</div>
+      <button onclick="document.getElementById('ticket-modal').classList.remove('open')" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:30px;height:30px;border-radius:6px;font-size:1rem;cursor:pointer;">✕</button>
+    </div>
+    <!-- Preview del ticket -->
+    <div style="flex:1;overflow-y:auto;padding:16px;background:#f0f0f0;">
+      <div id="ticket-preview" style="background:#fff;font-family:'Courier New',Courier,monospace;font-size:12px;max-width:320px;margin:0 auto;padding:16px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.15);white-space:pre-wrap;word-break:break-word;line-height:1.5;"></div>
+    </div>
+    <!-- Botones de acción -->
+    <div style="padding:14px 16px;display:flex;gap:10px;background:#fff;border-top:1px solid #eee;flex-shrink:0;">
+      <button onclick="imprimirTicket()" style="flex:1;padding:11px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;font-size:0.95rem;font-weight:700;cursor:pointer;">🖨️ Imprimir</button>
+      <button onclick="descargarTicketPDF()" style="flex:1;padding:11px;background:#c0392b;color:#fff;border:none;border-radius:8px;font-size:0.95rem;font-weight:700;cursor:pointer;">📄 Guardar PDF</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- cierre app-pc -->
 
 <!-- MODAL FLOTANTE DE VENTA -->
@@ -1148,6 +1528,8 @@ body{
     <div class="vsf-footer">
       <div class="vsf-footer-izq">
         <button class="vsf-btn-accion vsf-btn-cancelar" id="btn-limpiar-venta">❌ Cancelar</button>
+        <button class="vsf-btn-accion" onclick="abrirDescuentoVenta()" style="background:#8b1a8b;color:#fff;border:none;" title="Aplicar descuento a esta venta">🏷️ Dto.</button>
+        <button class="vsf-btn-accion" onclick="mostrarTicketUltimaVenta()" style="background:#3498db;color:#fff;border:none;" title="Ver ticket de la última venta">🧾 Ticket</button>
         <button class="vsf-btn-accion vsf-btn-guardar" id="btn-confirmar-venta">✅ Guardar</button>
       </div>
       <div class="vsf-footer-mid">
@@ -1223,16 +1605,40 @@ body{
       </div>
     </div>
 
-    <!-- Fila: Evolución compras vs ventas + Clientes con más compras -->
+    <!-- Fila: Ventas Consumidor Final vs Clientes registrados -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">🧍 Ventas: Consumidor Final vs Clientes registrados</div>
+        <div id="est-ventas-tipo-cliente"></div>
+      </div>
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">👑 Top clientes por $ facturado (período)</div>
+        <div id="est-top-clientes-facturado"></div>
+      </div>
+    </div>
+
+    <!-- Fila: Ventas por día + Ventas por mes (importe acumulado) -->
+    <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">📆 Ventas acumuladas por mes (todo el historial)</div>
+      <div id="est-ventas-por-mes" style="width:100%;overflow-x:auto;"></div>
+    </div>
+
+    <!-- Fila: Ranking proveedores por compras -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">🚚 Ranking proveedores por $ comprado (período)</div>
+        <div id="est-top-proveedores"></div>
+      </div>
       <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
         <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">📦 Compras vs Ventas por mes</div>
         <div id="est-chart-comprasventa"></div>
       </div>
-      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
-        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">👥 Clientes con más compras (CC)</div>
-        <div id="est-top-clientes"></div>
-      </div>
+    </div>
+
+    <!-- Fila: Clientes CC -->
+    <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">👥 Clientes con saldo pendiente (Cuenta Corriente)</div>
+      <div id="est-top-clientes"></div>
     </div>
 
     <!-- Fila: Inventario valorizado por familia -->
@@ -1609,9 +2015,11 @@ const CLAVE_ACCESO = "admin123";
 const KEY_AUTH = "MINIMARKET_AUTH_RECORDADO";
 
 // ========== CLAVES DE ALMACENAMIENTO LOCAL ==========
-const KEY_P='mm_prods_v1', KEY_S='mm_stock_v1', KEY_L='mm_log_v1', KEY_F='mm_facturas_v1', KEY_CLI='mm_clientes_v1', KEY_PROV='mm_proveedores_v1', KEY_CC='mm_cc_v1';
+const KEY_P='mm_prods_v1', KEY_S='mm_stock_v1', KEY_L='mm_log_v1', KEY_F='mm_facturas_v1', KEY_CLI='mm_clientes_v1', KEY_PROV='mm_proveedores_v1', KEY_CC='mm_cc_v1', KEY_DESC='mm_descuentos_v1', KEY_GAS='mm_gastos_v1', KEY_TUR='mm_turnos_v1';
 
 let productos=[], stock={}, log=[], facturas=[], clientes=[], proveedores=[], movimientosCC=[];
+let descuentos=[], gastos=[], turnos=[], turnoActual=null;
+let ventaDescuentoAplicado = 0; // descuento activo en la venta actual (monto fijo)
 let scannerMode='salida', deleteTarget=null, nextId=100, nextCliId=1, nextProvId=1;
 let editandoCliId=null, editandoProvId=null;
 let pagoCCpendiente = null;
@@ -1629,9 +2037,12 @@ async function saveAll(){
   localStorage.setItem(KEY_CLI,JSON.stringify(clientes));
   localStorage.setItem(KEY_PROV,JSON.stringify(proveedores));
   localStorage.setItem(KEY_CC,JSON.stringify(movimientosCC));
+  localStorage.setItem(KEY_DESC,JSON.stringify(descuentos));
+  localStorage.setItem(KEY_GAS,JSON.stringify(gastos));
+  localStorage.setItem(KEY_TUR,JSON.stringify(turnos));
   if (!SCRIPT_URL) return;
   try{
-    const data={productos,stock,log,facturas,clientes,proveedores,movimientosCC};
+    const data={productos,stock,log,facturas,clientes,proveedores,movimientosCC,descuentos,gastos,turnos};
     const formData=new FormData();
     formData.append('data', JSON.stringify(data));
     await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body: formData});
@@ -1661,6 +2072,7 @@ async function loadAll(){
       if(data && data.productos){
         productos=data.productos; stock=data.stock||{}; log=data.log||[]; facturas=data.facturas||[];
         clientes=data.clientes||[]; proveedores=data.proveedores||[]; movimientosCC=data.movimientosCC||[];
+        descuentos=data.descuentos||[]; gastos=data.gastos||[]; turnos=data.turnos||[];
         loadedFromCloud=true;
         toast('📡 Datos desde la nube');
       }
@@ -1674,6 +2086,9 @@ async function loadAll(){
     try{const c=localStorage.getItem(KEY_CLI);if(c)clientes=JSON.parse(c)}catch(e){}
     try{const pr=localStorage.getItem(KEY_PROV);if(pr)proveedores=JSON.parse(pr)}catch(e){}
     try{const cc=localStorage.getItem(KEY_CC);if(cc)movimientosCC=JSON.parse(cc)}catch(e){}
+    try{const dc=localStorage.getItem(KEY_DESC);if(dc)descuentos=JSON.parse(dc)}catch(e){}
+    try{const gs=localStorage.getItem(KEY_GAS);if(gs)gastos=JSON.parse(gs)}catch(e){}
+    try{const tr=localStorage.getItem(KEY_TUR);if(tr)turnos=JSON.parse(tr)}catch(e){}
     if(!productos.length){
       productos=[
         {id:1,nombre:'Manzana',marca:'Frutas',precio:800,costo:0,barcode:'',tipo:'peso'},
@@ -1690,6 +2105,11 @@ async function loadAll(){
   if(!clientes)clientes=[];
   if(!proveedores)proveedores=[];
   if(!movimientosCC)movimientosCC=[];
+  if(!descuentos)descuentos=[];
+  if(!gastos)gastos=[];
+  if(!turnos)turnos=[];
+  // Restaurar turno activo si existe
+  turnoActual = turnos.find(t => !t.cerrado) || null;
   nextCliId = clientes.length ? Math.max(...clientes.map(c=>c.id),0)+1 : 1;
   nextProvId = proveedores.length ? Math.max(...proveedores.map(p=>p.id),0)+1 : 1;
 }
@@ -2733,7 +3153,13 @@ function renderVentaTabla(){
     </tr>`;
   });
   tbody.innerHTML=html;
-  document.getElementById('venta-total-pesos').innerHTML=`$${fmt(total)}`;
+  const subtot = ventaLineas.reduce((a,l)=>a+l.subtotal,0);
+  const totalFinal = Math.max(0, subtot - ventaDescuentoAplicado);
+  if(ventaDescuentoAplicado > 0){
+    document.getElementById('venta-total-pesos').innerHTML=`<span style="font-size:0.7em;color:#aaa;text-decoration:line-through;">$${fmt(subtot)}</span><br>🏷️ -$${fmt(ventaDescuentoAplicado)}<br><span style="color:#e8c84a;">$${fmt(totalFinal)}</span>`;
+  } else {
+    document.getElementById('venta-total-pesos').innerHTML=`$${fmt(subtot)}`;
+  }
   document.querySelectorAll('#venta-lineas-tbody .edit-cantidad-venta').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseNumero(inp.value); if(!isNaN(n) && n>0){ ventaLineas[i].cantidad = Math.round(n*1000)/1000; ventaLineas[i].subtotal=ventaLineas[i].cantidad*ventaLineas[i].precioVenta; renderVentaTabla(); actualizarMatchVenta(); } else{ inp.value=fmt(ventaLineas[i].cantidad); } }; });
   document.querySelectorAll('#venta-lineas-tbody .edit-precio-venta').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseNumero(inp.value); if(!isNaN(n) && n>=0){ ventaLineas[i].precioVenta=n; ventaLineas[i].subtotal=ventaLineas[i].cantidad*ventaLineas[i].precioVenta; renderVentaTabla(); actualizarMatchVenta(); } else{ inp.value=fmt(ventaLineas[i].precioVenta); } }; });
   document.querySelectorAll('#venta-lineas-tbody .del-row-venta').forEach(btn=>{ btn.onclick=()=>{ eliminarLineaVenta(parseInt(btn.getAttribute('data-idx'))); }; });
@@ -2751,7 +3177,7 @@ function actualizarNumVenta(){
   }
 }
 function actualizarMatchVenta(){ const total=ventaLineas.reduce((a,l)=>a+l.subtotal,0); const real=parseNumero(document.getElementById('venta-monto-real').value); const ind=document.getElementById('venta-match-indicator'); if(!isNaN(real)&&real>0){ const diff=Math.abs(total-real); ind.innerHTML=diff<0.01?'✅ Coincide':`⚠️ Diferencia: $${fmt(diff)}`; } else ind.innerHTML=''; }
-function limpiarVenta(){ ventaLineas=[]; renderVentaTabla(); document.getElementById('venta-monto-real').value=''; ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value=''; }
+function limpiarVenta(){ ventaLineas=[]; ventaDescuentoAplicado=0; renderVentaTabla(); document.getElementById('venta-monto-real').value=''; ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value=''; }
 
 function pedirPagoYVuelto(totalVenta){
   return new Promise((resolve) => {
@@ -2852,7 +3278,8 @@ function pedirPagoYVuelto(totalVenta){
 
 async function confirmarVenta(){
   if(!ventaLineas.length){toast("Sin líneas");return;}
-  const totalVenta = ventaLineas.reduce((a,l)=>a+l.subtotal,0);
+  const subtotalVenta = ventaLineas.reduce((a,l)=>a+l.subtotal,0);
+  const totalVenta = Math.max(0, subtotalVenta - ventaDescuentoAplicado);
   const formaPago = document.getElementById('venta-pago').value;
   const clienteId = document.getElementById('venta-cliente').value;
   
@@ -2885,7 +3312,7 @@ async function confirmarVenta(){
   }
   
   const factura = {
-    id: fid, fecha: nowStr(), total: totalVenta, lineas: lineasGuardar,
+    id: fid, fecha: nowStr(), total: totalVenta, subtotal: subtotalVenta, descuento: ventaDescuentoAplicado, lineas: lineasGuardar,
     tipo: 'venta', anulada: false,
     clienteId: clienteId ? Number(clienteId) : null,
     formaPago: formaPago
@@ -2908,12 +3335,150 @@ async function confirmarVenta(){
   
   saveAll(); renderAll();
   toast(`✅ Venta #${fid} registrada: $${fmt(totalVenta)} (${formaPago})`);
-  ventaLineas = []; renderVentaTabla();
+
+  // Guardar datos para reimprimir ticket
+  window._ultimaVentaTicket = { factura, lineasTicket: lineasGuardar.map(l=>({...l})) };
+
+  ventaLineas = []; ventaDescuentoAplicado = 0; renderVentaTabla();
   document.getElementById('venta-monto-real').value='';
   document.getElementById('venta-cliente').value='';
   document.getElementById('venta-pago').value='efectivo';
   ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value='';
   document.getElementById('venta-modal').classList.remove('open');
+
+  // Mostrar ticket automáticamente
+  abrirTicket(factura, lineasGuardar);
+}
+
+// ============================================================
+// ========== MÓDULO TICKET DE VENTA ==========================
+// ============================================================
+
+function generarTicketTexto(factura, lineas){
+  const ANCHO = 40;
+  const sep  = '─'.repeat(ANCHO);
+  const sep2 = '━'.repeat(ANCHO);
+  const center = (txt) => { const pad=Math.max(0,Math.floor((ANCHO-txt.length)/2)); return ' '.repeat(pad)+txt; };
+  const rjust  = (a,b,tot) => { const s=String(b); return a.slice(0,tot-s.length-1).padEnd(tot-s.length-1)+' '+s; };
+
+  const fpLabels = {efectivo:'Efectivo 💵', transferencia:'Transferencia 📱', cuenta_corriente:'Cta. Corriente 📋'};
+  const fp = fpLabels[factura.formaPago] || factura.formaPago;
+
+  let cli = 'Consumidor Final';
+  if(factura.clienteId){
+    const c = clientes.find(x=>Number(x.id)===Number(factura.clienteId));
+    if(c) cli = `${c.apellido||''} ${c.nombre||''}`.trim() || cli;
+  }
+
+  const numVenta = String(facturas.filter(f=>f.tipo==='venta').indexOf(factura)+1 || factura.id).padStart(4,'0');
+
+  let t = '';
+  t += center('👑 REINA MI AMOR') + '\n';
+  t += center('MiniMarket La Reina') + '\n';
+  t += center('Tel: —  |  www.—') + '\n';
+  t += sep2 + '\n';
+  t += `Ticket N°: ${numVenta}`.padEnd(ANCHO/2) + `Fecha: ${factura.fecha.slice(0,16)}\n`;
+  t += `Cliente: ${cli}\n`;
+  t += `Pago: ${fp}\n`;
+  t += sep + '\n';
+  t += 'CANT  DESCRIPCIÓN'.padEnd(ANCHO-10) + '  SUBTOTAL\n';
+  t += sep + '\n';
+
+  lineas.forEach(l => {
+    const prod = productos.find(p=>Number(p.id)===Number(l.prodId));
+    const nombre = prod ? `${prod.marca} ${prod.nombre}` : `#${l.prodId}`;
+    const cant = (prod&&(prod.tipo==='peso'||prod.tipo==='litro'))
+      ? `${(l.cantidad*1000).toFixed(0)}${prod.tipo==='litro'?'ml':'g'}`
+      : `${l.cantidad}`;
+    const sub = `$${fmt(l.subtotal)}`;
+    // Línea 1: cantidad + nombre (truncado)
+    const maxNom = ANCHO - 8;
+    const nomCorto = nombre.length > maxNom ? nombre.slice(0,maxNom-1)+'…' : nombre;
+    t += `${cant.padStart(4)}  ${nomCorto.padEnd(maxNom-sub.length)} ${sub}\n`;
+    // Línea 2: precio unitario
+    t += `      @ $${fmt(l.precioVenta)} c/u\n`;
+  });
+
+  t += sep + '\n';
+  if(factura.descuento > 0){
+    t += rjust('Subtotal:', `$${fmt(factura.subtotal)}`, ANCHO) + '\n';
+    t += rjust('Descuento:', `-$${fmt(factura.descuento)}`, ANCHO) + '\n';
+    t += sep + '\n';
+  }
+  t += rjust('TOTAL:', `$${fmt(factura.total)}`, ANCHO) + '\n';
+  t += sep2 + '\n';
+  t += center('¡Gracias por su compra!') + '\n';
+  t += center('Vuelva pronto 😊') + '\n';
+  t += sep + '\n';
+  t += center(`[${factura.id}]`) + '\n';
+  return t;
+}
+
+let _ticketFacturaActual = null;
+let _ticketLineasActual  = null;
+
+function abrirTicket(factura, lineas){
+  _ticketFacturaActual = factura;
+  _ticketLineasActual  = lineas;
+  const texto = generarTicketTexto(factura, lineas);
+  document.getElementById('ticket-preview').textContent = texto;
+  document.getElementById('ticket-modal').classList.add('open');
+}
+
+function mostrarTicketUltimaVenta(){
+  if(!window._ultimaVentaTicket){ toast('No hay ninguna venta registrada aún'); return; }
+  abrirTicket(window._ultimaVentaTicket.factura, window._ultimaVentaTicket.lineasTicket);
+}
+
+function imprimirTicket(){
+  const texto = _ticketFacturaActual ? generarTicketTexto(_ticketFacturaActual, _ticketLineasActual) : '';
+  if(!texto) return;
+  const win = window.open('','_blank','width=420,height=640');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>Ticket Venta</title>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:'Courier New',Courier,monospace;font-size:12px;background:#fff;color:#000;padding:8px;}
+      pre{white-space:pre-wrap;word-break:break-word;line-height:1.55;}
+      @media print{body{padding:0;}@page{margin:4mm;size:80mm auto;}}
+    </style>
+  </head><body><pre>${texto.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+  <script>window.onload=()=>{window.print();setTimeout(()=>window.close(),800);}<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+function descargarTicketPDF(){
+  if(!_ticketFacturaActual) return;
+  const texto = generarTicketTexto(_ticketFacturaActual, _ticketLineasActual);
+
+  // Usamos la API de impresión del navegador con target PDF
+  // Genera una página lista para "Guardar como PDF" en el diálogo de impresión
+  const win = window.open('','_blank','width=420,height=700');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>Ticket #${_ticketFacturaActual.id}</title>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{font-family:'Courier New',Courier,monospace;font-size:11px;background:#fff;color:#000;padding:6px;}
+      pre{white-space:pre-wrap;word-break:break-word;line-height:1.55;}
+      @page{margin:4mm;size:80mm auto;}
+      @media print{
+        html,body{width:80mm;}
+        .no-print{display:none!important;}
+      }
+      .btn-bar{display:flex;gap:8px;margin-bottom:10px;font-family:sans-serif;}
+      .btn-bar button{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;}
+      .btn-pdf{background:#c0392b;color:#fff;}
+      .btn-close{background:#888;color:#fff;}
+    </style>
+  </head><body>
+    <div class="btn-bar no-print">
+      <button class="btn-pdf" onclick="window.print()">📄 Guardar como PDF / Imprimir</button>
+      <button class="btn-close" onclick="window.close()">✕ Cerrar</button>
+    </div>
+    <pre>${texto.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+  </body></html>`);
+  win.document.close();
 }
 
 function onCambioFormaPagoVenta(){
@@ -3056,6 +3621,9 @@ function showTab(name,btn){
   if(name==='proveedores'){ renderProveedores(); }
   if(name==='cuentas'){ renderCuentas(); }
   if(name==='estadisticas'){ setRangoEst('mes'); }
+  if(name==='descuentos'){ renderDescuentos(); }
+  if(name==='gastos'){ renderGastos(); }
+  if(name==='caja'){ renderCaja(); }
 }
 
 // ========== ESTADÍSTICAS ==========
@@ -3335,6 +3903,172 @@ function renderEstadisticas(){
           </div>
           <span style="font-size:0.9rem;font-weight:800;color:#c0392b;">$${fmt(c.saldo)}</span>
         </div>`).join('') + '</div>';
+
+  // ── [NUEVO] Consumidor Final vs Clientes registrados ──
+  const ventasFinal = fVentas.filter(f=>!f.clienteId);
+  const ventasCliente = fVentas.filter(f=>!!f.clienteId);
+  const totalFinalM = ventasFinal.reduce((a,f)=>a+f.total,0);
+  const totalClienteM = ventasCliente.reduce((a,f)=>a+f.total,0);
+  const totalVentasTodos = totalFinalM + totalClienteM || 1;
+  const pctFinal = (totalFinalM/totalVentasTodos*100).toFixed(1);
+  const pctCli = (totalClienteM/totalVentasTodos*100).toFixed(1);
+  document.getElementById('est-ventas-tipo-cliente').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div style="background:#f5f5fa;border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:0.72rem;font-weight:700;color:#555;margin-bottom:4px;text-transform:uppercase;">🧍 Consumidor Final</div>
+        <div style="font-size:1.6rem;font-weight:900;color:#1a1a2e;">$${fmtMil(totalFinalM)}</div>
+        <div style="font-size:0.78rem;color:#888;">${ventasFinal.length} ventas · ${pctFinal}%</div>
+      </div>
+      <div style="background:#eaf3de;border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:0.72rem;font-weight:700;color:#27500a;margin-bottom:4px;text-transform:uppercase;">👥 Clientes registrados</div>
+        <div style="font-size:1.6rem;font-weight:900;color:#27500a;">$${fmtMil(totalClienteM)}</div>
+        <div style="font-size:0.78rem;color:#555;">${ventasCliente.length} ventas · ${pctCli}%</div>
+      </div>
+    </div>
+    <div style="background:#f0f0f8;border-radius:6px;height:14px;overflow:hidden;display:flex;">
+      <div style="width:${pctFinal}%;background:#1a1a2e;transition:width 0.3s;"></div>
+      <div style="width:${pctCli}%;background:#639922;transition:width 0.3s;"></div>
+    </div>
+    <div style="display:flex;gap:16px;margin-top:6px;font-size:0.72rem;color:#777;">
+      <span>■ <span style="color:#1a1a2e;font-weight:700;">${pctFinal}%</span> Consumidor Final</span>
+      <span>■ <span style="color:#639922;font-weight:700;">${pctCli}%</span> Clientes</span>
+    </div>`;
+
+  // ── [NUEVO] Top clientes por $ facturado en el período ──
+  const facturadoCli = {};
+  fVentas.filter(f=>f.clienteId).forEach(f=>{
+    const id = f.clienteId;
+    if(!facturadoCli[id]) facturadoCli[id]={total:0,cant:0};
+    facturadoCli[id].total += f.total;
+    facturadoCli[id].cant++;
+  });
+  const topCliFacturado = Object.keys(facturadoCli)
+    .map(id=>{ const c=clientes.find(x=>Number(x.id)===Number(id)); return {nombre:c?`${c.apellido||''} ${c.nombre||''}`:`#${id}`, ...facturadoCli[id]}; })
+    .sort((a,b)=>b.total-a.total).slice(0,8);
+  const maxCliF = topCliFacturado.length>0?topCliFacturado[0].total:1;
+  document.getElementById('est-top-clientes-facturado').innerHTML = topCliFacturado.length===0
+    ? '<div style="color:#999;font-size:0.8rem;text-align:center;padding:20px;">Sin ventas a clientes registrados en el período</div>'
+    : `<div style="overflow-y:auto;max-height:280px;">` + topCliFacturado.map((c,i)=>{
+        const pct = maxCliF>0?(c.total/maxCliF*100):0;
+        return `<div style="margin-bottom:9px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:3px;">
+            <span><strong style="color:#1a1a2e;">#${i+1}</strong> ${c.nombre}</span>
+            <span style="font-weight:700;color:#27500a;">${fmtMil(c.total)} <span style="font-size:0.68rem;color:#888;">(${c.cant} fact.)</span></span>
+          </div>
+          <div style="background:#eee;border-radius:4px;height:8px;overflow:hidden;">
+            <div style="width:${pct}%;height:100%;background:#639922;border-radius:4px;"></div>
+          </div>
+        </div>`;
+      }).join('') + '</div>';
+
+  // ── [NUEVO] Ventas acumuladas por mes (historial completo) ──
+  const ventasMes = {};
+  facturas.filter(f=>!f.anulada&&f.tipo==='venta').forEach(f=>{
+    const d=estParseFecha(f.fecha); if(!d) return;
+    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if(!ventasMes[k]) ventasMes[k]={total:0,cant:0};
+    ventasMes[k].total += f.total;
+    ventasMes[k].cant++;
+  });
+  const mesVKeys = Object.keys(ventasMes).sort();
+  const elVM = document.getElementById('est-ventas-por-mes');
+  if(mesVKeys.length===0){ elVM.innerHTML='<div style="color:#999;font-size:0.8rem;text-align:center;padding:20px;">Sin ventas registradas</div>'; }
+  else {
+    const maxVM = Math.max(...mesVKeys.map(k=>ventasMes[k].total),1);
+    const barW2 = Math.max(36, Math.min(60, Math.floor(680/mesVKeys.length)-6));
+    const W2 = Math.max(mesVKeys.length*(barW2+6)+50, 300), H2=180;
+    let svg2=`<svg width="${W2}" height="${H2}" style="display:block;">`;
+    // líneas guía
+    [0,25,50,75,100].forEach(p=>{
+      const y=H2-30-Math.round(p/100*120);
+      svg2+=`<line x1="40" y1="${y}" x2="${W2-10}" y2="${y}" stroke="#f0f0f0" stroke-width="1"/>`;
+      if(p>0) svg2+=`<text x="36" y="${y+3}" text-anchor="end" font-size="9" fill="#bbb">${fmtMil(maxVM*p/100)}</text>`;
+    });
+    mesVKeys.forEach((k,i)=>{
+      const v=ventasMes[k]; const h=maxVM>0?Math.round((v.total/maxVM)*120):0;
+      const x=44+i*(barW2+6); const y=H2-30-h;
+      const mesNombre=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+      const mm=parseInt(k.slice(5))-1;
+      const lbl=mesNombre[mm]+" '"+k.slice(2,4);
+      svg2+=`<rect x="${x}" y="${y}" width="${barW2}" height="${h}" rx="3" fill="#27500a" opacity="0.85"/>`;
+      svg2+=`<text x="${x+barW2/2}" y="${H2-14}" text-anchor="middle" font-size="9" fill="#666" transform="rotate(-30 ${x+barW2/2} ${H2-14})">${lbl}</text>`;
+      svg2+=`<text x="${x+barW2/2}" y="${y-4}" text-anchor="middle" font-size="8" fill="#27500a" font-weight="700">${fmtMil(v.total)}</text>`;
+    });
+    svg2+=`</svg>`;
+    elVM.innerHTML=`<div style="overflow-x:auto;">${svg2}</div>
+      <div style="overflow-x:auto;margin-top:10px;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+          <thead><tr style="background:#1a1a2e;color:#fff;">
+            <th style="padding:6px 10px;text-align:left;">Mes</th>
+            <th style="padding:6px 10px;text-align:right;">Ventas ($)</th>
+            <th style="padding:6px 10px;text-align:right;">Cantidad</th>
+            <th style="padding:6px 10px;text-align:right;">Ticket prom.</th>
+          </tr></thead>
+          <tbody>${mesVKeys.slice().reverse().map((k,i)=>{
+            const v=ventasMes[k];
+            const mesNombre=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            const mm=parseInt(k.slice(5))-1;
+            return `<tr style="background:${i%2?'#fff':'#f7f7fc'};border-bottom:1px solid #eee;">
+              <td style="padding:6px 10px;font-weight:600;">${mesNombre[mm]} ${k.slice(0,4)}</td>
+              <td style="padding:6px 10px;text-align:right;font-weight:700;color:#27500a;">$${fmt(v.total)}</td>
+              <td style="padding:6px 10px;text-align:right;">${v.cant}</td>
+              <td style="padding:6px 10px;text-align:right;color:#7a5800;">$${fmt(v.cant>0?v.total/v.cant:0)}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>`;
+  }
+
+  // ── [NUEVO] Ranking proveedores por $ comprado en el período ──
+  const comprasProv = {};
+  fCompras.forEach(f=>{
+    const pid = f.proveedorId;
+    const key = pid ? String(pid) : '__sin__';
+    if(!comprasProv[key]) comprasProv[key]={total:0,cant:0};
+    comprasProv[key].total += f.total;
+    comprasProv[key].cant++;
+  });
+  const topProveedores = Object.keys(comprasProv)
+    .map(k=>{
+      let nombre = '— Sin proveedor —';
+      if(k !== '__sin__'){
+        const p=proveedores.find(x=>Number(x.id)===Number(k));
+        nombre = p ? (p.razon||`Proveedor #${k}`) : `Proveedor #${k}`;
+      }
+      return {nombre, ...comprasProv[k]};
+    })
+    .sort((a,b)=>b.total-a.total);
+  const maxProv = topProveedores.length>0?topProveedores[0].total:1;
+  document.getElementById('est-top-proveedores').innerHTML = topProveedores.length===0
+    ? '<div style="color:#999;font-size:0.8rem;text-align:center;padding:20px;">Sin compras en el período</div>'
+    : `<div style="overflow-y:auto;max-height:320px;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+          <thead><tr style="background:#1a1a2e;color:#fff;position:sticky;top:0;">
+            <th style="padding:7px 8px;text-align:left;">#</th>
+            <th style="padding:7px 8px;text-align:left;">Proveedor</th>
+            <th style="padding:7px 8px;text-align:right;">$ Comprado</th>
+            <th style="padding:7px 8px;text-align:right;">Facturas</th>
+            <th style="padding:7px 8px;text-align:right;">%</th>
+          </tr></thead>
+          <tbody>${topProveedores.map((p,i)=>{
+            const pct=(p.total/maxProv*100).toFixed(0);
+            const totalComprasP = fCompras.reduce((a,f)=>a+f.total,0)||1;
+            const pctReal=(p.total/totalComprasP*100).toFixed(1);
+            return `<tr style="background:${i%2?'#fff':'#f7f7fc'};border-bottom:1px solid #eee;">
+              <td style="padding:6px 8px;color:#aaa;font-size:0.72rem;">${i+1}</td>
+              <td style="padding:6px 8px;font-weight:700;">
+                ${p.nombre}
+                <div style="background:#e0ecff;border-radius:3px;height:5px;margin-top:3px;overflow:hidden;">
+                  <div style="width:${pct}%;height:100%;background:#3498db;"></div>
+                </div>
+              </td>
+              <td style="padding:6px 8px;text-align:right;font-weight:800;color:#1a3a6e;">$${fmt(p.total)}</td>
+              <td style="padding:6px 8px;text-align:right;color:#666;">${p.cant}</td>
+              <td style="padding:6px 8px;text-align:right;font-weight:700;color:#3498db;">${pctReal}%</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>`;
 
   // ── Inventario valorizado por familia ──
   const invFam={};
@@ -3891,6 +4625,14 @@ function renderContabilidad(){
   const utilidad = totalVentas - cmv;
   const margen = totalVentas > 0 ? (utilidad / totalVentas * 100) : 0;
 
+  // Gastos operativos del período
+  const gastosPeriodo = gastos.filter(g => {
+    const d = new Date(g.fecha + 'T00:00:00');
+    return !isNaN(d.getTime()) && d >= desde && d <= hasta;
+  });
+  const totalGastos = gastosPeriodo.reduce((a, g) => a + (g.monto || 0), 0);
+  const utilidadNeta = utilidad - totalGastos;
+
   document.getElementById('cont-activos').textContent = '$' + fmt(activos);
   document.getElementById('cont-ventas').textContent = '$' + fmt(totalVentas);
   document.getElementById('cont-ventas-cant').textContent = `${cantVentas} factura${cantVentas!==1?'s':''}`;
@@ -3898,7 +4640,12 @@ function renderContabilidad(){
   document.getElementById('cont-compras-cant').textContent = `${cantCompras} factura${cantCompras!==1?'s':''}`;
   document.getElementById('cont-cmv').textContent = '$' + fmt(cmv);
   document.getElementById('cont-utilidad').textContent = '$' + fmt(utilidad);
-  document.getElementById('cont-margen').textContent = `Margen: ${margen.toFixed(1)}%`;
+  document.getElementById('cont-margen').textContent = `Margen bruto: ${margen.toFixed(1)}%`;
+  // Actualizar panel gastos/neta si existen
+  const gasEl = document.getElementById('cont-gastos');
+  const netaEl = document.getElementById('cont-utilidad-neta');
+  if(gasEl) gasEl.textContent = '$' + fmt(totalGastos);
+  if(netaEl){ netaEl.textContent = '$' + fmt(utilidadNeta); netaEl.style.color = utilidadNeta >= 0 ? '#fff' : '#f09595'; }
 
   // Top productos
   const top = Object.values(ventasPorProducto)
@@ -3964,6 +4711,36 @@ function initEventos(){
   document.getElementById('btn-limpiar-venta')?.addEventListener('click',limpiarVenta);
   document.getElementById('venta-monto-real')?.addEventListener('input',actualizarMatchVenta);
   iniciarScannerCompra(); iniciarScannerVenta(); activarEnterCompra(); activarEnterVenta();
+
+  // ===== TECLA ESC: cierra cualquier modal o panel abierto =====
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+
+    // 1) Primero intentar cerrar modales con clase "open" — el de más alto z-index primero
+    //    El pago-modal no se cierra con ESC solo (requiere confirmar o cancelar)
+    const modalExcluidos = ['pago-modal'];
+    const modalesAbiertos = Array.from(document.querySelectorAll('.modal-overlay.open'))
+      .filter(m => !modalExcluidos.includes(m.id));
+
+    if(modalesAbiertos.length > 0){
+      const top = modalesAbiertos.reduce((a,b)=>{
+        const za = parseInt(window.getComputedStyle(a).zIndex)||0;
+        const zb = parseInt(window.getComputedStyle(b).zIndex)||0;
+        return zb > za ? b : a;
+      });
+      // Si es la ventana de venta, usar cerrarVentanaVenta() para que pida confirmación
+      if(top.id === 'venta-modal'){ cerrarVentanaVenta(); return; }
+      top.classList.remove('open');
+      if(top.id === 'camara-modal') cerrarCamara();
+      return;
+    }
+
+    // 2) Si no hay modales, y el tab activo NO es Stock → volver a Stock
+    const tabStock = document.querySelector('.tab[onclick*="\'stock\'"]');
+    if(tabStock && !tabStock.classList.contains('active')){
+      showTab('stock', tabStock);
+    }
+  });
 }
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 function autenticar(){ return new Promise((resolve)=>{ const ov=document.getElementById('clave-overlay'), inp=document.getElementById('clave-input'), btn=document.getElementById('btn-validar'), err=document.getElementById('clave-error'), rec=document.getElementById('clave-recordar'); if(localStorage.getItem(KEY_AUTH)==="1"){ ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); return; } const validar=()=>{ if(inp.value===CLAVE_ACCESO){ if(rec && rec.checked){ localStorage.setItem(KEY_AUTH,"1"); } ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); } else{ err.textContent='Contraseña incorrecta.'; inp.value=''; inp.focus(); } }; btn.onclick=validar; inp.onkeypress=e=>{if(e.key==='Enter')validar();}; inp.focus(); }); }
@@ -4194,18 +4971,31 @@ function confirmarImportCSV() {
 }
 
 // ========== CÁMARA ==========
+// ========== MÓDULO CÁMARA MEJORADO (nativo + ZXing fallback) ==========
 let camaraStream = null, camaraInterval = null, camarasFacingMode = 'environment', camaraDestino = 'venta';
+let _nativeDetector = null; // BarcodeDetector nativo (Chrome Android / Safari iOS 17+)
 
 async function abrirCamara(destino){
   camaraDestino = destino || 'venta';
   document.getElementById('camara-modal').classList.add('open');
   document.getElementById('camara-status').textContent = 'Iniciando cámara...';
-  if(!window.ZXing){
+
+  // Intentar BarcodeDetector nativo (Chrome Android, Safari 17+, Edge)
+  if(!_nativeDetector && 'BarcodeDetector' in window){
+    try {
+      _nativeDetector = new BarcodeDetector({
+        formats: ['ean_13','ean_8','code_128','code_39','qr_code','upc_a','upc_e','itf','data_matrix']
+      });
+    } catch(e){ _nativeDetector = null; }
+  }
+
+  // Si no hay detector nativo, cargar ZXing
+  if(!_nativeDetector && !window.ZXing){
     await new Promise((resolve)=>{
       const s = document.createElement('script');
       s.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
       s.onload = resolve;
-      s.onerror = ()=>{ document.getElementById('camara-status').textContent='❌ Error. Necesita internet.'; resolve(); };
+      s.onerror = ()=>{ document.getElementById('camara-status').textContent='❌ Necesita internet para cargar el escáner.'; resolve(); };
       document.head.appendChild(s);
     });
   }
@@ -4214,73 +5004,608 @@ async function abrirCamara(destino){
 
 async function iniciarStream(){
   try {
-    if(camaraStream){ camaraStream.getTracks().forEach(t=>t.stop()); }
-    camaraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: camarasFacingMode, width:{ideal:1280}, height:{ideal:720} } });
+    if(camaraStream){ camaraStream.getTracks().forEach(t=>t.stop()); camaraStream = null; }
+
+    // Constraints optimizados para celulares: primero exact, si falla prueba sin exact
+    let stream;
+    const constraintsExact = { video: { facingMode: { exact: camarasFacingMode }, width:{ideal:1280}, height:{ideal:720} } };
+    const constraintsFallback = { video: { facingMode: camarasFacingMode, width:{ideal:1280}, height:{ideal:720} } };
+    const constraintsBasic = { video: true };
+
+    try { stream = await navigator.mediaDevices.getUserMedia(constraintsExact); }
+    catch(e1){
+      try { stream = await navigator.mediaDevices.getUserMedia(constraintsFallback); }
+      catch(e2){ stream = await navigator.mediaDevices.getUserMedia(constraintsBasic); }
+    }
+
+    camaraStream = stream;
     const video = document.getElementById('camara-video');
-    video.srcObject = camaraStream;
+    video.srcObject = stream;
+    video.setAttribute('playsinline','true'); // iOS requiere esto
+    video.setAttribute('muted','true');
+    video.muted = true;
     await video.play();
-    document.getElementById('camara-status').textContent = 'Apuntá al código...';
+
+    const modo = _nativeDetector ? '🔵 Escáner nativo' : '🟡 Escáner ZXing';
+    document.getElementById('camara-status').textContent = `${modo} — Apuntá al código...`;
     iniciarEscaneo();
   } catch(err){
-    document.getElementById('camara-status').textContent = '❌ No se pudo acceder a la cámara.';
+    let msg = '❌ No se pudo acceder a la cámara.';
+    if(err.name === 'NotAllowedError') msg = '❌ Permiso de cámara denegado. Habilitalo en el navegador.';
+    else if(err.name === 'NotFoundError') msg = '❌ No se encontró ninguna cámara.';
+    else if(err.name === 'NotReadableError') msg = '❌ La cámara está en uso por otra app.';
+    document.getElementById('camara-status').textContent = msg;
   }
+}
+
+function _enviarCodigo(codigo){
+  if(navigator.vibrate) navigator.vibrate(100);
+  document.getElementById('camara-status').textContent = '✅ Código: ' + codigo;
+  setTimeout(()=>{
+    cerrarCamara();
+    const inputId = camaraDestino === 'venta' ? 'venta-scan-input' : 'compra-scan-input';
+    const inp = document.getElementById(inputId);
+    if(inp){
+      inp.value = codigo;
+      inp.dispatchEvent(new KeyboardEvent('keydown', {key:'Enter', bubbles:true}));
+    }
+  }, 350);
 }
 
 function iniciarEscaneo(){
   if(camaraInterval) clearInterval(camaraInterval);
-  if(!window.ZXing) return;
-  const reader = new ZXing.MultiFormatReader();
   const video = document.getElementById('camara-video');
   const canvas = document.getElementById('camara-canvas');
   const ctx = canvas.getContext('2d');
+
+  // --- Modo 1: BarcodeDetector nativo (más rápido y confiable en celulares) ---
+  if(_nativeDetector){
+    camaraInterval = setInterval(async ()=>{
+      if(video.readyState < video.HAVE_ENOUGH_DATA || video.paused) return;
+      try {
+        const barcodes = await _nativeDetector.detect(video);
+        if(barcodes && barcodes.length > 0){
+          _enviarCodigo(barcodes[0].rawValue);
+        }
+      } catch(e){}
+    }, 300);
+    return;
+  }
+
+  // --- Modo 2: ZXing (fallback para navegadores sin BarcodeDetector) ---
+  if(!window.ZXing){ document.getElementById('camara-status').textContent = '❌ Escáner no disponible. Necesita internet.'; return; }
+  const reader = new ZXing.MultiFormatReader();
   camaraInterval = setInterval(()=>{
-    if(video.readyState !== video.HAVE_ENOUGH_DATA) return;
+    if(video.readyState < video.HAVE_ENOUGH_DATA || video.paused) return;
     canvas.width = video.videoWidth; canvas.height = video.videoHeight;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     try {
       const luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
       const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
       const result = reader.decode(binaryBitmap);
-      if(result){
-        const codigo = result.getText();
-        if(navigator.vibrate) navigator.vibrate(100);
-        document.getElementById('camara-status').textContent = '✅ Código: ' + codigo;
-        setTimeout(()=>{
-          cerrarCamara();
-          // Enviar al input correcto según el destino
-          if(camaraDestino === 'venta'){
-            const inp = document.getElementById('venta-scan-input');
-            inp.value = codigo;
-            // Disparar evento Enter manualmente
-            const ev = new KeyboardEvent('keydown', {key:'Enter'});
-            inp.dispatchEvent(ev);
-          } else if(camaraDestino === 'compra'){
-            const inp = document.getElementById('compra-scan-input');
-            inp.value = codigo;
-            const ev = new KeyboardEvent('keydown', {key:'Enter'});
-            inp.dispatchEvent(ev);
-          }
-        }, 400);
-      }
+      if(result) _enviarCodigo(result.getText());
     } catch(e){}
   }, 200);
 }
 
 function cambiarCamara(){
   camarasFacingMode = camarasFacingMode === 'environment' ? 'user' : 'environment';
-  if(camaraInterval) clearInterval(camaraInterval);
+  if(camaraInterval){ clearInterval(camaraInterval); camaraInterval = null; }
   iniciarStream();
 }
 
 function cerrarCamara(){
-  if(camaraInterval) clearInterval(camaraInterval);
-  if(camaraStream) camaraStream.getTracks().forEach(t=>t.stop());
-  camaraStream = null; camaraInterval = null;
+  if(camaraInterval){ clearInterval(camaraInterval); camaraInterval = null; }
+  if(camaraStream){ camaraStream.getTracks().forEach(t=>t.stop()); camaraStream = null; }
+  const video = document.getElementById('camara-video');
+  if(video) video.srcObject = null;
   document.getElementById('camara-modal').classList.remove('open');
-  document.getElementById('camara-video').srcObject = null;
 }
 
-autenticar().then(()=>{ (async()=>{ await loadAll(); renderAll(); initEventos(); iniciarInterfazSegunDispositivo(); })(); });
+autenticar().then(()=>{ (async()=>{ await loadAll(); renderAll(); initEventos(); iniciarInterfazSegunDispositivo();
+  // Inicializar rangos de gastos
+  const hoy = new Date().toISOString().split('T')[0];
+  const gasDesde = document.getElementById('gasto-desde');
+  const gasHasta = document.getElementById('gasto-hasta');
+  if(gasDesde && !gasDesde.value) gasDesde.value = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+  if(gasHasta && !gasHasta.value) gasHasta.value = hoy;
+})(); });
+
+// ============================================================
+// ========== MÓDULO DESCUENTOS Y PROMOCIONES =================
+// ============================================================
+let editandoDescId = null;
+
+function abrirModalDescuento(id){
+  editandoDescId = id || null;
+  const hoy = new Date().toISOString().split('T')[0];
+  if(id){
+    const d = descuentos.find(x=>x.id===id);
+    if(!d) return;
+    document.getElementById('desc-modal-titulo').textContent = '✏️ Editar descuento';
+    document.getElementById('desc-nombre').value = d.nombre || '';
+    document.getElementById('desc-tipo').value = d.tipo || 'porcentaje';
+    document.getElementById('desc-valor').value = d.valor || '';
+    document.getElementById('desc-n').value = d.n || 3;
+    document.getElementById('desc-m').value = d.m || 2;
+    document.getElementById('desc-desde').value = d.desde || '';
+    document.getElementById('desc-hasta').value = d.hasta || '';
+    document.getElementById('desc-notas').value = d.notas || '';
+    document.getElementById('desc-producto').value = d.productoNombre || '';
+  } else {
+    document.getElementById('desc-modal-titulo').textContent = '🏷️ Nuevo descuento';
+    document.getElementById('desc-nombre').value = '';
+    document.getElementById('desc-tipo').value = 'porcentaje';
+    document.getElementById('desc-valor').value = '';
+    document.getElementById('desc-n').value = '3';
+    document.getElementById('desc-m').value = '2';
+    document.getElementById('desc-desde').value = hoy;
+    document.getElementById('desc-hasta').value = '';
+    document.getElementById('desc-notas').value = '';
+    document.getElementById('desc-producto').value = '';
+  }
+  // Llenar datalist de productos
+  const dl = document.getElementById('desc-productos-list');
+  if(dl) dl.innerHTML = productos.map(p=>`<option value="${p.marca} ${p.nombre}" data-id="${p.id}">`).join('');
+  renderDescTipoFields();
+  document.getElementById('desc-modal').classList.add('open');
+}
+
+function renderDescTipoFields(){
+  const tipo = document.getElementById('desc-tipo').value;
+  const campoVal = document.getElementById('desc-campo-valor');
+  const campoNxm = document.getElementById('desc-campo-nxm');
+  const campoProd = document.getElementById('desc-campo-producto');
+  const lblVal = document.getElementById('desc-valor-label');
+  campoNxm.style.display = tipo==='nxm' ? 'block' : 'none';
+  campoProd.style.display = tipo==='precio_especial' ? 'block' : 'none';
+  if(tipo==='porcentaje'){ lblVal.textContent='Valor (%)'; campoVal.style.display='block'; }
+  else if(tipo==='monto_fijo'){ lblVal.textContent='Monto fijo ($)'; campoVal.style.display='block'; }
+  else if(tipo==='precio_especial'){ lblVal.textContent='Precio especial ($)'; campoVal.style.display='block'; }
+  else { campoVal.style.display='none'; } // nxm
+}
+
+function guardarDescuento(){
+  const nombre = document.getElementById('desc-nombre').value.trim();
+  if(!nombre){ toast('Falta el nombre'); return; }
+  const tipo = document.getElementById('desc-tipo').value;
+  const valor = parseFloat(document.getElementById('desc-valor').value) || 0;
+  const datos = {
+    nombre, tipo, valor,
+    n: parseInt(document.getElementById('desc-n').value) || 3,
+    m: parseInt(document.getElementById('desc-m').value) || 2,
+    desde: document.getElementById('desc-desde').value,
+    hasta: document.getElementById('desc-hasta').value,
+    notas: document.getElementById('desc-notas').value.trim(),
+    productoNombre: document.getElementById('desc-producto').value.trim(),
+    activo: true
+  };
+  if(editandoDescId){
+    const d = descuentos.find(x=>x.id===editandoDescId);
+    if(d) Object.assign(d, datos);
+    toast('✅ Descuento actualizado');
+  } else {
+    descuentos.push({ id: Date.now(), ...datos });
+    toast('✅ Descuento creado');
+  }
+  document.getElementById('desc-modal').classList.remove('open');
+  saveAll(); renderDescuentos();
+}
+
+function toggleDescuento(id){
+  const d = descuentos.find(x=>x.id===id);
+  if(!d) return;
+  d.activo = !d.activo;
+  saveAll(); renderDescuentos();
+  toast(d.activo ? '✅ Descuento activado' : '⏸️ Descuento pausado');
+}
+
+function eliminarDescuento(id){
+  if(!confirm('¿Eliminar este descuento?')) return;
+  descuentos = descuentos.filter(x=>x.id!==id);
+  saveAll(); renderDescuentos();
+  toast('Descuento eliminado');
+}
+
+function esDescuentoVigente(d){
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  if(d.desde){ const f=new Date(d.desde+'T00:00:00'); if(f>hoy) return false; }
+  if(d.hasta){ const f=new Date(d.hasta+'T23:59:59'); if(f<hoy) return false; }
+  return true;
+}
+
+function descTipoLabel(d){
+  if(d.tipo==='porcentaje') return `${d.valor}% off`;
+  if(d.tipo==='monto_fijo') return `-$${fmt(d.valor)} fijo`;
+  if(d.tipo==='nxm') return `${d.n}×${d.m} (llevás ${d.n} pagás ${d.m})`;
+  if(d.tipo==='precio_especial') return `Precio especial $${fmt(d.valor)}`;
+  return d.tipo;
+}
+
+function renderDescuentos(){
+  const lista = document.getElementById('desc-lista');
+  if(!lista) return;
+  if(!descuentos.length){
+    lista.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#888;">Sin descuentos creados. ¡Creá el primero!</div>';
+  } else {
+    lista.innerHTML = descuentos.map(d => {
+      const vigente = esDescuentoVigente(d);
+      const estadoBg = d.activo && vigente ? '#eaf3de' : '#f0f0f0';
+      const estadoColor = d.activo && vigente ? '#27500a' : '#888';
+      const estadoTxt = !d.activo ? '⏸️ Pausado' : vigente ? '✅ Activo' : '⌛ Fuera de fecha';
+      return `<div style="background:${estadoBg};border:2px solid ${d.activo&&vigente?'#639922':'#ccc'};border-radius:12px;padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+          <div style="font-size:1rem;font-weight:800;color:#1a1a2e;">${d.nombre}</div>
+          <span style="font-size:0.72rem;padding:3px 10px;border-radius:12px;background:${estadoColor};color:#fff;font-weight:700;">${estadoTxt}</span>
+        </div>
+        <div style="font-size:1.3rem;font-weight:900;color:#8b1a8b;margin-bottom:6px;">🏷️ ${descTipoLabel(d)}</div>
+        ${d.notas?`<div style="font-size:0.75rem;color:#666;margin-bottom:6px;">📎 ${d.notas}</div>`:''}
+        ${d.desde||d.hasta?`<div style="font-size:0.72rem;color:#888;margin-bottom:8px;">📅 ${d.desde||'Siempre'} → ${d.hasta||'Sin vencimiento'}</div>`:''}
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button onclick="toggleDescuento(${d.id})" style="flex:1;padding:6px;background:${d.activo?'#e8c84a':'#27500a'};color:${d.activo?'#1a1a2e':'#fff'};border:none;border-radius:6px;cursor:pointer;font-size:0.78rem;font-weight:700;">${d.activo?'⏸️ Pausar':'▶️ Activar'}</button>
+          <button onclick="abrirModalDescuento(${d.id})" style="padding:6px 10px;background:#3498db;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.78rem;">✏️</button>
+          <button onclick="eliminarDescuento(${d.id})" style="padding:6px 10px;background:#e74c3c;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.78rem;">🗑️</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  // Historial de descuentos en facturas
+  const conDesc = facturas.filter(f=>f.tipo==='venta'&&!f.anulada&&f.descuento>0).slice(-20).reverse();
+  const hist = document.getElementById('desc-historial');
+  if(hist){
+    hist.innerHTML = conDesc.length===0
+      ? '— Todavía no se aplicaron descuentos en ventas —'
+      : conDesc.map(f=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;">
+          <span>${f.fecha} · Factura #${String(f.id).slice(-6)}</span>
+          <span style="color:#8b1a8b;font-weight:700;">-$${fmt(f.descuento)} desc. → Total $${fmt(f.total)}</span>
+        </div>`).join('');
+  }
+}
+
+// Descuento durante la venta
+function abrirDescuentoVenta(){
+  if(!ventaLineas.length){ toast('Primero agregá productos'); return; }
+  const subtot = ventaLineas.reduce((a,l)=>a+l.subtotal,0);
+  document.getElementById('desc-venta-total-actual').textContent = '$' + fmt(subtot);
+  document.getElementById('dv-original').textContent = '$' + fmt(subtot);
+  // Llenar select con descuentos activos
+  const activos = descuentos.filter(d=>d.activo && esDescuentoVigente(d));
+  document.getElementById('desc-venta-select').innerHTML =
+    '<option value="">— Elegir descuento —</option>' +
+    activos.map(d=>`<option value="${d.id}">${d.nombre} (${descTipoLabel(d)})</option>`).join('');
+  document.getElementById('desc-venta-manual').value = '';
+  document.getElementById('desc-venta-preview').style.display = 'none';
+  document.getElementById('desc-venta-modal').classList.add('open');
+}
+
+function previsualizarDescuento(){
+  const subtot = ventaLineas.reduce((a,l)=>a+l.subtotal,0);
+  let montoDesc = 0;
+  const sel = document.getElementById('desc-venta-select').value;
+  const manual = parseFloat(document.getElementById('desc-venta-manual').value) || 0;
+  if(sel){
+    const d = descuentos.find(x=>x.id===Number(sel));
+    if(d){
+      if(d.tipo==='porcentaje') montoDesc = subtot * (d.valor/100);
+      else if(d.tipo==='monto_fijo') montoDesc = d.valor;
+      else if(d.tipo==='precio_especial') montoDesc = 0; // producto específico, skip global
+      else if(d.tipo==='nxm'){
+        // Para N×M: el descuento equivale a (N-M)/N del total
+        montoDesc = subtot * ((d.n - d.m) / d.n);
+      }
+    }
+  } else if(manual > 0){
+    montoDesc = subtot * (manual / 100);
+  }
+  montoDesc = Math.round(montoDesc * 100) / 100;
+  const final = Math.max(0, subtot - montoDesc);
+  document.getElementById('dv-original').textContent = '$' + fmt(subtot);
+  document.getElementById('dv-descuento').textContent = '-$' + fmt(montoDesc);
+  document.getElementById('dv-final').textContent = '$' + fmt(final);
+  document.getElementById('desc-venta-preview').style.display = montoDesc > 0 ? 'block' : 'none';
+}
+
+function aplicarDescuentoVenta(){
+  const subtot = ventaLineas.reduce((a,l)=>a+l.subtotal,0);
+  let montoDesc = 0;
+  const sel = document.getElementById('desc-venta-select').value;
+  const manual = parseFloat(document.getElementById('desc-venta-manual').value) || 0;
+  if(sel){
+    const d = descuentos.find(x=>x.id===Number(sel));
+    if(d){
+      if(d.tipo==='porcentaje') montoDesc = subtot * (d.valor/100);
+      else if(d.tipo==='monto_fijo') montoDesc = d.valor;
+      else if(d.tipo==='nxm') montoDesc = subtot * ((d.n - d.m) / d.n);
+    }
+  } else if(manual > 0){
+    montoDesc = subtot * (manual / 100);
+  }
+  montoDesc = Math.round(montoDesc * 100) / 100;
+  if(montoDesc <= 0){ toast('Ingresá un descuento válido'); return; }
+  ventaDescuentoAplicado = montoDesc;
+  document.getElementById('desc-venta-modal').classList.remove('open');
+  renderVentaTabla();
+  toast(`🏷️ Descuento $${fmt(montoDesc)} aplicado`);
+}
+
+// ============================================================
+// ========== MÓDULO GASTOS OPERATIVOS ========================
+// ============================================================
+const CATEGORIAS_GASTO = {
+  servicios:'🔌 Servicios', alquiler:'🏠 Alquiler', sueldos:'👷 Sueldos',
+  insumos:'🛍️ Insumos', impuestos:'🧾 Impuestos', mantenimiento:'🔧 Mantenimiento',
+  transporte:'🚗 Transporte', publicidad:'📢 Publicidad', banco:'🏦 Banco', otro:'📋 Otro'
+};
+const COLORES_CAT = ['#e74c3c','#3498db','#9b59b6','#e67e22','#1abc9c','#34495e','#f39c12','#2980b9','#c0392b','#7f8c8d'];
+
+function abrirModalGasto(){
+  document.getElementById('gasto-concepto').value = '';
+  document.getElementById('gasto-monto').value = '';
+  document.getElementById('gasto-notas').value = '';
+  document.getElementById('gasto-fecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('gasto-categoria').value = 'servicios';
+  document.getElementById('gasto-pago').value = 'efectivo';
+  document.getElementById('gasto-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('gasto-concepto').focus(), 100);
+}
+
+function guardarGasto(){
+  const concepto = document.getElementById('gasto-concepto').value.trim();
+  if(!concepto){ toast('Ingresá el concepto'); return; }
+  const monto = parseFloat(document.getElementById('gasto-monto').value);
+  if(!monto || monto <= 0){ toast('Ingresá un monto válido'); return; }
+  gastos.push({
+    id: Date.now(),
+    fecha: document.getElementById('gasto-fecha').value,
+    concepto,
+    categoria: document.getElementById('gasto-categoria').value,
+    monto,
+    pago: document.getElementById('gasto-pago').value,
+    notas: document.getElementById('gasto-notas').value.trim()
+  });
+  document.getElementById('gasto-modal').classList.remove('open');
+  saveAll(); renderGastos();
+  toast(`✅ Gasto $${fmt(monto)} registrado`);
+}
+
+function eliminarGasto(id){
+  if(!confirm('¿Eliminar este gasto?')) return;
+  gastos = gastos.filter(g=>g.id!==id);
+  saveAll(); renderGastos();
+  toast('Gasto eliminado');
+}
+
+function setRangoGastos(rango){
+  const hoy = new Date(); const fmt2 = d => d.toISOString().split('T')[0];
+  if(rango==='hoy'){ document.getElementById('gasto-desde').value=fmt2(hoy); document.getElementById('gasto-hasta').value=fmt2(hoy); }
+  else if(rango==='semana'){ const l=new Date(hoy); l.setDate(hoy.getDate()-(hoy.getDay()||7)+1); document.getElementById('gasto-desde').value=fmt2(l); document.getElementById('gasto-hasta').value=fmt2(hoy); }
+  else if(rango==='mes'){ document.getElementById('gasto-desde').value=fmt2(new Date(hoy.getFullYear(),hoy.getMonth(),1)); document.getElementById('gasto-hasta').value=fmt2(hoy); }
+  else { document.getElementById('gasto-desde').value='2020-01-01'; document.getElementById('gasto-hasta').value=fmt2(hoy); }
+  renderGastos();
+}
+
+function renderGastos(){
+  const desdeStr = document.getElementById('gasto-desde')?.value;
+  const hastaStr = document.getElementById('gasto-hasta')?.value;
+  const desde = desdeStr ? new Date(desdeStr+'T00:00:00') : new Date(2020,0,1);
+  const hasta = hastaStr ? new Date(hastaStr+'T23:59:59') : new Date();
+  const filtrados = gastos.filter(g => {
+    const d = new Date(g.fecha+'T00:00:00');
+    return !isNaN(d.getTime()) && d >= desde && d <= hasta;
+  }).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+
+  // Resumen por categoría
+  const porCat = {};
+  filtrados.forEach(g=>{ porCat[g.categoria]=(porCat[g.categoria]||0)+g.monto; });
+  const totalGastos = filtrados.reduce((a,g)=>a+g.monto,0);
+  const resumen = document.getElementById('gastos-resumen');
+  if(resumen){
+    const cats = Object.keys(porCat).sort((a,b)=>porCat[b]-porCat[a]);
+    resumen.innerHTML = cats.map((cat,i)=>
+      `<div style="background:${COLORES_CAT[i%COLORES_CAT.length]};color:#fff;padding:14px;border-radius:10px;">
+        <div style="font-size:0.75rem;font-weight:700;margin-bottom:4px;">${CATEGORIAS_GASTO[cat]||cat}</div>
+        <div style="font-size:1.4rem;font-weight:900;">$${fmt(porCat[cat])}</div>
+        <div style="font-size:0.7rem;opacity:0.85;">${((porCat[cat]/totalGastos)*100).toFixed(0)}% del total</div>
+      </div>`
+    ).join('') + (cats.length?`<div style="background:#1a1a2e;color:#e8c84a;padding:14px;border-radius:10px;grid-column:1/-1;">
+      <div style="font-size:0.75rem;font-weight:700;margin-bottom:4px;">TOTAL GASTOS PERÍODO</div>
+      <div style="font-size:2rem;font-weight:900;">$${fmt(totalGastos)}</div>
+    </div>`:'');
+  }
+
+  // Tabla
+  const tbody = document.getElementById('gastos-tbody');
+  const totalEl = document.getElementById('gastos-total');
+  if(!tbody) return;
+  if(filtrados.length===0){
+    tbody.innerHTML = '<tr><td colspan="6" style="padding:30px;text-align:center;color:#999;">— Sin gastos en este período —</td></tr>';
+    if(totalEl) totalEl.textContent = '$0';
+    return;
+  }
+  tbody.innerHTML = filtrados.map((g,i)=>`
+    <tr style="background:${i%2?'#fff':'#fdf5f5'};border-bottom:1px solid #f0e0e0;">
+      <td style="padding:8px;">${g.fecha}</td>
+      <td style="padding:8px;font-weight:600;">${g.concepto}${g.notas?`<div style="font-size:0.72rem;color:#888;">${g.notas}</div>`:''}</td>
+      <td style="padding:8px;">${CATEGORIAS_GASTO[g.categoria]||g.categoria}</td>
+      <td style="padding:8px;text-align:right;font-weight:800;color:#c0392b;font-size:1rem;">$${fmt(g.monto)}</td>
+      <td style="padding:8px;">${g.pago==='efectivo'?'💵 Efectivo':g.pago==='transferencia'?'📱 Transf.':g.pago==='tarjeta'?'💳 Tarjeta':'Otro'}</td>
+      <td style="padding:8px;text-align:center;"><button onclick="eliminarGasto(${g.id})" style="background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.78rem;">🗑️</button></td>
+    </tr>`).join('');
+  if(totalEl) totalEl.textContent = '$' + fmt(totalGastos);
+}
+
+// ============================================================
+// ========== MÓDULO CAJA / TURNO DEL DÍA ====================
+// ============================================================
+function abrirTurno(){
+  document.getElementById('turno-fondo').value = '';
+  document.getElementById('turno-obs').value = '';
+  document.getElementById('turno-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('turno-fondo').focus(), 100);
+}
+
+function confirmarAbrirTurno(){
+  if(turnoActual && !turnoActual.cerrado){ toast('Ya hay un turno abierto'); return; }
+  const fondo = parseFloat(document.getElementById('turno-fondo').value) || 0;
+  turnoActual = {
+    id: Date.now(),
+    apertura: new Date().toISOString(),
+    aperturaStr: nowStr(),
+    fondo,
+    obs: document.getElementById('turno-obs').value.trim(),
+    cerrado: false,
+    cierre: null, cierreStr: null
+  };
+  turnos.push(turnoActual);
+  document.getElementById('turno-modal').classList.remove('open');
+  saveAll(); renderCaja();
+  toast(`🟢 Turno abierto con fondo $${fmt(fondo)}`);
+}
+
+function cerrarTurno(){
+  if(!turnoActual){ toast('No hay turno abierto'); return; }
+  // Calcular resumen
+  const apertura = new Date(turnoActual.apertura);
+  const ventasTurno = facturas.filter(f => {
+    if(f.anulada || f.tipo !== 'venta') return false;
+    const fd = parseFechaFactura(f.fecha);
+    return fd && fd >= apertura;
+  });
+  const gastosTurno = gastos.filter(g => {
+    const d = new Date(g.fecha + 'T00:00:00');
+    return d >= apertura;
+  });
+
+  const totalVentas = ventasTurno.reduce((a,f)=>a+f.total,0);
+  const totalGastos = gastosTurno.reduce((a,g)=>a+g.monto,0);
+  const porFormaPago = {};
+  ventasTurno.forEach(f=>{ const fp=f.formaPago||'efectivo'; porFormaPago[fp]=(porFormaPago[fp]||0)+f.total; });
+  const efectivoVentas = porFormaPago.efectivo || 0;
+  const gastoEfectivo = gastosTurno.filter(g=>g.pago==='efectivo').reduce((a,g)=>a+g.monto,0);
+  const cajaFinal = turnoActual.fondo + efectivoVentas - gastoEfectivo;
+
+  const resumen = document.getElementById('cierre-resumen');
+  resumen.innerHTML = `
+    <div style="display:grid;gap:10px;">
+      <div style="display:flex;justify-content:space-between;background:#f5f5fa;padding:10px 14px;border-radius:8px;">
+        <span>⏰ Apertura</span><strong>${turnoActual.aperturaStr}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;background:#f5f5fa;padding:10px 14px;border-radius:8px;">
+        <span>💵 Fondo inicial</span><strong>$${fmt(turnoActual.fondo)}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;background:#eaf3de;padding:10px 14px;border-radius:8px;">
+        <span>💰 Ventas del turno (${ventasTurno.length})</span><strong style="color:#27500a;">$${fmt(totalVentas)}</strong>
+      </div>
+      ${Object.keys(porFormaPago).map(fp=>`
+        <div style="display:flex;justify-content:space-between;padding:6px 14px;font-size:0.85rem;color:#555;">
+          <span style="padding-left:20px;">&rsaquo; ${fp==='efectivo'?'💵 Efectivo':fp==='transferencia'?'📱 Transferencia':'📋 Cta. Cte.'}</span>
+          <span>$${fmt(porFormaPago[fp])}</span>
+        </div>`).join('')}
+      <div style="display:flex;justify-content:space-between;background:#fdecea;padding:10px 14px;border-radius:8px;">
+        <span>💸 Gastos efectivo del turno</span><strong style="color:#c0392b;">-$${fmt(gastoEfectivo)}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;background:#fff8e1;border:2px solid #f5c842;padding:14px;border-radius:8px;">
+        <span style="font-weight:700;">💵 EFECTIVO ESPERADO EN CAJA</span>
+        <strong style="font-size:1.4rem;color:#7a5800;">$${fmt(cajaFinal)}</strong>
+      </div>
+    </div>`;
+  document.getElementById('cierre-modal').classList.add('open');
+}
+
+function confirmarCierreTurno(){
+  if(!turnoActual) return;
+  turnoActual.cerrado = true;
+  turnoActual.cierre = new Date().toISOString();
+  turnoActual.cierreStr = nowStr();
+  turnoActual = null;
+  document.getElementById('cierre-modal').classList.remove('open');
+  saveAll(); renderCaja();
+  toast('🔴 Turno cerrado');
+}
+
+function renderCaja(){
+  const sinTurno = document.getElementById('caja-sin-turno');
+  const conTurno = document.getElementById('caja-con-turno');
+  const badge = document.getElementById('caja-estado-badge');
+  if(!sinTurno || !conTurno) return;
+
+  if(!turnoActual || turnoActual.cerrado){
+    sinTurno.style.display = 'block';
+    conTurno.style.display = 'none';
+    badge.textContent = '— Sin turno abierto —';
+  } else {
+    sinTurno.style.display = 'none';
+    conTurno.style.display = 'block';
+    badge.textContent = `🟢 Turno abierto desde ${turnoActual.aperturaStr}`;
+
+    const apertura = new Date(turnoActual.apertura);
+    const ventasTurno = facturas.filter(f => {
+      if(f.anulada || f.tipo !== 'venta') return false;
+      const fd = parseFechaFactura(f.fecha);
+      return fd && fd >= apertura;
+    });
+    const gastosTurno = gastos.filter(g => new Date(g.fecha+'T00:00:00') >= apertura);
+    const totalVentas = ventasTurno.reduce((a,f)=>a+f.total,0);
+    const gastoEfectivo = gastosTurno.filter(g=>g.pago==='efectivo').reduce((a,g)=>a+g.monto,0);
+    const porFormaPago = {};
+    ventasTurno.forEach(f=>{ const fp=f.formaPago||'efectivo'; porFormaPago[fp]=(porFormaPago[fp]||0)+f.total; });
+    const efectivoVentas = porFormaPago.efectivo || 0;
+
+    document.getElementById('caja-kpis').innerHTML = [
+      {label:'🧾 Ventas', val:'$'+fmt(totalVentas), bg:'#eaf3de', c:'#27500a'},
+      {label:'🔢 Cant. ventas', val:ventasTurno.length, bg:'#e0ecff', c:'#1a3a6e'},
+      {label:'💸 Gastos', val:'$'+fmt(gastosTurno.reduce((a,g)=>a+g.monto,0)), bg:'#fdecea', c:'#c0392b'},
+      {label:'🎫 Ticket prom.', val:ventasTurno.length?'$'+fmt(totalVentas/ventasTurno.length):'—', bg:'#fff8e1', c:'#7a5800'},
+    ].map(k=>`<div style="background:${k.bg};border-radius:10px;padding:14px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#666;margin-bottom:4px;">${k.label}</div>
+      <div style="font-size:1.5rem;font-weight:900;color:${k.c};">${k.val}</div>
+    </div>`).join('');
+
+    const fpLabels = {efectivo:'💵 Efectivo', transferencia:'📱 Transferencia', cuenta_corriente:'📋 Cta. Cte.'};
+    document.getElementById('caja-pago-detalle').innerHTML = Object.keys(porFormaPago).length===0
+      ? '<div style="color:#888;font-size:0.85rem;">Sin ventas aún</div>'
+      : Object.keys(porFormaPago).map(fp=>`
+          <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:12px;text-align:center;">
+            <div style="font-size:0.75rem;color:#666;font-weight:600;">${fpLabels[fp]||fp}</div>
+            <div style="font-size:1.4rem;font-weight:800;color:#27500a;">$${fmt(porFormaPago[fp])}</div>
+          </div>`).join('');
+
+    document.getElementById('caja-fondo-label').textContent = '$' + fmt(turnoActual.fondo);
+    document.getElementById('caja-efectivo-ventas').textContent = '$' + fmt(efectivoVentas);
+    document.getElementById('caja-efectivo-gastos').textContent = '$' + fmt(gastoEfectivo);
+    document.getElementById('caja-efectivo-total').textContent = '$' + fmt(turnoActual.fondo + efectivoVentas - gastoEfectivo);
+
+    document.getElementById('caja-ventas-lista').innerHTML = ventasTurno.length===0
+      ? '<div style="color:#999;text-align:center;padding:16px;">Sin ventas en este turno</div>'
+      : ventasTurno.slice().reverse().map(f=>`
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee;">
+            <span>${f.fecha} · ${f.formaPago==='efectivo'?'💵':f.formaPago==='transferencia'?'📱':'📋'}</span>
+            <span style="font-weight:700;color:#27500a;">$${fmt(f.total)}</span>
+          </div>`).join('');
+  }
+
+  // Historial turnos cerrados
+  const hist = document.getElementById('caja-historial');
+  const cerrados = turnos.filter(t=>t.cerrado).slice(-10).reverse();
+  if(hist){
+    hist.innerHTML = cerrados.length===0
+      ? '<div style="color:#999;text-align:center;padding:16px;">Sin turnos anteriores</div>'
+      : cerrados.map(t=>{
+          const apertura = new Date(t.apertura);
+          const vt = facturas.filter(f => { if(f.anulada||f.tipo!=='venta') return false; const fd=parseFechaFactura(f.fecha); return fd&&fd>=apertura; });
+          const total = vt.reduce((a,f)=>a+f.total,0);
+          return `<div style="background:#f5f5fa;border:1px solid #ddd;border-radius:8px;padding:12px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+              <div>
+                <div style="font-size:0.85rem;font-weight:700;">📅 ${t.aperturaStr} → ${t.cierreStr||'—'}</div>
+                <div style="font-size:0.72rem;color:#888;">Fondo: $${fmt(t.fondo)} · ${vt.length} ventas</div>
+              </div>
+              <div style="font-size:1.2rem;font-weight:900;color:#27500a;">$${fmt(total)}</div>
+            </div>
+          </div>`;
+        }).join('');
+  }
+}
 </script>
 </body>
 </html>
