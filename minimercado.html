@@ -1390,7 +1390,7 @@ function renderStock(){
 }
 
 function cambiarTipoProducto(id, nuevoTipo) {
-  const prod = productos.find(p=>p.id===id);
+  const prod = productos.find(p=>Number(p.id)===Number(id));
   if(!prod) return;
   if(prod.tipo !== nuevoTipo) {
     if(confirm(`Cambiar tipo de "${prod.nombre}" de ${prod.tipo==='unidad'?'unidad':'peso'} a ${nuevoTipo==='unidad'?'unidad':'peso (kg)'}. El stock actual se convertirá automáticamente (puede redondearse). ¿Continuar?`)) {
@@ -1407,7 +1407,7 @@ function cambiarTipoProducto(id, nuevoTipo) {
 }
 
 function guardarEdicionProducto(id){
-  const prod=productos.find(p=>p.id===id);
+  const prod=productos.find(p=>Number(p.id)===Number(id));
   if(!prod)return;
   let nuevoStock = parseNumero(document.getElementById(`stock-${id}`).value);
   const nuevoPrecio = parseNumero(document.getElementById(`price-${id}`).value);
@@ -1452,7 +1452,7 @@ function agregarProducto(){
   toast(`✅ ${marca} ${nombre} (${tipo==='unidad'?'unidad':'kg'}) agregado`);
 }
 
-function pedirEliminar(id){deleteTarget=id;const prod=productos.find(p=>p.id===id);document.getElementById('modal-del-text').textContent=`Eliminar "${prod.marca} — ${prod.nombre}"`;document.getElementById('modal-del').classList.add('open');}
+function pedirEliminar(id){deleteTarget=id;const prod=productos.find(p=>Number(p.id)===Number(id));document.getElementById('modal-del-text').textContent=`Eliminar "${prod.marca} — ${prod.nombre}"`;document.getElementById('modal-del').classList.add('open');}
 function closeModal(){document.getElementById('modal-del').classList.remove('open');deleteTarget=null;}
 function confirmarEliminar(){if(!deleteTarget)return;productos=productos.filter(p=>p.id!==deleteTarget);delete stock[deleteTarget];saveAll();renderAll();closeModal();toast('Producto eliminado');}
 
@@ -1506,14 +1506,14 @@ let compraLineas=[], compraProductoActualId=null;
 function actualizarDatalistCompra(){ const d=document.getElementById('compra-productos-list'); if(d) d.innerHTML=productos.map(p=>`<option value="${p.marca} ${p.nombre} (Cód: ${p.barcode})">`).join(''); }
 function obtenerProdPorTexto(t){ for(let p of productos) if(`${p.marca} ${p.nombre} (Cód: ${p.barcode})`===t) return p; return null; }
 function compraSeleccionarProdId(id){ 
-  compraProductoActualId=id; const p=productos.find(p=>p.id===id); 
+  compraProductoActualId=id; const p=productos.find(p=>Number(p.id)===Number(id)); 
   if(p){ 
     document.getElementById('compra-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`;
   } 
 }
 function agregarLineaCompra(){
   if(!compraProductoActualId){ const t=document.getElementById('compra-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) compraProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
-  const prod=productos.find(p=>p.id===compraProductoActualId); if(!prod){toast("Producto no encontrado");return;}
+  const prod=productos.find(p=>Number(p.id)===Number(compraProductoActualId)); if(!prod){toast("Producto no encontrado");return;}
   let cant = 1;  // cantidad por defecto 1 (luego pueden editar en tabla)
   let prec = prod.costo || 0;
   if(prec<=0){toast("El producto no tiene costo. Edite el producto o ingrese manualmente en la tabla.");return;}
@@ -1592,7 +1592,7 @@ let ventaLineas=[], ventaProductoActualId=null;
 
 function actualizarDatalistVenta(){ const d=document.getElementById('venta-productos-list'); if(d) d.innerHTML=productos.map(p=>`<option value="${p.marca} ${p.nombre} (Cód: ${p.barcode})">`).join(''); }
 function ventaSeleccionarProdId(id){ 
-  ventaProductoActualId=id; const p=productos.find(p=>p.id===id); 
+  ventaProductoActualId=id; const p=productos.find(p=>Number(p.id)===Number(id)); 
   if(p){ 
     document.getElementById('venta-producto-nombre').value=`${p.marca} ${p.nombre} (Cód: ${p.barcode})`;
   } 
@@ -1601,10 +1601,10 @@ function agregarLineaVenta(){
   if(!ventaProductoActualId){ 
     const t=document.getElementById('venta-producto-nombre').value; 
     const p=obtenerProdPorTexto(t); 
-    if(p) ventaProductoActualId=p.id; 
+    if(p) ventaProductoActualId=Number(p.id); 
     else{ toast("Seleccione producto válido"); return; } 
   }
-  const prod=productos.find(p=>p.id===ventaProductoActualId); 
+  const prod=productos.find(p=>Number(p.id)===Number(ventaProductoActualId)); 
   if(!prod){toast("Producto no encontrado");return;}
   let prec = prod.precio || 0;
   if(prec<=0){toast("El producto no tiene precio de venta.");return;}
@@ -1618,7 +1618,7 @@ function agregarLineaVenta(){
   // Unidad normal
   let cant = 1;
   const antesStock=stock[prod.id]||0;
-  ventaLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioVenta:prec, subtotal:cant*prec, stockAntes:antesStock, tipo:prod.tipo});
+  ventaLineas.push({prodId:Number(prod.id), nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioVenta:prec, subtotal:cant*prec, stockAntes:antesStock, tipo:prod.tipo});
   ventaProductoActualId=null;
   document.getElementById('venta-producto-nombre').value='';
   renderVentaTabla();
@@ -1963,8 +1963,8 @@ function onCambioFormaPagoVenta(){
   }
 }
 
-function iniciarScannerVenta(){ const inp=document.getElementById('venta-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } ventaSeleccionarProdId(p.id); agregarLineaVenta(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
-function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?p.id:null; }); }
+function iniciarScannerVenta(){ const inp=document.getElementById('venta-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } ventaSeleccionarProdId(Number(p.id)); agregarLineaVenta(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
+function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?Number(p.id):null; }); }
 
 function renderLog(){
   const el=document.getElementById('log-list');
@@ -1979,7 +1979,7 @@ function renderLog(){
     else if(m.tipo==='anulacion'){badge='lb-anulacion';text='Anulación';}
     else {badge='lb-ajuste';text='Ajuste';}
     const sg = (m.tipo.includes('salida')||m.tipo==='venta'||m.tipo==='anulacion')?'−':'+';
-    const prod = productos.find(p=>p.id===m.id);
+    const prod = productos.find(p=>Number(p.id)===Number(m.id));
     const unidadTxt = (prod && prod.tipo==='peso') ? 'kg' : 'u';
     return `<div class="log-item"><div><div class="log-main">${m.marca} — ${m.nombre}<span class="log-badge ${badge}">${text}</span>${m.facturaId?` <span style="font-size:0.7rem;">(Factura ${m.facturaId})</span>`:''}</div><div class="log-meta">${m.fecha} · ${fmt(m.antes)} → ${fmt(m.despues)} ${unidadTxt}</div></div><div class="log-qty">${sg}${fmt(m.qty)} ${unidadTxt}</div></div>`;
   }).join('');
@@ -1994,7 +1994,7 @@ function anularFactura(fid){
   if(!f||f.anulada){toast("Factura no válida");return;}
   if(!confirm(`Anular factura ${f.tipo} #${fid} por $${fmt(f.total)}?`)) return;
   for(const l of f.lineas){
-    const prod=productos.find(p=>p.id===l.prodId); if(!prod)continue;
+    const prod=productos.find(p=>Number(p.id)===Number(l.prodId)); if(!prod)continue;
     const antes=stock[prod.id]||0;
     if(f.tipo==='venta') stock[prod.id]=antes+l.cantidad;
     else { stock[prod.id]=Math.max(0,antes-l.cantidad); if(l.costoAnterior!==undefined){ prod.costo=l.costoAnterior; prod.precio=l.precioAnterior; } }
