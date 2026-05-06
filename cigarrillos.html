@@ -378,6 +378,174 @@ body{
   .vsf-total-monto{font-size:1.4rem;}
   .vsf-titulo{font-size:0.95rem;}
 }
+
+/* ============= MÓDULO SURTIDOR ============= */
+.surt-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px;margin-bottom:18px;
+}
+.surt-card{
+  border-radius:14px;padding:18px;cursor:pointer;color:#fff;
+  box-shadow:0 6px 18px rgba(0,0,0,0.18);transition:transform 0.1s, box-shadow 0.1s;
+  position:relative;overflow:hidden;border:none;text-align:left;
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+}
+.surt-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,0.25);}
+.surt-card:active{transform:translateY(0);}
+.surt-card.nafta-super{background:linear-gradient(135deg,#1e7a3e,#2da859);}
+.surt-card.nafta-premium{background:linear-gradient(135deg,#6b1818,#a02828);}
+.surt-card.gasoil-comun{background:linear-gradient(135deg,#1a3d6b,#2a6cb0);}
+.surt-card.gasoil-premium{background:linear-gradient(135deg,#3a2a6b,#5a3da8);}
+.surt-card.gnc{background:linear-gradient(135deg,#a06820,#d68910);}
+.surt-card.otro{background:linear-gradient(135deg,#4a4a5a,#6a6a8a);}
+.surt-nombre{font-size:1.3rem;font-weight:800;letter-spacing:0.5px;margin-bottom:6px;}
+.surt-precio{font-size:2.6rem;font-weight:900;font-family:'Consolas',monospace;line-height:1;margin-bottom:4px;}
+.surt-precio-sub{font-size:0.78rem;opacity:0.85;font-weight:600;letter-spacing:0.5px;}
+.surt-tanque-mini{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.25);}
+.surt-tanque-bar{height:8px;background:rgba(0,0,0,0.25);border-radius:4px;overflow:hidden;margin-top:4px;}
+.surt-tanque-fill{height:100%;background:#fff;border-radius:4px;transition:width 0.3s;}
+.surt-tanque-fill.bajo{background:#f0c040;}
+.surt-tanque-fill.critico{background:#e24b4a;}
+.surt-tanque-info{display:flex;justify-content:space-between;font-size:0.78rem;font-weight:600;opacity:0.95;}
+.surt-precio-edit{
+  display:flex;gap:6px;margin-top:10px;align-items:center;
+}
+.surt-precio-edit input{
+  flex:1;padding:5px 8px;border-radius:5px;border:1px solid rgba(255,255,255,0.4);
+  background:rgba(255,255,255,0.18);color:#fff;font-weight:700;font-family:'Consolas',monospace;
+  font-size:0.85rem;text-align:right;outline:none;
+}
+.surt-precio-edit input::placeholder{color:rgba(255,255,255,0.6);}
+.surt-precio-edit button{
+  background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);
+  color:#fff;border-radius:5px;padding:5px 10px;cursor:pointer;font-size:0.78rem;font-weight:700;
+}
+.surt-precio-edit button:hover{background:rgba(255,255,255,0.35);}
+.surt-card .badge-vacio{
+  position:absolute;top:10px;right:10px;background:#e24b4a;color:#fff;
+  font-size:0.7rem;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:0.5px;
+}
+.surt-card .badge-bajo{
+  position:absolute;top:10px;right:10px;background:#f0c040;color:#1a1a2e;
+  font-size:0.7rem;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:0.5px;
+}
+
+.tanque-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:10px;
+}
+.tanque-card{
+  background:#1a1a2e;color:#fff;border-radius:10px;padding:12px;
+  border:1px solid #2a2a45;
+}
+.tanque-nombre{font-size:0.85rem;font-weight:700;color:#e8c84a;margin-bottom:8px;}
+.tanque-litros{font-size:1.4rem;font-weight:800;font-family:'Consolas',monospace;line-height:1;}
+.tanque-cap{font-size:0.72rem;color:#aaa;margin-top:2px;}
+.tanque-bar-wrap{height:14px;background:#0a0a18;border-radius:7px;overflow:hidden;margin-top:8px;border:1px solid #333;}
+.tanque-bar{height:100%;background:linear-gradient(90deg,#27500a,#3d8011);transition:width 0.3s;}
+.tanque-bar.bajo{background:linear-gradient(90deg,#b08010,#f0c040);}
+.tanque-bar.critico{background:linear-gradient(90deg,#a02020,#e24b4a);}
+.tanque-acciones{display:flex;gap:5px;margin-top:8px;}
+.tanque-acciones button{
+  flex:1;padding:5px;font-size:0.72rem;border-radius:5px;
+  border:1px solid #444;background:#2a2a45;color:#fff;cursor:pointer;font-weight:600;
+}
+.tanque-acciones button:hover{background:#3a3a5a;}
+
+/* Modal de despacho */
+#despacho-modal .modal{
+  width:min(95vw,520px);padding:0;background:#fff;
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;overflow:hidden;
+}
+.desp-header{
+  padding:16px 20px;color:#fff;font-weight:800;font-size:1.1rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.desp-cerrar{
+  background:rgba(255,255,255,0.2);border:none;color:#fff;width:30px;height:30px;
+  border-radius:6px;font-size:1rem;cursor:pointer;
+}
+.desp-body{padding:18px 20px;}
+.desp-precio-lt{
+  background:#f5f5fa;border-radius:8px;padding:10px 14px;margin-bottom:14px;
+  display:flex;justify-content:space-between;align-items:center;border:2px solid #e0e0ec;
+}
+.desp-precio-lt label{font-size:0.78rem;font-weight:700;color:#555;letter-spacing:0.5px;}
+.desp-precio-lt input{
+  width:100px;padding:6px 8px;font-size:1rem;font-weight:700;text-align:right;
+  border:1px solid #c0c0c8;border-radius:5px;font-family:'Consolas',monospace;
+}
+.desp-calc{
+  display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;margin-bottom:16px;
+}
+.desp-calc-arrow{font-size:1.5rem;color:#888;padding-bottom:14px;text-align:center;}
+.desp-calc-grupo label{
+  display:block;font-size:0.78rem;font-weight:700;color:#444;
+  text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;
+}
+.desp-calc-grupo input{
+  width:100%;padding:14px;font-size:1.8rem;font-weight:800;text-align:right;
+  border:2px solid #c0c0c8;border-radius:8px;font-family:'Consolas',monospace;
+  background:#fffef0;color:#1a1a2e;outline:none;
+}
+.desp-calc-grupo input:focus{border-color:#27500a;box-shadow:0 0 0 3px rgba(39,80,10,0.15);}
+.desp-calc-grupo .desp-unidad{font-size:0.72rem;color:#888;margin-top:3px;text-align:right;}
+.desp-rapidos{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
+.desp-rapido{
+  flex:1;min-width:60px;padding:8px 4px;background:#fff;border:1px solid #c0c0c8;
+  border-radius:5px;font-size:0.85rem;font-weight:700;cursor:pointer;color:#333;
+  font-family:'Consolas',monospace;
+}
+.desp-rapido:hover{background:#27500a;color:#fff;border-color:#27500a;}
+.desp-campos{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;
+}
+.desp-campos-full{grid-column:1/-1;}
+.desp-campos label{font-size:0.72rem;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.5px;}
+.desp-campos input,.desp-campos select{
+  width:100%;padding:8px 10px;font-size:0.9rem;border:1px solid #c0c0c8;
+  border-radius:5px;background:#fff;outline:none;margin-top:3px;
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+}
+.desp-campos input:focus,.desp-campos select:focus{border-color:#27500a;}
+.desp-footer{
+  background:#f5f5fa;padding:14px 20px;display:flex;justify-content:space-between;
+  align-items:center;border-top:1px solid #e0e0ec;flex-wrap:wrap;gap:10px;
+}
+.desp-total-box{
+  background:#1a1a2e;color:#fff;padding:8px 18px;border-radius:6px;
+}
+.desp-total-lbl{font-size:0.7rem;font-weight:700;letter-spacing:1.5px;opacity:0.8;}
+.desp-total-monto{font-size:1.6rem;font-weight:900;color:#7be374;font-family:'Consolas',monospace;line-height:1;}
+.desp-btns{display:flex;gap:8px;}
+.desp-btn-cancel{
+  padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;
+  border-radius:5px;font-weight:700;cursor:pointer;font-size:0.9rem;
+}
+.desp-btn-confirm{
+  padding:9px 22px;border:none;background:#27500a;color:#fff;
+  border-radius:5px;font-weight:700;cursor:pointer;font-size:0.9rem;
+}
+.desp-btn-confirm:hover{background:#1f3e07;}
+
+/* Despachos recientes */
+.desp-log-item{
+  background:#fff;border:1px solid #e0e0ec;border-radius:10px;padding:10px 14px;
+  display:grid;grid-template-columns:auto 1fr auto;gap:12px;margin-bottom:6px;align-items:center;
+}
+.desp-log-fuel{
+  font-weight:800;padding:4px 10px;border-radius:6px;color:#fff;font-size:0.78rem;
+  letter-spacing:0.5px;min-width:90px;text-align:center;
+}
+.desp-log-info{font-size:0.85rem;}
+.desp-log-info .meta{font-size:0.72rem;color:#888;margin-top:2px;}
+.desp-log-monto{font-weight:900;font-size:1.05rem;color:#27500a;font-family:'Consolas',monospace;}
+
+@media (max-width:768px){
+  .desp-calc{grid-template-columns:1fr;}
+  .desp-calc-arrow{transform:rotate(90deg);padding:0;}
+  .desp-campos{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
@@ -646,7 +814,8 @@ body{
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('stock',this)">📦 Stock</button>
+  <button class="tab active" onclick="showTab('surtidor',this)">⛽ Surtidor</button>
+  <button class="tab" onclick="showTab('stock',this)">📦 Stock</button>
   <button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button>
   <button class="tab" onclick="showTab('compra',this)">🛒 Compra</button>
   <button class="tab" onclick="showTab('venta',this)">💰 Venta</button>
@@ -658,7 +827,172 @@ body{
   <button class="tab" onclick="showTab('cuentas',this)">💳 Cuentas Corrientes</button>
 </div>
 
-<div id="panel-stock" class="panel active">
+<!-- PANEL SURTIDOR -->
+<div id="panel-surtidor" class="panel active">
+  <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
+    <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#1a1a2e,#3a2e5e);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+      <span style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">⛽ SURTIDOR</span>
+      <span style="font-size:0.85rem;opacity:0.85;">Despacho rápido de combustible</span>
+    </div>
+
+    <!-- Tanques -->
+    <div style="background:#0f0f22;border-radius:12px;padding:14px;margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div style="color:#e8c84a;font-weight:800;font-size:0.95rem;letter-spacing:1px;">🛢️ STOCK DE TANQUES</div>
+        <button onclick="abrirNuevoCombustible()" style="padding:6px 14px;background:#27500a;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.82rem;">➕ Nuevo combustible</button>
+      </div>
+      <div id="tanques-grid" class="tanque-grid"></div>
+    </div>
+
+    <!-- Botones de surtidores -->
+    <div style="font-size:0.85rem;font-weight:800;color:#1a1a2e;margin-bottom:10px;letter-spacing:0.5px;">⚡ DESPACHO RÁPIDO — Tocá el combustible</div>
+    <div id="surtidores-grid" class="surt-grid"></div>
+
+    <!-- Despachos recientes -->
+    <div style="background:#f5f5fa;border-radius:10px;padding:14px;margin-top:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:0.95rem;font-weight:800;color:#1a1a2e;">📋 ÚLTIMOS DESPACHOS</div>
+        <div style="font-size:0.78rem;color:#666;" id="desp-resumen-hoy"></div>
+      </div>
+      <div id="despachos-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DESPACHO -->
+<div class="modal-overlay" id="despacho-modal" style="z-index:2500;">
+  <div class="modal">
+    <div class="desp-header" id="desp-header">
+      <span id="desp-titulo">⛽ Despachar combustible</span>
+      <button class="desp-cerrar" onclick="cerrarDespacho()">✕</button>
+    </div>
+    <div class="desp-body">
+      <!-- Precio por litro editable -->
+      <div class="desp-precio-lt">
+        <label>💲 Precio por litro:</label>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:0.85rem;color:#888;">$</span>
+          <input type="text" id="desp-precio-lt" oninput="recalcularDespachoPorPrecio()">
+          <span style="font-size:0.78rem;color:#888;">/L</span>
+        </div>
+      </div>
+
+      <!-- Calculadora bidireccional -->
+      <div class="desp-calc">
+        <div class="desp-calc-grupo">
+          <label>Litros</label>
+          <input type="text" id="desp-litros" placeholder="0" inputmode="decimal" oninput="calcularDespachoDesdeLitros()">
+          <div class="desp-unidad">L</div>
+        </div>
+        <div class="desp-calc-arrow">⇄</div>
+        <div class="desp-calc-grupo">
+          <label>Pesos</label>
+          <input type="text" id="desp-pesos" placeholder="0" inputmode="decimal" oninput="calcularDespachoDesdePesos()">
+          <div class="desp-unidad">$</div>
+        </div>
+      </div>
+
+      <!-- Botones rápidos -->
+      <div style="font-size:0.72rem;color:#888;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Montos rápidos</div>
+      <div class="desp-rapidos">
+        <button class="desp-rapido" onclick="ponerMontoDespacho(1000)">$1.000</button>
+        <button class="desp-rapido" onclick="ponerMontoDespacho(2000)">$2.000</button>
+        <button class="desp-rapido" onclick="ponerMontoDespacho(5000)">$5.000</button>
+        <button class="desp-rapido" onclick="ponerMontoDespacho(10000)">$10.000</button>
+        <button class="desp-rapido" onclick="ponerMontoDespacho(20000)">$20.000</button>
+        <button class="desp-rapido" onclick="ponerLitrosDespacho('lleno')" style="background:#1a1a2e;color:#fff;">🛢️ TANQUE LLENO</button>
+      </div>
+
+      <!-- Datos del despacho -->
+      <div class="desp-campos">
+        <div class="desp-campos-full">
+          <label>👤 Cliente / Cuenta</label>
+          <select id="desp-cliente" onchange="onCambioClienteDespacho()">
+            <option value="">— Consumidor Final —</option>
+          </select>
+        </div>
+        <div>
+          <label>🚗 Patente / Vehículo</label>
+          <input type="text" id="desp-patente" placeholder="AA123BB" style="text-transform:uppercase;">
+        </div>
+        <div>
+          <label>👷 Empleado / Playero</label>
+          <input type="text" id="desp-empleado" placeholder="Nombre">
+        </div>
+        <div>
+          <label>🔢 Surtidor / Pico</label>
+          <input type="text" id="desp-pico" placeholder="Ej: 1, 2A">
+        </div>
+        <div>
+          <label>💳 Forma de pago</label>
+          <select id="desp-pago" onchange="onCambioPagoDespacho()">
+            <option value="efectivo">💵 Efectivo</option>
+            <option value="transferencia">📱 Transferencia</option>
+            <option value="tarjeta">💳 Tarjeta</option>
+            <option value="cuenta_corriente">📋 Cuenta Corriente</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="desp-footer">
+      <div class="desp-total-box">
+        <div class="desp-total-lbl">TOTAL</div>
+        <div class="desp-total-monto" id="desp-total">$0</div>
+      </div>
+      <div class="desp-btns">
+        <button class="desp-btn-cancel" onclick="cerrarDespacho()">Cancelar</button>
+        <button class="desp-btn-confirm" onclick="confirmarDespacho()">⛽ DESPACHAR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NUEVO COMBUSTIBLE / TANQUE -->
+<div class="modal-overlay" id="combustible-modal" style="z-index:2500;">
+  <div class="modal" style="width:min(95vw,460px);padding:20px;">
+    <div class="modal-title" style="font-size:1.05rem;font-weight:700;color:#333;border-bottom:1px solid #d0d0d0;padding-bottom:8px;margin-bottom:14px;">⛽ Nuevo combustible / tanque</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div style="grid-column:span 2;">
+        <label style="font-size:0.78rem;font-weight:700;color:#444;">Nombre *</label>
+        <input type="text" id="comb-nombre" placeholder="Ej: Nafta Súper" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;">
+      </div>
+      <div>
+        <label style="font-size:0.78rem;font-weight:700;color:#444;">Color visual</label>
+        <select id="comb-color" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;background:#fff;">
+          <option value="nafta-super">🟢 Verde (Súper)</option>
+          <option value="nafta-premium">🔴 Rojo (Premium)</option>
+          <option value="gasoil-comun">🔵 Azul (Gasoil)</option>
+          <option value="gasoil-premium">🟣 Violeta (Gasoil Premium)</option>
+          <option value="gnc">🟠 Naranja (GNC)</option>
+          <option value="otro">⚫ Gris (Otro)</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.78rem;font-weight:700;color:#444;">Capacidad tanque (L)</label>
+        <input type="text" id="comb-capacidad" placeholder="20000" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;">
+      </div>
+      <div>
+        <label style="font-size:0.78rem;font-weight:700;color:#444;">Stock actual (L)</label>
+        <input type="text" id="comb-stock" placeholder="0" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;">
+      </div>
+      <div>
+        <label style="font-size:0.78rem;font-weight:700;color:#444;">Costo por litro ($)</label>
+        <input type="text" id="comb-costo" placeholder="0" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;">
+      </div>
+      <div>
+        <label style="font-size:0.78rem;font-weight:700;color:#444;">Precio venta ($/L) *</label>
+        <input type="text" id="comb-precio" placeholder="0" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;">
+      </div>
+    </div>
+    <div class="modal-btns" style="margin-top:18px;">
+      <button class="btn-cancel" onclick="document.getElementById('combustible-modal').classList.remove('open');">Cancelar</button>
+      <button class="btn-confirm" style="background:#27500a;" onclick="guardarCombustible()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="panel-stock" class="panel">
   <!-- Filtro por familia -->
   <div style="background:#f5f5f5;border:1px solid #c8c8c8;border-radius:6px;padding:10px 14px;margin-bottom:12px;">
     <div style="font-size:0.78rem;font-weight:700;color:#444;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📂 Filtrar por familia / categoría</div>
@@ -3413,7 +3747,570 @@ function cerrarCamara(){
   document.getElementById('camara-video').srcObject = null;
 }
 
-autenticar().then(()=>{ (async()=>{ await loadAll(); renderAll(); initEventos(); iniciarInterfazSegunDispositivo(); })(); });
+// ========================================================================
+// ============================ MÓDULO SURTIDOR ===========================
+// ========================================================================
+
+let despachoActual = null; // {prodId, precioLt}
+
+// Inicialización: si no hay combustibles, crear los típicos
+function inicializarCombustibles(){
+  const yaHay = productos.some(p => p.esCombustible);
+  if(yaHay) return;
+  
+  // Crear los combustibles base (por defecto). El usuario puede borrarlos o agregar más.
+  const baseCombustibles = [
+    {nombre:'Nafta Súper',     color:'nafta-super',    capacidadTanque:20000, precio:1300, costo:1050},
+    {nombre:'Nafta Premium',   color:'nafta-premium',  capacidadTanque:15000, precio:1550, costo:1250},
+    {nombre:'Gasoil Común',    color:'gasoil-comun',   capacidadTanque:25000, precio:1280, costo:1020},
+    {nombre:'Gasoil Premium',  color:'gasoil-premium', capacidadTanque:20000, precio:1480, costo:1180},
+  ];
+  baseCombustibles.forEach(c => {
+    const prod = {
+      id: nextId++,
+      nombre: c.nombre,
+      marca: 'Combustible',
+      familia: 'Combustibles',
+      precio: c.precio,
+      costo: c.costo,
+      barcode: '',
+      tipo: 'litro',
+      esCombustible: true,
+      colorSurtidor: c.color,
+      capacidadTanque: c.capacidadTanque
+    };
+    productos.push(prod);
+    stock[prod.id] = Math.round(c.capacidadTanque * 0.6); // 60% inicial de stock simulado
+  });
+  saveAll();
+  toast('⛽ Combustibles iniciales creados');
+}
+
+function combustibles(){
+  return productos.filter(p => p.esCombustible);
+}
+
+// ========== RENDERIZADO DE TANQUES ==========
+function renderTanques(){
+  const cont = document.getElementById('tanques-grid');
+  if(!cont) return;
+  const fuels = combustibles();
+  if(!fuels.length){
+    cont.innerHTML = '<div style="color:#aaa;font-size:0.85rem;padding:14px;text-align:center;grid-column:1/-1;">No hay combustibles cargados. Agregá uno con el botón ➕</div>';
+    return;
+  }
+  cont.innerHTML = fuels.map(p => {
+    const litros = stock[p.id] || 0;
+    const cap = p.capacidadTanque || 1;
+    const pct = Math.max(0, Math.min(100, (litros/cap)*100));
+    const barClass = pct < 15 ? 'critico' : (pct < 30 ? 'bajo' : '');
+    return `<div class="tanque-card">
+      <div class="tanque-nombre">${p.nombre}</div>
+      <div class="tanque-litros">${fmt(litros)} L</div>
+      <div class="tanque-cap">de ${fmt(cap)} L (${pct.toFixed(0)}%)</div>
+      <div class="tanque-bar-wrap"><div class="tanque-bar ${barClass}" style="width:${pct}%;"></div></div>
+      <div class="tanque-acciones">
+        <button onclick="cargarTanqueRapido(${p.id})" title="Registrar carga al tanque (compra al proveedor)">⛽ Cargar</button>
+        <button onclick="ajustarStockTanque(${p.id})" title="Ajustar manualmente">✏️ Ajustar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ========== RENDERIZADO DE BOTONES DE SURTIDOR ==========
+function renderSurtidoresBotones(){
+  const cont = document.getElementById('surtidores-grid');
+  if(!cont) return;
+  const fuels = combustibles();
+  if(!fuels.length){
+    cont.innerHTML = '<div style="color:#666;font-size:0.9rem;padding:20px;text-align:center;grid-column:1/-1;background:#f5f5fa;border-radius:10px;">No hay combustibles configurados.<br>Agregá uno con el botón "➕ Nuevo combustible"</div>';
+    return;
+  }
+  cont.innerHTML = fuels.map(p => {
+    const litros = stock[p.id] || 0;
+    const cap = p.capacidadTanque || 1;
+    const pct = Math.max(0, Math.min(100, (litros/cap)*100));
+    const color = p.colorSurtidor || 'otro';
+    let badge = '';
+    if(litros <= 0) badge = '<span class="badge-vacio">VACÍO</span>';
+    else if(pct < 15) badge = '<span class="badge-vacio">CRÍTICO</span>';
+    else if(pct < 30) badge = '<span class="badge-bajo">BAJO</span>';
+    
+    const fillClass = pct < 15 ? 'critico' : (pct < 30 ? 'bajo' : '');
+    
+    return `<div class="surt-card ${color}" onclick="abrirDespacho(${p.id})">
+      ${badge}
+      <div class="surt-nombre">⛽ ${p.nombre}</div>
+      <div class="surt-precio">$${fmt(p.precio)}</div>
+      <div class="surt-precio-sub">por litro</div>
+      <div class="surt-tanque-mini">
+        <div class="surt-tanque-info">
+          <span>Tanque: ${fmt(litros)} L</span>
+          <span>${pct.toFixed(0)}%</span>
+        </div>
+        <div class="surt-tanque-bar"><div class="surt-tanque-fill ${fillClass}" style="width:${pct}%;"></div></div>
+      </div>
+      <div class="surt-precio-edit" onclick="event.stopPropagation();">
+        <span style="font-size:0.78rem;font-weight:600;opacity:0.9;">Cambiar $/L:</span>
+        <input type="text" id="precio-rapido-${p.id}" placeholder="${p.precio}" inputmode="decimal">
+        <button onclick="actualizarPrecioRapido(${p.id})">💾</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ========== ACTUALIZACIÓN RÁPIDA DE PRECIO ==========
+function actualizarPrecioRapido(prodId){
+  const inp = document.getElementById('precio-rapido-'+prodId);
+  const nuevo = parseNumero(inp.value);
+  if(isNaN(nuevo) || nuevo <= 0){ toast('Precio inválido'); return; }
+  const prod = productos.find(p => Number(p.id) === Number(prodId));
+  if(!prod) return;
+  const anterior = prod.precio;
+  prod.precio = nuevo;
+  saveAll();
+  renderSurtidoresBotones();
+  toast(`✅ ${prod.nombre}: $${fmt(anterior)} → $${fmt(nuevo)} /L`);
+}
+
+// ========== APERTURA DEL MODAL DE DESPACHO ==========
+function abrirDespacho(prodId){
+  const prod = productos.find(p => Number(p.id) === Number(prodId));
+  if(!prod){ toast('Combustible no encontrado'); return; }
+  const litros = stock[prod.id] || 0;
+  if(litros <= 0){
+    if(!confirm(`⚠️ El tanque de ${prod.nombre} está VACÍO o con saldo negativo (${fmt(litros)} L).\n\n¿Querés despachar igual?`)) return;
+  }
+  
+  despachoActual = { prodId: prod.id, precioLt: prod.precio };
+  
+  // Header con color del combustible
+  const header = document.getElementById('desp-header');
+  const color = prod.colorSurtidor || 'otro';
+  const colorMap = {
+    'nafta-super':    'linear-gradient(135deg,#1e7a3e,#2da859)',
+    'nafta-premium':  'linear-gradient(135deg,#6b1818,#a02828)',
+    'gasoil-comun':   'linear-gradient(135deg,#1a3d6b,#2a6cb0)',
+    'gasoil-premium': 'linear-gradient(135deg,#3a2a6b,#5a3da8)',
+    'gnc':            'linear-gradient(135deg,#a06820,#d68910)',
+    'otro':           'linear-gradient(135deg,#4a4a5a,#6a6a8a)',
+  };
+  header.style.background = colorMap[color] || colorMap.otro;
+  document.getElementById('desp-titulo').textContent = `⛽ Despachar ${prod.nombre}`;
+  
+  // Reset campos
+  document.getElementById('desp-precio-lt').value = prod.precio;
+  document.getElementById('desp-litros').value = '';
+  document.getElementById('desp-pesos').value = '';
+  document.getElementById('desp-total').textContent = '$0';
+  document.getElementById('desp-patente').value = '';
+  document.getElementById('desp-empleado').value = localStorage.getItem('ER_ULTIMO_EMPLEADO') || '';
+  document.getElementById('desp-pico').value = '';
+  document.getElementById('desp-pago').value = 'efectivo';
+  
+  // Llenar select de clientes
+  const sel = document.getElementById('desp-cliente');
+  sel.innerHTML = '<option value="">— Consumidor Final —</option>' +
+    clientes.slice().sort((a,b) => (a.apellido||'').localeCompare(b.apellido||'')).map(c => {
+      const saldo = calcularSaldoCC('cliente', c.id);
+      const lbl = `${c.apellido||''} ${c.nombre||''}${saldo>0?` (Debe $${fmt(saldo)})`:''}`;
+      return `<option value="${c.id}">${lbl}</option>`;
+    }).join('');
+  sel.value = '';
+  
+  document.getElementById('despacho-modal').classList.add('open');
+  setTimeout(() => document.getElementById('desp-litros').focus(), 100);
+}
+
+function cerrarDespacho(){
+  document.getElementById('despacho-modal').classList.remove('open');
+  despachoActual = null;
+}
+
+// ========== CALCULADORA BIDIRECCIONAL ==========
+function getPrecioLtDespacho(){
+  const v = parseNumero(document.getElementById('desp-precio-lt').value);
+  return (!isNaN(v) && v > 0) ? v : (despachoActual ? despachoActual.precioLt : 0);
+}
+
+function calcularDespachoDesdeLitros(){
+  const litros = parseNumero(document.getElementById('desp-litros').value);
+  const precio = getPrecioLtDespacho();
+  if(isNaN(litros) || precio <= 0){ document.getElementById('desp-pesos').value=''; document.getElementById('desp-total').textContent='$0'; return; }
+  const pesos = Math.round(litros * precio);
+  document.getElementById('desp-pesos').value = pesos;
+  document.getElementById('desp-total').textContent = '$' + fmt(pesos);
+}
+
+function calcularDespachoDesdePesos(){
+  const pesos = parseNumero(document.getElementById('desp-pesos').value);
+  const precio = getPrecioLtDespacho();
+  if(isNaN(pesos) || precio <= 0){ document.getElementById('desp-litros').value=''; document.getElementById('desp-total').textContent='$0'; return; }
+  const litros = Math.round((pesos / precio) * 100) / 100;
+  document.getElementById('desp-litros').value = litros;
+  document.getElementById('desp-total').textContent = '$' + fmt(pesos);
+}
+
+function recalcularDespachoPorPrecio(){
+  // Si el usuario cambió el precio/L, recalcular en base a los litros (prioridad)
+  const litros = parseNumero(document.getElementById('desp-litros').value);
+  if(!isNaN(litros) && litros > 0){
+    calcularDespachoDesdeLitros();
+  } else {
+    const pesos = parseNumero(document.getElementById('desp-pesos').value);
+    if(!isNaN(pesos) && pesos > 0) calcularDespachoDesdePesos();
+  }
+}
+
+function ponerMontoDespacho(monto){
+  document.getElementById('desp-pesos').value = monto;
+  calcularDespachoDesdePesos();
+}
+
+function ponerLitrosDespacho(modo){
+  if(modo === 'lleno' && despachoActual){
+    // Tanque lleno: máximo lo que queda en el tanque
+    const restante = stock[despachoActual.prodId] || 0;
+    document.getElementById('desp-litros').value = restante > 0 ? Math.floor(restante) : 0;
+    calcularDespachoDesdeLitros();
+  }
+}
+
+function onCambioPagoDespacho(){
+  const fp = document.getElementById('desp-pago').value;
+  const cli = document.getElementById('desp-cliente');
+  if(fp === 'cuenta_corriente'){
+    cli.style.borderColor = '#e24b4a';
+    cli.style.background = '#fde8e8';
+    if(!cli.value) toast('⚠️ Seleccioná el cliente para cuenta corriente');
+  } else {
+    cli.style.borderColor = '';
+    cli.style.background = '';
+  }
+}
+
+function onCambioClienteDespacho(){
+  // Si elige cliente, sugerimos cuenta corriente automáticamente
+  const cliId = document.getElementById('desp-cliente').value;
+  if(cliId){
+    const cli = clientes.find(c => Number(c.id) === Number(cliId));
+    if(cli && cli.listaPrecio === 'lista2'){
+      // Si el cliente tiene Lista 2 (mayorista/cta cte), sugerir cta cte
+      document.getElementById('desp-pago').value = 'cuenta_corriente';
+      onCambioPagoDespacho();
+    }
+  }
+}
+
+// ========== CONFIRMAR DESPACHO ==========
+async function confirmarDespacho(){
+  if(!despachoActual){ toast('Sin despacho activo'); return; }
+  const prod = productos.find(p => Number(p.id) === Number(despachoActual.prodId));
+  if(!prod){ toast('Combustible no encontrado'); return; }
+  
+  const litros = parseNumero(document.getElementById('desp-litros').value);
+  const pesos = parseNumero(document.getElementById('desp-pesos').value);
+  const precioLt = getPrecioLtDespacho();
+  
+  if(isNaN(litros) || litros <= 0){ toast('⚠️ Ingresá litros o pesos'); return; }
+  if(isNaN(pesos) || pesos <= 0){ toast('⚠️ Total inválido'); return; }
+  
+  const formaPago = document.getElementById('desp-pago').value;
+  const clienteId = document.getElementById('desp-cliente').value;
+  const patente = document.getElementById('desp-patente').value.trim().toUpperCase();
+  const empleado = document.getElementById('desp-empleado').value.trim();
+  const pico = document.getElementById('desp-pico').value.trim();
+  
+  if(formaPago === 'cuenta_corriente' && !clienteId){
+    toast('⚠️ Para cuenta corriente debe seleccionar un cliente');
+    return;
+  }
+  
+  // Construir resumen para confirmación
+  let resumen = `⛽ DESPACHO\n\n`;
+  resumen += `Combustible: ${prod.nombre}\n`;
+  resumen += `Cantidad: ${fmt(litros)} L\n`;
+  resumen += `Precio: $${fmt(precioLt)}/L\n`;
+  resumen += `TOTAL: $${fmt(pesos)}\n\n`;
+  resumen += `Forma de pago: ${formaPago}\n`;
+  if(patente) resumen += `Patente: ${patente}\n`;
+  if(empleado) resumen += `Empleado: ${empleado}\n`;
+  if(pico) resumen += `Pico: ${pico}\n`;
+  if(clienteId){
+    const cli = clientes.find(c => Number(c.id) === Number(clienteId));
+    if(cli) resumen += `Cliente: ${cli.apellido||''} ${cli.nombre||''}\n`;
+  }
+  resumen += `\n¿Confirmar despacho?`;
+  
+  if(!confirm(resumen)) return;
+  
+  // Recordar empleado para próximo despacho
+  if(empleado) localStorage.setItem('ER_ULTIMO_EMPLEADO', empleado);
+  
+  // Si el precio del litro fue modificado, actualizar el producto
+  if(Math.abs(precioLt - prod.precio) > 0.01){
+    prod.precio = precioLt;
+  }
+  
+  const fid = Date.now();
+  const antes = stock[prod.id] || 0;
+  stock[prod.id] = Math.round((antes - litros) * 100) / 100;
+  
+  // Crear factura tipo venta (se integra con contabilidad y cta cte)
+  const factura = {
+    id: fid,
+    fecha: nowStr(),
+    total: pesos,
+    lineas: [{
+      prodId: prod.id,
+      cantidad: litros,
+      precioVenta: precioLt,
+      subtotal: pesos,
+      stockAntes: antes
+    }],
+    tipo: 'venta',
+    anulada: false,
+    clienteId: clienteId ? Number(clienteId) : null,
+    formaPago: formaPago,
+    // Datos específicos de despacho
+    esDespacho: true,
+    patente: patente || null,
+    empleado: empleado || null,
+    pico: pico || null
+  };
+  facturas.push(factura);
+  
+  // Log con etiqueta de despacho
+  addLog('venta', prod, antes, stock[prod.id], litros, fid);
+  
+  // Si es cuenta corriente, registrar movimiento
+  if(formaPago === 'cuenta_corriente' && clienteId){
+    let conceptoExtra = '';
+    if(patente) conceptoExtra += ` [${patente}]`;
+    movimientosCC.push({
+      id: Date.now() + Math.random(),
+      tipo: 'cliente',
+      entidadId: Number(clienteId),
+      fecha: nowStr(),
+      concepto: `Despacho ${prod.nombre} ${fmt(litros)}L${conceptoExtra} #${fid}`,
+      debe: pesos,
+      haber: 0,
+      facturaId: fid
+    });
+  }
+  
+  saveAll();
+  renderAll();
+  cerrarDespacho();
+  toast(`✅ Despacho registrado: ${fmt(litros)}L · $${fmt(pesos)}`);
+}
+
+// ========== AJUSTAR STOCK MANUALMENTE ==========
+function ajustarStockTanque(prodId){
+  const prod = productos.find(p => Number(p.id) === Number(prodId));
+  if(!prod) return;
+  const actual = stock[prod.id] || 0;
+  const nuevo = prompt(`Stock actual de ${prod.nombre}: ${fmt(actual)} L\n\nIngresá el nuevo stock (litros):`, actual);
+  if(nuevo === null) return;
+  const n = parseNumero(nuevo);
+  if(isNaN(n) || n < 0){ toast('Valor inválido'); return; }
+  const antes = actual;
+  stock[prod.id] = Math.round(n * 100) / 100;
+  const diff = stock[prod.id] - antes;
+  addLog('ajuste', prod, antes, stock[prod.id], Math.abs(diff));
+  saveAll();
+  renderAll();
+  toast(`✅ Stock actualizado: ${fmt(antes)} → ${fmt(stock[prod.id])} L`);
+}
+
+// ========== CARGA DE TANQUE (registrar como compra) ==========
+function cargarTanqueRapido(prodId){
+  const prod = productos.find(p => Number(p.id) === Number(prodId));
+  if(!prod) return;
+  
+  const litrosStr = prompt(`⛽ Cargar tanque de ${prod.nombre}\n\nStock actual: ${fmt(stock[prod.id]||0)} L\nCapacidad: ${fmt(prod.capacidadTanque||0)} L\n\nLitros recibidos del proveedor:`);
+  if(litrosStr === null) return;
+  const litros = parseNumero(litrosStr);
+  if(isNaN(litros) || litros <= 0){ toast('Cantidad inválida'); return; }
+  
+  const costoStr = prompt(`Costo por litro recibido (actual: $${fmt(prod.costo||0)}):`, prod.costo || 0);
+  if(costoStr === null) return;
+  const costo = parseNumero(costoStr);
+  if(isNaN(costo) || costo < 0){ toast('Costo inválido'); return; }
+  
+  const total = Math.round(litros * costo);
+  if(!confirm(`Registrar carga al tanque:\n\n${prod.nombre}\n+ ${fmt(litros)} L\nCosto $${fmt(costo)}/L\nTOTAL: $${fmt(total)}\n\n¿Confirmar?`)) return;
+  
+  const fid = Date.now();
+  const antes = stock[prod.id] || 0;
+  stock[prod.id] = Math.round((antes + litros) * 100) / 100;
+  
+  // Actualizar costo si cambió
+  if(Math.abs(costo - (prod.costo||0)) > 0.01){
+    prod.costo = costo;
+  }
+  
+  // Crear factura tipo compra
+  const factura = {
+    id: fid,
+    fecha: nowStr(),
+    total: total,
+    lineas: [{
+      prodId: prod.id,
+      cantidad: litros,
+      precioCosto: costo,
+      subtotal: total,
+      stockAntes: antes
+    }],
+    tipo: 'compra',
+    anulada: false,
+    proveedorId: prod.proveedorId || null,
+    formaPago: 'efectivo',
+    esCargaTanque: true
+  };
+  facturas.push(factura);
+  addLog('compra', prod, antes, stock[prod.id], litros, fid);
+  
+  saveAll();
+  renderAll();
+  toast(`✅ Tanque cargado: +${fmt(litros)}L · $${fmt(total)}`);
+}
+
+// ========== NUEVO COMBUSTIBLE ==========
+function abrirNuevoCombustible(){
+  document.getElementById('comb-nombre').value = '';
+  document.getElementById('comb-color').value = 'nafta-super';
+  document.getElementById('comb-capacidad').value = '20000';
+  document.getElementById('comb-stock').value = '0';
+  document.getElementById('comb-costo').value = '';
+  document.getElementById('comb-precio').value = '';
+  document.getElementById('combustible-modal').classList.add('open');
+  setTimeout(() => document.getElementById('comb-nombre').focus(), 100);
+}
+
+function guardarCombustible(){
+  const nombre = document.getElementById('comb-nombre').value.trim();
+  const color = document.getElementById('comb-color').value;
+  const capacidad = parseNumero(document.getElementById('comb-capacidad').value) || 0;
+  const stockIni = parseNumero(document.getElementById('comb-stock').value) || 0;
+  const costo = parseNumero(document.getElementById('comb-costo').value) || 0;
+  const precio = parseNumero(document.getElementById('comb-precio').value) || 0;
+  
+  if(!nombre){ toast('Falta el nombre'); return; }
+  if(precio <= 0){ toast('Precio de venta inválido'); return; }
+  if(capacidad <= 0){ toast('Capacidad del tanque inválida'); return; }
+  
+  const prod = {
+    id: nextId++,
+    nombre: nombre,
+    marca: 'Combustible',
+    familia: 'Combustibles',
+    precio: precio,
+    costo: costo,
+    barcode: '',
+    tipo: 'litro',
+    esCombustible: true,
+    colorSurtidor: color,
+    capacidadTanque: capacidad
+  };
+  productos.push(prod);
+  stock[prod.id] = stockIni;
+  if(stockIni > 0){
+    addLog('ajuste', prod, 0, stockIni, stockIni);
+  }
+  saveAll();
+  renderAll();
+  document.getElementById('combustible-modal').classList.remove('open');
+  toast(`✅ ${nombre} agregado`);
+}
+
+// ========== DESPACHOS RECIENTES ==========
+function renderDespachos(){
+  const cont = document.getElementById('despachos-list');
+  if(!cont) return;
+  
+  // Solo facturas tipo venta que sean despachos (esDespacho=true) — últimas 15
+  const despachos = facturas
+    .filter(f => f.esDespacho && !f.anulada)
+    .sort((a,b) => b.id - a.id)
+    .slice(0, 15);
+  
+  if(!despachos.length){
+    cont.innerHTML = '<div style="color:#888;font-style:italic;padding:14px;text-align:center;">Aún no hay despachos registrados</div>';
+    document.getElementById('desp-resumen-hoy').textContent = '';
+    return;
+  }
+  
+  // Calcular resumen del día
+  const hoy = new Date().toLocaleDateString('es-AR');
+  const despachosHoy = facturas.filter(f => f.esDespacho && !f.anulada && f.fecha && f.fecha.includes(hoy));
+  let totalLitrosHoy = 0, totalPesosHoy = 0;
+  despachosHoy.forEach(f => {
+    f.lineas.forEach(l => totalLitrosHoy += (l.cantidad||0));
+    totalPesosHoy += (f.total||0);
+  });
+  document.getElementById('desp-resumen-hoy').innerHTML = 
+    `Hoy: <strong>${despachosHoy.length}</strong> despachos · <strong>${fmt(totalLitrosHoy)} L</strong> · <strong style="color:#27500a;">$${fmt(totalPesosHoy)}</strong>`;
+  
+  cont.innerHTML = despachos.map(f => {
+    const linea = f.lineas[0] || {};
+    const prod = productos.find(p => Number(p.id) === Number(linea.prodId));
+    if(!prod) return '';
+    const color = prod.colorSurtidor || 'otro';
+    const colorMap = {
+      'nafta-super':'#2da859','nafta-premium':'#a02828','gasoil-comun':'#2a6cb0',
+      'gasoil-premium':'#5a3da8','gnc':'#d68910','otro':'#6a6a8a'
+    };
+    const bgColor = colorMap[color] || colorMap.otro;
+    
+    let cli = '';
+    if(f.clienteId){
+      const c = clientes.find(c => Number(c.id) === Number(f.clienteId));
+      if(c) cli = ` · 👤 ${c.apellido||''} ${c.nombre||''}`;
+    }
+    const pat = f.patente ? ` · 🚗 ${f.patente}` : '';
+    const emp = f.empleado ? ` · 👷 ${f.empleado}` : '';
+    const pico = f.pico ? ` · #${f.pico}` : '';
+    
+    const pagoEmoji = {efectivo:'💵',transferencia:'📱',tarjeta:'💳',cuenta_corriente:'📋'};
+    
+    return `<div class="desp-log-item">
+      <div class="desp-log-fuel" style="background:${bgColor};">${prod.nombre}</div>
+      <div class="desp-log-info">
+        <div><strong>${fmt(linea.cantidad||0)} L</strong> a $${fmt(linea.precioVenta||0)}/L · ${pagoEmoji[f.formaPago]||''} ${f.formaPago}</div>
+        <div class="meta">${f.fecha}${pat}${cli}${emp}${pico}</div>
+      </div>
+      <div class="desp-log-monto">$${fmt(f.total||0)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ========== RENDER PRINCIPAL DEL SURTIDOR ==========
+function renderSurtidor(){
+  renderTanques();
+  renderSurtidoresBotones();
+  renderDespachos();
+}
+
+// ========== HOOK EN renderAll Y showTab ==========
+// Sobreescribimos las funciones existentes para que también actualicen surtidor
+const _renderAllOriginal = renderAll;
+renderAll = function(){
+  _renderAllOriginal();
+  renderSurtidor();
+};
+
+const _showTabOriginal = showTab;
+showTab = function(name, btn){
+  _showTabOriginal(name, btn);
+  if(name === 'surtidor') renderSurtidor();
+};
+
+// ========================================================================
+// =================== FIN MÓDULO SURTIDOR ===============================
+// ========================================================================
+
+autenticar().then(()=>{ (async()=>{ await loadAll(); inicializarCombustibles(); renderAll(); initEventos(); iniciarInterfazSegunDispositivo(); })(); });
 </script>
 </body>
 </html>
