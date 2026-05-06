@@ -727,11 +727,33 @@ body{
         <input list="compra-productos-list" id="compra-producto-nombre" class="field-input" placeholder="Escribí nombre, marca o código...">
         <datalist id="compra-productos-list"></datalist>
       </div>
-      <div><button class="btn-action btn-compra" id="btn-agregar-linea-compra" style="padding:8px 16px;">➕ Agregar</button></div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-action btn-compra" id="btn-agregar-linea-compra" style="padding:8px 16px;">➕ Agregar</button>
+        <button onclick="abrirNuevoProductoDesdeCompra()" style="padding:8px 14px;border-radius:10px;border:none;background:#3498db;color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;" title="Crear producto nuevo sin perder esta compra">🆕 Nuevo producto</button>
+      </div>
     </div>
 
     <div style="overflow-x:auto; margin-top:16px;">
-      <table class="factura-table" id="compra-tabla"><thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th><tr></thead><tbody id="compra-lineas-tbody"></tbody><tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
+      <table class="factura-table" id="compra-tabla" style="font-size:0.85rem;">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th style="width:70px;">Cant.</th>
+            <th style="width:90px;">Costo c/u</th>
+            <th style="width:90px;">P. Venta</th>
+            <th style="width:75px;">Util %</th>
+            <th style="width:100px;">Subtotal</th>
+            <th style="width:30px;"></th>
+          </tr>
+        </thead>
+        <tbody id="compra-lineas-tbody"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="5" style="text-align:right;font-weight:700;">Total compra:</td>
+            <td id="compra-total-pesos" style="font-weight:bold;color:#27500a;">$0</td>
+            <td></td>
+          </tr>
+        </tfoot>
       </table>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
@@ -1377,6 +1399,74 @@ body{
   </div>
 </div>
 
+<!-- MODAL NUEVO PRODUCTO RÁPIDO (desde compra) -->
+<div class="modal-overlay" id="nuevo-prod-modal" style="z-index:2700;">
+  <div class="modal" style="width:min(95vw,560px);padding:20px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+    <div style="background:#1a1a2e;color:#fff;padding:10px 14px;border-radius:5px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:1rem;font-weight:700;">🆕 Nuevo producto (rápido)</span>
+      <button onclick="document.getElementById('nuevo-prod-modal').classList.remove('open');" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:28px;height:28px;border-radius:5px;font-size:1rem;cursor:pointer;">✕</button>
+    </div>
+    <div style="background:#fff8e1;border:1px solid #f5c842;border-radius:5px;padding:8px 12px;margin-bottom:12px;font-size:0.78rem;color:#7a5800;">
+      💡 Creá el producto y volverás a la compra automáticamente.
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Código de barras</label>
+        <input type="text" id="np-codigo" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;font-family:'Consolas',monospace;" placeholder="Escaneá o tipea">
+      </div>
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Tipo de venta</label>
+        <select id="np-tipo" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;background:#fff;">
+          <option value="unidad">Unidad (por pieza)</option>
+          <option value="peso">Peso (por kg)</option>
+          <option value="litro">Líquido (por litro)</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Descripción *</label>
+        <input type="text" id="np-nombre" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;" placeholder="Ej: Manzana red">
+      </div>
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Marca</label>
+        <input type="text" id="np-marca" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;" placeholder="Marca">
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Familia</label>
+      <input list="np-familia-list" id="np-familia" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;" placeholder="Categoría">
+      <datalist id="np-familia-list"></datalist>
+    </div>
+
+    <div style="background:#f5f5f5;border:1px solid #c8c8c8;border-radius:5px;padding:10px;margin-bottom:14px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#444;margin-bottom:8px;text-transform:uppercase;">💰 Precios</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div>
+          <label style="font-size:0.7rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Costo</label>
+          <input type="text" id="np-costo" style="width:100%;padding:7px;border:2px solid #4a7eb8;border-radius:3px;font-size:0.9rem;font-weight:700;background:#eaf3ff;font-family:monospace;text-align:right;" oninput="npCalcPrecio()">
+        </div>
+        <div>
+          <label style="font-size:0.7rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Utilidad %</label>
+          <input type="text" id="np-utilidad" value="40" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.9rem;font-weight:700;font-family:monospace;text-align:right;" oninput="npCalcPrecio()">
+        </div>
+        <div>
+          <label style="font-size:0.7rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">P. Venta</label>
+          <input type="text" id="np-precio" style="width:100%;padding:7px;border:2px solid #27500a;border-radius:3px;font-size:0.9rem;font-weight:700;background:#f0f8e8;font-family:monospace;text-align:right;" oninput="npCalcUtil()">
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #ddd;padding-top:12px;">
+      <button onclick="document.getElementById('nuevo-prod-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:3px;font-weight:600;cursor:pointer;font-size:0.9rem;">Cancelar</button>
+      <button onclick="guardarNuevoProductoDesdeCompra()" style="padding:9px 22px;border:1px solid #1f5005;background:#27500a;color:#fff;border-radius:3px;font-weight:700;cursor:pointer;font-size:0.9rem;">💾 Crear y volver a compra</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- cierre app-contenido -->
 
 <script>
@@ -1687,6 +1777,91 @@ function pdCalcularDesdePrecio(){
     const util = ((precio - costo) / costo * 100).toFixed(1);
     document.getElementById('pd-utilidad').value = util;
   }
+}
+
+// ========== NUEVO PRODUCTO RÁPIDO DESDE COMPRA ==========
+function abrirNuevoProductoDesdeCompra(){
+  // Cargar familias en el datalist
+  const fams = obtenerListaFamilias();
+  document.getElementById('np-familia-list').innerHTML = fams.map(f => `<option value="${f}">`).join('');
+  // Limpiar campos
+  ['np-codigo','np-nombre','np-marca','np-familia','np-costo','np-precio'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('np-utilidad').value = '40';
+  document.getElementById('np-tipo').value = 'unidad';
+  // Si ya hay texto en compra-producto-nombre, usarlo como sugerencia
+  const sug = document.getElementById('compra-producto-nombre').value.trim();
+  if(sug && !sug.includes('(Cód:')) {
+    document.getElementById('np-nombre').value = sug;
+  }
+  document.getElementById('nuevo-prod-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('np-codigo').focus(), 100);
+}
+
+function npCalcPrecio(){
+  const costo = parseNumero(document.getElementById('np-costo').value);
+  const util = parseNumero(document.getElementById('np-utilidad').value);
+  if(!isNaN(costo) && costo > 0 && !isNaN(util)){
+    const precio = costo * (1 + util/100);
+    document.getElementById('np-precio').value = Math.round(precio);
+  }
+}
+
+function npCalcUtil(){
+  const costo = parseNumero(document.getElementById('np-costo').value);
+  const precio = parseNumero(document.getElementById('np-precio').value);
+  if(!isNaN(costo) && costo > 0 && !isNaN(precio) && precio > 0){
+    const util = ((precio - costo) / costo * 100).toFixed(1);
+    document.getElementById('np-utilidad').value = util;
+  }
+}
+
+function guardarNuevoProductoDesdeCompra(){
+  const nombre = document.getElementById('np-nombre').value.trim();
+  if(!nombre){ toast('La descripción es obligatoria'); return; }
+  const codigo = document.getElementById('np-codigo').value.trim();
+  if(codigo && productos.some(p => p.barcode === codigo)){
+    toast('❌ Ya existe un producto con ese código');
+    return;
+  }
+  const marca = document.getElementById('np-marca').value.trim() || 'General';
+  const familia = document.getElementById('np-familia').value.trim() || marca;
+  const costo = parseNumero(document.getElementById('np-costo').value) || 0;
+  const precio = parseNumero(document.getElementById('np-precio').value) || 0;
+  const tipo = document.getElementById('np-tipo').value;
+
+  const id = (productos.length ? Math.max(...productos.map(p => Number(p.id) || 0)) : 0) + 1;
+  const nuevo = {
+    id: id,
+    nombre: nombre,
+    marca: marca,
+    familia: familia,
+    barcode: codigo,
+    costo: costo,
+    precio: precio,
+    precioCasa: costo,
+    precioLista2: precio,
+    tipo: tipo,
+    stockMin: 0,
+    stockIdeal: 0,
+    proveedorId: null,
+    notas: ''
+  };
+  productos.push(nuevo);
+  stock[id] = 0;
+  saveAll();
+  actualizarDatalistCompra();
+  actualizarDatalistVenta();
+
+  // Cerrar modal y agregar a la compra automáticamente
+  document.getElementById('nuevo-prod-modal').classList.remove('open');
+  toast(`✅ ${nombre} creado · Agregado a la compra`);
+
+  // Auto-agregar a la compra
+  compraProductoActualId = id;
+  document.getElementById('compra-producto-nombre').value = `${marca} ${nombre} (Cód: ${codigo})`;
+  agregarLineaCompra();
 }
 
 function pdCopiarCostoACasa(){
@@ -2000,24 +2175,114 @@ function compraSeleccionarProdId(id){
 function agregarLineaCompra(){
   if(!compraProductoActualId){ const t=document.getElementById('compra-producto-nombre').value; const p=obtenerProdPorTexto(t); if(p) compraProductoActualId=p.id; else{ toast("Seleccione producto válido"); return; } }
   const prod=productos.find(p=>Number(p.id)===Number(compraProductoActualId)); if(!prod){toast("Producto no encontrado");return;}
-  let cant = 1;  // cantidad por defecto 1 (luego pueden editar en tabla)
-  let prec = prod.costo || 0;
-  if(prec<=0){toast("El producto no tiene costo. Edite el producto o ingrese manualmente en la tabla.");return;}
+  let cant = 1;
+  let costo = prod.costo || 0;
+  let precioVenta = prod.precio || 0;
+  // Calcular utilidad inicial
+  let util = 0;
+  if(costo > 0 && precioVenta > 0) util = ((precioVenta - costo) / costo) * 100;
   if(prod.tipo==='unidad') cant = Math.round(cant);
   else cant = Math.round(cant * 100) / 100;
-  compraLineas.push({prodId:prod.id, nombre:`${prod.marca} — ${prod.nombre}`, cantidad:cant, precioCosto:prec, subtotal:cant*prec, costoAnterior:prod.costo, precioAnterior:prod.precio, stockAnterior:stock[prod.id]||0, tipo:prod.tipo});
+  compraLineas.push({
+    prodId: prod.id,
+    nombre: `${prod.marca} — ${prod.nombre}`,
+    cantidad: cant,
+    precioCosto: costo,
+    precioVenta: precioVenta,  // precio de venta editable
+    utilidad: util,             // % de utilidad
+    subtotal: cant * costo,
+    costoAnterior: prod.costo,
+    precioAnterior: prod.precio,
+    stockAnterior: stock[prod.id] || 0,
+    tipo: prod.tipo
+  });
+  document.getElementById('compra-producto-nombre').value = '';
+  compraProductoActualId = null;
   renderCompraTabla();
+  document.getElementById('compra-producto-nombre').focus();
 }
 function eliminarLineaCompra(i){compraLineas.splice(i,1);renderCompraTabla();}
 function renderCompraTabla(){
   const tbody=document.getElementById('compra-lineas-tbody'); if(!tbody)return;
-  if(compraLineas.length===0){ tbody.innerHTML='</td><td colspan="5" style="text-align:center">Sin líneas</td><tr>'; document.getElementById('compra-total-pesos').innerText='$0'; return; }
+  if(compraLineas.length===0){ tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">— Sin productos en esta compra —</td></tr>'; document.getElementById('compra-total-pesos').innerText='$0'; return; }
   let total=0, html='';
-  compraLineas.forEach((l,i)=>{ total+=l.subtotal; html+=`<tr data-idx="${i}"><td>${l.nombre}</td><td><input type="text" class="edit-cantidad" value="${fmt(l.cantidad)}" style="width:80px;"></td><td><input type="text" class="edit-precio" value="${fmt(l.precioCosto)}" style="width:90px;"></td><td class="subtotal-cell">$${fmt(l.subtotal)}</td><td><button class="del-row" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;">✕</button></td></tr>`; });
-  tbody.innerHTML=html; document.getElementById('compra-total-pesos').innerHTML=`$${fmt(total)}`;
-  document.querySelectorAll('#compra-lineas-tbody .edit-cantidad').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseNumero(inp.value); if(!isNaN(n)&&n>0){ compraLineas[i].cantidad = Math.round(n*1000)/1000; compraLineas[i].subtotal=compraLineas[i].cantidad*compraLineas[i].precioCosto; renderCompraTabla(); actualizarMatchCompra(); } else inp.value=fmt(compraLineas[i].cantidad); }; });
-  document.querySelectorAll('#compra-lineas-tbody .edit-precio').forEach((inp,i)=>{ inp.onchange=()=>{ let n=parseNumero(inp.value); if(!isNaN(n)&&n>=0){ compraLineas[i].precioCosto=n; compraLineas[i].subtotal=compraLineas[i].cantidad*compraLineas[i].precioCosto; renderCompraTabla(); actualizarMatchCompra(); } else inp.value=fmt(compraLineas[i].precioCosto); }; });
-  document.querySelectorAll('#compra-lineas-tbody .del-row').forEach(btn=>{ btn.onclick=()=>{ eliminarLineaCompra(parseInt(btn.getAttribute('data-idx'))); }; });
+  compraLineas.forEach((l,i)=>{
+    total += l.subtotal;
+    // Indicador si el costo cambió respecto al anterior
+    const costoCambio = (l.costoAnterior && l.precioCosto !== l.costoAnterior) 
+      ? `<div style="font-size:0.68rem;color:${l.precioCosto > l.costoAnterior ? '#c0392b' : '#27500a'};">Antes: $${fmt(l.costoAnterior)}</div>` 
+      : '';
+    html += `<tr data-idx="${i}">
+      <td>
+        <div style="font-weight:600;">${l.nombre}</div>
+        ${costoCambio}
+      </td>
+      <td><input type="text" class="edit-cantidad-c" value="${fmt(l.cantidad)}" style="width:60px;text-align:right;font-family:monospace;"></td>
+      <td><input type="text" class="edit-costo-c" value="${fmt(l.precioCosto)}" style="width:80px;text-align:right;font-family:monospace;background:#eaf3ff;font-weight:600;" title="Costo de compra"></td>
+      <td><input type="text" class="edit-precio-venta-c" value="${fmt(l.precioVenta)}" style="width:80px;text-align:right;font-family:monospace;background:#f0f8e8;font-weight:600;" title="Precio de venta nuevo"></td>
+      <td><input type="text" class="edit-utilidad-c" value="${l.utilidad ? l.utilidad.toFixed(1) : '0'}" style="width:65px;text-align:right;font-family:monospace;color:#5a3300;font-weight:600;" title="% de utilidad"></td>
+      <td class="subtotal-cell" style="text-align:right;font-weight:700;font-family:monospace;">$${fmt(l.subtotal)}</td>
+      <td><button class="del-row" data-idx="${i}" style="background:none;border:none;color:#e24b4a;cursor:pointer;font-size:1rem;">✕</button></td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+  document.getElementById('compra-total-pesos').innerHTML = `$${fmt(total)}`;
+
+  // Cantidad
+  document.querySelectorAll('#compra-lineas-tbody .edit-cantidad-c').forEach((inp,i)=>{
+    inp.onchange = () => {
+      let n = parseNumero(inp.value);
+      if(!isNaN(n) && n > 0){
+        compraLineas[i].cantidad = Math.round(n * 1000) / 1000;
+        compraLineas[i].subtotal = compraLineas[i].cantidad * compraLineas[i].precioCosto;
+        renderCompraTabla(); actualizarMatchCompra();
+      } else inp.value = fmt(compraLineas[i].cantidad);
+    };
+  });
+  // Costo - cuando cambia el costo, recalcular precio venta según utilidad actual
+  document.querySelectorAll('#compra-lineas-tbody .edit-costo-c').forEach((inp,i)=>{
+    inp.onchange = () => {
+      let n = parseNumero(inp.value);
+      if(!isNaN(n) && n >= 0){
+        compraLineas[i].precioCosto = n;
+        compraLineas[i].subtotal = compraLineas[i].cantidad * n;
+        // Mantener la utilidad y recalcular precio venta
+        if(compraLineas[i].utilidad > 0){
+          compraLineas[i].precioVenta = Math.round(n * (1 + compraLineas[i].utilidad / 100));
+        }
+        renderCompraTabla(); actualizarMatchCompra();
+      } else inp.value = fmt(compraLineas[i].precioCosto);
+    };
+  });
+  // Precio venta - cuando cambia, recalcular utilidad
+  document.querySelectorAll('#compra-lineas-tbody .edit-precio-venta-c').forEach((inp,i)=>{
+    inp.onchange = () => {
+      let n = parseNumero(inp.value);
+      if(!isNaN(n) && n >= 0){
+        compraLineas[i].precioVenta = n;
+        if(compraLineas[i].precioCosto > 0){
+          compraLineas[i].utilidad = ((n - compraLineas[i].precioCosto) / compraLineas[i].precioCosto) * 100;
+        }
+        renderCompraTabla();
+      } else inp.value = fmt(compraLineas[i].precioVenta);
+    };
+  });
+  // Utilidad - cuando cambia, recalcular precio venta
+  document.querySelectorAll('#compra-lineas-tbody .edit-utilidad-c').forEach((inp,i)=>{
+    inp.onchange = () => {
+      let n = parseNumero(inp.value);
+      if(!isNaN(n)){
+        compraLineas[i].utilidad = n;
+        if(compraLineas[i].precioCosto > 0){
+          compraLineas[i].precioVenta = Math.round(compraLineas[i].precioCosto * (1 + n / 100));
+        }
+        renderCompraTabla();
+      } else inp.value = (compraLineas[i].utilidad || 0).toFixed(1);
+    };
+  });
+  document.querySelectorAll('#compra-lineas-tbody .del-row').forEach(btn => {
+    btn.onclick = () => eliminarLineaCompra(parseInt(btn.getAttribute('data-idx')));
+  });
   actualizarMatchCompra();
 }
 function actualizarMatchCompra(){ const total=compraLineas.reduce((a,l)=>a+l.subtotal,0); const real=parseNumero(document.getElementById('compra-monto-real').value); const ind=document.getElementById('compra-match-indicator'); if(!isNaN(real)&&real>0){ const diff=Math.abs(total-real); ind.innerHTML=diff<0.01?'✅ Coincide':`⚠️ Diferencia: $${fmt(diff)}`; } else ind.innerHTML=''; }
@@ -2037,9 +2302,16 @@ function confirmarCompra(){
     const prod=productos.find(p=>Number(p.id)===Number(l.prodId)); if(!prod)continue;
     const antes=stock[Number(prod.id)]||0;
     stock[Number(prod.id)]=antes+l.cantidad;
-    const margen= (prod.costo>0 && prod.precio>prod.costo) ? (prod.precio-prod.costo)/prod.costo : 0.4;
-    prod.costo=l.precioCosto; prod.precio=Math.round(l.precioCosto*(1+margen));
-    lineas.push({prodId:Number(prod.id), cantidad:l.cantidad, precioCosto:l.precioCosto, subtotal:l.subtotal, costoAnterior:l.costoAnterior, precioAnterior:l.precioAnterior, stockAnterior:l.stockAnterior});
+    // Actualizar costo
+    prod.costo = l.precioCosto;
+    // Si la línea tiene precioVenta (nuevo), usarlo. Si no, recalcular con margen anterior
+    if(l.precioVenta && l.precioVenta > 0){
+      prod.precio = l.precioVenta;
+    } else {
+      const margen = (prod.costo > 0 && prod.precio > prod.costo) ? (prod.precio - prod.costo) / prod.costo : 0.4;
+      prod.precio = Math.round(l.precioCosto * (1 + margen));
+    }
+    lineas.push({prodId:Number(prod.id), cantidad:l.cantidad, precioCosto:l.precioCosto, precioVenta:l.precioVenta, subtotal:l.subtotal, costoAnterior:l.costoAnterior, precioAnterior:l.precioAnterior, stockAnterior:l.stockAnterior});
     addLog('compra',prod,antes,stock[Number(prod.id)],l.cantidad,fid);
   }
   
