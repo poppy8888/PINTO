@@ -659,6 +659,11 @@ body{
 </div>
 
 <div id="panel-stock" class="panel active">
+  <!-- Filtro por familia -->
+  <div style="background:#f5f5f5;border:1px solid #c8c8c8;border-radius:6px;padding:10px 14px;margin-bottom:12px;">
+    <div style="font-size:0.78rem;font-weight:700;color:#444;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📂 Filtrar por familia / categoría</div>
+    <div id="familia-pills" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+  </div>
   <div class="search-bar">
     <input type="text" id="search-product" placeholder="Buscar por marca, nombre o código..." autocomplete="off">
     <button onclick="renderStock()">🔍 Buscar</button>
@@ -892,6 +897,13 @@ body{
       <div style="grid-column:span 2;"><label style="font-size:0.78rem;font-weight:700;color:#444;text-transform:uppercase;">Domicilio</label><input type="text" id="cli-dom" style="width:100%;padding:9px;border:2px solid #c8c8d8;border-radius:8px;font-size:0.95rem;"></div>
       <div><label style="font-size:0.78rem;font-weight:700;color:#444;text-transform:uppercase;">Ciudad</label><input type="text" id="cli-ciudad" style="width:100%;padding:9px;border:2px solid #c8c8d8;border-radius:8px;font-size:0.95rem;"></div>
       <div><label style="font-size:0.78rem;font-weight:700;color:#444;text-transform:uppercase;">Email</label><input type="text" id="cli-email" style="width:100%;padding:9px;border:2px solid #c8c8d8;border-radius:8px;font-size:0.95rem;"></div>
+      <div><label style="font-size:0.78rem;font-weight:700;color:#444;text-transform:uppercase;">Lista de precios</label>
+        <select id="cli-lista" style="width:100%;padding:9px;border:2px solid #c8c8d8;border-radius:8px;font-size:0.95rem;background:#fff;">
+          <option value="lista1">Lista 1 (Normal)</option>
+          <option value="lista2">Lista 2 (Cta. Cte.)</option>
+          <option value="casa">🏠 Casa (a costo)</option>
+        </select>
+      </div>
       <div style="grid-column:span 2;"><label style="font-size:0.78rem;font-weight:700;color:#444;text-transform:uppercase;">Notas</label><textarea id="cli-notas" rows="2" style="width:100%;padding:9px;border:2px solid #c8c8d8;border-radius:8px;font-size:0.9rem;resize:vertical;"></textarea></div>
     </div>
     <div class="modal-btns" style="margin-top:18px;">
@@ -1032,17 +1044,25 @@ body{
       <button onclick="cerrarVentanaVenta()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:1.2rem;cursor:pointer;font-weight:700;">✕</button>
     </div>
 
-    <!-- Selector de cliente y forma de pago -->
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-bottom:8px;background:#f5f5f5;padding:8px;border-radius:4px;border:1px solid #c8c8c8;flex-shrink:0;">
+    <!-- Selector de cliente, forma de pago Y LISTA DE PRECIOS -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:8px;background:#f5f5f5;padding:8px;border-radius:4px;border:1px solid #c8c8c8;flex-shrink:0;">
       <div class="vsf-input-grupo">
         <label class="vsf-label">👤 Cliente</label>
-        <select id="venta-cliente" class="vsf-input" style="height:42px;">
+        <select id="venta-cliente" class="vsf-input" style="height:38px;" onchange="onCambioClienteVenta()">
           <option value="">— Consumidor Final —</option>
         </select>
       </div>
       <div class="vsf-input-grupo">
+        <label class="vsf-label">📋 Lista de precios</label>
+        <select id="venta-lista" class="vsf-input" style="height:38px;" onchange="onCambioListaVenta()">
+          <option value="lista1">Lista 1 (Normal)</option>
+          <option value="lista2">Lista 2 (Cta. Cte.)</option>
+          <option value="casa">🏠 Casa (a costo)</option>
+        </select>
+      </div>
+      <div class="vsf-input-grupo">
         <label class="vsf-label">💳 Forma de pago</label>
-        <select id="venta-pago" class="vsf-input" style="height:42px;" onchange="onCambioFormaPagoVenta()">
+        <select id="venta-pago" class="vsf-input" style="height:38px;" onchange="onCambioFormaPagoVenta()">
           <option value="efectivo">💵 Efectivo</option>
           <option value="transferencia">📱 Transferencia</option>
           <option value="cuenta_corriente">📋 Cuenta Corriente</option>
@@ -1197,6 +1217,166 @@ body{
 
 <div class="toast" id="toast"></div>
 
+<!-- MODAL DETALLE DE PRODUCTO (estilo StockFacil) -->
+<div class="modal-overlay" id="producto-detalle-modal" style="z-index:2700;">
+  <div class="modal" style="width:min(95vw,720px);max-height:92vh;overflow-y:auto;padding:18px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+    
+    <div style="background:#1a1a2e;color:#fff;padding:10px 14px;border-radius:5px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:1rem;font-weight:700;">📋 Datos del Artículo</span>
+      <button onclick="document.getElementById('producto-detalle-modal').classList.remove('open');" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:28px;height:28px;border-radius:5px;font-size:1rem;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Línea 1: Código, Descripción, Familia -->
+    <div style="display:grid;grid-template-columns:1.2fr 2fr 1.3fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Código</label>
+        <input type="text" id="pd-codigo" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;font-family:'Consolas',monospace;">
+      </div>
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Descripción *</label>
+        <input type="text" id="pd-nombre" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;">
+      </div>
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Familia</label>
+        <div style="display:flex;gap:4px;">
+          <input list="pd-familia-list" id="pd-familia" style="flex:1;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;" placeholder="Elegí o escribí nueva">
+          <button onclick="abrirEditorFamilias()" title="Administrar familias" style="padding:5px 10px;border:1px solid #c0c0c8;background:#e8e8e8;border-radius:3px;cursor:pointer;font-weight:700;font-size:0.85rem;">⋯</button>
+        </div>
+        <datalist id="pd-familia-list"></datalist>
+      </div>
+    </div>
+
+    <!-- Línea 2: Proveedor, Marca, Tipo -->
+    <div style="display:grid;grid-template-columns:2fr 1.5fr 1fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Proveedor</label>
+        <select id="pd-proveedor" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;background:#fff;">
+          <option value="">— Sin proveedor —</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Marca</label>
+        <input type="text" id="pd-marca" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;">
+      </div>
+      <div>
+        <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Tipo de venta</label>
+        <select id="pd-tipo" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;background:#fff;">
+          <option value="unidad">Unidad</option>
+          <option value="peso">Peso (kg)</option>
+          <option value="litro">Líquido (L)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Línea 3: Precios principales -->
+    <div style="background:#f5f5f5;border:1px solid #c8c8c8;border-radius:5px;padding:10px;margin-bottom:10px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#444;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">💰 Precios</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Precio de Costo</label>
+          <input type="text" id="pd-costo" style="width:100%;padding:8px;border:2px solid #4a7eb8;border-radius:3px;font-size:0.95rem;font-weight:700;background:#eaf3ff;font-family:'Consolas',monospace;text-align:right;" oninput="pdCalcularDesdeUtilidad()">
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Utilidad %</label>
+          <input type="text" id="pd-utilidad" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.95rem;font-weight:700;font-family:'Consolas',monospace;text-align:right;" oninput="pdCalcularDesdeUtilidad()">
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Precio de Venta</label>
+          <input type="text" id="pd-precio" style="width:100%;padding:8px;border:2px solid #27500a;border-radius:3px;font-size:0.95rem;font-weight:700;background:#f0f8e8;font-family:'Consolas',monospace;text-align:right;" oninput="pdCalcularDesdePrecio()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Línea 4: Listas de precios adicionales -->
+    <div style="background:#f0f4ff;border:1px solid #4a7eb8;border-radius:5px;padding:10px;margin-bottom:10px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#1f5f9e;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📋 Lista 2 (Cuenta Corriente / Mayorista)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Costo</label>
+          <input type="text" id="pd-costo-l2" disabled style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.9rem;background:#e0e0e0;font-family:'Consolas',monospace;text-align:right;">
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Utilidad %</label>
+          <input type="text" id="pd-utilidad-l2" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.9rem;font-weight:700;font-family:'Consolas',monospace;text-align:right;" oninput="pdCalcularL2DesdeUtilidad()">
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Precio Lista 2</label>
+          <input type="text" id="pd-precio-l2" style="width:100%;padding:8px;border:2px solid #1f5f9e;border-radius:3px;font-size:0.95rem;font-weight:700;background:#fff;font-family:'Consolas',monospace;text-align:right;" oninput="pdCalcularL2DesdePrecio()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Línea 5: Precio Casa -->
+    <div style="background:#fff8e1;border:1px solid #f5c842;border-radius:5px;padding:10px;margin-bottom:10px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#7a5800;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">🏠 Precio Casa (consumo personal a costo)</div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;align-items:end;">
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Precio Casa</label>
+          <input type="text" id="pd-precio-casa" style="width:100%;padding:8px;border:2px solid #b8860b;border-radius:3px;font-size:0.95rem;font-weight:700;background:#fffacd;font-family:'Consolas',monospace;text-align:right;">
+        </div>
+        <div>
+          <button onclick="pdCopiarCostoACasa()" style="padding:9px 14px;background:#e8c84a;color:#1a1a2e;border:1px solid #b89020;border-radius:3px;font-size:0.82rem;font-weight:700;cursor:pointer;">📋 Igualar al costo</button>
+          <span style="font-size:0.72rem;color:#7a5800;margin-left:8px;">Para uso personal del local.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Línea 5: Stock -->
+    <div style="background:#f0f8e8;border:1px solid #639922;border-radius:5px;padding:10px;margin-bottom:10px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#27500a;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📦 Stock</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Stock actual</label>
+          <input type="text" id="pd-stock" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.9rem;font-family:'Consolas',monospace;text-align:right;font-weight:700;">
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Stock Mínimo (alerta)</label>
+          <input type="text" id="pd-stock-min" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.9rem;font-family:'Consolas',monospace;text-align:right;">
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Stock Ideal</label>
+          <input type="text" id="pd-stock-ideal" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.9rem;font-family:'Consolas',monospace;text-align:right;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Notas -->
+    <div style="margin-bottom:14px;">
+      <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Notas del producto</label>
+      <textarea id="pd-notas" rows="2" style="width:100%;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;font-family:'Segoe UI',Tahoma,Arial,sans-serif;resize:vertical;"></textarea>
+    </div>
+
+    <!-- Botones -->
+    <div style="display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #ddd;padding-top:12px;">
+      <button onclick="document.getElementById('producto-detalle-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:3px;font-weight:600;cursor:pointer;font-size:0.9rem;">Cancelar</button>
+      <button onclick="guardarDetalleProducto()" style="padding:9px 22px;border:1px solid #1f5005;background:#27500a;color:#fff;border-radius:3px;font-weight:700;cursor:pointer;font-size:0.9rem;">💾 Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITOR DE FAMILIAS -->
+<div class="modal-overlay" id="familias-editor-modal" style="z-index:2800;">
+  <div class="modal" style="width:min(95vw,460px);padding:18px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+    <div style="background:#1a1a2e;color:#fff;padding:10px 14px;border-radius:5px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:1rem;font-weight:700;">📂 Administrar Familias</span>
+      <button onclick="document.getElementById('familias-editor-modal').classList.remove('open');" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:28px;height:28px;border-radius:5px;font-size:1rem;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <input type="text" id="fam-nueva-input" placeholder="Nombre de nueva familia..." 
+        style="flex:1;padding:8px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.9rem;">
+      <button onclick="agregarFamiliaNueva()" style="padding:8px 16px;background:#27500a;color:#fff;border:1px solid #1f3e07;border-radius:3px;font-weight:700;cursor:pointer;font-size:0.85rem;">➕ Nuevo</button>
+    </div>
+
+    <div style="font-size:0.78rem;color:#666;margin-bottom:6px;">Familias existentes:</div>
+    <div id="familias-lista" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;background:#fafafa;"></div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+      <button onclick="document.getElementById('familias-editor-modal').classList.remove('open');" style="padding:8px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:3px;font-weight:600;cursor:pointer;font-size:0.9rem;">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- cierre app-contenido -->
 
 <script>
@@ -1344,10 +1524,59 @@ function renderStats(){
   document.getElementById('st-val').textContent='$'+fmt(val);
 }
 
+// Filtro de familia activo (vacío = todas)
+let familiaFiltro = '';
+
+function renderFamiliaPills(){
+  const cont = document.getElementById('familia-pills');
+  if(!cont) return;
+  // Usa familia si existe, si no fallback a marca
+  const familias = {};
+  productos.forEach(p => {
+    const f = p.familia || p.marca || 'Sin categoría';
+    if(!familias[f]) familias[f] = 0;
+    familias[f]++;
+  });
+  const lista = Object.keys(familias).sort((a,b) => a.localeCompare(b));
+  let html = `<button onclick="setFamiliaFiltro('')" 
+    style="padding:7px 14px;border-radius:20px;border:1px solid ${familiaFiltro===''?'#1a1a2e':'#aaa'};
+    background:${familiaFiltro===''?'#1a1a2e':'#fff'};color:${familiaFiltro===''?'#fff':'#333'};
+    font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+    📋 Todas (${productos.length})
+  </button>`;
+  lista.forEach(fam => {
+    const activa = familiaFiltro === fam;
+    html += `<button onclick="setFamiliaFiltro('${fam.replace(/'/g, "\\'")}')"
+      style="padding:7px 14px;border-radius:20px;border:1px solid ${activa?'#1a1a2e':'#aaa'};
+      background:${activa?'#1a1a2e':'#fff'};color:${activa?'#fff':'#333'};
+      font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+      ${fam} (${familias[fam]})
+    </button>`;
+  });
+  cont.innerHTML = html;
+}
+
+function setFamiliaFiltro(fam){
+  familiaFiltro = fam;
+  renderFamiliaPills();
+  renderStock();
+}
+
 function renderStock(){
   const searchTerm = document.getElementById('search-product').value.toLowerCase();
   let filtered = productos;
-  if(searchTerm) filtered = productos.filter(p=>p.marca.toLowerCase().includes(searchTerm)||p.nombre.toLowerCase().includes(searchTerm)||(p.barcode&&p.barcode.toLowerCase().includes(searchTerm)));
+  
+  // Filtrar por familia primero
+  if(familiaFiltro){
+    filtered = filtered.filter(p => (p.familia || p.marca || 'Sin categoría') === familiaFiltro);
+  }
+  
+  // Después por búsqueda de texto
+  if(searchTerm) filtered = filtered.filter(p=>p.marca.toLowerCase().includes(searchTerm)||p.nombre.toLowerCase().includes(searchTerm)||(p.barcode&&p.barcode.toLowerCase().includes(searchTerm)));
+  
+  // Renderizar pills (por si cambió la cantidad)
+  renderFamiliaPills();
+  
   const brands={};
   filtered.forEach(p=>{if(!brands[p.marca])brands[p.marca]=[];brands[p.marca].push(p)});
   let html='';
@@ -1374,12 +1603,13 @@ function renderStock(){
           <button class="btn-save-edit" onclick="guardarEdicionProducto(${p.id})">💾</button>
         </div>
         <div class="item-util-percent">Util: ${util}%</div>
+        <button onclick="abrirDetalleProducto(${p.id})" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:5px 10px;cursor:pointer;font-size:0.78rem;font-weight:600;margin-right:4px;" title="Ver detalle completo">✏️ Detalle</button>
         <button class="del-btn" onclick="pedirEliminar(${p.id})">✕</button>
       </div>`;
     });
     html+='</div>';
   }
-  if(filtered.length===0) html='<div class="empty">No se encontraron productos</div>';
+  if(filtered.length===0) html='<div class="empty">No se encontraron productos en esta categoría</div>';
   document.getElementById('stock-list').innerHTML=html;
   filtered.forEach(p=>{
     document.getElementById(`stock-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
@@ -1388,6 +1618,262 @@ function renderStock(){
     document.getElementById(`barcode-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
   });
 }
+
+// ========== DETALLE DE PRODUCTO (modal completo) ==========
+let productoDetalleId = null;
+
+function abrirDetalleProducto(id){
+  const prod = productos.find(p => Number(p.id) === Number(id));
+  if(!prod){ toast('Producto no encontrado'); return; }
+  productoDetalleId = Number(id);
+
+  // Llenar familias del datalist
+  const familias = [...new Set(productos.map(p => p.familia || p.marca || '').filter(Boolean))].sort();
+  document.getElementById('pd-familia-list').innerHTML = familias.map(f => `<option value="${f}">`).join('');
+
+  // Llenar proveedores del select
+  const sel = document.getElementById('pd-proveedor');
+  sel.innerHTML = '<option value="">— Sin proveedor —</option>' +
+    proveedores.slice().sort((a,b) => (a.razon||'').localeCompare(b.razon||''))
+      .map(p => `<option value="${p.id}">${p.razon||''}</option>`).join('');
+
+  // Cargar valores
+  document.getElementById('pd-codigo').value = prod.barcode || '';
+  document.getElementById('pd-nombre').value = prod.nombre || '';
+  document.getElementById('pd-marca').value = prod.marca || '';
+  document.getElementById('pd-familia').value = prod.familia || prod.marca || '';
+  document.getElementById('pd-proveedor').value = prod.proveedorId || '';
+  document.getElementById('pd-tipo').value = prod.tipo || 'unidad';
+  document.getElementById('pd-costo').value = prod.costo || 0;
+  document.getElementById('pd-precio').value = prod.precio || 0;
+  // Calcular utilidad
+  if(prod.costo > 0 && prod.precio > 0){
+    const util = ((prod.precio - prod.costo) / prod.costo * 100).toFixed(1);
+    document.getElementById('pd-utilidad').value = util;
+  } else {
+    document.getElementById('pd-utilidad').value = '';
+  }
+  document.getElementById('pd-precio-casa').value = prod.precioCasa || prod.costo || 0;
+  // Lista 2
+  document.getElementById('pd-costo-l2').value = prod.costo || 0;
+  document.getElementById('pd-precio-l2').value = prod.precioLista2 || prod.precio || 0;
+  if(prod.costo > 0 && prod.precioLista2 > 0){
+    const utilL2 = ((prod.precioLista2 - prod.costo) / prod.costo * 100).toFixed(1);
+    document.getElementById('pd-utilidad-l2').value = utilL2;
+  } else {
+    document.getElementById('pd-utilidad-l2').value = '';
+  }
+  document.getElementById('pd-stock').value = stock[prod.id] || 0;
+  document.getElementById('pd-stock-min').value = prod.stockMin || 0;
+  document.getElementById('pd-stock-ideal').value = prod.stockIdeal || 0;
+  document.getElementById('pd-notas').value = prod.notas || '';
+
+  document.getElementById('producto-detalle-modal').classList.add('open');
+}
+
+function pdCalcularDesdeUtilidad(){
+  const costo = parseNumero(document.getElementById('pd-costo').value);
+  const util = parseNumero(document.getElementById('pd-utilidad').value);
+  if(!isNaN(costo) && costo > 0 && !isNaN(util)){
+    const precio = costo * (1 + util/100);
+    document.getElementById('pd-precio').value = Math.round(precio);
+  }
+}
+
+function pdCalcularDesdePrecio(){
+  const costo = parseNumero(document.getElementById('pd-costo').value);
+  const precio = parseNumero(document.getElementById('pd-precio').value);
+  if(!isNaN(costo) && costo > 0 && !isNaN(precio) && precio > 0){
+    const util = ((precio - costo) / costo * 100).toFixed(1);
+    document.getElementById('pd-utilidad').value = util;
+  }
+}
+
+function pdCopiarCostoACasa(){
+  const costo = parseNumero(document.getElementById('pd-costo').value) || 0;
+  document.getElementById('pd-precio-casa').value = costo;
+  toast('Precio casa igualado al costo');
+}
+
+function pdCalcularL2DesdeUtilidad(){
+  const costo = parseNumero(document.getElementById('pd-costo').value);
+  const util = parseNumero(document.getElementById('pd-utilidad-l2').value);
+  if(!isNaN(costo) && costo > 0 && !isNaN(util)){
+    const precio = costo * (1 + util/100);
+    document.getElementById('pd-precio-l2').value = Math.round(precio);
+  }
+}
+
+function pdCalcularL2DesdePrecio(){
+  const costo = parseNumero(document.getElementById('pd-costo').value);
+  const precio = parseNumero(document.getElementById('pd-precio-l2').value);
+  if(!isNaN(costo) && costo > 0 && !isNaN(precio) && precio > 0){
+    const util = ((precio - costo) / costo * 100).toFixed(1);
+    document.getElementById('pd-utilidad-l2').value = util;
+  }
+}
+
+// ========== EDITOR DE FAMILIAS ==========
+function abrirEditorFamilias(){
+  renderFamiliasLista();
+  document.getElementById('familias-editor-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('fam-nueva-input').focus(), 100);
+}
+
+function obtenerListaFamilias(){
+  const set = new Set();
+  productos.forEach(p => {
+    const f = p.familia || p.marca;
+    if(f) set.add(f);
+  });
+  // Agregar también las familias guardadas explícitamente (aunque no haya productos)
+  if(window._familiasExtras) window._familiasExtras.forEach(f => set.add(f));
+  return [...set].sort((a,b) => a.localeCompare(b));
+}
+
+function renderFamiliasLista(){
+  const cont = document.getElementById('familias-lista');
+  if(!cont) return;
+  const lista = obtenerListaFamilias();
+  if(lista.length === 0){
+    cont.innerHTML = '<div style="padding:20px;text-align:center;color:#999;font-style:italic;">No hay familias registradas</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(fam => {
+    const cantidad = productos.filter(p => (p.familia || p.marca) === fam).length;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #eee;background:#fff;">
+      <div>
+        <div style="font-weight:700;font-size:0.9rem;">${fam}</div>
+        <div style="font-size:0.72rem;color:#888;">${cantidad} producto${cantidad!==1?'s':''}</div>
+      </div>
+      <div style="display:flex;gap:5px;">
+        <button onclick="renombrarFamilia('${fam.replace(/'/g, "\\'")}')" title="Renombrar" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:5px 10px;cursor:pointer;font-size:0.78rem;font-weight:600;">✏️</button>
+        <button onclick="eliminarFamilia('${fam.replace(/'/g, "\\'")}')" title="Eliminar" style="background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:5px 10px;cursor:pointer;font-size:0.78rem;font-weight:600;">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function agregarFamiliaNueva(){
+  const inp = document.getElementById('fam-nueva-input');
+  const nombre = inp.value.trim();
+  if(!nombre){ toast('Escribí un nombre'); return; }
+  const lista = obtenerListaFamilias();
+  if(lista.includes(nombre)){ toast('Esa familia ya existe'); return; }
+  if(!window._familiasExtras) window._familiasExtras = [];
+  window._familiasExtras.push(nombre);
+  inp.value = '';
+  renderFamiliasLista();
+  // Refrescar el datalist en el modal de detalle si está abierto
+  const dl = document.getElementById('pd-familia-list');
+  if(dl){
+    const familias = obtenerListaFamilias();
+    dl.innerHTML = familias.map(f => `<option value="${f}">`).join('');
+  }
+  toast(`✅ Familia "${nombre}" agregada`);
+}
+
+function renombrarFamilia(nombreActual){
+  const nuevoNombre = prompt(`Renombrar familia "${nombreActual}" a:`, nombreActual);
+  if(!nuevoNombre || nuevoNombre.trim() === '' || nuevoNombre === nombreActual) return;
+  const nombre = nuevoNombre.trim();
+  // Actualizar todos los productos
+  let cambiados = 0;
+  productos.forEach(p => {
+    if((p.familia || p.marca) === nombreActual){
+      p.familia = nombre;
+      // Si la marca era igual a la familia, actualizar marca también
+      if(p.marca === nombreActual && !p.familia) p.marca = nombre;
+      cambiados++;
+    }
+  });
+  // Actualizar familias extras
+  if(window._familiasExtras){
+    const idx = window._familiasExtras.indexOf(nombreActual);
+    if(idx >= 0) window._familiasExtras[idx] = nombre;
+  }
+  saveAll();
+  renderFamiliasLista();
+  renderStock();
+  toast(`✅ ${cambiados} producto${cambiados!==1?'s':''} actualizado${cambiados!==1?'s':''}`);
+}
+
+function eliminarFamilia(fam){
+  const cantidad = productos.filter(p => (p.familia || p.marca) === fam).length;
+  if(cantidad > 0){
+    if(!confirm(`La familia "${fam}" tiene ${cantidad} producto${cantidad!==1?'s':''}. ¿Querés quitarles esa familia? (Los productos no se eliminan)`)) return;
+    productos.forEach(p => {
+      if((p.familia || p.marca) === fam){
+        p.familia = 'Sin categoría';
+      }
+    });
+  }
+  if(window._familiasExtras){
+    window._familiasExtras = window._familiasExtras.filter(f => f !== fam);
+  }
+  saveAll();
+  renderFamiliasLista();
+  renderStock();
+  toast(`Familia "${fam}" eliminada`);
+}
+
+function guardarDetalleProducto(){
+  if(!productoDetalleId){ toast('Sin producto'); return; }
+  const prod = productos.find(p => Number(p.id) === Number(productoDetalleId));
+  if(!prod){ toast('Producto no encontrado'); return; }
+
+  const nombre = document.getElementById('pd-nombre').value.trim();
+  if(!nombre){ toast('El nombre es obligatorio'); return; }
+
+  const nuevoBarcode = document.getElementById('pd-codigo').value.trim();
+  if(nuevoBarcode && nuevoBarcode !== prod.barcode){
+    if(productos.some(p => Number(p.id) !== Number(productoDetalleId) && p.barcode === nuevoBarcode)){
+      toast('❌ Código ya usado por otro producto'); return;
+    }
+  }
+
+  prod.barcode = nuevoBarcode;
+  prod.nombre = nombre;
+  prod.marca = document.getElementById('pd-marca').value.trim() || prod.marca;
+  prod.familia = document.getElementById('pd-familia').value.trim();
+  // Si no hay familia, usar marca como fallback
+  if(!prod.familia) prod.familia = prod.marca;
+  // Para que el filtro funcione, también actualizar marca = familia si están vinculadas
+  // pero respetar la marca si fue cambiada
+  
+  const provIdRaw = document.getElementById('pd-proveedor').value;
+  prod.proveedorId = provIdRaw ? Number(provIdRaw) : null;
+  
+  const nuevoTipo = document.getElementById('pd-tipo').value;
+  if(nuevoTipo !== prod.tipo){
+    cambiarTipoProducto(productoDetalleId, nuevoTipo);
+    // cambiarTipoProducto ya guarda el tipo en prod
+  }
+  
+  prod.costo = parseNumero(document.getElementById('pd-costo').value) || 0;
+  prod.precio = parseNumero(document.getElementById('pd-precio').value) || 0;
+  prod.precioCasa = parseNumero(document.getElementById('pd-precio-casa').value) || 0;
+  prod.precioLista2 = parseNumero(document.getElementById('pd-precio-l2').value) || 0;
+  prod.stockMin = parseNumero(document.getElementById('pd-stock-min').value) || 0;
+  prod.stockIdeal = parseNumero(document.getElementById('pd-stock-ideal').value) || 0;
+  prod.notas = document.getElementById('pd-notas').value.trim();
+
+  // Stock - registrar como ajuste si cambió
+  let nuevoStock = parseNumero(document.getElementById('pd-stock').value);
+  if(prod.tipo === 'unidad') nuevoStock = Math.round(nuevoStock);
+  else nuevoStock = Math.round(nuevoStock * 1000) / 1000;
+  if(!isNaN(nuevoStock) && Math.abs(nuevoStock - (stock[prod.id]||0)) > 0.001){
+    const antes = stock[prod.id] || 0;
+    stock[prod.id] = nuevoStock;
+    addLog('ajuste', prod, antes, nuevoStock, Math.abs(nuevoStock - antes));
+  }
+
+  document.getElementById('producto-detalle-modal').classList.remove('open');
+  saveAll();
+  renderAll();
+  toast(`✅ ${prod.marca} ${prod.nombre} actualizado`);
+}
+
 
 function cambiarTipoProducto(id, nuevoTipo) {
   const prod = productos.find(p=>Number(p.id)===Number(id));
@@ -1606,8 +2092,11 @@ function agregarLineaVenta(){
   }
   const prod=productos.find(p=>Number(p.id)===Number(ventaProductoActualId)); 
   if(!prod){toast("Producto no encontrado");return;}
-  let prec = prod.precio || 0;
-  if(prec<=0){toast("El producto no tiene precio de venta.");return;}
+  
+  // Obtener precio según lista seleccionada
+  const lista = document.getElementById('venta-lista').value;
+  let prec = obtenerPrecioSegunLista(prod, lista);
+  if(prec<=0){toast("El producto no tiene precio en esta lista.");return;}
   
   // Si es peso o litro → abrir modal para ingresar cantidad
   if(prod.tipo === 'peso' || prod.tipo === 'litro'){
@@ -1963,6 +2452,42 @@ function onCambioFormaPagoVenta(){
   }
 }
 
+// Cuando cambia el cliente, auto-elegir su lista de precios default
+function onCambioClienteVenta(){
+  const cliId = document.getElementById('venta-cliente').value;
+  if(!cliId) return;
+  const cli = clientes.find(c => Number(c.id) === Number(cliId));
+  if(cli && cli.listaPrecio){
+    document.getElementById('venta-lista').value = cli.listaPrecio;
+    if(cli.listaPrecio !== 'lista1'){
+      const nombres = {lista1:'Lista 1', lista2:'Lista 2', casa:'🏠 Casa'};
+      toast(`📋 Lista cambiada a ${nombres[cli.listaPrecio]} (cliente)`);
+    }
+  }
+}
+
+// Cuando cambia la lista, recalcular precios de líneas ya cargadas
+function onCambioListaVenta(){
+  const lista = document.getElementById('venta-lista').value;
+  if(ventaLineas.length === 0) return;
+  ventaLineas.forEach(l => {
+    const prod = productos.find(p => Number(p.id) === Number(l.prodId));
+    if(prod){
+      l.precioVenta = obtenerPrecioSegunLista(prod, lista);
+      l.subtotal = l.cantidad * l.precioVenta;
+    }
+  });
+  renderVentaTabla();
+  toast(`Precios actualizados según lista`);
+}
+
+// Obtener precio de un producto según la lista seleccionada
+function obtenerPrecioSegunLista(prod, lista){
+  if(lista === 'casa') return prod.precioCasa || prod.costo || 0;
+  if(lista === 'lista2') return prod.precioLista2 || prod.precio || 0;
+  return prod.precio || 0;
+}
+
 function iniciarScannerVenta(){ const inp=document.getElementById('venta-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } ventaSeleccionarProdId(Number(p.id)); agregarLineaVenta(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
 function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?Number(p.id):null; }); }
 
@@ -2253,6 +2778,7 @@ function abrirModalCliente(){
     const el = document.getElementById(id);
     if(el) el.value = '';
   });
+  document.getElementById('cli-lista').value = 'lista1';
   document.getElementById('cliente-modal').classList.add('open');
   setTimeout(()=>document.getElementById('cli-apellido').focus(), 100);
 }
@@ -2269,6 +2795,7 @@ function editarCliente(id){
   document.getElementById('cli-dom').value = c.domicilio || '';
   document.getElementById('cli-ciudad').value = c.ciudad || '';
   document.getElementById('cli-email').value = c.email || '';
+  document.getElementById('cli-lista').value = c.listaPrecio || 'lista1';
   document.getElementById('cli-notas').value = c.notas || '';
   document.getElementById('cliente-modal').classList.add('open');
 }
@@ -2284,6 +2811,7 @@ function guardarCliente(){
     domicilio: document.getElementById('cli-dom').value.trim(),
     ciudad: document.getElementById('cli-ciudad').value.trim(),
     email: document.getElementById('cli-email').value.trim(),
+    listaPrecio: document.getElementById('cli-lista').value || 'lista1',
     notas: document.getElementById('cli-notas').value.trim()
   };
   if(editandoCliId){
@@ -2531,6 +3059,7 @@ function abrirVentanaVenta(){
   actualizarDatalistVenta();
   actualizarNumVenta();
   llenarSelectorClientesVenta();
+  document.getElementById('venta-lista').value = 'lista1'; // siempre arranca en Lista 1
   setTimeout(()=>{
     const inp = document.getElementById('venta-scan-input');
     if(inp) inp.focus();
