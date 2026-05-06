@@ -1677,14 +1677,31 @@ function renderStock(){
     items.forEach(p=>{
       const q=stock[p.id]||0;
       const util = (p.costo>0 && p.precio>0) ? (((p.precio-p.costo)/p.costo)*100).toFixed(1) : '0';
+      const margenL2 = (p.costo>0 && p.precioLista2>0) ? ((p.precioLista2-p.costo)/p.costo) : 0;
+      const precioL2actual = p.precioLista2 || p.precio || 0;
+      const precioCasaActual = p.precioCasa || p.costo || 0;
       html+=`<div class="item-row" data-id="${p.id}">
         <span class="item-barcode">${p.barcode||'sin código'}</span>
         <div class="item-name"><strong>${p.marca}</strong> ${p.nombre}</div>
         <div class="item-edit-group" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
           <input type="text" id="barcode-${p.id}" class="item-edit-barcode" value="${p.barcode}" placeholder="Código" style="width:110px;">
           <input type="text" id="stock-${p.id}" class="item-edit-stock" value="${q}" style="width:80px;">
-          <input type="text" id="costo-${p.id}" class="item-edit-costo" value="${p.costo||0}" placeholder="Costo" title="Precio de costo" style="width:90px;background:#eaf3ff;">
-          <input type="text" id="price-${p.id}" class="item-edit-price" value="${p.precio}" placeholder="Venta" title="Precio de venta" style="width:90px;">
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:0.62rem;color:#555;font-weight:600;text-align:center;">💲 COSTO</span>
+            <input type="text" id="costo-${p.id}" class="item-edit-costo" value="${p.costo||0}" placeholder="Costo" title="Precio de costo" style="width:90px;background:#eaf3ff;" data-margen-l2="${margenL2.toFixed(6)}">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:0.62rem;color:#555;font-weight:600;text-align:center;">🏷️ VENTA</span>
+            <input type="text" id="price-${p.id}" class="item-edit-price" value="${p.precio}" placeholder="Venta" title="Precio de venta" style="width:90px;">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:0.62rem;color:#27500a;font-weight:600;text-align:center;">📋 LISTA 2</span>
+            <input type="text" id="lista2-${p.id}" class="item-edit-price" value="${precioL2actual}" placeholder="Lista 2" title="Precio Lista 2 (se recalcula con el costo)" style="width:90px;background:#f0f8e8;" readonly>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:0.62rem;color:#791f1f;font-weight:600;text-align:center;">🏠 CASA</span>
+            <input type="text" id="casa-${p.id}" class="item-edit-price" value="${precioCasaActual}" placeholder="Casa" title="Precio consumo casa (igual al costo)" style="width:90px;background:#fdf0f0;" readonly>
+          </div>
           <select id="tipo-${p.id}" class="item-edit-tipo" onchange="cambiarTipoProducto(${p.id}, this.value)">
             <option value="unidad" ${p.tipo==='unidad'?'selected':''}>Unidad</option>
             <option value="peso" ${p.tipo==='peso'?'selected':''}>Peso (kg)</option>
@@ -1704,8 +1721,23 @@ function renderStock(){
   filtered.forEach(p=>{
     document.getElementById(`stock-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
     document.getElementById(`price-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
-    document.getElementById(`costo-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
     document.getElementById(`barcode-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
+
+    // Listener en tiempo real para el campo costo
+    const costoInp = document.getElementById(`costo-${p.id}`);
+    const lista2Inp = document.getElementById(`lista2-${p.id}`);
+    const casaInp   = document.getElementById(`casa-${p.id}`);
+
+    costoInp.oninput = () => {
+      const nuevoCosto = parseNumero(costoInp.value);
+      if(isNaN(nuevoCosto) || nuevoCosto < 0) return;
+      // Casa = siempre igual al costo
+      casaInp.value = Math.round(nuevoCosto);
+      // Lista2 = mantiene el mismo margen de utilidad original
+      const margenL2 = parseFloat(costoInp.getAttribute('data-margen-l2')) || 0;
+      lista2Inp.value = Math.round(nuevoCosto * (1 + margenL2));
+    };
+    costoInp.onchange = ()=>guardarEdicionProducto(p.id);
   });
 }
 
@@ -1758,20 +1790,69 @@ function abrirDetalleProducto(id){
   document.getElementById('pd-stock-ideal').value = prod.stockIdeal || 0;
   document.getElementById('pd-notas').value = prod.notas || '';
 
+  // ── Listener en tiempo real sobre el campo COSTO del detalle ──
+  const pdCostoInp   = document.getElementById('pd-costo');
+  const pdPrecioInp  = document.getElementById('pd-precio');
+  const pdUtilInp    = document.getElementById('pd-utilidad');
+  const pdCasaInp    = document.getElementById('pd-precio-casa');
+  const pdCostoL2    = document.getElementById('pd-costo-l2');
+  const pdPrecioL2   = document.getElementById('pd-precio-l2');
+  const pdUtilL2     = document.getElementById('pd-utilidad-l2');
+
+  // Guardar margen original de Lista2 como atributo para usarlo al cambiar costo
+  const _costoBase = prod.costo || 0;
+  const _margenL2  = (_costoBase > 0 && (prod.precioLista2||0) > 0)
+    ? (prod.precioLista2 - _costoBase) / _costoBase
+    : 0;
+  pdCostoInp._margenL2 = _margenL2;
+
+  pdCostoInp.oninput = () => {
+    const c = parseNumero(pdCostoInp.value);
+    if(isNaN(c) || c < 0) return;
+
+    // 🏠 Casa → siempre igual al costo
+    pdCasaInp.value = Math.round(c);
+
+    // 📋 Lista 2 → mantiene el margen original
+    const nuevoL2 = Math.round(c * (1 + pdCostoInp._margenL2));
+    pdCostoL2.value  = Math.round(c);
+    pdPrecioL2.value = nuevoL2;
+    if(c > 0 && nuevoL2 > 0){
+      pdUtilL2.value = ((nuevoL2 - c) / c * 100).toFixed(1);
+    }
+
+    // 🏷️ Precio Venta → recalcula según la utilidad que tiene puesta
+    const util = parseNumero(pdUtilInp.value);
+    if(!isNaN(util) && c > 0){
+      pdPrecioInp.value = Math.round(c * (1 + util / 100));
+    }
+  };
+
   document.getElementById('producto-detalle-modal').classList.add('open');
 }
 
 function pdCalcularDesdeUtilidad(){
-  const costo = parseNumero(document.getElementById('pd-costo').value);
+  const costoInp = document.getElementById('pd-costo');
+  const costo = parseNumero(costoInp.value);
   const util = parseNumero(document.getElementById('pd-utilidad').value);
   if(!isNaN(costo) && costo > 0 && !isNaN(util)){
     const precio = costo * (1 + util/100);
     document.getElementById('pd-precio').value = Math.round(precio);
+    // Recalcular Lista2 y Casa con el costo actual
+    document.getElementById('pd-precio-casa').value = Math.round(costo);
+    document.getElementById('pd-costo-l2').value = Math.round(costo);
+    const margenL2 = costoInp._margenL2 || 0;
+    const nuevoL2 = Math.round(costo * (1 + margenL2));
+    document.getElementById('pd-precio-l2').value = nuevoL2;
+    if(nuevoL2 > 0){
+      document.getElementById('pd-utilidad-l2').value = ((nuevoL2 - costo) / costo * 100).toFixed(1);
+    }
   }
 }
 
 function pdCalcularDesdePrecio(){
-  const costo = parseNumero(document.getElementById('pd-costo').value);
+  const costoInp = document.getElementById('pd-costo');
+  const costo = parseNumero(costoInp.value);
   const precio = parseNumero(document.getElementById('pd-precio').value);
   if(!isNaN(costo) && costo > 0 && !isNaN(precio) && precio > 0){
     const util = ((precio - costo) / costo * 100).toFixed(1);
@@ -2088,7 +2169,17 @@ function guardarEdicionProducto(id){
     cambios=true;
   }
   if(!isNaN(nuevoCosto) && Math.abs(nuevoCosto - (prod.costo||0)) > 0.001 && nuevoCosto>=0){
-    prod.costo=nuevoCosto;
+    const costoAnterior = prod.costo || 0;
+    prod.costo = nuevoCosto;
+    // Actualizar precioCasa: siempre igual al costo (precio para consumo de casa)
+    prod.precioCasa = nuevoCosto;
+    // Recalcular precioLista2 manteniendo el mismo margen de utilidad que tenía
+    if(costoAnterior > 0 && prod.precioLista2 > 0){
+      const margenL2 = (prod.precioLista2 - costoAnterior) / costoAnterior;
+      prod.precioLista2 = Math.round(nuevoCosto * (1 + margenL2));
+    } else {
+      prod.precioLista2 = prod.precioLista2 || prod.precio || 0;
+    }
     cambios=true;
   }
   if(nuevoBarcode!==prod.barcode){
@@ -2303,7 +2394,17 @@ function confirmarCompra(){
     const antes=stock[Number(prod.id)]||0;
     stock[Number(prod.id)]=antes+l.cantidad;
     // Actualizar costo
+    const costoAnteriorCompra = prod.costo || 0;
     prod.costo = l.precioCosto;
+    // Actualizar precioCasa al nuevo costo (precio para consumo de casa)
+    prod.precioCasa = l.precioCosto;
+    // Recalcular precioLista2 manteniendo el mismo margen de utilidad
+    if(costoAnteriorCompra > 0 && prod.precioLista2 > 0){
+      const margenL2 = (prod.precioLista2 - costoAnteriorCompra) / costoAnteriorCompra;
+      prod.precioLista2 = Math.round(l.precioCosto * (1 + margenL2));
+    } else {
+      prod.precioLista2 = prod.precioLista2 || prod.precio || 0;
+    }
     // Si la línea tiene precioVenta (nuevo), usarlo. Si no, recalcular con margen anterior
     if(l.precioVenta && l.precioVenta > 0){
       prod.precio = l.precioVenta;
