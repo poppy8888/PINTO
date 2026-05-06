@@ -5,60 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Stock cigarrillos - Edición en lista de compra/venta</title>
 <style>
-/* ========== BLOQUE DE CLAVE (overlay) ========== */
-#clave-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.85);
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-.clave-card {
-  background: #fff;
-  border-radius: 24px;
-  padding: 32px;
-  width: 320px;
-  text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-.clave-card h2 {
-  margin-bottom: 20px;
-  color: #1a1a2e;
-}
-.clave-card input {
-  width: 100%;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-.clave-card button {
-  background: #1a1a2e;
-  color: white;
-  border: none;
-  border-radius: 30px;
-  padding: 10px 20px;
-  font-size: 1rem;
-  cursor: pointer;
-  width: 100%;
-}
-.clave-card button:hover {
-  background: #2a2a4a;
-}
-.mensaje-error {
-  color: #e24b4a;
-  font-size: 0.8rem;
-  margin-top: 10px;
-}
-/* ========== ESTILOS ORIGINALES (no se modifican) ========== */
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f5;min-height:100vh;color:#1a1a2e}
@@ -142,6 +88,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .item-edit-price{width:90px;padding:4px 6px;border:1px solid #ddd;border-radius:8px;text-align:center}
 .item-edit-barcode{width:120px;padding:4px 6px;border:1px solid #ddd;border-radius:8px;font-family:monospace}
 .item-util-percent{font-size:0.7rem;min-width:60px;text-align:center;color:#639922}
+.item-price-group{display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:#f5f5fc;border-radius:10px;padding:5px 8px;margin-top:4px;}
+.price-label-mini{font-size:0.62rem;color:#888;display:block;text-align:center;margin-bottom:1px}
+.price-col{display:flex;flex-direction:column;align-items:center;}
+.price-col input{width:88px;padding:4px 6px;border:1px solid #ddd;border-radius:8px;text-align:center;font-size:0.82rem;}
+.price-col input.costo-input{border-color:#85b7eb;background:#eef5fd;}
+.price-col input.venta-input{border-color:#e8c84a;background:#fffbee;}
+.price-col input.util-input{border-color:#97c459;background:#f0faed;width:70px;}
+.util-arrow{color:#bbb;font-size:1rem;padding:0 2px;margin-top:14px;}
+.util-calc-badge{font-size:0.68rem;padding:2px 7px;border-radius:12px;background:#e8f5e0;color:#27500a;font-weight:600;white-space:nowrap;margin-top:14px;}
 .del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:1rem;padding:0 4px}
 .del-btn:hover{color:#e24b4a}
 .btn-save-edit{background:#639922;color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:0.7rem}
@@ -190,18 +145,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </head>
 <body>
 
-<!-- OVERLAY DE CLAVE (se elimina tras autenticación correcta) -->
-<div id="clave-overlay">
-  <div class="clave-card">
-    <h2>🔐 Acceso restringido</h2>
-    <input type="password" id="clave-input" placeholder="Contraseña" autofocus>
-    <button id="btn-validar">Ingresar</button>
-    <div id="clave-error" class="mensaje-error"></div>
-  </div>
-</div>
-
-<!-- CONTENIDO PRINCIPAL (todo el programa original) -->
-<div id="app-contenido" style="display: none;">
 <div class="header">
   <div class="header-left">
     <div class="header-icon">
@@ -313,7 +256,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <table class="factura-table" id="compra-tabla">
         <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th></tr></thead>
         <tbody id="compra-lineas-tbody"></tbody>
-        <tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
+        <tfoot><tr><td colspan="3" style="text-align:right;">Total compra:</td><td id="compra-total-pesos" style="font-weight:bold;">$0</td><td></td></tr>
+        </tfoot>
       </table>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
@@ -354,7 +298,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <table class="factura-table" id="venta-tabla">
         <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio c/u</th><th>Subtotal</th><th></th></tr></thead>
         <tbody id="venta-lineas-tbody"></tbody>
-        <tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr></tfoot>
+        <tfoot><tr><td colspan="3" style="text-align:right;">Total venta:</td><td id="venta-total-pesos" style="font-weight:bold;">$0</td><td></td></tr>
+        </tfoot>
       </table>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; gap:12px; flex-wrap:wrap;">
@@ -376,41 +321,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <div class="modal-overlay" id="modal-del"><div class="modal"><div class="modal-title">¿Eliminar producto?</div><div id="modal-del-text"></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-confirm" onclick="confirmarEliminar()">Eliminar</button></div></div></div>
 <div class="toast" id="toast"></div>
-</div> <!-- fin #app-contenido -->
 
 <script>
-// ========== CLAVE DE ACCESO ==========
-const CLAVE_ACCESO = "admin123";   // Cambiá esta clave por la que quieras
+// ---------- DATOS BASE ----------
+const productosBase=[
+  {id:1,nombre:'Blue Titanium RCB 20',marca:'Marlboro Titanium',precio:6150,costo:0,barcode:''},
+  {id:2,nombre:'Gold Titanium Super Slims BOX 20',marca:'Marlboro Titanium',precio:6150,costo:0,barcode:''},
+  {id:3,nombre:'Red Titanium BOX 20',marca:'Marlboro Titanium',precio:5600,costo:0,barcode:''},
+  {id:4,nombre:'Red BOX 20 / Gold Original RCB 20',marca:'Marlboro Red',precio:5600,costo:0,barcode:''},
+  {id:5,nombre:'Red Común',marca:'Marlboro Red',precio:5250,costo:0,barcode:''},
+  {id:6,nombre:'Red / Vista Purple Fusion BOX 12',marca:'Marlboro Red',precio:3340,costo:0,barcode:''},
+  {id:7,nombre:'Vista Purple Fusion XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
+  {id:8,nombre:'Vista Coral Fusion XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
+  {id:9,nombre:'Vista Blue XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
+  {id:10,nombre:'BOX 20',marca:'Philip Morris',precio:5050,costo:0,barcode:''},
+  {id:11,nombre:'Común',marca:'Philip Morris',precio:4650,costo:0,barcode:''},
+  {id:12,nombre:'BOX 12',marca:'Philip Morris',precio:3000,costo:0,barcode:''},
+  {id:13,nombre:'Blue Spin BOX 20',marca:'Philip Morris',precio:5050,costo:0,barcode:''},
+  {id:14,nombre:'Blue Spin BOX 12',marca:'Philip Morris',precio:3040,costo:0,barcode:''},
+  {id:15,nombre:'Original Común',marca:'Chesterfield',precio:3980,costo:0,barcode:''},
+  {id:16,nombre:'Original BOX 12',marca:'Chesterfield',precio:2650,costo:0,barcode:''},
+  {id:17,nombre:'Purple Motion 2 BOX 20',marca:'Chesterfield',precio:4450,costo:0,barcode:''},
+  {id:18,nombre:'Blue Motion BOX 20',marca:'Chesterfield',precio:4450,costo:0,barcode:''},
+  {id:19,nombre:'Blue Motion Común',marca:'Chesterfield',precio:3980,costo:0,barcode:''},
+  {id:20,nombre:'Blue Motion BOX 12',marca:'Chesterfield',precio:2650,costo:0,barcode:''},
+  {id:21,nombre:'Dorado Negros/Colorados Común',marca:'Harmony',precio:3980,costo:0,barcode:''},
+  {id:22,nombre:'Crafted Red BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
+  {id:23,nombre:'Crafted Coral BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
+  {id:24,nombre:'Crafted Forward BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
+  {id:25,nombre:'Crafted Red Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
+  {id:26,nombre:'Crafted Blue Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
+  {id:27,nombre:'Crafted Forward Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
+  {id:28,nombre:'Red Select Común',marca:'Philip Morris Select',precio:2000,costo:0,barcode:''},
+];
 
-function autenticar() {
-  return new Promise((resolve) => {
-    const overlay = document.getElementById('clave-overlay');
-    const input = document.getElementById('clave-input');
-    const btn = document.getElementById('btn-validar');
-    const errorDiv = document.getElementById('clave-error');
-    
-    function validar() {
-      if (input.value === CLAVE_ACCESO) {
-        overlay.style.display = 'none';
-        document.getElementById('app-contenido').style.display = 'block';
-        resolve(true);
-      } else {
-        errorDiv.textContent = 'Contraseña incorrecta. Intente de nuevo.';
-        input.value = '';
-        input.focus();
-      }
-    }
-    
-    btn.onclick = validar;
-    input.onkeypress = (e) => { if (e.key === 'Enter') validar(); };
-    input.focus();
-  });
-}
-
-// ========== RESTO DEL PROGRAMA ORIGINAL (sin modificaciones) ==========
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7tiFVf8qKlLrKZDNrRL0Ht0s4UhNvJcXebwKAxd5bzrr_CIcgggF0qZSiWtE3CcE/exec";
+// ---------- VARIABLES GLOBALES ----------
 const KEY_P='cig_prods_v11', KEY_S='cig_stock_v11', KEY_L='cig_log_v11', KEY_F='cig_facturas_v11';
-
 let productos=[], stock={}, log=[], facturas=[];
 let scannerMode='salida', deleteTarget=null, nextId=100;
 
@@ -419,87 +365,21 @@ function nowStr(){const d=new Date();return d.toLocaleDateString('es-AR')+' '+d.
 function calcTotal(){return productos.reduce((a,p)=>a+(stock[p.id]||0),0)}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 
-async function saveAll(){
+function saveAll(){
   localStorage.setItem(KEY_P,JSON.stringify(productos));
   localStorage.setItem(KEY_S,JSON.stringify(stock));
   localStorage.setItem(KEY_L,JSON.stringify(log));
   localStorage.setItem(KEY_F,JSON.stringify(facturas));
-  try{
-    const data={productos,stock,log,facturas};
-    const formData=new FormData();
-    formData.append('data', JSON.stringify(data));
-    await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body: formData});
-    toast('✅ Guardado en la nube');
-  }catch(err){
-    console.warn('Error nube:',err);
-    toast('💾 Guardado solo en este dispositivo (sin internet)');
-  }
 }
-
-function loadFromJsonp(){
-  return new Promise((resolve)=>{
-    const cbName='cb_'+Date.now();
-    window[cbName]=function(data){ delete window[cbName]; document.getElementById('jsonp-script')?.remove(); resolve(data); };
-    const s=document.createElement('script');
-    s.id='jsonp-script';
-    s.src=SCRIPT_URL+'?callback='+cbName+'&t='+Date.now();
-    s.onerror=()=>{ delete window[cbName]; resolve(null); };
-    document.head.appendChild(s);
-    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; resolve(null); } },5000);
-  });
-}
-
-async function loadAll(){
-  let loadedFromCloud=false;
-  try{
-    const data=await loadFromJsonp();
-    if(data && data.productos){
-      productos=data.productos; stock=data.stock||{}; log=data.log||[]; facturas=data.facturas||[];
-      loadedFromCloud=true;
-      toast('📡 Datos cargados desde la nube');
-    }
-  }catch(err){console.warn('Error carga nube:',err);}
-  if(!loadedFromCloud){
-    try{const p=localStorage.getItem(KEY_P);if(p)productos=JSON.parse(p)}catch(e){}
-    try{const s=localStorage.getItem(KEY_S);if(s)stock=JSON.parse(s)}catch(e){}
-    try{const l=localStorage.getItem(KEY_L);if(l)log=JSON.parse(l)}catch(e){}
-    try{const f=localStorage.getItem(KEY_F);if(f)facturas=JSON.parse(f)}catch(e){}
-    if(!productos.length)productos=JSON.parse(JSON.stringify([
-      {id:1,nombre:'Blue Titanium RCB 20',marca:'Marlboro Titanium',precio:6150,costo:0,barcode:''},
-      {id:2,nombre:'Gold Titanium Super Slims BOX 20',marca:'Marlboro Titanium',precio:6150,costo:0,barcode:''},
-      {id:3,nombre:'Red Titanium BOX 20',marca:'Marlboro Titanium',precio:5600,costo:0,barcode:''},
-      {id:4,nombre:'Red BOX 20 / Gold Original RCB 20',marca:'Marlboro Red',precio:5600,costo:0,barcode:''},
-      {id:5,nombre:'Red Común',marca:'Marlboro Red',precio:5250,costo:0,barcode:''},
-      {id:6,nombre:'Red / Vista Purple Fusion BOX 12',marca:'Marlboro Red',precio:3340,costo:0,barcode:''},
-      {id:7,nombre:'Vista Purple Fusion XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
-      {id:8,nombre:'Vista Coral Fusion XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
-      {id:9,nombre:'Vista Blue XL BOX 20',marca:'Marlboro Vista',precio:5600,costo:0,barcode:''},
-      {id:10,nombre:'BOX 20',marca:'Philip Morris',precio:5050,costo:0,barcode:''},
-      {id:11,nombre:'Común',marca:'Philip Morris',precio:4650,costo:0,barcode:''},
-      {id:12,nombre:'BOX 12',marca:'Philip Morris',precio:3000,costo:0,barcode:''},
-      {id:13,nombre:'Blue Spin BOX 20',marca:'Philip Morris',precio:5050,costo:0,barcode:''},
-      {id:14,nombre:'Blue Spin BOX 12',marca:'Philip Morris',precio:3040,costo:0,barcode:''},
-      {id:15,nombre:'Original Común',marca:'Chesterfield',precio:3980,costo:0,barcode:''},
-      {id:16,nombre:'Original BOX 12',marca:'Chesterfield',precio:2650,costo:0,barcode:''},
-      {id:17,nombre:'Purple Motion 2 BOX 20',marca:'Chesterfield',precio:4450,costo:0,barcode:''},
-      {id:18,nombre:'Blue Motion BOX 20',marca:'Chesterfield',precio:4450,costo:0,barcode:''},
-      {id:19,nombre:'Blue Motion Común',marca:'Chesterfield',precio:3980,costo:0,barcode:''},
-      {id:20,nombre:'Blue Motion BOX 12',marca:'Chesterfield',precio:2650,costo:0,barcode:''},
-      {id:21,nombre:'Dorado Negros/Colorados Común',marca:'Harmony',precio:3980,costo:0,barcode:''},
-      {id:22,nombre:'Crafted Red BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
-      {id:23,nombre:'Crafted Coral BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
-      {id:24,nombre:'Crafted Forward BOX 20',marca:'Marlboro Crafted',precio:3350,costo:0,barcode:''},
-      {id:25,nombre:'Crafted Red Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
-      {id:26,nombre:'Crafted Blue Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
-      {id:27,nombre:'Crafted Forward Común',marca:'Marlboro Crafted',precio:3050,costo:0,barcode:''},
-      {id:28,nombre:'Red Select Común',marca:'Philip Morris Select',precio:2000,costo:0,barcode:''},
-    ]));
-    toast('📀 Datos cargados desde este dispositivo');
-  }
+function loadAll(){
+  try{const p=localStorage.getItem(KEY_P);if(p)productos=JSON.parse(p)}catch(e){}
+  try{const s=localStorage.getItem(KEY_S);if(s)stock=JSON.parse(s)}catch(e){}
+  try{const l=localStorage.getItem(KEY_L);if(l)log=JSON.parse(l)}catch(e){}
+  try{const f=localStorage.getItem(KEY_F);if(f)facturas=JSON.parse(f)}catch(e){}
   if(!productos.length)productos=JSON.parse(JSON.stringify(productosBase));
   productos.forEach(p=>{if(stock[p.id]===undefined)stock[p.id]=0;if(!p.costo)p.costo=0;if(!p.barcode)p.barcode='';});
   nextId=Math.max(...productos.map(p=>p.id),99)+1;
-  if(!facturas)facturas=[];
+  if(!facturas) facturas=[];
 }
 function addLog(tipo,prod,antes,despues,qty, facturaId=null){
   log.push({tipo,id:prod.id,nombre:prod.nombre,marca:prod.marca,antes,despues,qty,fecha:nowStr(),facturaId});
@@ -542,19 +422,37 @@ function renderStock(){
     html+=`<div class="brand-group"><div class="brand-header"><span class="brand-pill">${marca}</span><span class="brand-count">${tot} u.</span></div>`;
     items.forEach(p=>{
       const qActual=stock[p.id]||0;
-      const utilPorc = (p.costo>0 && p.precio>0) ? (((p.precio-p.costo)/p.costo)*100).toFixed(1) : '0';
+      const utilPorc = (p.costo>0 && p.precio>0) ? (((p.precio-p.costo)/p.costo)*100).toFixed(1) : '';
+      const ganancia = (p.costo>0 && p.precio>0) ? fmt(p.precio - p.costo) : '—';
       html+=`
-        <div class="item-row" data-id="${p.id}">
-          <span class="item-barcode">${p.barcode || 'sin código'}</span>
-          <div class="item-name"><strong>${p.marca}</strong> ${p.nombre}</div>
-          <div class="item-edit-group" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-            <input type="text" id="barcode-${p.id}" class="item-edit-barcode" value="${p.barcode}" placeholder="Código barras" style="width:110px;">
-            <input type="number" id="stock-${p.id}" class="item-edit-stock" value="${qActual}" min="0" step="1" style="width:70px;" placeholder="Stock">
-            <input type="number" id="price-${p.id}" class="item-edit-price" value="${p.precio}" min="0" step="100" style="width:90px;" placeholder="Precio venta">
-            <button class="btn-save-edit" onclick="guardarEdicionProducto(${p.id})">💾</button>
+        <div class="item-row" data-id="${p.id}" style="flex-direction:column;align-items:flex-start;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap;">
+            <span class="item-barcode">${p.barcode || 'sin código'}</span>
+            <div class="item-name"><strong>${p.marca}</strong> ${p.nombre}</div>
+            <div style="display:flex;gap:6px;align-items:center;margin-left:auto;">
+              <input type="text" id="barcode-${p.id}" class="item-edit-barcode" value="${p.barcode}" placeholder="Código barras" style="width:110px;">
+              <input type="number" id="stock-${p.id}" class="item-edit-stock" value="${qActual}" min="0" step="1" style="width:70px;" placeholder="Stock">
+              <button class="btn-save-edit" onclick="guardarEdicionProducto(${p.id})">💾</button>
+              <button class="del-btn" onclick="pedirEliminar(${p.id})" title="Eliminar producto">✕</button>
+            </div>
           </div>
-          <div class="item-util-percent">Util: ${utilPorc}%</div>
-          <button class="del-btn" onclick="pedirEliminar(${p.id})" title="Eliminar producto">✕</button>
+          <div class="item-price-group">
+            <div class="price-col">
+              <span class="price-label-mini">💰 Costo ($)</span>
+              <input type="number" id="costo-${p.id}" class="costo-input" value="${p.costo||''}" min="0" step="100" placeholder="Costo" oninput="onStockCostoChange(${p.id})">
+            </div>
+            <div class="util-arrow">→</div>
+            <div class="price-col">
+              <span class="price-label-mini">🏷️ % Utilidad</span>
+              <input type="number" id="util-${p.id}" class="util-input" value="${utilPorc}" min="0" step="1" placeholder="%" oninput="onStockUtilChange(${p.id})">
+            </div>
+            <div class="util-arrow">→</div>
+            <div class="price-col">
+              <span class="price-label-mini">💵 Precio venta ($)</span>
+              <input type="number" id="price-${p.id}" class="venta-input" value="${p.precio||''}" min="0" step="100" placeholder="Precio venta" oninput="onStockPrecioChange(${p.id})">
+            </div>
+            <div class="util-calc-badge" id="ganancia-${p.id}">${utilPorc ? '+$'+ganancia+' / '+utilPorc+'%' : '—'}</div>
+          </div>
         </div>
       `;
     });
@@ -566,9 +464,11 @@ function renderStock(){
     const stockInput = document.getElementById(`stock-${p.id}`);
     const priceInput = document.getElementById(`price-${p.id}`);
     const barcodeInput = document.getElementById(`barcode-${p.id}`);
+    const costoInput = document.getElementById(`costo-${p.id}`);
     if(stockInput) stockInput.onchange = () => guardarEdicionProducto(p.id);
     if(priceInput) priceInput.onchange = () => guardarEdicionProducto(p.id);
     if(barcodeInput) barcodeInput.onchange = () => guardarEdicionProducto(p.id);
+    if(costoInput) costoInput.onchange = () => guardarEdicionProducto(p.id);
   });
 }
 
@@ -577,6 +477,7 @@ function guardarEdicionProducto(id){
   if(!prod) return;
   const nuevoStock = parseInt(document.getElementById(`stock-${id}`).value);
   const nuevoPrecio = parseFloat(document.getElementById(`price-${id}`).value);
+  const nuevoCosto = parseFloat(document.getElementById(`costo-${id}`).value);
   const nuevoBarcode = document.getElementById(`barcode-${id}`).value.trim();
   let cambios = false;
   if(!isNaN(nuevoStock) && nuevoStock !== (stock[id]||0)){
@@ -587,6 +488,10 @@ function guardarEdicionProducto(id){
   }
   if(!isNaN(nuevoPrecio) && nuevoPrecio !== prod.precio && nuevoPrecio>0){
     prod.precio = nuevoPrecio;
+    cambios = true;
+  }
+  if(!isNaN(nuevoCosto) && nuevoCosto !== prod.costo && nuevoCosto>=0){
+    prod.costo = nuevoCosto;
     cambios = true;
   }
   if(nuevoBarcode !== prod.barcode){
@@ -602,15 +507,13 @@ function guardarEdicionProducto(id){
     saveAll();
     renderStats();
     renderTotal();
-    const utilSpan = document.querySelector(`.item-row[data-id="${id}"] .item-util-percent`);
-    if(utilSpan && prod.costo>0){
-      const nuevaUtil = ((prod.precio - prod.costo)/prod.costo*100).toFixed(1);
-      utilSpan.textContent = `Util: ${nuevaUtil}%`;
-    }
-    toast(`Producto ${prod.marca} ${prod.nombre} actualizado`);
+    // actualizar badge de ganancia sin re-renderizar todo
+    actualizarBadgeGanancia(id);
+    toast(`✅ ${prod.marca} ${prod.nombre} actualizado`);
   } else {
     document.getElementById(`stock-${id}`).value = stock[id]||0;
     document.getElementById(`price-${id}`).value = prod.precio;
+    document.getElementById(`costo-${id}`).value = prod.costo||'';
     document.getElementById(`barcode-${id}`).value = prod.barcode;
   }
 }
@@ -644,8 +547,8 @@ function confirmarEliminar(){if(!deleteTarget)return;productos=productos.filter(
 // ---------- ESCÁNER GLOBAL (movimientos rápidos) ----------
 function setMode(mode){
   scannerMode=mode;
-  document.querySelector('.mode-btn.salida').classList.toggle('active',mode==='salida');
-  document.querySelector('.mode-btn.compra').classList.toggle('active',mode==='compra');
+  document.getElementById('btn-mode-salida').classList.toggle('active',mode==='salida');
+  document.getElementById('btn-mode-compra').classList.toggle('active',mode==='compra');
   document.getElementById('scanner-status').textContent=`Modo: ${mode==='salida'?'Sacar':'Agregar'}`;
 }
 const scannerInput=document.getElementById('scanner-input');
@@ -1139,6 +1042,68 @@ function importarBackup(e){
   reader.readAsText(file);e.target.value='';
 }
 
+// ---------- CALCULADORA ESPEJO EN STOCK ----------
+function actualizarBadgeGanancia(id){
+  const prod = productos.find(p=>p.id===id);
+  if(!prod) return;
+  const badge = document.getElementById(`ganancia-${id}`);
+  if(!badge) return;
+  if(prod.costo>0 && prod.precio>0){
+    const util = ((prod.precio - prod.costo)/prod.costo*100).toFixed(1);
+    badge.textContent = '+$'+fmt(prod.precio - prod.costo)+' / '+util+'%';
+    badge.style.background = parseFloat(util)>=0 ? '#e8f5e0' : '#fcebeb';
+    badge.style.color = parseFloat(util)>=0 ? '#27500a' : '#791f1f';
+  } else {
+    badge.textContent = '—';
+  }
+}
+// Cambió el COSTO → recalcula precio si hay % util, o recalcula % si hay precio
+function onStockCostoChange(id){
+  const costo = parseFloat(document.getElementById(`costo-${id}`).value)||0;
+  const utilInput = document.getElementById(`util-${id}`);
+  const precioInput = document.getElementById(`price-${id}`);
+  const util = parseFloat(utilInput.value);
+  const precio = parseFloat(precioInput.value);
+  if(costo>0 && !isNaN(util) && util>0){
+    precioInput.value = Math.round(costo*(1+util/100));
+  } else if(costo>0 && !isNaN(precio) && precio>0){
+    utilInput.value = ((precio-costo)/costo*100).toFixed(1);
+  }
+  actualizarBadgeGananciaLive(id);
+}
+// Cambió el % de UTILIDAD → calcula precio de venta
+function onStockUtilChange(id){
+  const costo = parseFloat(document.getElementById(`costo-${id}`).value)||0;
+  const util = parseFloat(document.getElementById(`util-${id}`).value)||0;
+  const precioInput = document.getElementById(`price-${id}`);
+  if(costo>0 && util>0){
+    precioInput.value = Math.round(costo*(1+util/100));
+  }
+  actualizarBadgeGananciaLive(id);
+}
+// Cambió el PRECIO DE VENTA → calcula % utilidad
+function onStockPrecioChange(id){
+  const costo = parseFloat(document.getElementById(`costo-${id}`).value)||0;
+  const precio = parseFloat(document.getElementById(`price-${id}`).value)||0;
+  const utilInput = document.getElementById(`util-${id}`);
+  if(costo>0 && precio>0){
+    utilInput.value = ((precio-costo)/costo*100).toFixed(1);
+  }
+  actualizarBadgeGananciaLive(id);
+}
+function actualizarBadgeGananciaLive(id){
+  const costo = parseFloat(document.getElementById(`costo-${id}`).value)||0;
+  const precio = parseFloat(document.getElementById(`price-${id}`).value)||0;
+  const badge = document.getElementById(`ganancia-${id}`);
+  if(!badge) return;
+  if(costo>0 && precio>0){
+    const util = ((precio-costo)/costo*100).toFixed(1);
+    badge.textContent = '+$'+fmt(precio-costo)+' / '+util+'%';
+    badge.style.background = parseFloat(util)>=0 ? '#e8f5e0' : '#fcebeb';
+    badge.style.color = parseFloat(util)>=0 ? '#27500a' : '#791f1f';
+  } else { badge.textContent='—'; }
+}
+
 function renderAll(){
   renderStock();
   renderStats();
@@ -1164,11 +1129,8 @@ function initEventos(){
   activarEnterEnCamposVenta();
 }
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-
-// Lanzar la autenticación primero y luego cargar todo
-autenticar().then(() => {
-  (async()=>{await loadAll();renderAll();initEventos();})();
-});
+loadAll();renderAll();
+setTimeout(initEventos,100);
 </script>
 </body>
 </html>
