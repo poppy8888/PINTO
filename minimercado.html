@@ -656,6 +656,7 @@ body{
   <button class="tab" onclick="showTab('clientes',this)">👥 Clientes</button>
   <button class="tab" onclick="showTab('proveedores',this)">🚚 Proveedores</button>
   <button class="tab" onclick="showTab('cuentas',this)">💳 Cuentas Corrientes</button>
+  <button class="tab" onclick="showTab('estadisticas',this)">📈 Estadísticas</button>
 </div>
 
 <div id="panel-stock" class="panel active">
@@ -1166,6 +1167,88 @@ body{
 
 <div id="panel-facturas" class="panel"><div id="lista-facturas"></div></div>
 <div id="panel-movimientos" class="panel"><div id="log-list"></div></div>
+
+<!-- ========== PANEL ESTADÍSTICAS ========== -->
+<div id="panel-estadisticas" class="panel">
+  <div style="font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+
+    <!-- Filtro de rango -->
+    <div style="background:#fff;border:1px solid #ddd;border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <span style="font-size:0.8rem;font-weight:700;color:#555;">📅 Período:</span>
+      <button onclick="setRangoEst('hoy')" id="est-btn-hoy" style="padding:6px 14px;border-radius:20px;border:1px solid #aaa;background:#f5f5f5;font-size:0.8rem;font-weight:600;cursor:pointer;">Hoy</button>
+      <button onclick="setRangoEst('semana')" id="est-btn-semana" style="padding:6px 14px;border-radius:20px;border:1px solid #aaa;background:#f5f5f5;font-size:0.8rem;font-weight:600;cursor:pointer;">Esta semana</button>
+      <button onclick="setRangoEst('mes')" id="est-btn-mes" style="padding:6px 14px;border-radius:20px;border:1px solid #1a1a2e;background:#1a1a2e;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;">Este mes</button>
+      <button onclick="setRangoEst('todo')" id="est-btn-todo" style="padding:6px 14px;border-radius:20px;border:1px solid #aaa;background:#f5f5f5;font-size:0.8rem;font-weight:600;cursor:pointer;">Todo</button>
+      <input type="date" id="est-desde" style="padding:5px 8px;border:1px solid #ddd;border-radius:6px;font-size:0.8rem;" onchange="renderEstadisticas()">
+      <span style="font-size:0.8rem;color:#888;">hasta</span>
+      <input type="date" id="est-hasta" style="padding:5px 8px;border:1px solid #ddd;border-radius:6px;font-size:0.8rem;" onchange="renderEstadisticas()">
+    </div>
+
+    <!-- KPIs principales -->
+    <div id="est-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px;"></div>
+
+    <!-- Fila: Ventas por día + Torta por forma de pago -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;">
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">📅 Ventas diarias del período</div>
+        <div id="est-chart-ventas-dia" style="width:100%;overflow-x:auto;"></div>
+      </div>
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">💳 Ventas por forma de pago</div>
+        <div id="est-chart-pago" style="display:flex;flex-direction:column;align-items:center;"></div>
+      </div>
+    </div>
+
+    <!-- Fila: Top productos vendidos + Productos sin movimiento -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">🏆 Top 10 productos más vendidos</div>
+        <div id="est-top-vendidos"></div>
+      </div>
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">💰 Top 10 por rentabilidad ($)</div>
+        <div id="est-top-rentabilidad"></div>
+      </div>
+    </div>
+
+    <!-- Fila: Stock crítico + Margen por familia -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#c0392b;margin-bottom:12px;">⚠️ Stock crítico (bajo mínimo o en 0)</div>
+        <div id="est-stock-critico"></div>
+      </div>
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">📂 Ventas por familia/categoría</div>
+        <div id="est-chart-familia"></div>
+      </div>
+    </div>
+
+    <!-- Fila: Evolución compras vs ventas + Clientes con más compras -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">📦 Compras vs Ventas por mes</div>
+        <div id="est-chart-comprasventa"></div>
+      </div>
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">👥 Clientes con más compras (CC)</div>
+        <div id="est-top-clientes"></div>
+      </div>
+    </div>
+
+    <!-- Fila: Inventario valorizado por familia -->
+    <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">🏷️ Inventario valorizado por familia</div>
+      <div id="est-inventario-familia"></div>
+    </div>
+
+    <!-- Tabla resumen de todos los productos -->
+    <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;margin-bottom:16px;">
+      <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">📋 Ranking completo de productos</div>
+      <div style="overflow-x:auto;"><table id="est-tabla-completa" style="width:100%;border-collapse:collapse;font-size:0.78rem;"></table></div>
+    </div>
+
+  </div>
+</div>
 
 <div class="modal-overlay" id="modal-del"><div class="modal"><div class="modal-title">¿Eliminar producto?</div><div id="modal-del-text"></div><div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-confirm" onclick="confirmarEliminar()">Eliminar</button></div></div></div>
 
@@ -2972,6 +3055,361 @@ function showTab(name,btn){
   if(name==='clientes'){ renderClientes(); }
   if(name==='proveedores'){ renderProveedores(); }
   if(name==='cuentas'){ renderCuentas(); }
+  if(name==='estadisticas'){ setRangoEst('mes'); }
+}
+
+// ========== ESTADÍSTICAS ==========
+function setRangoEst(rango){
+  const hoy = new Date();
+  const fmtF = d => d.toISOString().split('T')[0];
+  const desde = document.getElementById('est-desde');
+  const hasta = document.getElementById('est-hasta');
+  if(rango==='hoy'){ desde.value=fmtF(hoy); hasta.value=fmtF(hoy); }
+  else if(rango==='semana'){
+    const lun = new Date(hoy); const dia=hoy.getDay(); lun.setDate(hoy.getDate()+(dia===0?-6:1-dia));
+    desde.value=fmtF(lun); hasta.value=fmtF(hoy);
+  } else if(rango==='mes'){
+    desde.value=fmtF(new Date(hoy.getFullYear(),hoy.getMonth(),1)); hasta.value=fmtF(hoy);
+  } else {
+    desde.value='2020-01-01'; hasta.value=fmtF(hoy);
+  }
+  ['hoy','semana','mes','todo'].forEach(r=>{
+    const b=document.getElementById('est-btn-'+r);
+    if(b){ b.style.background=r===rango?'#1a1a2e':'#f5f5f5'; b.style.color=r===rango?'#fff':'#333'; b.style.borderColor=r===rango?'#1a1a2e':'#aaa'; }
+  });
+  renderEstadisticas();
+}
+
+function estParseFecha(f){
+  if(!f) return null;
+  const d=new Date(f); if(!isNaN(d.getTime())) return d;
+  const m=f.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if(m){ let y=parseInt(m[3]); if(y<100)y+=2000; return new Date(y,parseInt(m[2])-1,parseInt(m[1])); }
+  return null;
+}
+
+function fmtMil(n){ if(n>=1000000) return '$'+(n/1000000).toFixed(1)+'M'; if(n>=1000) return '$'+(n/1000).toFixed(1)+'k'; return '$'+fmt(n); }
+
+function renderEstadisticas(){
+  const desdeStr=document.getElementById('est-desde').value;
+  const hastaStr=document.getElementById('est-hasta').value;
+  const desde = desdeStr?new Date(desdeStr+'T00:00:00'):new Date(2020,0,1);
+  const hasta  = hastaStr?new Date(hastaStr+'T23:59:59'):new Date();
+
+  // ── Filtrar facturas del período ──
+  const fVentas = facturas.filter(f=>!f.anulada&&f.tipo==='venta'&&(()=>{const d=estParseFecha(f.fecha);return d&&d>=desde&&d<=hasta;})());
+  const fCompras= facturas.filter(f=>!f.anulada&&f.tipo==='compra'&&(()=>{const d=estParseFecha(f.fecha);return d&&d>=desde&&d<=hasta;})());
+
+  const totalVentas = fVentas.reduce((a,f)=>a+f.total,0);
+  const totalCompras= fCompras.reduce((a,f)=>a+f.total,0);
+  const cantVentas  = fVentas.length;
+  const cantCompras = fCompras.length;
+  const ticketPromedio = cantVentas>0 ? totalVentas/cantVentas : 0;
+
+  // CMV y utilidad bruta
+  let cmv=0;
+  fVentas.forEach(f=>(f.lineas||[]).forEach(l=>{
+    const p=productos.find(x=>Number(x.id)===Number(l.prodId));
+    if(p) cmv+=(p.costo||0)*(l.cantidad||0);
+  }));
+  const utilidadBruta = totalVentas - cmv;
+  const margenBruto   = totalVentas>0?(utilidadBruta/totalVentas*100):0;
+
+  // Valor de inventario
+  const valorInventario = productos.reduce((a,p)=>a+(stock[p.id]||0)*(p.costo||0),0);
+  const valorVentaInv   = productos.reduce((a,p)=>a+(stock[p.id]||0)*(p.precio||0),0);
+  const totalProductos  = productos.length;
+  const prodSinStock    = productos.filter(p=>(stock[p.id]||0)<=0).length;
+  const prodBajoMin     = productos.filter(p=>p.stockMin>0&&(stock[p.id]||0)<p.stockMin).length;
+
+  // ── KPIs ──
+  const kpis = [
+    { label:'💰 Ventas totales',    val: fmtMil(totalVentas),     color:'#27500a', bg:'#eaf3de' },
+    { label:'🛒 Compras totales',   val: fmtMil(totalCompras),    color:'#1a3a6e', bg:'#e0ecff' },
+    { label:'📈 Utilidad bruta',    val: fmtMil(utilidadBruta),   color: utilidadBruta>=0?'#27500a':'#c0392b', bg: utilidadBruta>=0?'#eaf3de':'#fdecea' },
+    { label:'📊 Margen bruto',      val: margenBruto.toFixed(1)+'%', color:'#5a1a8a', bg:'#f3eaff' },
+    { label:'🧾 Facturas de venta', val: cantVentas,              color:'#791f1f', bg:'#fcebeb' },
+    { label:'🎫 Ticket promedio',   val: fmtMil(ticketPromedio),  color:'#7a5500', bg:'#fff8e1' },
+    { label:'📦 Productos',         val: totalProductos,          color:'#1a1a2e', bg:'#f0f0f8' },
+    { label:'⚠️ Bajo mínimo',       val: prodBajoMin,             color:'#c0392b', bg:'#fdecea' },
+    { label:'🏦 Inventario (costo)',val: fmtMil(valorInventario), color:'#1a3a6e', bg:'#e0ecff' },
+    { label:'🏷️ Inventario (venta)',val: fmtMil(valorVentaInv),  color:'#27500a', bg:'#eaf3de' },
+  ];
+  document.getElementById('est-kpis').innerHTML = kpis.map(k=>`
+    <div style="background:${k.bg};border-radius:10px;padding:14px 16px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#666;margin-bottom:6px;">${k.label}</div>
+      <div style="font-size:1.5rem;font-weight:900;color:${k.color};line-height:1;">${k.val}</div>
+    </div>`).join('');
+
+  // ── Ventas diarias (barras SVG) ──
+  const ventasDia = {};
+  fVentas.forEach(f=>{
+    const d=estParseFecha(f.fecha); if(!d) return;
+    const k=d.toISOString().split('T')[0]; ventasDia[k]=(ventasDia[k]||0)+f.total;
+  });
+  const diasKeys=Object.keys(ventasDia).sort();
+  const el=document.getElementById('est-chart-ventas-dia');
+  if(diasKeys.length===0){ el.innerHTML='<div style="color:#999;font-size:0.8rem;padding:20px;text-align:center;">Sin datos en el período</div>'; }
+  else {
+    const maxV=Math.max(...diasKeys.map(k=>ventasDia[k]));
+    const barW=Math.max(24, Math.min(48, Math.floor(560/diasKeys.length)-4));
+    const W=Math.max(diasKeys.length*(barW+4)+40,300), H=160;
+    let svg=`<svg width="${W}" height="${H}" style="display:block;">`;
+    diasKeys.forEach((k,i)=>{
+      const v=ventasDia[k], h=maxV>0?Math.round((v/maxV)*110):0;
+      const x=30+i*(barW+4), y=H-30-h;
+      const lbl=k.slice(5); // mm-dd
+      svg+=`<rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="3" fill="#639922" opacity="0.85"/>`;
+      svg+=`<text x="${x+barW/2}" y="${H-14}" text-anchor="middle" font-size="9" fill="#666">${lbl}</text>`;
+      svg+=`<text x="${x+barW/2}" y="${y-3}" text-anchor="middle" font-size="9" fill="#27500a" font-weight="700">${fmtMil(v)}</text>`;
+    });
+    svg+=`</svg>`;
+    el.innerHTML=svg;
+  }
+
+  // ── Torta formas de pago ──
+  const pagoTotales={};
+  fVentas.forEach(f=>{ const fp=f.formaPago||'efectivo'; pagoTotales[fp]=(pagoTotales[fp]||0)+f.total; });
+  const pagoColores={'efectivo':'#639922','transferencia':'#3498db','cuenta_corriente':'#e8c84a','otro':'#9b59b6'};
+  const pagoLabels={'efectivo':'💵 Efectivo','transferencia':'📱 Transf.','cuenta_corriente':'📋 Cta Cte','otro':'Otro'};
+  const pagoKeys=Object.keys(pagoTotales);
+  const pagoEl=document.getElementById('est-chart-pago');
+  if(pagoKeys.length===0){ pagoEl.innerHTML='<div style="color:#999;font-size:0.8rem;padding:20px;text-align:center;">Sin ventas</div>'; }
+  else {
+    const total2=pagoKeys.reduce((a,k)=>a+pagoTotales[k],0);
+    let ang=0, paths='';
+    const R=65, cx=80, cy=80;
+    pagoKeys.forEach(k=>{
+      const frac=pagoTotales[k]/total2, sweep=frac*2*Math.PI;
+      const x1=cx+R*Math.sin(ang), y1=cy-R*Math.cos(ang);
+      ang+=sweep;
+      const x2=cx+R*Math.sin(ang), y2=cy-R*Math.cos(ang);
+      const big=sweep>Math.PI?1:0;
+      const col=pagoColores[k]||'#aaa';
+      paths+=`<path d="M${cx},${cy} L${x1.toFixed(1)},${y1.toFixed(1)} A${R},${R} 0 ${big},1 ${x2.toFixed(1)},${y2.toFixed(1)} Z" fill="${col}" stroke="#fff" stroke-width="2"/>`;
+    });
+    let leyenda=pagoKeys.map(k=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:0.75rem;"><span style="width:12px;height:12px;border-radius:3px;background:${pagoColores[k]||'#aaa'};display:inline-block;"></span><span>${pagoLabels[k]||k}</span><span style="margin-left:auto;font-weight:700;">$${fmt(pagoTotales[k])} (${(pagoTotales[k]/total2*100).toFixed(0)}%)</span></div>`).join('');
+    pagoEl.innerHTML=`<svg width="160" height="160"><g>${paths}</g><circle cx="${cx}" cy="${cy}" r="30" fill="#fff"/><text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="9" fill="#555">VENTAS</text><text x="${cx}" y="${cx+8}" text-anchor="middle" font-size="10" font-weight="700" fill="#1a1a2e">${fmtMil(total2)}</text></svg><div style="width:100%;margin-top:8px;">${leyenda}</div>`;
+  }
+
+  // ── Top 10 productos vendidos ──
+  const prodVentas={};
+  fVentas.forEach(f=>(f.lineas||[]).forEach(l=>{
+    const id=Number(l.prodId);
+    if(!prodVentas[id]) prodVentas[id]={qty:0,total:0,ganancia:0};
+    prodVentas[id].qty+=(l.cantidad||0);
+    prodVentas[id].total+=(l.subtotal||0);
+    const p=productos.find(x=>Number(x.id)===id);
+    if(p) prodVentas[id].ganancia+=(l.subtotal||0)-(p.costo||0)*(l.cantidad||0);
+  }));
+  const topVendidos=Object.keys(prodVentas).sort((a,b)=>prodVentas[b].total-prodVentas[a].total).slice(0,10);
+  const maxTV=topVendidos.length>0?prodVentas[topVendidos[0]].total:1;
+  document.getElementById('est-top-vendidos').innerHTML = topVendidos.length===0
+    ? '<div style="color:#999;font-size:0.8rem;text-align:center;padding:20px;">Sin ventas en el período</div>'
+    : topVendidos.map((id,i)=>{
+        const p=productos.find(x=>Number(x.id)===Number(id));
+        const nombre=p?`${p.marca} ${p.nombre}`:`#${id}`;
+        const d=prodVentas[id]; const pct=maxTV>0?(d.total/maxTV*100):0;
+        return `<div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:2px;">
+            <span><strong style="color:#1a1a2e;">#${i+1}</strong> ${nombre}</span>
+            <span style="font-weight:700;color:#27500a;">${fmtMil(d.total)}</span>
+          </div>
+          <div style="background:#eee;border-radius:4px;height:8px;overflow:hidden;">
+            <div style="width:${pct}%;height:100%;background:#639922;border-radius:4px;"></div>
+          </div>
+          <div style="font-size:0.68rem;color:#888;margin-top:1px;">${fmt(d.qty)} unid · Ganancia: ${fmtMil(d.ganancia)}</div>
+        </div>`;
+      }).join('');
+
+  // ── Top 10 rentabilidad ──
+  const topRent=Object.keys(prodVentas).sort((a,b)=>prodVentas[b].ganancia-prodVentas[a].ganancia).slice(0,10);
+  const maxRent=topRent.length>0?Math.max(prodVentas[topRent[0]].ganancia,1):1;
+  document.getElementById('est-top-rentabilidad').innerHTML = topRent.length===0
+    ? '<div style="color:#999;font-size:0.8rem;text-align:center;padding:20px;">Sin datos</div>'
+    : topRent.map((id,i)=>{
+        const p=productos.find(x=>Number(x.id)===Number(id));
+        const nombre=p?`${p.marca} ${p.nombre}`:`#${id}`;
+        const d=prodVentas[id]; const pct=maxRent>0?(d.ganancia/maxRent*100):0;
+        const margen=d.total>0?(d.ganancia/d.total*100).toFixed(1):0;
+        return `<div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:2px;">
+            <span><strong style="color:#1a1a2e;">#${i+1}</strong> ${nombre}</span>
+            <span style="font-weight:700;color:#5a1a8a;">${fmtMil(d.ganancia)} <span style="font-size:0.68rem;color:#888;">(${margen}%)</span></span>
+          </div>
+          <div style="background:#eee;border-radius:4px;height:8px;overflow:hidden;">
+            <div style="width:${Math.max(0,pct)}%;height:100%;background:#5a1a8a;border-radius:4px;"></div>
+          </div>
+        </div>`;
+      }).join('');
+
+  // ── Stock crítico ──
+  const criticos=productos.filter(p=>(stock[p.id]||0)<=0||(p.stockMin>0&&(stock[p.id]||0)<p.stockMin))
+    .sort((a,b)=>(stock[a.id]||0)-(stock[b.id]||0)).slice(0,15);
+  document.getElementById('est-stock-critico').innerHTML = criticos.length===0
+    ? '<div style="color:#27500a;font-size:0.8rem;text-align:center;padding:20px;">✅ Todo el stock está en nivel normal</div>'
+    : `<div style="overflow-y:auto;max-height:280px;">` + criticos.map(p=>{
+        const q=stock[p.id]||0; const min=p.stockMin||0;
+        const vacio=q<=0; const bajo=min>0&&q<min;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f0e0e0;">
+          <div>
+            <div style="font-size:0.8rem;font-weight:600;">${p.marca} ${p.nombre}</div>
+            <div style="font-size:0.68rem;color:#888;">Mín: ${min} · Actual: <strong style="color:${vacio?'#c0392b':'#e67e22'}">${q}</strong></div>
+          </div>
+          <span style="font-size:0.75rem;padding:3px 10px;border-radius:12px;font-weight:700;background:${vacio?'#fdecea':'#fff3e0'};color:${vacio?'#c0392b':'#e67e22'};">${vacio?'SIN STOCK':'BAJO'}</span>
+        </div>`;
+      }).join('') + '</div>';
+
+  // ── Ventas por familia ──
+  const famVentas={};
+  fVentas.forEach(f=>(f.lineas||[]).forEach(l=>{
+    const p=productos.find(x=>Number(x.id)===Number(l.prodId));
+    const fam=p?(p.familia||p.marca||'Sin categoría'):'Sin categoría';
+    famVentas[fam]=(famVentas[fam]||0)+(l.subtotal||0);
+  }));
+  const famKeys=Object.keys(famVentas).sort((a,b)=>famVentas[b]-famVentas[a]).slice(0,8);
+  const maxFam=famKeys.length>0?famVentas[famKeys[0]]:1;
+  const famColores=['#639922','#3498db','#e8c84a','#9b59b6','#e67e22','#1abc9c','#e24b4a','#34495e'];
+  document.getElementById('est-chart-familia').innerHTML = famKeys.length===0
+    ? '<div style="color:#999;font-size:0.8rem;text-align:center;padding:20px;">Sin ventas</div>'
+    : famKeys.map((f,i)=>{
+        const pct=maxFam>0?(famVentas[f]/maxFam*100):0;
+        return `<div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:0.78rem;margin-bottom:2px;">
+            <span style="font-weight:600;">${f}</span><span style="font-weight:700;color:${famColores[i%famColores.length]};">${fmtMil(famVentas[f])}</span>
+          </div>
+          <div style="background:#eee;border-radius:4px;height:10px;overflow:hidden;">
+            <div style="width:${pct}%;height:100%;background:${famColores[i%famColores.length]};border-radius:4px;"></div>
+          </div>
+        </div>`;
+      }).join('');
+
+  // ── Compras vs Ventas por mes ──
+  const meses={};
+  const allFact=facturas.filter(f=>!f.anulada);
+  allFact.forEach(f=>{
+    const d=estParseFecha(f.fecha); if(!d) return;
+    const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if(!meses[k]) meses[k]={ventas:0,compras:0};
+    if(f.tipo==='venta') meses[k].ventas+=f.total;
+    else meses[k].compras+=f.total;
+  });
+  const mesKeys=Object.keys(meses).sort().slice(-12);
+  const cvEl=document.getElementById('est-chart-comprasventa');
+  if(mesKeys.length===0){ cvEl.innerHTML='<div style="color:#999;font-size:0.8rem;padding:20px;text-align:center;">Sin datos</div>'; }
+  else {
+    const maxCV=Math.max(...mesKeys.map(k=>Math.max(meses[k].ventas,meses[k].compras)),1);
+    const bW=28, gap=8, lPad=36;
+    const W=lPad+mesKeys.length*(bW*2+gap+8)+10, H=170;
+    let svg=`<svg width="${W}" height="${H}" style="display:block;overflow:visible;">`;
+    // Líneas guía
+    [0,25,50,75,100].forEach(p=>{
+      const y=H-30-Math.round(p/100*120);
+      svg+=`<line x1="${lPad}" y1="${y}" x2="${W-10}" y2="${y}" stroke="#eee" stroke-width="1"/>`;
+      if(p>0) svg+=`<text x="${lPad-4}" y="${y+3}" text-anchor="end" font-size="9" fill="#aaa">${fmtMil(maxCV*p/100)}</text>`;
+    });
+    mesKeys.forEach((k,i)=>{
+      const x=lPad+i*(bW*2+gap+8);
+      const hV=maxCV>0?Math.round(meses[k].ventas/maxCV*120):0;
+      const hC=maxCV>0?Math.round(meses[k].compras/maxCV*120):0;
+      svg+=`<rect x="${x}" y="${H-30-hV}" width="${bW}" height="${hV}" rx="3" fill="#639922" opacity="0.85"/>`;
+      svg+=`<rect x="${x+bW+3}" y="${H-30-hC}" width="${bW}" height="${hC}" rx="3" fill="#3498db" opacity="0.75"/>`;
+      const lbl=k.slice(5)+'/'+k.slice(2,4);
+      svg+=`<text x="${x+bW}" y="${H-12}" text-anchor="middle" font-size="9" fill="#666">${lbl}</text>`;
+    });
+    svg+=`<rect x="${lPad}" y="${H-6}" width="12" height="6" fill="#639922"/><text x="${lPad+15}" y="${H-1}" font-size="9" fill="#555">Ventas</text>`;
+    svg+=`<rect x="${lPad+65}" y="${H-6}" width="12" height="6" fill="#3498db"/><text x="${lPad+80}" y="${H-1}" font-size="9" fill="#555">Compras</text>`;
+    svg+=`</svg>`;
+    cvEl.innerHTML=`<div style="overflow-x:auto;">${svg}</div>`;
+  }
+
+  // ── Top clientes CC ──
+  const cliSaldos=clientes.map(c=>({...c,saldo:calcularSaldoCC('cliente',c.id)})).filter(c=>c.saldo>0).sort((a,b)=>b.saldo-a.saldo).slice(0,8);
+  document.getElementById('est-top-clientes').innerHTML = cliSaldos.length===0
+    ? '<div style="color:#999;font-size:0.8rem;text-align:center;padding:20px;">Sin saldos pendientes</div>'
+    : `<div style="overflow-y:auto;max-height:280px;">` + cliSaldos.map((c,i)=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #eee;">
+          <div>
+            <div style="font-size:0.82rem;font-weight:700;">${c.apellido||''} ${c.nombre||''}</div>
+            <div style="font-size:0.68rem;color:#888;">${c.telefono||'—'}</div>
+          </div>
+          <span style="font-size:0.9rem;font-weight:800;color:#c0392b;">$${fmt(c.saldo)}</span>
+        </div>`).join('') + '</div>';
+
+  // ── Inventario valorizado por familia ──
+  const invFam={};
+  productos.forEach(p=>{
+    const fam=p.familia||p.marca||'Sin categoría';
+    if(!invFam[fam]) invFam[fam]={costo:0,venta:0,cant:0,prods:0};
+    invFam[fam].costo+=(stock[p.id]||0)*(p.costo||0);
+    invFam[fam].venta+=(stock[p.id]||0)*(p.precio||0);
+    invFam[fam].cant+=(stock[p.id]||0);
+    invFam[fam].prods++;
+  });
+  const invFamKeys=Object.keys(invFam).sort((a,b)=>invFam[b].costo-invFam[a].costo);
+  document.getElementById('est-inventario-familia').innerHTML=`<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+    <thead><tr style="background:#1a1a2e;color:#fff;">
+      <th style="padding:8px;text-align:left;">Familia</th>
+      <th style="padding:8px;text-align:center;">Productos</th>
+      <th style="padding:8px;text-align:right;">Stock total</th>
+      <th style="padding:8px;text-align:right;">Valor costo</th>
+      <th style="padding:8px;text-align:right;">Valor venta</th>
+      <th style="padding:8px;text-align:right;">Ganancia potencial</th>
+    </tr></thead>
+    <tbody>${invFamKeys.map((f,i)=>{
+      const d=invFam[f]; const gan=d.venta-d.costo;
+      return `<tr style="background:${i%2?'#fff':'#f7f7fc'};border-bottom:1px solid #eee;">
+        <td style="padding:7px 8px;font-weight:600;">${f}</td>
+        <td style="padding:7px 8px;text-align:center;">${d.prods}</td>
+        <td style="padding:7px 8px;text-align:right;">${fmt(d.cant)}</td>
+        <td style="padding:7px 8px;text-align:right;color:#1a3a6e;font-weight:700;">$${fmt(d.costo)}</td>
+        <td style="padding:7px 8px;text-align:right;color:#27500a;font-weight:700;">$${fmt(d.venta)}</td>
+        <td style="padding:7px 8px;text-align:right;color:#5a1a8a;font-weight:700;">$${fmt(gan)}</td>
+      </tr>`;
+    }).join('')}
+    <tr style="background:#1a1a2e;color:#fff;font-weight:700;">
+      <td style="padding:8px;">TOTAL</td>
+      <td style="padding:8px;text-align:center;">${productos.length}</td>
+      <td style="padding:8px;text-align:right;">${fmt(Object.values(invFam).reduce((a,d)=>a+d.cant,0))}</td>
+      <td style="padding:8px;text-align:right;">$${fmt(Object.values(invFam).reduce((a,d)=>a+d.costo,0))}</td>
+      <td style="padding:8px;text-align:right;">$${fmt(Object.values(invFam).reduce((a,d)=>a+d.venta,0))}</td>
+      <td style="padding:8px;text-align:right;">$${fmt(Object.values(invFam).reduce((a,d)=>a+d.venta-d.costo,0))}</td>
+    </tr></tbody></table></div>`;
+
+  // ── Tabla ranking completo ──
+  const prodRank=productos.map(p=>{
+    const d=prodVentas[p.id]||{qty:0,total:0,ganancia:0};
+    const margenP=p.costo>0&&p.precio>0?((p.precio-p.costo)/p.costo*100).toFixed(1):0;
+    return {...p, _qty:d.qty, _total:d.total, _ganancia:d.ganancia, _margen:margenP, _stock:stock[p.id]||0};
+  }).sort((a,b)=>b._total-a._total);
+  document.getElementById('est-tabla-completa').innerHTML=`
+    <thead><tr style="background:#1a1a2e;color:#fff;position:sticky;top:0;">
+      <th style="padding:8px;text-align:left;">#</th>
+      <th style="padding:8px;text-align:left;">Producto</th>
+      <th style="padding:8px;text-align:right;">Stock</th>
+      <th style="padding:8px;text-align:right;">Costo</th>
+      <th style="padding:8px;text-align:right;">Precio L1</th>
+      <th style="padding:8px;text-align:right;">Margen</th>
+      <th style="padding:8px;text-align:right;">Unid. vendidas</th>
+      <th style="padding:8px;text-align:right;">$ Vendido</th>
+      <th style="padding:8px;text-align:right;">Ganancia</th>
+    </tr></thead>
+    <tbody>${prodRank.map((p,i)=>{
+      const stOk=(p._stock||0)>0;
+      const bajo=p.stockMin>0&&p._stock<p.stockMin;
+      const stColor=p._stock<=0?'#c0392b':bajo?'#e67e22':'#27500a';
+      return `<tr style="background:${i%2?'#fff':'#f7f7fc'};border-bottom:1px solid #eee;">
+        <td style="padding:6px 8px;color:#aaa;font-size:0.75rem;">${i+1}</td>
+        <td style="padding:6px 8px;"><div style="font-weight:700;font-size:0.8rem;">${p.marca} ${p.nombre}</div><div style="font-size:0.65rem;color:#aaa;">${p.familia||p.marca}</div></td>
+        <td style="padding:6px 8px;text-align:right;font-weight:700;color:${stColor};">${fmt(p._stock)}</td>
+        <td style="padding:6px 8px;text-align:right;color:#555;">$${fmt(p.costo||0)}</td>
+        <td style="padding:6px 8px;text-align:right;color:#27500a;font-weight:600;">$${fmt(p.precio||0)}</td>
+        <td style="padding:6px 8px;text-align:right;color:#5a1a8a;">${p._margen}%</td>
+        <td style="padding:6px 8px;text-align:right;">${fmt(p._qty)}</td>
+        <td style="padding:6px 8px;text-align:right;font-weight:700;">$${fmt(p._total)}</td>
+        <td style="padding:6px 8px;text-align:right;font-weight:700;color:${p._ganancia>=0?'#27500a':'#c0392b'};">$${fmt(p._ganancia)}</td>
+      </tr>`;
+    }).join('')}</tbody>`;
 }
 
 // Llenar selector de clientes en venta
