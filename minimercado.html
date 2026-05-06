@@ -3346,8 +3346,8 @@ async function confirmarVenta(){
   ventaProductoActualId=null; document.getElementById('venta-producto-nombre').value='';
   document.getElementById('venta-modal').classList.remove('open');
 
-  // Mostrar ticket automáticamente
-  abrirTicket(factura, lineasGuardar);
+  // Preguntar si quiere ticket — toast con botones
+  mostrarToastTicket(factura, lineasGuardar);
 }
 
 // ============================================================
@@ -3414,7 +3414,32 @@ function generarTicketTexto(factura, lineas){
   return t;
 }
 
-let _ticketFacturaActual = null;
+function mostrarToastTicket(factura, lineas){
+  // Eliminar toast anterior si existe
+  const prev = document.getElementById('toast-ticket-opt');
+  if(prev) prev.remove();
+
+  const div = document.createElement('div');
+  div.id = 'toast-ticket-opt';
+  div.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+    background:#1a1a2e;color:#fff;border-radius:12px;padding:14px 20px;z-index:9999;
+    display:flex;align-items:center;gap:12px;box-shadow:0 6px 24px rgba(0,0,0,0.4);
+    font-family:'Segoe UI',Arial,sans-serif;font-size:0.88rem;min-width:280px;`;
+  div.innerHTML = `
+    <span style="font-size:1.1rem;">🧾</span>
+    <span style="flex:1;font-weight:600;">¿Imprimir ticket?</span>
+    <button id="toast-si-ticket" style="background:#27ae60;color:#fff;border:none;border-radius:7px;
+      padding:7px 14px;font-weight:700;cursor:pointer;font-size:0.85rem;">Sí</button>
+    <button id="toast-no-ticket" style="background:rgba(255,255,255,0.15);color:#fff;border:none;border-radius:7px;
+      padding:7px 14px;font-weight:600;cursor:pointer;font-size:0.85rem;">No</button>`;
+  document.body.appendChild(div);
+
+  const cerrar = () => div.remove();
+  document.getElementById('toast-si-ticket').onclick = () => { cerrar(); abrirTicket(factura, lineas); };
+  document.getElementById('toast-no-ticket').onclick = cerrar;
+  // Auto-cerrar en 6 segundos si no responde
+  setTimeout(cerrar, 6000);
+}
 let _ticketLineasActual  = null;
 
 function abrirTicket(factura, lineas){
