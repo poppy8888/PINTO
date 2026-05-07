@@ -302,10 +302,22 @@ body{
 .vsf-input-grande{font-size:0.95rem;font-weight:600;letter-spacing:0.5px;}
 
 .vsf-btn-camara{
-  background:#f0c040;border:1px solid #b89020;border-radius:3px;font-size:1.2rem;
-  cursor:pointer;height:32px;width:50px;
+  background:#f0c040;border:1px solid #b89020;border-radius:3px;font-size:1.4rem;
+  cursor:pointer;height:38px;width:55px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.15);
+  transition:transform 0.1s;
 }
 .vsf-btn-camara:hover{background:#e8c84a;}
+.vsf-btn-camara:active{transform:scale(0.95);}
+@media (max-width:768px){
+  .vsf-btn-camara{
+    font-size:1.8rem;
+    height:44px;
+    width:64px;
+    background:linear-gradient(180deg,#f5d050 0%,#e8c84a 100%);
+    border:2px solid #b89020;
+  }
+}
 
 .vsf-btn-agregar{
   background:#3d8011;color:#fff;border:1px solid #2a5a08;padding:6px 16px;
@@ -1433,19 +1445,6 @@ select {
 </div>
 
 <!-- MODAL CÁMARA -->
-<div class="modal-overlay" id="camara-modal" style="z-index:3000;background:rgba(0,0,0,0.92);">
-  <div style="background:#1a1a2e;border-radius:20px;padding:20px;width:min(95vw,420px);text-align:center;">
-    <div style="font-size:1rem;font-weight:700;color:#e8c84a;margin-bottom:12px;">📷 Escaneá el código</div>
-    <div style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;">
-      <video id="camara-video" autoplay playsinline style="width:100%;max-height:300px;display:block;"></video>
-      <canvas id="camara-canvas" style="display:none;"></canvas>
-    </div>
-    <div id="camara-status" style="margin-top:10px;font-size:0.8rem;color:#8888aa;">Iniciando...</div>
-    <div style="display:flex;gap:10px;margin-top:14px;justify-content:center;">
-      <button onclick="cambiarCamara()" style="padding:8px 16px;border-radius:10px;border:1px solid #444;background:#2a2a4a;color:#fff;cursor:pointer;font-size:0.8rem;">🔄 Cambiar</button>
-      <button onclick="cerrarCamara()" style="padding:8px 20px;border-radius:10px;border:none;background:#e24b4a;color:#fff;cursor:pointer;font-weight:700;">✕ Cerrar</button>
-    </div>
-  </div>
 </div>
 
 <div class="tabs">
@@ -1625,7 +1624,22 @@ select {
       <div style="background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(52,152,219,0.3);">
         <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">💰 ACTIVOS (STOCK)</div>
         <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-activos">$0</div>
-        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Stock actual × Costo</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Stock × Costo (lo invertido)</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#27ae60,#229954);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(39,174,96,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">📈 VALOR POTENCIAL DE VENTA</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-valor-potencial">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Si vendés TODO el stock</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#16a085,#138d75);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(22,160,133,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">💎 GANANCIA POTENCIAL</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-ganancia-potencial">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;" id="cont-margen-potencial">Margen: 0%</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#d4ac0d,#b7950b);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(212,172,13,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">🏠 VALOR LISTA CASA</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-valor-casa">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Stock × Precio Casa</div>
       </div>
       <div style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(155,89,182,0.3);">
         <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">🛒 COMPRAS</div>
@@ -1922,6 +1936,22 @@ select {
 </div>
 
 </div><!-- cierre app-pc -->
+
+<!-- MODAL CÁMARA - fuera de app-pc para móvil -->
+<div class="modal-overlay" id="camara-modal" style="z-index:3000;background:rgba(0,0,0,0.92);">
+  <div style="background:#1a1a2e;border-radius:20px;padding:20px;width:min(95vw,420px);text-align:center;">
+    <div style="font-size:1rem;font-weight:700;color:#e8c84a;margin-bottom:12px;">📷 Escaneá el código</div>
+    <div style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;">
+      <video id="camara-video" autoplay playsinline style="width:100%;max-height:300px;display:block;"></video>
+      <canvas id="camara-canvas" style="display:none;"></canvas>
+    </div>
+    <div id="camara-status" style="margin-top:10px;font-size:0.8rem;color:#8888aa;">Iniciando...</div>
+    <div style="display:flex;gap:10px;margin-top:14px;justify-content:center;">
+      <button onclick="cambiarCamara()" style="padding:8px 16px;border-radius:10px;border:1px solid #444;background:#2a2a4a;color:#fff;cursor:pointer;font-size:0.8rem;">🔄 Cambiar</button>
+      <button onclick="cerrarCamara()" style="padding:8px 20px;border-radius:10px;border:none;background:#e24b4a;color:#fff;cursor:pointer;font-weight:700;">✕ Cerrar</button>
+    </div>
+  </div>
+
 
 <!-- MODAL FLOTANTE DE VENTA -->
 <div class="modal-overlay" id="venta-modal" style="z-index:1500;">
@@ -6889,13 +6919,23 @@ function renderContabilidad(){
   const desde = desdeStr ? new Date(desdeStr + 'T00:00:00') : new Date(2020,0,1);
   const hasta = hastaStr ? new Date(hastaStr + 'T23:59:59') : new Date();
 
-  // ACTIVOS = stock actual × costo (siempre, no se filtra por fecha)
+  // ACTIVOS = stock actual × costo (lo invertido)
+  // VALOR POTENCIAL = stock actual × precio venta (lo que sacarías si vendés todo)
   let activos = 0;
+  let valorPotencialVenta = 0;
+  let valorPotencialCasa = 0;
   productos.forEach(p => {
     const q = stock[p.id] || 0;
+    if(q <= 0) return;
     const c = p.costo || 0;
+    const v = p.precio || 0;
+    const vc = p.precioCasa || c;
     activos += q * c;
+    valorPotencialVenta += q * v;
+    valorPotencialCasa += q * vc;
   });
+  const gananciaPotencial = valorPotencialVenta - activos;
+  const margenPotencial = activos > 0 ? (gananciaPotencial / activos * 100) : 0;
 
   // Filtrar facturas por rango
   let totalVentas = 0, totalCompras = 0, cmv = 0;
@@ -6944,6 +6984,15 @@ function renderContabilidad(){
   const utilidadNeta = utilidad - totalGastos;
 
   document.getElementById('cont-activos').textContent = '$' + fmt(activos);
+  // Valor potencial de venta (si vendés todo el stock)
+  const elVP = document.getElementById('cont-valor-potencial');
+  if(elVP) elVP.textContent = '$' + fmt(valorPotencialVenta);
+  const elGP = document.getElementById('cont-ganancia-potencial');
+  if(elGP) elGP.textContent = '$' + fmt(gananciaPotencial);
+  const elMP = document.getElementById('cont-margen-potencial');
+  if(elMP) elMP.textContent = `Margen: ${margenPotencial.toFixed(1)}%`;
+  const elPC = document.getElementById('cont-valor-casa');
+  if(elPC) elPC.textContent = '$' + fmt(valorPotencialCasa);
   document.getElementById('cont-ventas').textContent = '$' + fmt(totalVentas);
   document.getElementById('cont-ventas-cant').textContent = `${cantVentas} factura${cantVentas!==1?'s':''}`;
   document.getElementById('cont-compras').textContent = '$' + fmt(totalCompras);
@@ -7316,7 +7365,22 @@ async function iniciarStream(){
   try {
     if(camaraStream){ camaraStream.getTracks().forEach(t=>t.stop()); camaraStream = null; }
 
-    // Constraints optimizados para celulares: primero exact, si falla prueba sin exact
+    // Verificar que el navegador soporte acceso a cámara
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      document.getElementById('camara-status').innerHTML = '❌ Tu navegador no soporta cámara.<br>Usá Chrome o Safari actualizados.';
+      return;
+    }
+
+    // Verificar protocolo seguro (HTTPS o localhost) - REQUERIDO para cámara
+    const esLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    const esHTTPS = location.protocol === 'https:';
+    const esArchivo = location.protocol === 'file:';
+    if(!esHTTPS && !esLocalhost && !esArchivo){
+      document.getElementById('camara-status').innerHTML = '❌ Para usar la cámara la página debe estar en HTTPS.<br>Subí el archivo a GitHub Pages.';
+      return;
+    }
+
+    // Constraints optimizados: primero exact, después fallback
     let stream;
     const constraintsExact = { video: { facingMode: { exact: camarasFacingMode }, width:{ideal:1280}, height:{ideal:720} } };
     const constraintsFallback = { video: { facingMode: camarasFacingMode, width:{ideal:1280}, height:{ideal:720} } };
@@ -7341,10 +7405,13 @@ async function iniciarStream(){
     iniciarEscaneo();
   } catch(err){
     let msg = '❌ No se pudo acceder a la cámara.';
-    if(err.name === 'NotAllowedError') msg = '❌ Permiso de cámara denegado. Habilitalo en el navegador.';
-    else if(err.name === 'NotFoundError') msg = '❌ No se encontró ninguna cámara.';
-    else if(err.name === 'NotReadableError') msg = '❌ La cámara está en uso por otra app.';
-    document.getElementById('camara-status').textContent = msg;
+    if(err.name === 'NotAllowedError') msg = '❌ Permiso de cámara denegado.<br>📱 Tocá el candado/icono al lado de la URL → Permitir cámara.';
+    else if(err.name === 'NotFoundError') msg = '❌ No se encontró ninguna cámara en el dispositivo.';
+    else if(err.name === 'NotReadableError') msg = '❌ La cámara está siendo usada por otra app. Cerrala y reintentá.';
+    else if(err.name === 'OverconstrainedError') msg = '❌ La cámara no soporta esa configuración.';
+    else msg = '❌ Error: ' + (err.message || err.name || 'desconocido');
+    document.getElementById('camara-status').innerHTML = msg;
+    console.error('[Cámara]', err);
   }
 }
 
