@@ -1954,97 +1954,7 @@ select {
 
 
 <!-- MODAL FLOTANTE DE VENTA -->
-<div class="modal-overlay" id="venta-modal" style="z-index:1500;">
-  <div class="venta-stockfacil" style="width:min(95vw,950px);height:75vh;display:flex;flex-direction:column;overflow:hidden;">
-    <!-- Encabezado tipo StockFacil -->
-    <div class="vsf-header">
-      <span class="vsf-titulo">💰 VENTA</span>
-      <div class="vsf-fecha">📅 <span id="vsf-fecha-actual"></span></div>
-      <div class="vsf-numero">N° Venta: <strong id="vsf-num-venta">—</strong></div>
-      <button onclick="cerrarVentanaVenta()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:1.2rem;cursor:pointer;font-weight:700;">✕</button>
-    </div>
 
-    <!-- Selector de cliente, forma de pago Y LISTA DE PRECIOS -->
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:8px;background:#f5f5f5;padding:8px;border-radius:4px;border:1px solid #c8c8c8;flex-shrink:0;">
-      <div class="vsf-input-grupo">
-        <label class="vsf-label">👤 Cliente</label>
-        <select id="venta-cliente" class="vsf-input" style="height:38px;" onchange="onCambioClienteVenta()">
-          <option value="">— Consumidor Final —</option>
-        </select>
-      </div>
-      <div class="vsf-input-grupo">
-        <label class="vsf-label">📋 Lista de precios</label>
-        <select id="venta-lista" class="vsf-input" style="height:38px;" onchange="onCambioListaVenta()">
-          <option value="lista1">Lista 1 (Normal)</option>
-          <option value="lista2">Lista 2 (Cta. Cte.)</option>
-          <option value="casa">🏠 Casa (a costo)</option>
-        </select>
-      </div>
-      <div class="vsf-input-grupo">
-        <label class="vsf-label">💳 Forma de pago</label>
-        <select id="venta-pago" class="vsf-input" style="height:38px;" onchange="onCambioFormaPagoVenta()">
-          <option value="efectivo">💵 Efectivo</option>
-          <option value="transferencia">📱 Transferencia</option>
-          <option value="cuenta_corriente">📋 Cuenta Corriente</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Barra de entrada de producto -->
-    <div class="vsf-entrada">
-      <div class="vsf-input-grupo">
-        <label class="vsf-label">🔍 Código de barras</label>
-        <input type="text" id="venta-scan-input" class="vsf-input vsf-input-grande" placeholder="Escanear o escribir código..." autocomplete="off">
-      </div>
-      <button onclick="abrirCamara('venta')" class="vsf-btn-camara" title="Escanear con cámara">📷</button>
-      <div class="vsf-input-grupo">
-        <label class="vsf-label">🔎 Buscar artículo</label>
-        <input list="venta-productos-list" id="venta-producto-nombre" class="vsf-input" placeholder="Nombre, marca o código...">
-        <datalist id="venta-productos-list"></datalist>
-      </div>
-      <button class="vsf-btn-agregar" id="btn-agregar-linea-venta">➕ AGREGAR</button>
-    </div>
-
-    <!-- Tabla de productos -->
-    <div class="vsf-tabla-cont">
-      <table class="vsf-tabla" id="venta-tabla">
-        <thead>
-          <tr>
-            <th style="width:130px;">Código</th>
-            <th style="width:85px;">Cantidad</th>
-            <th>Detalle</th>
-            <th style="width:100px;">Precio</th>
-            <th style="width:110px;">Subtotal</th>
-            <th style="width:35px;"></th>
-          </tr>
-        </thead>
-        <tbody id="venta-lineas-tbody"></tbody>
-      </table>
-      <div class="vsf-tabla-vacia" id="vsf-vacio">— Aún no hay productos cargados —</div>
-    </div>
-
-    <!-- Footer con total grande -->
-    <div class="vsf-footer">
-      <div class="vsf-footer-izq">
-        <button class="vsf-btn-accion vsf-btn-cancelar" id="btn-limpiar-venta">❌ Cancelar</button>
-        <button class="vsf-btn-accion" onclick="abrirDescuentoVenta()" style="background:#8b1a8b;color:#fff;border:none;" title="Aplicar descuento a esta venta">🏷️ Dto.</button>
-        <button class="vsf-btn-accion" onclick="mostrarTicketUltimaVenta()" style="background:#3498db;color:#fff;border:none;" title="Ver ticket de la última venta">🧾 Ticket</button>
-        <button class="vsf-btn-accion vsf-btn-guardar" id="btn-confirmar-venta">✅ Guardar</button>
-      </div>
-      <div class="vsf-footer-mid">
-        <div class="vsf-monto-real">
-          <label>Monto papel ($):</label>
-          <input type="text" id="venta-monto-real" placeholder="Opcional" class="vsf-input" style="width:130px;">
-          <span id="venta-match-indicator" style="font-size:0.75rem;"></span>
-        </div>
-      </div>
-      <div class="vsf-total-box">
-        <div class="vsf-total-label">TOTAL</div>
-        <div class="vsf-total-monto" id="venta-total-pesos">$0</div>
-      </div>
-    </div>
-  </div>
-</div>
 
 <div id="panel-facturas" class="panel"><div id="lista-facturas"></div></div>
 <div id="panel-movimientos" class="panel"><div id="log-list"></div></div>
@@ -7984,5 +7894,97 @@ function renderCaja(){
   }
 }
 </script>
+
+<div class="modal-overlay" id="venta-modal" style="z-index:9999;">
+  <div class="venta-stockfacil" style="width:min(98vw,950px);height:90vh;display:flex;flex-direction:column;overflow:hidden;">
+    <!-- Encabezado tipo StockFacil -->
+    <div class="vsf-header">
+      <span class="vsf-titulo">💰 VENTA</span>
+      <div class="vsf-fecha">📅 <span id="vsf-fecha-actual"></span></div>
+      <div class="vsf-numero">N° Venta: <strong id="vsf-num-venta">—</strong></div>
+      <button onclick="cerrarVentanaVenta()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;font-size:1.2rem;cursor:pointer;font-weight:700;">✕</button>
+    </div>
+
+    <!-- Selector de cliente, forma de pago Y LISTA DE PRECIOS -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:8px;background:#f5f5f5;padding:8px;border-radius:4px;border:1px solid #c8c8c8;flex-shrink:0;">
+      <div class="vsf-input-grupo">
+        <label class="vsf-label">👤 Cliente</label>
+        <select id="venta-cliente" class="vsf-input" style="height:38px;" onchange="onCambioClienteVenta()">
+          <option value="">— Consumidor Final —</option>
+        </select>
+      </div>
+      <div class="vsf-input-grupo">
+        <label class="vsf-label">📋 Lista de precios</label>
+        <select id="venta-lista" class="vsf-input" style="height:38px;" onchange="onCambioListaVenta()">
+          <option value="lista1">Lista 1 (Normal)</option>
+          <option value="lista2">Lista 2 (Cta. Cte.)</option>
+          <option value="casa">🏠 Casa (a costo)</option>
+        </select>
+      </div>
+      <div class="vsf-input-grupo">
+        <label class="vsf-label">💳 Forma de pago</label>
+        <select id="venta-pago" class="vsf-input" style="height:38px;" onchange="onCambioFormaPagoVenta()">
+          <option value="efectivo">💵 Efectivo</option>
+          <option value="transferencia">📱 Transferencia</option>
+          <option value="cuenta_corriente">📋 Cuenta Corriente</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Barra de entrada de producto -->
+    <div class="vsf-entrada">
+      <div class="vsf-input-grupo">
+        <label class="vsf-label">🔍 Código de barras</label>
+        <input type="text" id="venta-scan-input" class="vsf-input vsf-input-grande" placeholder="Escanear o escribir código..." autocomplete="off">
+      </div>
+      <button onclick="abrirCamara('venta')" class="vsf-btn-camara" title="Escanear con cámara">📷</button>
+      <div class="vsf-input-grupo">
+        <label class="vsf-label">🔎 Buscar artículo</label>
+        <input list="venta-productos-list" id="venta-producto-nombre" class="vsf-input" placeholder="Nombre, marca o código...">
+        <datalist id="venta-productos-list"></datalist>
+      </div>
+      <button class="vsf-btn-agregar" id="btn-agregar-linea-venta">➕ AGREGAR</button>
+    </div>
+
+    <!-- Tabla de productos -->
+    <div class="vsf-tabla-cont">
+      <table class="vsf-tabla" id="venta-tabla">
+        <thead>
+          <tr>
+            <th style="width:130px;">Código</th>
+            <th style="width:85px;">Cantidad</th>
+            <th>Detalle</th>
+            <th style="width:100px;">Precio</th>
+            <th style="width:110px;">Subtotal</th>
+            <th style="width:35px;"></th>
+          </tr>
+        </thead>
+        <tbody id="venta-lineas-tbody"></tbody>
+      </table>
+      <div class="vsf-tabla-vacia" id="vsf-vacio">— Aún no hay productos cargados —</div>
+    </div>
+
+    <!-- Footer con total grande -->
+    <div class="vsf-footer">
+      <div class="vsf-footer-izq">
+        <button class="vsf-btn-accion vsf-btn-cancelar" id="btn-limpiar-venta">❌ Cancelar</button>
+        <button class="vsf-btn-accion" onclick="abrirDescuentoVenta()" style="background:#8b1a8b;color:#fff;border:none;" title="Aplicar descuento a esta venta">🏷️ Dto.</button>
+        <button class="vsf-btn-accion" onclick="mostrarTicketUltimaVenta()" style="background:#3498db;color:#fff;border:none;" title="Ver ticket de la última venta">🧾 Ticket</button>
+        <button class="vsf-btn-accion vsf-btn-guardar" id="btn-confirmar-venta">✅ Guardar</button>
+      </div>
+      <div class="vsf-footer-mid">
+        <div class="vsf-monto-real">
+          <label>Monto papel ($):</label>
+          <input type="text" id="venta-monto-real" placeholder="Opcional" class="vsf-input" style="width:130px;">
+          <span id="venta-match-indicator" style="font-size:0.75rem;"></span>
+        </div>
+      </div>
+      <div class="vsf-total-box">
+        <div class="vsf-total-label">TOTAL</div>
+        <div class="vsf-total-monto" id="venta-total-pesos">$0</div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
