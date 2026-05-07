@@ -378,7 +378,299 @@ body{
   .vsf-total-monto{font-size:1.4rem;}
   .vsf-titulo{font-size:0.95rem;}
 }
+
+/* ===================================================================== */
+/* ============== ESTILO PROFESIONAL TIPO STOCKFACIL ===================== */
+/* ===================================================================== */
+body, input, select, button, textarea, table {
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif !important;
+}
+
+body { font-size: 13px !important; }
+
+/* Tabs más planas y profesionales */
+.tabs {
+  background: rgba(255,255,255,0.92) !important;
+  border: 1px solid #aab !important;
+  padding: 4px !important;
+  gap: 2px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important;
+}
+.tab {
+  padding: 9px 14px !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  border-radius: 3px !important;
+  border: 1px solid #ccc !important;
+  background: #f0f0f0 !important;
+  min-width: auto !important;
+  letter-spacing: 0 !important;
+  color: #333 !important;
+}
+.tab:hover { background: #e0e0e8 !important; }
+.tab.active {
+  background: linear-gradient(180deg, #2c3e5e 0%, #1a1a2e 100%) !important;
+  color: #fff !important;
+  border-color: #1a1a2e !important;
+  font-weight: 700 !important;
+}
+
+/* Header más limpio */
+.header {
+  background: rgba(26, 26, 46, 0.95) !important;
+  padding: 12px 20px !important;
+  border-bottom: 1px solid #000 !important;
+  backdrop-filter: blur(10px);
+}
+.header-title { font-size: 1.05rem !important; font-weight: 700 !important; letter-spacing: 0 !important; }
+.header-sub { font-size: 0.72rem !important; opacity: 0.7; }
+.header-icon { width: 38px !important; height: 38px !important; border-radius: 6px !important; }
+.header-icon svg { width: 24px !important; height: 24px !important; }
+
+/* Inputs más profesionales */
+.field-input, .vsf-input,
+input[type="text"], input[type="number"], input[type="date"],
+input[type="email"], input[type="tel"], select, textarea {
+  font-size: 0.85rem !important;
+  border: 1px solid #aab !important;
+  border-radius: 3px !important;
+  padding: 6px 8px !important;
+  background: #fff !important;
+  color: #1a1a2e !important;
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+.field-input:focus, input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  border-color: #1565c0 !important;
+  box-shadow: 0 0 0 2px rgba(21, 101, 192, 0.2) !important;
+}
+.field-label, .vsf-label {
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  color: #555 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  margin-bottom: 3px !important;
+}
+
+/* Botones más planos */
+button:not(.tab):not(.brand-pill) {
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  border-radius: 3px !important;
+  cursor: pointer;
+  transition: filter 0.1s !important;
+}
+button:not(.tab):not(.brand-pill):hover { filter: brightness(0.95); }
+
+/* Tablas más prolijas */
+table {
+  font-size: 0.82rem !important;
+  border-collapse: collapse !important;
+}
+table thead {
+  background: linear-gradient(180deg, #e8e8ec 0%, #d0d0d8 100%) !important;
+  color: #1a1a2e !important;
+}
+table thead th {
+  padding: 6px 8px !important;
+  font-weight: 700 !important;
+  text-align: left !important;
+  border-bottom: 1px solid #aab !important;
+  border-right: 1px solid #c0c0c8 !important;
+  font-size: 0.75rem !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+table tbody td {
+  padding: 5px 8px !important;
+  border-bottom: 1px solid #e8e8ec !important;
+  border-right: 1px solid #f0f0f4 !important;
+}
+table tbody tr:hover { background: #f0f4ff !important; }
+table tbody tr:nth-child(even) { background: #fafafa; }
+
+/* Cards y paneles más planos */
+.panel { padding: 14px !important; }
+.add-product-card, .brand-group {
+  border-radius: 4px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  border: 1px solid #c8c8d0 !important;
+}
+.add-product-title {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  border-bottom: 1px solid #ddd !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 10px !important;
+}
+
+/* Search bar compacta */
+.search-bar {
+  background: #fff !important;
+  border: 1px solid #aab !important;
+  border-radius: 4px !important;
+  padding: 6px !important;
+  display: flex;
+  gap: 6px;
+}
+.search-bar input { flex: 1; }
+
+/* Brand groups densos */
+.brand-group { margin-bottom: 8px !important; padding: 8px 10px !important; }
+.brand-header {
+  background: linear-gradient(180deg, #e8e8ec, #d0d0d8) !important;
+  margin: -8px -10px 8px -10px !important;
+  padding: 6px 10px !important;
+  border-bottom: 1px solid #aab !important;
+  border-radius: 3px 3px 0 0 !important;
+}
+.brand-pill {
+  background: #1a1a2e !important;
+  color: #fff !important;
+  padding: 3px 10px !important;
+  border-radius: 3px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+}
+.brand-count { font-size: 0.78rem !important; font-weight: 600 !important; color: #555 !important; }
+
+.item-row {
+  padding: 5px 6px !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid #ececf0 !important;
+  background: #fff !important;
+  font-size: 0.82rem !important;
+}
+.item-row:hover { background: #f8fafd !important; }
+.item-row:nth-child(even) { background: #fafafa !important; }
+.item-name { font-size: 0.82rem !important; }
+.item-name strong { font-weight: 700 !important; }
+.item-barcode { font-size: 0.7rem !important; color: #888 !important; font-family: 'Consolas', monospace !important; }
+.item-row input {
+  font-size: 0.78rem !important;
+  padding: 3px 6px !important;
+  height: 24px !important;
+}
+.item-util-percent {
+  font-size: 0.7rem !important;
+  color: #555 !important;
+  font-weight: 600 !important;
+  background: #ffeebb !important;
+  padding: 2px 6px !important;
+  border-radius: 2px !important;
+  border: 1px solid #d4b860 !important;
+}
+.del-btn {
+  background: #c0392b !important;
+  color: #fff !important;
+  border: 1px solid #921e10 !important;
+  border-radius: 3px !important;
+  padding: 3px 8px !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+}
+.btn-save-edit {
+  background: #27500a !important;
+  color: #fff !important;
+  border: 1px solid #1a3a06 !important;
+  border-radius: 3px !important;
+  padding: 3px 8px !important;
+  font-size: 0.78rem !important;
+}
+
+/* Modal */
+.modal-overlay { backdrop-filter: blur(2px); }
+.modal {
+  border-radius: 5px !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4) !important;
+  border: 1px solid #888 !important;
+}
+.modal-title {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  background: linear-gradient(180deg, #2c3e5e 0%, #1a1a2e 100%) !important;
+  color: #fff !important;
+  padding: 8px 14px !important;
+  margin: -16px -16px 14px -16px !important;
+  border-radius: 5px 5px 0 0 !important;
+}
+
+/* Venta stockfacil */
+.venta-stockfacil {
+  border-radius: 5px !important;
+  border: 1px solid #888 !important;
+  background: #ececec !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
+}
+.vsf-header {
+  background: linear-gradient(180deg, #e0e0e6 0%, #c8c8d0 100%) !important;
+  border-bottom: 1px solid #888 !important;
+  padding: 7px 12px !important;
+}
+.vsf-titulo { font-size: 0.95rem !important; font-weight: 700 !important; }
+
+/* Pills/chips más planas */
+button[style*="border-radius:20px"],
+button[style*="border-radius: 20px"],
+button[style*="border-radius:18px"],
+button[style*="border-radius:14px"] {
+  border-radius: 12px !important;
+  font-size: 0.75rem !important;
+  padding: 4px 12px !important;
+}
+
+/* Toast */
+.toast {
+  border-radius: 3px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+}
+
+/* Scrollbar fino estilo Windows */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: #ececec; }
+::-webkit-scrollbar-thumb { background: #aab; border: 1px solid #888; }
+::-webkit-scrollbar-thumb:hover { background: #889; }
+
+/* Headings */
+h1, h2, h3, h4 {
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+}
+h2 { font-size: 1.1rem !important; }
+h3 { font-size: 0.95rem !important; }
+h4 { font-size: 0.85rem !important; }
+
+label { font-size: 0.75rem !important; color: #555 !important; }
+.fields-grid { gap: 8px !important; }
+.field-group { gap: 3px !important; }
+
+.btn-action {
+  border-radius: 3px !important;
+  padding: 7px 14px !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+}
+
+/* Selects con flecha estilo Windows */
+select {
+  background-image: linear-gradient(45deg, transparent 50%, #555 50%), linear-gradient(135deg, #555 50%, transparent 50%) !important;
+  background-position: calc(100% - 12px) calc(50% - 2px), calc(100% - 7px) calc(50% - 2px) !important;
+  background-size: 5px 5px, 5px 5px !important;
+  background-repeat: no-repeat !important;
+  appearance: none !important;
+  padding-right: 24px !important;
+}
+
 </style>
+<!-- Librería para generar códigos de barras EAN/CODE128 -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 </head>
 <body>
 
@@ -806,6 +1098,99 @@ body{
   </div>
 </div>
 
+<!-- ============ PANEL ETIQUETAS DE PRECIO ============ -->
+<div id="panel-etiquetas" class="panel">
+  <div style="font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+
+    <div style="background:#fff8e1;border:1px solid #f5c842;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:0.85rem;color:#7a5800;">
+      💡 <strong>Generador de etiquetas de precio</strong>: seleccioná los productos y elegí el formato. Después imprimís en hoja A4 y recortás.
+    </div>
+
+    <!-- Configuración -->
+    <div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:10px;">⚙️ Configuración de etiquetas</div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">📐 Formato</label>
+          <select id="et-formato" onchange="renderEtiquetasPreview()" style="width:100%;padding:6px;border:1px solid #aab;border-radius:3px;font-size:0.82rem;">
+            <option value="grande">Grande (10×4 = 40 por hoja)</option>
+            <option value="mediano" selected>Mediano (8×3 = 24 por hoja)</option>
+            <option value="chico">Chico (6×3 = 18 por hoja)</option>
+            <option value="gondola">Góndola (5×2 = 10 por hoja)</option>
+            <option value="oferta">Oferta GRANDE (4×2 = 8 por hoja)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">📋 Lista de precios</label>
+          <select id="et-lista" onchange="renderEtiquetasPreview()" style="width:100%;padding:6px;border:1px solid #aab;border-radius:3px;font-size:0.82rem;">
+            <option value="lista1">Lista 1 (Normal)</option>
+            <option value="lista2">Lista 2 (Cta. Cte.)</option>
+            <option value="casa">Casa (a costo)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">🎨 Estilo</label>
+          <select id="et-estilo" onchange="renderEtiquetasPreview()" style="width:100%;padding:6px;border:1px solid #aab;border-radius:3px;font-size:0.82rem;">
+            <option value="clasico" selected>Clásico (negro/blanco)</option>
+            <option value="oferta">¡OFERTA! (rojo)</option>
+            <option value="azul">Azul corporativo</option>
+            <option value="amarillo">Amarillo (llamativo)</option>
+            <option value="verde">Verde (natural)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">📊 Mostrar</label>
+          <div style="display:flex;flex-direction:column;gap:3px;font-size:0.78rem;">
+            <label><input type="checkbox" id="et-mostrar-codigo" checked onchange="renderEtiquetasPreview()"> Código de barras</label>
+            <label><input type="checkbox" id="et-mostrar-marca" checked onchange="renderEtiquetasPreview()"> Marca</label>
+            <label><input type="checkbox" id="et-mostrar-fecha" onchange="renderEtiquetasPreview()"> Fecha del día</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selección de productos -->
+    <div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:14px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#333;">📋 Seleccionar productos para etiquetar</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button onclick="seleccionarTodosEtiquetas()" style="padding:5px 10px;background:#1a1a2e;color:#fff;border:none;border-radius:3px;font-size:0.75rem;font-weight:600;cursor:pointer;">✓ Todos</button>
+          <button onclick="deseleccionarEtiquetas()" style="padding:5px 10px;background:#888;color:#fff;border:none;border-radius:3px;font-size:0.75rem;font-weight:600;cursor:pointer;">✕ Ninguno</button>
+          <button onclick="seleccionarBajoStockEtiquetas()" style="padding:5px 10px;background:#e67e22;color:#fff;border:none;border-radius:3px;font-size:0.75rem;font-weight:600;cursor:pointer;">⚠️ Stock bajo</button>
+          <button onclick="seleccionarRecienActualizadosEtiquetas()" style="padding:5px 10px;background:#1565c0;color:#fff;border:none;border-radius:3px;font-size:0.75rem;font-weight:600;cursor:pointer;">🆕 Cambio reciente</button>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="et-buscar" placeholder="🔍 Buscar producto..." oninput="renderEtListaSeleccion()" style="flex:1;min-width:200px;padding:6px 10px;border:1px solid #aab;border-radius:3px;font-size:0.85rem;">
+        <select id="et-familia-filtro" onchange="renderEtListaSeleccion()" style="padding:6px;border:1px solid #aab;border-radius:3px;font-size:0.82rem;min-width:150px;">
+          <option value="">Todas las familias</option>
+        </select>
+        <span id="et-contador" style="font-size:0.82rem;font-weight:700;color:#27500a;background:#e8f5e9;padding:5px 10px;border-radius:3px;border:1px solid #27500a;">0 seleccionados</span>
+      </div>
+
+      <!-- Lista de productos con checkboxes -->
+      <div id="et-lista-productos" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:3px;background:#fafafa;"></div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <button onclick="imprimirEtiquetas()" style="padding:10px 20px;background:#27500a;color:#fff;border:1px solid #1a3a06;border-radius:3px;font-size:0.9rem;font-weight:700;cursor:pointer;">🖨️ Imprimir etiquetas</button>
+      <button onclick="renderEtiquetasPreview()" style="padding:10px 20px;background:#1565c0;color:#fff;border:1px solid #0d47a1;border-radius:3px;font-size:0.9rem;font-weight:700;cursor:pointer;">🔄 Actualizar preview</button>
+      <span style="margin-left:auto;font-size:0.78rem;color:#666;align-self:center;" id="et-info-impresion"></span>
+    </div>
+
+    <!-- Preview -->
+    <div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:14px;">
+      <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:10px;">👀 Vista previa</div>
+      <div id="et-preview" style="background:#f5f5f5;padding:10px;border:1px dashed #aab;border-radius:3px;min-height:150px;"></div>
+    </div>
+
+  </div>
+</div>
+
 <!-- MODAL CONFIRMAR PEDIDO -->
 <div class="modal-overlay" id="pedido-modal" style="z-index:3000;">
   <div class="modal" style="width:min(95vw,720px);max-height:92vh;overflow-y:auto;padding:20px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
@@ -1081,6 +1466,7 @@ body{
   <button class="tab" onclick="showTab('caja',this)">🏦 Caja/Turno</button>
   <button class="tab" onclick="showTab('reportez',this)">📑 Reporte Z</button>
   <button class="tab" onclick="showTab('pedidos',this)">📦 Pedidos a Proveedor</button>
+  <button class="tab" onclick="showTab('etiquetas',this)">🏷️ Etiquetas</button>
 </div>
 
 <div id="panel-stock" class="panel active">
@@ -3998,6 +4384,7 @@ function showTab(name,btn){
   if(name==='caja'){ renderCaja(); }
   if(name==='reportez'){ setReporteZHoy(); }
   if(name==='pedidos'){ renderPedidos(); }
+  if(name==='etiquetas'){ inicializarEtiquetas(); }
 }
 
 // ========== ESTADÍSTICAS ==========
@@ -5155,6 +5542,430 @@ function eliminarPedido(id){
   localStorage.setItem('mm_pedidos_v1', JSON.stringify(_pedidosGuardados));
   renderPedidos();
   toast('🗑️ Pedido eliminado');
+}
+
+// ============================================================
+// ============== GENERADOR DE ETIQUETAS DE PRECIO =============
+// ============================================================
+let _etiquetasSeleccionadas = new Set();
+
+function inicializarEtiquetas(){
+  // Llenar filtro de familias
+  const sel = document.getElementById('et-familia-filtro');
+  if(sel){
+    const fams = [...new Set(productos.map(p => p.familia || p.marca || 'Sin categoría'))].sort();
+    sel.innerHTML = '<option value="">Todas las familias</option>' + 
+      fams.map(f => `<option value="${f}">${f}</option>`).join('');
+  }
+  renderEtListaSeleccion();
+  renderEtiquetasPreview();
+}
+
+function renderEtListaSeleccion(){
+  const cont = document.getElementById('et-lista-productos');
+  if(!cont) return;
+  
+  const buscar = (document.getElementById('et-buscar').value || '').toLowerCase().trim();
+  const famFiltro = document.getElementById('et-familia-filtro').value;
+  
+  let lista = productos.filter(p => {
+    if(famFiltro && (p.familia || p.marca || 'Sin categoría') !== famFiltro) return false;
+    if(buscar){
+      const txt = `${p.marca||''} ${p.nombre||''} ${p.barcode||''}`.toLowerCase();
+      if(!txt.includes(buscar)) return false;
+    }
+    return true;
+  });
+  
+  // Ordenar por marca/nombre
+  lista.sort((a,b) => {
+    const ka = `${a.marca||''} ${a.nombre||''}`;
+    const kb = `${b.marca||''} ${b.nombre||''}`;
+    return ka.localeCompare(kb);
+  });
+
+  if(lista.length === 0){
+    cont.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-style:italic;">No hay productos que coincidan</div>';
+    return;
+  }
+
+  let html = '<table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
+  html += '<thead style="background:#e8e8ec;position:sticky;top:0;">';
+  html += '<tr><th style="padding:6px;width:30px;"></th><th style="padding:6px;text-align:left;">Producto</th><th style="padding:6px;text-align:left;">Familia</th><th style="padding:6px;text-align:right;">Precio</th><th style="padding:6px;text-align:right;">Stock</th></tr>';
+  html += '</thead><tbody>';
+  
+  lista.forEach((p, i) => {
+    const id = Number(p.id);
+    const marcado = _etiquetasSeleccionadas.has(id) ? 'checked' : '';
+    const stockActual = stock[id] || 0;
+    const stockMin = p.stockMin || 0;
+    const bajoStock = stockMin > 0 && stockActual <= stockMin;
+    const bg = i % 2 === 0 ? '#fff' : '#fafafa';
+    const stockColor = bajoStock ? '#c0392b' : (stockActual <= 0 ? '#7a1a1a' : '#333');
+    
+    html += `<tr style="background:${bg};border-bottom:1px solid #eee;cursor:pointer;" onclick="toggleEtiqueta(${id})">
+      <td style="padding:5px;text-align:center;"><input type="checkbox" ${marcado} onchange="toggleEtiqueta(${id})" onclick="event.stopPropagation()"></td>
+      <td style="padding:5px;"><strong>${p.marca||''}</strong> ${p.nombre||''}<div style="font-size:0.7rem;color:#888;font-family:monospace;">${p.barcode || ''}</div></td>
+      <td style="padding:5px;color:#666;font-size:0.78rem;">${p.familia || p.marca || ''}</td>
+      <td style="padding:5px;text-align:right;font-weight:700;font-family:monospace;">$${fmt(p.precio||0)}</td>
+      <td style="padding:5px;text-align:right;font-family:monospace;color:${stockColor};font-weight:${bajoStock?'700':'400'};">${fmt(stockActual)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  cont.innerHTML = html;
+  
+  actualizarContadorEtiquetas();
+}
+
+function toggleEtiqueta(id){
+  id = Number(id);
+  if(_etiquetasSeleccionadas.has(id)) _etiquetasSeleccionadas.delete(id);
+  else _etiquetasSeleccionadas.add(id);
+  renderEtListaSeleccion();
+  renderEtiquetasPreview();
+}
+
+function actualizarContadorEtiquetas(){
+  const cont = document.getElementById('et-contador');
+  if(cont) cont.textContent = `${_etiquetasSeleccionadas.size} seleccionados`;
+}
+
+function seleccionarTodosEtiquetas(){
+  // Solo los visibles según filtros actuales
+  const buscar = (document.getElementById('et-buscar').value || '').toLowerCase().trim();
+  const famFiltro = document.getElementById('et-familia-filtro').value;
+  productos.forEach(p => {
+    if(famFiltro && (p.familia || p.marca || 'Sin categoría') !== famFiltro) return;
+    if(buscar){
+      const txt = `${p.marca||''} ${p.nombre||''} ${p.barcode||''}`.toLowerCase();
+      if(!txt.includes(buscar)) return;
+    }
+    _etiquetasSeleccionadas.add(Number(p.id));
+  });
+  renderEtListaSeleccion();
+  renderEtiquetasPreview();
+}
+
+function deseleccionarEtiquetas(){
+  _etiquetasSeleccionadas.clear();
+  renderEtListaSeleccion();
+  renderEtiquetasPreview();
+}
+
+function seleccionarBajoStockEtiquetas(){
+  productos.forEach(p => {
+    const stockActual = stock[Number(p.id)] || 0;
+    const stockMin = p.stockMin || 0;
+    if(stockMin > 0 && stockActual <= stockMin) _etiquetasSeleccionadas.add(Number(p.id));
+  });
+  renderEtListaSeleccion();
+  renderEtiquetasPreview();
+  toast(`${_etiquetasSeleccionadas.size} productos con stock bajo seleccionados`);
+}
+
+function seleccionarRecienActualizadosEtiquetas(){
+  // Productos con costo o precio cambiado recientemente (últimas 24h)
+  // Como no guardamos histórico de cambios de precio, miramos compras recientes
+  const ahora = Date.now();
+  const hace24h = ahora - 24 * 3600 * 1000;
+  const idsConCambio = new Set();
+  facturas.forEach(f => {
+    if(f.tipo !== 'compra' || f.anulada) return;
+    const fecha = parseFechaFactura(f.fecha);
+    if(!fecha || fecha.getTime() < hace24h) return;
+    f.lineas.forEach(l => idsConCambio.add(Number(l.prodId)));
+  });
+  if(idsConCambio.size === 0){
+    toast('No hay productos con cambios de precio recientes');
+    return;
+  }
+  idsConCambio.forEach(id => _etiquetasSeleccionadas.add(id));
+  renderEtListaSeleccion();
+  renderEtiquetasPreview();
+  toast(`${idsConCambio.size} productos con cambio reciente seleccionados`);
+}
+
+function obtenerPrecioEtiqueta(prod, lista){
+  if(lista === 'casa') return prod.precioCasa || prod.costo || 0;
+  if(lista === 'lista2') return prod.precioLista2 || prod.precio || 0;
+  return prod.precio || 0;
+}
+
+function obtenerConfigFormatoEtiqueta(formato){
+  // Configuración: cuántas etiquetas por fila/columna en hoja A4
+  // A4: 210mm × 297mm. Margen interno típico 10mm.
+  const configs = {
+    'grande':  { cols: 4,  rows: 10, ancho: '47mm', alto: '27mm', fontSize: '13px', priceSize: '20px', total: 40 },
+    'mediano': { cols: 3,  rows: 8,  ancho: '63mm', alto: '34mm', fontSize: '14px', priceSize: '24px', total: 24 },
+    'chico':   { cols: 3,  rows: 6,  ancho: '63mm', alto: '46mm', fontSize: '15px', priceSize: '28px', total: 18 },
+    'gondola': { cols: 2,  rows: 5,  ancho: '95mm', alto: '54mm', fontSize: '17px', priceSize: '36px', total: 10 },
+    'oferta':  { cols: 2,  rows: 4,  ancho: '95mm', alto: '68mm', fontSize: '18px', priceSize: '54px', total: 8 }
+  };
+  return configs[formato] || configs.mediano;
+}
+
+function obtenerConfigEstiloEtiqueta(estilo){
+  const estilos = {
+    'clasico':  { bg: '#fff',     fg: '#000',     borde: '#000', priceColor: '#000',     priceBg: 'transparent' },
+    'oferta':   { bg: '#ffeb3b',  fg: '#c0392b',  borde: '#c0392b', priceColor: '#fff',  priceBg: '#c0392b' },
+    'azul':     { bg: '#fff',     fg: '#1a1a2e',  borde: '#1565c0', priceColor: '#fff',  priceBg: '#1565c0' },
+    'amarillo': { bg: '#fff8e1',  fg: '#5a3300',  borde: '#e8c84a', priceColor: '#5a3300', priceBg: '#ffd54a' },
+    'verde':    { bg: '#fff',     fg: '#1a3a1a',  borde: '#27500a', priceColor: '#fff',  priceBg: '#27500a' }
+  };
+  return estilos[estilo] || estilos.clasico;
+}
+
+function generarHTMLEtiqueta(prod, formato, estilo, lista, opciones, parImpresion){
+  const cfg = obtenerConfigFormatoEtiqueta(formato);
+  const est = obtenerConfigEstiloEtiqueta(estilo);
+  const precio = obtenerPrecioEtiqueta(prod, lista);
+  const fecha = new Date().toLocaleDateString('es-AR');
+  
+  const labelLista = lista === 'casa' ? '🏠 CASA' : lista === 'lista2' ? 'LISTA 2' : '';
+  const esOferta = estilo === 'oferta';
+  const widthInner = parImpresion ? cfg.ancho : 'auto';
+
+  // Tamaños proporcionales según formato
+  const baseFs = parseInt(cfg.fontSize);
+  const priceFs = parseInt(cfg.priceSize);
+  const marcaFs = Math.max(baseFs - 3, 9);
+  const nombreFs = baseFs;
+  const codigoFs = Math.max(baseFs - 4, 8);
+
+  // ID único para el SVG del código de barras
+  const barcodeId = `bc-${prod.id}-${Math.random().toString(36).slice(2,7)}`;
+  
+  // Validar que el barcode sea válido para EAN-13 o CODE-128
+  let barcodeHTML = '';
+  if(opciones.mostrarCodigo && prod.barcode && prod.barcode.length >= 4){
+    // Detectar si es EAN-13 (13 dígitos numéricos)
+    const esEAN13 = /^\d{13}$/.test(prod.barcode);
+    const esEAN8 = /^\d{8}$/.test(prod.barcode);
+    const formatoBC = esEAN13 ? 'EAN13' : (esEAN8 ? 'EAN8' : 'CODE128');
+    const heightBC = formato === 'grande' ? 18 : (formato === 'mediano' ? 22 : (formato === 'chico' ? 26 : 30));
+    barcodeHTML = `<svg id="${barcodeId}" data-barcode="${prod.barcode}" data-format="${formatoBC}" data-height="${heightBC}" style="display:block;margin:0 auto;max-width:100%;height:${heightBC + 8}px;"></svg>`;
+  }
+  
+  // Si es oferta y tiene precio anterior diferente
+  let precioAnteriorHTML = '';
+  if(esOferta && prod.precioAnterior && prod.precioAnterior > precio && prod.precioAnterior > 0){
+    precioAnteriorHTML = `<div style="text-align:center;font-size:${Math.max(baseFs-2,10)}px;color:#666;text-decoration:line-through;font-weight:600;">Antes: $${fmt(prod.precioAnterior)}</div>`;
+  }
+
+  return `
+    <div style="
+      width:${widthInner};
+      height:${parImpresion ? cfg.alto : 'auto'};
+      min-height:${cfg.alto};
+      background:${est.bg};
+      color:${est.fg};
+      border:2px solid ${est.borde};
+      border-radius:3px;
+      padding:6px 8px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      box-sizing:border-box;
+      page-break-inside:avoid;
+      overflow:hidden;
+      font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+      position:relative;
+    ">
+      ${esOferta ? `<div style="position:absolute;top:2px;right:4px;background:#c0392b;color:#fff;font-size:${Math.max(baseFs-2,9)}px;font-weight:900;padding:1px 5px;border-radius:2px;transform:rotate(8deg);box-shadow:0 1px 3px rgba(0,0,0,0.2);">¡OFERTA!</div>` : ''}
+      ${labelLista ? `<div style="position:absolute;top:2px;left:4px;font-size:${codigoFs}px;font-weight:700;background:rgba(0,0,0,0.7);color:#fff;padding:1px 4px;border-radius:2px;">${labelLista}</div>` : ''}
+      
+      <!-- Encabezado: marca y nombre -->
+      <div style="text-align:center;margin-top:${labelLista || esOferta ? '8px' : '0'};">
+        ${opciones.mostrarMarca && prod.marca ? `<div style="font-size:${marcaFs}px;font-weight:700;text-transform:uppercase;line-height:1.1;">${prod.marca}</div>` : ''}
+        <div style="font-size:${nombreFs}px;font-weight:600;line-height:1.2;margin-top:2px;">${prod.nombre || ''}</div>
+      </div>
+      
+      ${precioAnteriorHTML}
+      
+      <!-- Precio gigante -->
+      <div style="text-align:center;background:${est.priceBg};color:${est.priceColor};padding:4px 6px;border-radius:3px;font-family:'Arial Black','Arial',sans-serif;font-weight:900;font-size:${priceFs}px;line-height:1;">
+        $${fmt(precio)}
+      </div>
+      
+      <!-- Código de barras visual -->
+      ${barcodeHTML}
+      
+      <!-- Footer: código texto, fecha, info adicional -->
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:${codigoFs}px;color:${est.fg};opacity:0.75;">
+        ${opciones.mostrarCodigo && prod.barcode && !barcodeHTML ? `<span style="font-family:'Consolas',monospace;">${prod.barcode}</span>` : '<span></span>'}
+        ${prod.tipo === 'peso' ? '<span style="font-weight:700;">por kg</span>' : prod.tipo === 'litro' ? '<span style="font-weight:700;">por L</span>' : ''}
+        ${opciones.mostrarFecha ? `<span>${fecha}</span>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// Renderizar todos los códigos de barras pendientes (después de insertar el HTML)
+function aplicarCodigosBarra(contenedor){
+  if(typeof JsBarcode === 'undefined') return;
+  const svgs = contenedor.querySelectorAll('svg[data-barcode]');
+  svgs.forEach(svg => {
+    const code = svg.getAttribute('data-barcode');
+    const format = svg.getAttribute('data-format');
+    const height = parseInt(svg.getAttribute('data-height')) || 22;
+    try {
+      JsBarcode(svg, code, {
+        format: format,
+        width: 1.2,
+        height: height,
+        displayValue: true,
+        fontSize: 9,
+        textMargin: 1,
+        margin: 0,
+        background: 'transparent'
+      });
+    } catch(e){
+      // Si falla EAN13 (mal dígito de control), volver a CODE128
+      try {
+        JsBarcode(svg, code, {
+          format: 'CODE128',
+          width: 1.2,
+          height: height,
+          displayValue: true,
+          fontSize: 9,
+          textMargin: 1,
+          margin: 0,
+          background: 'transparent'
+        });
+      } catch(e2){
+        // Si falla todo, mostrar el código en texto
+        svg.outerHTML = `<div style="font-family:monospace;font-size:9px;text-align:center;">${code}</div>`;
+      }
+    }
+  });
+}
+
+function renderEtiquetasPreview(){
+  const cont = document.getElementById('et-preview');
+  if(!cont) return;
+  const formato = document.getElementById('et-formato').value;
+  const estilo = document.getElementById('et-estilo').value;
+  const lista = document.getElementById('et-lista').value;
+  const opciones = {
+    mostrarCodigo: document.getElementById('et-mostrar-codigo').checked,
+    mostrarMarca: document.getElementById('et-mostrar-marca').checked,
+    mostrarFecha: document.getElementById('et-mostrar-fecha').checked
+  };
+  const cfg = obtenerConfigFormatoEtiqueta(formato);
+
+  const seleccionados = productos.filter(p => _etiquetasSeleccionadas.has(Number(p.id)));
+  
+  // Info de impresión
+  const infoEl = document.getElementById('et-info-impresion');
+  if(seleccionados.length === 0){
+    cont.innerHTML = '<div style="text-align:center;padding:30px;color:#888;font-style:italic;">Seleccioná productos arriba para ver la vista previa</div>';
+    if(infoEl) infoEl.textContent = '';
+    return;
+  }
+  const hojas = Math.ceil(seleccionados.length / cfg.total);
+  if(infoEl) infoEl.innerHTML = `📄 <strong>${seleccionados.length}</strong> etiquetas → <strong>${hojas}</strong> hoja${hojas !== 1 ? 's' : ''} A4 (${cfg.total} por hoja)`;
+
+  // Mostrar las primeras 12 como preview
+  const preview = seleccionados.slice(0, 12);
+  let html = `<div style="display:grid;grid-template-columns:repeat(${cfg.cols},1fr);gap:6px;">`;
+  preview.forEach(p => {
+    html += generarHTMLEtiqueta(p, formato, estilo, lista, opciones, false);
+  });
+  html += '</div>';
+  if(seleccionados.length > 12){
+    html += `<div style="text-align:center;margin-top:10px;font-size:0.78rem;color:#666;font-style:italic;">... y ${seleccionados.length - 12} etiqueta${seleccionados.length - 12 !== 1 ? 's' : ''} más al imprimir</div>`;
+  }
+  cont.innerHTML = html;
+  // Renderizar códigos de barras
+  setTimeout(() => aplicarCodigosBarra(cont), 50);
+}
+
+function imprimirEtiquetas(){
+  const seleccionados = productos.filter(p => _etiquetasSeleccionadas.has(Number(p.id)));
+  if(seleccionados.length === 0){ toast('Seleccioná al menos un producto'); return; }
+  
+  const formato = document.getElementById('et-formato').value;
+  const estilo = document.getElementById('et-estilo').value;
+  const lista = document.getElementById('et-lista').value;
+  const opciones = {
+    mostrarCodigo: document.getElementById('et-mostrar-codigo').checked,
+    mostrarMarca: document.getElementById('et-mostrar-marca').checked,
+    mostrarFecha: document.getElementById('et-mostrar-fecha').checked
+  };
+  const cfg = obtenerConfigFormatoEtiqueta(formato);
+  
+  // Generar HTML de todas las etiquetas
+  let etiquetasHTML = '';
+  seleccionados.forEach(p => {
+    etiquetasHTML += generarHTMLEtiqueta(p, formato, estilo, lista, opciones, true);
+  });
+  
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>Etiquetas de precio - ${seleccionados.length} productos</title>
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;}
+      body{
+        background:#fff;
+        font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+        padding:8mm;
+      }
+      .grid-etiquetas{
+        display:grid;
+        grid-template-columns:repeat(${cfg.cols}, ${cfg.ancho});
+        gap:2mm;
+        justify-content:center;
+        align-content:start;
+      }
+      @media print{
+        body{padding:5mm;}
+        @page{size:A4;margin:5mm;}
+        .grid-etiquetas{gap:1mm;}
+      }
+      .toolbar{
+        position:fixed;top:0;left:0;right:0;background:#1a1a2e;color:#fff;
+        padding:10px 20px;display:flex;gap:10px;z-index:1000;
+        box-shadow:0 2px 10px rgba(0,0,0,0.3);
+      }
+      .toolbar button{
+        padding:8px 16px;background:#27500a;color:#fff;border:none;
+        border-radius:3px;font-weight:700;cursor:pointer;
+        font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+      }
+      .toolbar button:hover{filter:brightness(1.1);}
+      .toolbar .info{margin-left:auto;font-size:0.85rem;align-self:center;}
+      @media print{.toolbar{display:none;}}
+      .contenido{margin-top:60px;}
+      @media print{.contenido{margin-top:0;}}
+    </style>
+  </head><body>
+    <div class="toolbar">
+      <button onclick="window.print()">🖨️ Imprimir</button>
+      <button onclick="window.close()" style="background:#c0392b;">✕ Cerrar</button>
+      <span class="info">${seleccionados.length} etiquetas · ${Math.ceil(seleccionados.length / cfg.total)} hoja${Math.ceil(seleccionados.length / cfg.total) !== 1 ? 's' : ''} A4</span>
+    </div>
+    <div class="contenido">
+      <div class="grid-etiquetas">${etiquetasHTML}</div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"><\/script>
+    <script>
+      window.addEventListener('load', function(){
+        if(typeof JsBarcode === 'undefined') return;
+        document.querySelectorAll('svg[data-barcode]').forEach(function(svg){
+          var code = svg.getAttribute('data-barcode');
+          var format = svg.getAttribute('data-format');
+          var height = parseInt(svg.getAttribute('data-height')) || 22;
+          try {
+            JsBarcode(svg, code, {format: format, width: 1.2, height: height, displayValue: true, fontSize: 9, textMargin: 1, margin: 0, background: 'transparent'});
+          } catch(e){
+            try { JsBarcode(svg, code, {format: 'CODE128', width: 1.2, height: height, displayValue: true, fontSize: 9, textMargin: 1, margin: 0, background: 'transparent'}); }
+            catch(e2){ svg.outerHTML = '<div style="font-family:monospace;font-size:9px;text-align:center;">'+code+'</div>'; }
+          }
+        });
+      });
+    <\/script>
+  </body></html>`);
+  win.document.close();
 }
 
 function renderEstadisticas(){
