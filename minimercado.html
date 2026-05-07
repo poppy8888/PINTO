@@ -3577,9 +3577,89 @@ function renderLog(){
   }).join('');
 }
 function renderFacturas(){
-  const cont=document.getElementById('lista-facturas');
-  if(!facturas.length){cont.innerHTML='<div class="empty">No hay facturas</div>';return;}
-  cont.innerHTML=facturas.map(f=>`<div class="invoice-card ${f.anulada?'anulada':''}"><div class="invoice-info"><strong>Factura ${f.tipo==='compra'?'Compra':'Venta'} #${f.id}</strong><br>${f.fecha}<br>${f.lineas.length} productos · Total: <span class="invoice-total ${f.tipo}">$${fmt(f.total)}</span>${f.anulada?' <span style="color:#a66000;">(ANULADA)</span>':''}</div>${!f.anulada?`<button class="btn-anular" onclick="anularFactura(${f.id})">Anular</button>`:'<button disabled class="btn-anular" style="background:#ccc;">Anulada</button>'}</div>`).join('');
+  const cont = document.getElementById('lista-facturas');
+  if(!facturas.length){ cont.innerHTML='<div class="empty">No hay facturas</div>'; return; }
+
+  // Filtro y búsqueda rápida
+  const filtroHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;padding:10px 12px;background:#f5f5fa;border-radius:10px;border:1px solid #ddd;">
+      <input id="fact-buscar" type="text" placeholder="🔍 Buscar por cliente, N° o importe..." oninput="renderFacturas()"
+        style="flex:1;min-width:180px;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:0.85rem;">
+      <select id="fact-filtro-tipo" onchange="renderFacturas()" style="padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:0.85rem;">
+        <option value="">Todas</option>
+        <option value="venta">Solo ventas</option>
+        <option value="compra">Solo compras</option>
+      </select>
+      <select id="fact-filtro-estado" onchange="renderFacturas()" style="padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:0.85rem;">
+        <option value="">Vigentes + anuladas</option>
+        <option value="vigente">Solo vigentes</option>
+        <option value="anulada">Solo anuladas</option>
+      </select>
+    </div>`;
+
+  const busq   = document.getElementById('fact-buscar')?.value?.toLowerCase() || '';
+  const ftipo  = document.getElementById('fact-filtro-tipo')?.value || '';
+  const festado= document.getElementById('fact-filtro-estado')?.value || '';
+
+  let lista = [...facturas].reverse(); // más recientes primero
+  if(ftipo)   lista = lista.filter(f => f.tipo === ftipo);
+  if(festado === 'vigente')  lista = lista.filter(f => !f.anulada);
+  if(festado === 'anulada')  lista = lista.filter(f => f.anulada);
+  if(busq) lista = lista.filter(f => {
+    const cli = f.clienteId ? (clientes.find(c=>Number(c.id)===Number(f.clienteId))?.nombre||'') : 'consumidor final';
+    return String(f.id).includes(busq) || cli.toLowerCase().includes(busq) || String(f.total).includes(busq);
+  });
+
+  const cardsHTML = lista.map(f => {
+    const cli = f.clienteId
+      ? (clientes.find(c=>Number(c.id)===Number(f.clienteId)))
+      : null;
+    const cliNombre = cli ? `${cli.apellido||''} ${cli.nombre||''}`.trim() : 'Consumidor Final';
+    const fpLabel = {efectivo:'💵 Efectivo', transferencia:'📱 Transferencia', cuenta_corriente:'📋 Cta. Cte.'}[f.formaPago] || (f.formaPago||'');
+    const esVenta = f.tipo === 'venta';
+    const btnImprimir = esVenta
+      ? `<button onclick="imprimirFacturaId(${f.id})" title="Imprimir ticket"
+           style="background:#1a1a2e;color:#fff;border:none;border-radius:7px;padding:6px 11px;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;">🖨️ Ticket</button>
+         <button onclick="pdfFacturaId(${f.id})" title="Guardar PDF"
+           style="background:#c0392b;color:#fff;border:none;border-radius:7px;padding:6px 11px;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;">📄 PDF</button>`
+      : '';
+    const btnAnular = !f.anulada
+      ? `<button class="btn-anular" onclick="anularFactura(${f.id})">Anular</button>`
+      : `<button disabled class="btn-anular" style="background:#ccc;">Anulada</button>`;
+
+    return `<div class="invoice-card ${f.anulada?'anulada':''}" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div class="invoice-info" style="flex:1;min-width:180px;">
+        <strong>${esVenta?'🛒 Venta':'📦 Compra'} #${f.id}</strong>
+        ${f.anulada?'<span style="color:#a66000;font-size:0.75rem;"> — ANULADA</span>':''}
+        <br><span style="font-size:0.8rem;color:#666;">${f.fecha}</span>
+        <br><span style="font-size:0.8rem;">${cliNombre}${fpLabel?' · '+fpLabel:''}</span>
+        <br>${f.lineas.length} art. · Total: <span class="invoice-total ${f.tipo}">$${fmt(f.total)}</span>
+        ${f.descuento>0?`<span style="font-size:0.75rem;color:#8b1a8b;"> (dto. $${fmt(f.descuento)})</span>`:''}
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+        ${btnImprimir}
+        ${btnAnular}
+      </div>
+    </div>`;
+  }).join('');
+
+  cont.innerHTML = filtroHTML + (lista.length ? cardsHTML : '<div class="empty">Sin resultados</div>');
+}
+
+function imprimirFacturaId(fid){
+  const f = facturas.find(x=>x.id===fid);
+  if(!f){ toast('Factura no encontrada'); return; }
+  abrirTicket(f, f.lineas);
+  // Lanzar impresión directa desde el modal
+  setTimeout(()=> imprimirTicket(), 400);
+}
+
+function pdfFacturaId(fid){
+  const f = facturas.find(x=>x.id===fid);
+  if(!f){ toast('Factura no encontrada'); return; }
+  _ticketFacturaActual = f;
+  _ticketLineasActual  = f.lineas;
+  descargarTicketPDF();
 }
 function anularFactura(fid){
   const f=facturas.find(f=>f.id===fid);
