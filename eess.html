@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Estación de Servicio - Control Surtidores</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+            background: #e9eef3;
+            margin: 0;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h2, h3 {
+            margin-top: 0;
+            color: #1e2a3e;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin: 12px 0 4px;
+            color: #2c3e50;
+        }
+        select, input, button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 16px;
+            border: 1px solid #ccc;
+            background: white;
+            margin-bottom: 8px;
+        }
+        button {
+            background: #2c7da0;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:active { transform: scale(0.97); background: #1f5e7a; }
+        .btn-sec {
+            background: #6c757d;
+        }
+        .camera-area {
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 10px 0;
+            text-align: center;
+        }
+        video, canvas, .foto-preview img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+        .foto-preview {
+            margin-top: 12px;
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 20px;
+        }
+        .mensaje {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 20px;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .registro-item {
+            background: #fef9e6;
+            border-left: 6px solid #f4a261;
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 20px;
+        }
+        .registro-item img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+        .flex-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .badge {
+            background: #2c7da0;
+            color: white;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        hr { margin: 20px 0; }
+        .admin-section {
+            background: #f4f6f9;
+            border-radius: 24px;
+            padding: 16px;
+        }
+        @media (max-width: 500px) {
+            body { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>⛽ Control de Surtidores</h2>
+        <label>👤 Playero:</label>
+        <select id="playero">
+            <option value="Juan">Juan Pérez</option>
+            <option value="Carlos">Carlos Gómez</option>
+            <option value="Lucía">Lucía Rodríguez</option>
+            <option value="Otro">Otro (escribir)</option>
+        </select>
+        <input type="text" id="playeroOtro" placeholder="Nombre si es Otro" style="display:none">
+        
+        <label>🆔 Surtidor:</label>
+        <select id="surtidor">
+            <option value="1">Surtidor 1</option>
+            <option value="2">Surtidor 2</option>
+            <option value="3">Surtidor 3</option>
+        </select>
+
+        <label>⛽ Combustible:</label>
+        <select id="combustible">
+            <option value="Nafta">Nafta</option>
+            <option value="Gasoil Común">Gasoil Común</option>
+            <option value="Gasoil Premium (el bueno)">Gasoil Premium (el bueno)</option>
+        </select>
+
+        <label>🕒 Momento:</label>
+        <select id="momento">
+            <option value="apertura">📷 Apertura de caja (foto inicial)</option>
+            <option value="cierre">🔒 Cierre de caja (foto final)</option>
+        </select>
+
+        <button id="btnAbrirCamara">📸 Tomar foto del surtidor</button>
+        
+        <div id="cameraPanel" style="display:none;">
+            <div class="camera-area">
+                <video id="video" autoplay playsinline style="width:100%; display:block;"></video>
+                <canvas id="canvas" style="display:none;"></canvas>
+            </div>
+            <div class="flex-btns">
+                <button id="btnTomarFoto">✅ Tomar foto</button>
+                <button id="btnCerrarCamara" class="btn-sec">❌ Cancelar</button>
+            </div>
+        </div>
+
+        <div id="previewArea" class="foto-preview" style="display:none;"></div>
+        <button id="btnGuardar" disabled>💾 Guardar registro (foto + lectura)</button>
+        <div id="mensajeGlobal" class="mensaje"></div>
+    </div>
+
+    <div class="card admin-section">
+        <h3>📋 Panel de Dirección</h3>
+        <div class="flex-btns" style="margin-bottom: 12px;">
+            <button id="btnVerRegistros">🔄 Actualizar registros</button>
+            <button id="btnExportarJSON" class="btn-sec">📎 Exportar JSON</button>
+            <button id="btnBorrarTodo" class="btn-sec" style="background:#b33;">🗑️ Borrar todo</button>
+        </div>
+        <div id="listaRegistros">🔍 Presiona "Actualizar" para ver los registros guardados.</div>
+    </div>
+
+    <script>
+        // --------------------------------------------------------------
+        // CONFIGURACIÓN OCR.SPACE (cambiar por tu API Key gratuita)
+        // Obtener en https://ocr.space/OCRAPI (gratis, solo email)
+        // La clave "helloworld" funciona hasta 50 requests/día (pruebas)
+        // --------------------------------------------------------------
+        const OCR_API_KEY = "helloworld";   // <-- REEMPLAZAR si tenés tu propia clave
+        const OCR_API_URL = "https://api.ocr.space/parse/image";
+
+        // -------- IndexedDB para guardar registros localmente --------
+        let db = null;
+        const DB_NAME = "EstacionSurtidoresDB";
+        const STORE_NAME = "registros";
+
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (e) => {
+                    const store = e.target.result.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
+                    store.createIndex("fecha", "fecha", { unique: false });
+                    store.createIndex("surtidor", "surtidor", { unique: false });
+                };
+            });
+        }
+
+        async function guardarRegistro(registro) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, "readwrite");
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.add(registro);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function obtenerTodosRegistros() {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, "readonly");
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result || []);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function borrarTodosRegistros() {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, "readwrite");
+                const store = tx.objectStore(STORE_NAME);
+                const req = store.clear();
+                req.onsuccess = () => resolve();
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        // ---------- Elementos DOM ----------
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const btnAbrir = document.getElementById('btnAbrirCamara');
+        const cameraPanel = document.getElementById('cameraPanel');
+        const btnTomar = document.getElementById('btnTomarFoto');
+        const btnCerrar = document.getElementById('btnCerrarCamara');
+        const previewArea = document.getElementById('previewArea');
+        const btnGuardar = document.getElementById('btnGuardar');
+        const mensajeDiv = document.getElementById('mensajeGlobal');
+        const playeroSelect = document.getElementById('playero');
+        const playeroOtro = document.getElementById('playeroOtro');
+        const btnVer = document.getElementById('btnVerRegistros');
+        const listaRegistrosDiv = document.getElementById('listaRegistros');
+        const btnExportar = document.getElementById('btnExportarJSON');
+        const btnBorrarTodo = document.getElementById('btnBorrarTodo');
+
+        let stream = null;
+        let currentImageDataURL = null;
+        let currentNumerosDetectados = "";
+        let currentRegistroPendiente = null;  // almacena datos antes de guardar
+
+        playeroSelect.addEventListener('change', () => {
+            playeroOtro.style.display = playeroSelect.value === 'Otro' ? 'block' : 'none';
+        });
+
+        function mostrarMensaje(texto, esError = false) {
+            mensajeDiv.textContent = texto;
+            mensajeDiv.className = esError ? 'mensaje error' : 'mensaje';
+            setTimeout(() => {
+                if (mensajeDiv.textContent === texto) mensajeDiv.textContent = '';
+            }, 5000);
+        }
+
+        // ---------- Cámara ----------
+        btnAbrir.onclick = async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                video.srcObject = stream;
+                video.style.display = "block";
+                cameraPanel.style.display = "block";
+                btnAbrir.disabled = true;
+                previewArea.style.display = "none";
+                currentImageDataURL = null;
+                btnGuardar.disabled = true;
+                mostrarMensaje("Cámara activa. Enfoca los números del surtidor.");
+            } catch (err) {
+                mostrarMensaje("Error de cámara: " + err.message, true);
+            }
+        };
+
+        btnCerrar.onclick = () => {
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+            }
+            cameraPanel.style.display = "none";
+            btnAbrir.disabled = false;
+            video.style.display = "none";
+        };
+
+        btnTomar.onclick = async () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataURL = canvas.toDataURL('image/jpeg', 0.9);
+            currentImageDataURL = dataURL;
+            
+            // Cerrar cámara
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+            }
+            cameraPanel.style.display = "none";
+            btnAbrir.disabled = false;
+            
+            // Mostrar preview y analizar con OCR
+            previewArea.style.display = "block";
+            previewArea.innerHTML = `<img src="${dataURL}" alt="Foto"><p>🔍 Enviando a OCR para leer números...</p>`;
+            
+            // Llamar a OCR.space
+            const numeros = await leerNumerosConOCR(dataURL);
+            currentNumerosDetectados = numeros;
+            
+            previewArea.innerHTML = `
+                <img src="${dataURL}" alt="Foto">
+                <p>📊 <strong>Números detectados por IA:</strong> ${numeros || "❌ No se detectaron"}</p>
+                <label>✏️ Corregir si es necesario:</label>
+                <input type="text" id="lecturaManual" value="${numeros || ''}" placeholder="Ej: 12345.6" style="width:100%">
+                <button id="btnConfirmarLectura">✅ Confirmar números y habilitar guardado</button>
+            `;
+            
+            document.getElementById('btnConfirmarLectura').onclick = () => {
+                const lecturaFinal = document.getElementById('lecturaManual').value.trim();
+                if (!lecturaFinal) {
+                    mostrarMensaje("Debés ingresar o confirmar los números del surtidor.", true);
+                    return;
+                }
+                currentNumerosDetectados = lecturaFinal;
+                btnGuardar.disabled = false;
+                mostrarMensaje(`Números guardados: ${lecturaFinal}. Ahora podés presionar "Guardar registro".`);
+                // Opcional: dejar feedback visual
+                previewArea.innerHTML += `<p style="color:green;">✅ Números confirmados: ${lecturaFinal}</p>`;
+            };
+        };
+
+        async function leerNumerosConOCR(dataURL) {
+            // Convertir dataURL a Blob
+            const blob = dataURLtoBlob(dataURL);
+            const formData = new FormData();
+            formData.append("file", blob, "surtidor.jpg");
+            formData.append("apikey", OCR_API_KEY);
+            formData.append("language", "spa");
+            formData.append("OCREngine", "2");  // motor más preciso
+            formData.append("scale", "true");
+            formData.append("isOverlayRequired", "false");
+            
+            try {
+                mostrarMensaje("Procesando imagen con OCR...");
+                const response = await fetch(OCR_API_URL, {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.IsErroredOnProcessing) {
+                    console.error(data.ErrorMessage);
+                    return "";
+                }
+                const text = data.ParsedResults?.[0]?.ParsedText || "";
+                // Extraer números (enteros o decimales)
+                const numerosEncontrados = text.match(/\d+[\.,]?\d*/g);
+                if (numerosEncontrados && numerosEncontrados.length) {
+                    // Tomar el más largo (suele ser la lectura principal)
+                    let mejor = numerosEncontrados.reduce((a,b) => a.length >= b.length ? a : b, "");
+                    // Reemplazar coma por punto si es decimal
+                    mejor = mejor.replace(',', '.');
+                    return mejor;
+                }
+                return "";
+            } catch (err) {
+                console.error("Error OCR:", err);
+                return "";
+            }
+        }
+
+        function dataURLtoBlob(dataURL) {
+            const arr = dataURL.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) u8arr[n] = bstr.charCodeAt(n);
+            return new Blob([u8arr], { type: mime });
+        }
+
+        // ---------- Guardar registro ----------
+        btnGuardar.onclick = async () => {
+            if (!currentImageDataURL) {
+                mostrarMensaje("No hay foto. Primero tomá una foto.", true);
+                return;
+            }
+            if (!currentNumerosDetectados) {
+                mostrarMensaje("Primero confirmá los números del surtidor.", true);
+                return;
+            }
+            
+            let playero = playeroSelect.value;
+            if (playero === "Otro") {
+                playero = playeroOtro.value.trim() || "Anónimo";
+            }
+            const surtidor = document.getElementById('surtidor').value;
+            const combustible = document.getElementById('combustible').value;
+            const momento = document.getElementById('momento').value;
+            const fecha = new Date().toISOString();
+            
+            const registro = {
+                playero,
+                surtidor,
+                combustible,
+                momento,
+                fecha,
+                numeros: currentNumerosDetectados,
+                fotoDataURL: currentImageDataURL   // se guarda completo (puede ser pesado, pero es prototipo)
+            };
+            
+            try {
+                await guardarRegistro(registro);
+                mostrarMensaje("✅ Registro guardado correctamente. La dirección puede verlo.");
+                // Limpiar estado
+                currentImageDataURL = null;
+                currentNumerosDetectados = "";
+                previewArea.style.display = "none";
+                btnGuardar.disabled = true;
+                // Opcional: refrescar lista de dirección automáticamente
+                cargarRegistrosEnPanel();
+            } catch (err) {
+                mostrarMensaje("Error al guardar: " + err.message, true);
+            }
+        };
+
+        // ---------- Panel de dirección ----------
+        async function cargarRegistrosEnPanel() {
+            listaRegistrosDiv.innerHTML = "Cargando...";
+            const registros = await obtenerTodosRegistros();
+            if (!registros.length) {
+                listaRegistrosDiv.innerHTML = "📭 No hay registros aún. Tomá fotos desde la sección superior.";
+                return;
+            }
+            // Ordenar descendente por fecha
+            registros.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
+            let html = "";
+            for (const reg of registros) {
+                const fechaLocal = new Date(reg.fecha).toLocaleString();
+                html += `
+                    <div class="registro-item">
+                        <div><span class="badge">${reg.momento === 'apertura' ? '📷 APERTURA' : '🔒 CIERRE'}</span>
+                        <strong>Surtidor ${reg.surtidor}</strong> - ${reg.combustible}</div>
+                        <div>👤 ${reg.playero} | 🕒 ${fechaLocal}</div>
+                        <div>🔢 Lectura: <strong style="font-size:1.2rem;">${reg.numeros}</strong></div>
+                        <img src="${reg.fotoDataURL}" alt="foto" onclick="window.open(this.src)">
+                        <div style="font-size:12px; margin-top:8px;">📸 Click en imagen para ampliar</div>
+                    </div>
+                `;
+            }
+            listaRegistrosDiv.innerHTML = html;
+        }
+
+        btnVer.onclick = cargarRegistrosEnPanel;
+        
+        btnExportar.onclick = async () => {
+            const registros = await obtenerTodosRegistros();
+            const exportData = registros.map(r => ({
+                ...r,
+                fotoDataURL: r.fotoDataURL ? "(imagen base64 muy larga)" : null
+            }));
+            const dataStr = JSON.stringify(registros.map(({ fotoDataURL, ...rest }) => rest), null, 2);
+            const blob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `registros_${new Date().toISOString()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            mostrarMensaje("Exportado (sin las imágenes para no saturar)");
+        };
+        
+        btnBorrarTodo.onclick = async () => {
+            if (confirm("⚠️ ¿Eliminar TODOS los registros? No se puede deshacer.")) {
+                await borrarTodosRegistros();
+                await cargarRegistrosEnPanel();
+                mostrarMensaje("Todos los registros fueron eliminados.");
+            }
+        };
+
+        // Inicializar DB y cargar registros
+        initDB().then(() => {
+            console.log("Base de datos local lista");
+            cargarRegistrosEnPanel();
+        }).catch(err => {
+            console.error("Error IndexedDB:", err);
+            listaRegistrosDiv.innerHTML = "Error: no se pudo inicializar almacenamiento local. Revisá permisos.";
+        });
+    </script>
+</body>
+</html>
