@@ -1004,6 +1004,7 @@ body{
   <button class="tab" onclick="showTab('proveedores',this)">🚚 Proveedores</button>
   <button class="tab" onclick="showTab('cuentas',this)">💳 Cuentas Corrientes</button>
   <button class="tab" onclick="showTab('estadisticas',this)">📈 Estadísticas</button>
+  <button class="tab" onclick="showTab('analisis',this)">🔍 Análisis</button>
   <button class="tab" onclick="showTab('descuentos',this)">🏷️ Descuentos</button>
   <button class="tab" onclick="showTab('gastos',this)">💸 Gastos</button>
   <button class="tab" onclick="showTab('caja',this)">🏦 Caja/Turno</button>
@@ -1434,20 +1435,29 @@ body{
 
 <!-- MODAL TICKET DE VENTA -->
 <div class="modal-overlay" id="ticket-modal" style="z-index:4000;">
-  <div style="background:#fff;border-radius:16px;width:min(95vw,420px);max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.4);overflow:hidden;">
+  <div style="background:#fff;border-radius:16px;width:min(95vw,460px);max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.4);overflow:hidden;">
     <!-- Header del modal -->
     <div style="background:linear-gradient(135deg,#1a1a2e,#2c5f2e);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
       <div style="font-size:1rem;font-weight:700;">🧾 Ticket de Venta</div>
       <button onclick="document.getElementById('ticket-modal').classList.remove('open')" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:30px;height:30px;border-radius:6px;font-size:1rem;cursor:pointer;">✕</button>
     </div>
+    
+    <!-- Selector de tamaño de impresora -->
+    <div style="padding:10px 16px;background:#f5f5f5;border-bottom:1px solid #ddd;display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0;">
+      <span style="font-size:0.78rem;font-weight:700;color:#555;">📐 Impresora:</span>
+      <button onclick="cambiarFormatoTicket(58)" id="ticket-btn-58" style="padding:5px 12px;border-radius:14px;border:1px solid #aaa;background:#fff;font-size:0.78rem;font-weight:600;cursor:pointer;">58mm</button>
+      <button onclick="cambiarFormatoTicket(80)" id="ticket-btn-80" style="padding:5px 12px;border-radius:14px;border:1px solid #1a1a2e;background:#1a1a2e;color:#fff;font-size:0.78rem;font-weight:600;cursor:pointer;">80mm</button>
+      <button onclick="cambiarFormatoTicket('a4')" id="ticket-btn-a4" style="padding:5px 12px;border-radius:14px;border:1px solid #aaa;background:#fff;font-size:0.78rem;font-weight:600;cursor:pointer;">A4 (común)</button>
+    </div>
+    
     <!-- Preview del ticket -->
-    <div style="flex:1;overflow-y:auto;padding:16px;background:#f0f0f0;">
-      <div id="ticket-preview" style="background:#fff;font-family:'Courier New',Courier,monospace;font-size:12px;max-width:320px;margin:0 auto;padding:16px;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.15);white-space:pre-wrap;word-break:break-word;line-height:1.5;"></div>
+    <div style="flex:1;overflow-y:auto;padding:16px;background:#e8e8e8;">
+      <div id="ticket-preview" style="background:#fff;font-family:'Courier New',Courier,monospace;font-size:11px;max-width:280px;margin:0 auto;padding:14px 12px;border-radius:2px;box-shadow:0 2px 12px rgba(0,0,0,0.2);white-space:pre-wrap;word-break:break-word;line-height:1.45;"></div>
     </div>
     <!-- Botones de acción -->
     <div style="padding:14px 16px;display:flex;gap:10px;background:#fff;border-top:1px solid #eee;flex-shrink:0;">
       <button onclick="imprimirTicket()" style="flex:1;padding:11px;background:#1a1a2e;color:#fff;border:none;border-radius:8px;font-size:0.95rem;font-weight:700;cursor:pointer;">🖨️ Imprimir</button>
-      <button onclick="descargarTicketPDF()" style="flex:1;padding:11px;background:#c0392b;color:#fff;border:none;border-radius:8px;font-size:0.95rem;font-weight:700;cursor:pointer;">📄 Guardar PDF</button>
+      <button onclick="descargarTicketPDF()" style="flex:1;padding:11px;background:#c0392b;color:#fff;border:none;border-radius:8px;font-size:0.95rem;font-weight:700;cursor:pointer;">📄 PDF</button>
     </div>
   </div>
 </div>
@@ -1651,6 +1661,94 @@ body{
     <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;margin-bottom:16px;">
       <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">📋 Ranking completo de productos</div>
       <div style="overflow-x:auto;"><table id="est-tabla-completa" style="width:100%;border-collapse:collapse;font-size:0.78rem;"></table></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ PANEL ANÁLISIS ============ -->
+<div id="panel-analisis" class="panel">
+  <div style="font-family:'Segoe UI',Tahoma,Arial,sans-serif;">
+
+    <!-- Tabs internas del análisis -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;background:#fff;padding:8px;border-radius:10px;border:1px solid #ddd;">
+      <button onclick="setAnalisisTab('sin-mov')" id="ana-tab-sin-mov" class="ana-tab active" style="padding:9px 16px;border-radius:8px;border:1px solid #1a1a2e;background:#1a1a2e;color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;">🐌 Sin movimiento</button>
+      <button onclick="setAnalisisTab('abc')" id="ana-tab-abc" class="ana-tab" style="padding:9px 16px;border-radius:8px;border:1px solid #aaa;background:#fff;color:#333;font-size:0.85rem;font-weight:600;cursor:pointer;">📊 Análisis ABC</button>
+      <button onclick="setAnalisisTab('rotacion')" id="ana-tab-rotacion" class="ana-tab" style="padding:9px 16px;border-radius:8px;border:1px solid #aaa;background:#fff;color:#333;font-size:0.85rem;font-weight:600;cursor:pointer;">🔄 Rotación</button>
+      <button onclick="setAnalisisTab('rentabilidad')" id="ana-tab-rentabilidad" class="ana-tab" style="padding:9px 16px;border-radius:8px;border:1px solid #aaa;background:#fff;color:#333;font-size:0.85rem;font-weight:600;cursor:pointer;">💎 Rentabilidad</button>
+    </div>
+
+    <!-- ============== TAB: SIN MOVIMIENTO ============== -->
+    <div id="ana-sin-mov" class="ana-content">
+      
+      <!-- Filtros -->
+      <div style="background:#fff;border:1px solid #ddd;border-radius:10px;padding:14px;margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <span style="font-size:0.85rem;font-weight:700;color:#555;">⏰ Sin movimiento desde hace:</span>
+        <button onclick="setDiasSinMov(15)" id="sm-btn-15" class="sm-btn" style="padding:6px 14px;border-radius:20px;border:1px solid #aaa;background:#f5f5f5;font-size:0.8rem;font-weight:600;cursor:pointer;">15 días</button>
+        <button onclick="setDiasSinMov(30)" id="sm-btn-30" class="sm-btn active" style="padding:6px 14px;border-radius:20px;border:1px solid #1a1a2e;background:#1a1a2e;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;">30 días</button>
+        <button onclick="setDiasSinMov(60)" id="sm-btn-60" class="sm-btn" style="padding:6px 14px;border-radius:20px;border:1px solid #aaa;background:#f5f5f5;font-size:0.8rem;font-weight:600;cursor:pointer;">60 días</button>
+        <button onclick="setDiasSinMov(90)" id="sm-btn-90" class="sm-btn" style="padding:6px 14px;border-radius:20px;border:1px solid #aaa;background:#f5f5f5;font-size:0.8rem;font-weight:600;cursor:pointer;">90 días</button>
+        <button onclick="setDiasSinMov(180)" id="sm-btn-180" class="sm-btn" style="padding:6px 14px;border-radius:20px;border:1px solid #aaa;background:#f5f5f5;font-size:0.8rem;font-weight:600;cursor:pointer;">6 meses</button>
+        <button onclick="setDiasSinMov(0)" id="sm-btn-0" class="sm-btn" style="padding:6px 14px;border-radius:20px;border:1px solid #c0392b;background:#c0392b;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;">⚠️ Nunca vendidos</button>
+      </div>
+
+      <!-- KPIs sin movimiento -->
+      <div id="ana-kpis-sinmov" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px;"></div>
+
+      <!-- Filtro por familia -->
+      <div style="background:#fff;border:1px solid #ddd;border-radius:10px;padding:10px 14px;margin-bottom:14px;">
+        <div style="font-size:0.78rem;font-weight:700;color:#555;margin-bottom:8px;">📂 Filtrar por familia:</div>
+        <div id="ana-familia-pills" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+      </div>
+
+      <!-- Tabla -->
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:0.95rem;font-weight:700;color:#333;">📋 Productos sin movimiento</div>
+          <button onclick="exportarSinMovimiento()" style="padding:6px 12px;background:#27500a;color:#fff;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">📊 Exportar CSV</button>
+        </div>
+        <div style="overflow-x:auto;"><table id="ana-tabla-sin-mov" style="width:100%;border-collapse:collapse;font-size:0.82rem;"></table></div>
+      </div>
+
+      <!-- Recomendaciones -->
+      <div style="background:#fff8e1;border:1px solid #f5c842;border-radius:12px;padding:14px;margin-top:14px;">
+        <div style="font-size:0.85rem;font-weight:700;color:#7a5800;margin-bottom:8px;">💡 Recomendaciones</div>
+        <div id="ana-recomendaciones" style="font-size:0.85rem;color:#555;line-height:1.6;"></div>
+      </div>
+    </div>
+
+    <!-- ============== TAB: ANÁLISIS ABC ============== -->
+    <div id="ana-abc" class="ana-content" style="display:none;">
+      <div style="background:#e8f5e9;border:1px solid #2c5f2e;border-radius:10px;padding:12px;margin-bottom:14px;font-size:0.85rem;color:#1a3a1a;">
+        💡 <strong>Análisis ABC</strong>: clasifica productos según el % de ventas que generan. <strong>A</strong>=80% de ventas (los importantes), <strong>B</strong>=15%, <strong>C</strong>=5% (los marginales).
+      </div>
+      <div id="ana-kpis-abc" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;"></div>
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:14px;">
+        <div style="font-size:0.95rem;font-weight:700;color:#333;margin-bottom:10px;">📋 Clasificación ABC de productos</div>
+        <div style="overflow-x:auto;"><table id="ana-tabla-abc" style="width:100%;border-collapse:collapse;font-size:0.82rem;"></table></div>
+      </div>
+    </div>
+
+    <!-- ============== TAB: ROTACIÓN ============== -->
+    <div id="ana-rotacion" class="ana-content" style="display:none;">
+      <div style="background:#e3f2fd;border:1px solid #1565c0;border-radius:10px;padding:12px;margin-bottom:14px;font-size:0.85rem;color:#0d47a1;">
+        💡 <strong>Rotación</strong>: cuántas veces se vende cada producto por mes. Los de baja rotación atan capital.
+      </div>
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:14px;">
+        <div style="font-size:0.95rem;font-weight:700;color:#333;margin-bottom:10px;">🔄 Rotación de inventario por producto</div>
+        <div style="overflow-x:auto;"><table id="ana-tabla-rotacion" style="width:100%;border-collapse:collapse;font-size:0.82rem;"></table></div>
+      </div>
+    </div>
+
+    <!-- ============== TAB: RENTABILIDAD ============== -->
+    <div id="ana-rentabilidad" class="ana-content" style="display:none;">
+      <div style="background:#fff3e0;border:1px solid #e65100;border-radius:10px;padding:12px;margin-bottom:14px;font-size:0.85rem;color:#5a2c00;">
+        💡 <strong>Rentabilidad real</strong>: ganancia neta por producto considerando lo realmente vendido.
+      </div>
+      <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:14px;">
+        <div style="font-size:0.95rem;font-weight:700;color:#333;margin-bottom:10px;">💎 Rentabilidad por producto</div>
+        <div style="overflow-x:auto;"><table id="ana-tabla-rentabilidad" style="width:100%;border-collapse:collapse;font-size:0.82rem;"></table></div>
+      </div>
     </div>
 
   </div>
@@ -3354,15 +3452,43 @@ async function confirmarVenta(){
 // ========== MÓDULO TICKET DE VENTA ==========================
 // ============================================================
 
-function generarTicketTexto(factura, lineas){
-  const ANCHO = 40;
-  const sep  = '─'.repeat(ANCHO);
-  const sep2 = '━'.repeat(ANCHO);
-  const center = (txt) => { const pad=Math.max(0,Math.floor((ANCHO-txt.length)/2)); return ' '.repeat(pad)+txt; };
-  const rjust  = (a,b,tot) => { const s=String(b); return a.slice(0,tot-s.length-1).padEnd(tot-s.length-1)+' '+s; };
+// Formato de ticket actual (58, 80 o 'a4')
+let _ticketFormato = 80;
 
-  const fpLabels = {efectivo:'Efectivo 💵', transferencia:'Transferencia 📱', cuenta_corriente:'Cta. Corriente 📋'};
-  const fp = fpLabels[factura.formaPago] || factura.formaPago;
+function cambiarFormatoTicket(formato){
+  _ticketFormato = formato;
+  // Actualizar estilos de botones
+  ['58','80','a4'].forEach(f => {
+    const btn = document.getElementById('ticket-btn-' + f);
+    if(!btn) return;
+    if(String(formato) === f){
+      btn.style.background = '#1a1a2e'; btn.style.color = '#fff'; btn.style.borderColor = '#1a1a2e';
+    } else {
+      btn.style.background = '#fff'; btn.style.color = '#000'; btn.style.borderColor = '#aaa';
+    }
+  });
+  // Re-renderizar preview con nuevo ancho
+  if(_ticketFacturaActual){
+    const texto = generarTicketTexto(_ticketFacturaActual, _ticketLineasActual);
+    const prev = document.getElementById('ticket-preview');
+    prev.textContent = texto;
+    // Ajustar ancho visual del preview según formato
+    if(formato == 58){ prev.style.maxWidth = '220px'; prev.style.fontSize = '10px'; }
+    else if(formato == 80){ prev.style.maxWidth = '300px'; prev.style.fontSize = '11px'; }
+    else { prev.style.maxWidth = '600px'; prev.style.fontSize = '13px'; }
+  }
+}
+
+function generarTicketTexto(factura, lineas){
+  // Ancho según formato
+  const ANCHO = (_ticketFormato == 58) ? 32 : (_ticketFormato == 80) ? 48 : 64;
+  const sep  = '-'.repeat(ANCHO);
+  const sep2 = '='.repeat(ANCHO);
+  const center = (txt) => { const pad=Math.max(0,Math.floor((ANCHO-txt.length)/2)); return ' '.repeat(pad)+txt; };
+  const rjust  = (a,b) => { const s=String(b); return a.padEnd(ANCHO-s.length)+s; };
+
+  const fpLabels = {efectivo:'Efectivo', transferencia:'Transferencia', cuenta_corriente:'Cta. Corriente'};
+  const fp = fpLabels[factura.formaPago] || factura.formaPago || '';
 
   let cli = 'Consumidor Final';
   if(factura.clienteId){
@@ -3373,44 +3499,84 @@ function generarTicketTexto(factura, lineas){
   const numVenta = String(facturas.filter(f=>f.tipo==='venta').indexOf(factura)+1 || factura.id).padStart(4,'0');
 
   let t = '';
-  t += center('👑 REINA MI AMOR') + '\n';
-  t += center('MiniMarket La Reina') + '\n';
-  t += center('Tel: —  |  www.—') + '\n';
+  // ENCABEZADO
   t += sep2 + '\n';
-  t += `Ticket N°: ${numVenta}`.padEnd(ANCHO/2) + `Fecha: ${factura.fecha.slice(0,16)}\n`;
-  t += `Cliente: ${cli}\n`;
+  t += center('REINA MI AMOR') + '\n';
+  t += center('MiniMarket La Reina') + '\n';
+  t += center('CUIT: 00-00000000-0') + '\n';
+  t += center('Resp. Monotributo') + '\n';
+  t += sep2 + '\n';
+  
+  // DATOS DE LA VENTA
+  t += `Ticket Nro: ${numVenta}\n`;
+  t += `Fecha: ${factura.fecha.slice(0,16)}\n`;
+  t += `Cliente: ${cli.slice(0, ANCHO-9)}\n`;
   t += `Pago: ${fp}\n`;
   t += sep + '\n';
-  t += 'CANT  DESCRIPCIÓN'.padEnd(ANCHO-10) + '  SUBTOTAL\n';
+
+  // ITEMS - en formato compacto para 58mm, expandido para 80mm
+  if(_ticketFormato == 58){
+    // Formato compacto 58mm: cada item ocupa 2 líneas
+    lineas.forEach(l => {
+      const prod = productos.find(p=>Number(p.id)===Number(l.prodId));
+      const nombre = prod ? `${prod.marca} ${prod.nombre}` : `#${l.prodId}`;
+      const cant = (prod && (prod.tipo==='peso' || prod.tipo==='litro'))
+        ? `${(l.cantidad*1000).toFixed(0)}${prod.tipo==='litro'?'ml':'g'}`
+        : `${l.cantidad}u`;
+      // Línea 1: descripción
+      t += nombre.slice(0, ANCHO) + '\n';
+      // Línea 2: cantidad x precio = subtotal
+      const linea2 = `${cant} x $${fmt(l.precioVenta)}`;
+      const sub = `$${fmt(l.subtotal)}`;
+      t += linea2.padEnd(ANCHO - sub.length) + sub + '\n';
+    });
+  } else {
+    // Formato 80mm o A4: cabecera + columnas
+    const cabA = 'Cant.';
+    const cabB = 'Descripción';
+    const cabC = 'P.U.';
+    const cabD = 'Subt.';
+    t += cabA.padEnd(6) + cabB.padEnd(ANCHO-22) + cabC.padStart(8) + cabD.padStart(8) + '\n';
+    t += sep + '\n';
+    lineas.forEach(l => {
+      const prod = productos.find(p=>Number(p.id)===Number(l.prodId));
+      const nombre = prod ? `${prod.marca} ${prod.nombre}` : `#${l.prodId}`;
+      const cant = (prod && (prod.tipo==='peso' || prod.tipo==='litro'))
+        ? `${(l.cantidad*1000).toFixed(0)}${prod.tipo==='litro'?'ml':'g'}`
+        : `${l.cantidad}`;
+      const pu = `$${fmt(l.precioVenta)}`;
+      const sub = `$${fmt(l.subtotal)}`;
+      const maxNom = ANCHO - 22;
+      const nomCorto = nombre.length > maxNom ? nombre.slice(0,maxNom-1)+'…' : nombre;
+      t += cant.padEnd(6) + nomCorto.padEnd(maxNom) + pu.padStart(8) + sub.padStart(8) + '\n';
+    });
+  }
+
   t += sep + '\n';
 
-  lineas.forEach(l => {
-    const prod = productos.find(p=>Number(p.id)===Number(l.prodId));
-    const nombre = prod ? `${prod.marca} ${prod.nombre}` : `#${l.prodId}`;
-    const cant = (prod&&(prod.tipo==='peso'||prod.tipo==='litro'))
-      ? `${(l.cantidad*1000).toFixed(0)}${prod.tipo==='litro'?'ml':'g'}`
-      : `${l.cantidad}`;
-    const sub = `$${fmt(l.subtotal)}`;
-    // Línea 1: cantidad + nombre (truncado)
-    const maxNom = ANCHO - 8;
-    const nomCorto = nombre.length > maxNom ? nombre.slice(0,maxNom-1)+'…' : nombre;
-    t += `${cant.padStart(4)}  ${nomCorto.padEnd(maxNom-sub.length)} ${sub}\n`;
-    // Línea 2: precio unitario
-    t += `      @ $${fmt(l.precioVenta)} c/u\n`;
-  });
-
-  t += sep + '\n';
+  // TOTALES
   if(factura.descuento > 0){
-    t += rjust('Subtotal:', `$${fmt(factura.subtotal)}`, ANCHO) + '\n';
-    t += rjust('Descuento:', `-$${fmt(factura.descuento)}`, ANCHO) + '\n';
+    t += rjust('Subtotal:', `$${fmt(factura.subtotal)}`) + '\n';
+    t += rjust('Descuento:', `-$${fmt(factura.descuento)}`) + '\n';
     t += sep + '\n';
   }
-  t += rjust('TOTAL:', `$${fmt(factura.total)}`, ANCHO) + '\n';
+  // Total grande
+  const totalStr = `$${fmt(factura.total)}`;
+  t += rjust('TOTAL:', totalStr) + '\n';
+  
+  // Cantidad de items
+  const totalItems = lineas.reduce((a,l) => a + l.cantidad, 0);
+  t += rjust('Items:', String(totalItems)) + '\n';
+  
   t += sep2 + '\n';
-  t += center('¡Gracias por su compra!') + '\n';
-  t += center('Vuelva pronto 😊') + '\n';
-  t += sep + '\n';
-  t += center(`[${factura.id}]`) + '\n';
+  
+  // PIE
+  t += center('Gracias por su compra!') + '\n';
+  t += center('Vuelva pronto') + '\n';
+  t += '\n';
+  t += center(`ID: ${factura.id}`) + '\n';
+  t += center(new Date().toLocaleString('es-AR')) + '\n';
+
   return t;
 }
 
@@ -3458,14 +3624,41 @@ function mostrarTicketUltimaVenta(){
 function imprimirTicket(){
   const texto = _ticketFacturaActual ? generarTicketTexto(_ticketFacturaActual, _ticketLineasActual) : '';
   if(!texto) return;
+  
+  // Configuración según formato
+  let pageSize, anchoBody, fontSize;
+  if(_ticketFormato == 58){
+    pageSize = '58mm auto';
+    anchoBody = '54mm';
+    fontSize = '9px';
+  } else if(_ticketFormato == 80){
+    pageSize = '80mm auto';
+    anchoBody = '76mm';
+    fontSize = '10.5px';
+  } else {
+    pageSize = 'A4';
+    anchoBody = '180mm';
+    fontSize = '13px';
+  }
+  
   const win = window.open('','_blank','width=420,height=640');
   win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
-    <title>Ticket Venta</title>
+    <title>Ticket Venta - ${_ticketFacturaActual.id}</title>
     <style>
       *{margin:0;padding:0;box-sizing:border-box;}
-      body{font-family:'Courier New',Courier,monospace;font-size:12px;background:#fff;color:#000;padding:8px;}
-      pre{white-space:pre-wrap;word-break:break-word;line-height:1.55;}
-      @media print{body{padding:0;}@page{margin:4mm;size:80mm auto;}}
+      body{
+        font-family:'Courier New',Courier,monospace;
+        font-size:${fontSize};
+        background:#fff;color:#000;
+        padding:4mm;
+        width:${anchoBody};
+        margin:0 auto;
+      }
+      pre{white-space:pre-wrap;word-break:break-word;line-height:1.4;}
+      @media print{
+        body{padding:1mm;width:auto;}
+        @page{margin:2mm;size:${pageSize};}
+      }
     </style>
   </head><body><pre>${texto.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
   <script>window.onload=()=>{window.print();setTimeout(()=>window.close(),800);}<\/script>
@@ -3726,6 +3919,7 @@ function showTab(name,btn){
   if(name==='proveedores'){ renderProveedores(); }
   if(name==='cuentas'){ renderCuentas(); }
   if(name==='estadisticas'){ setRangoEst('mes'); }
+  if(name==='analisis'){ renderAnalisis(); }
   if(name==='descuentos'){ renderDescuentos(); }
   if(name==='gastos'){ renderGastos(); }
   if(name==='caja'){ renderCaja(); }
@@ -3762,6 +3956,463 @@ function estParseFecha(f){
 }
 
 function fmtMil(n){ if(n>=1000000) return '$'+(n/1000000).toFixed(1)+'M'; if(n>=1000) return '$'+(n/1000).toFixed(1)+'k'; return '$'+fmt(n); }
+
+// ============================================================
+// ============== PANEL ANÁLISIS (sin mov, ABC, rot, rent) ==============
+// ============================================================
+let _diasSinMov = 30;
+let _famFiltroSinMov = '';
+let _analisisTab = 'sin-mov';
+
+function setAnalisisTab(tab){
+  _analisisTab = tab;
+  ['sin-mov','abc','rotacion','rentabilidad'].forEach(t => {
+    const btn = document.getElementById('ana-tab-' + t);
+    const panel = document.getElementById('ana-' + t);
+    if(t === tab){
+      btn.classList.add('active');
+      btn.style.background = '#1a1a2e'; btn.style.color = '#fff'; btn.style.borderColor = '#1a1a2e';
+      panel.style.display = 'block';
+    } else {
+      btn.classList.remove('active');
+      btn.style.background = '#fff'; btn.style.color = '#333'; btn.style.borderColor = '#aaa';
+      panel.style.display = 'none';
+    }
+  });
+  renderAnalisis();
+}
+
+function setDiasSinMov(dias){
+  _diasSinMov = dias;
+  ['15','30','60','90','180','0'].forEach(d => {
+    const btn = document.getElementById('sm-btn-' + d);
+    if(!btn) return;
+    if(parseInt(d) === dias){
+      btn.classList.add('active');
+      if(dias === 0){ btn.style.background = '#c0392b'; btn.style.borderColor = '#c0392b'; }
+      else { btn.style.background = '#1a1a2e'; btn.style.borderColor = '#1a1a2e'; }
+      btn.style.color = '#fff';
+    } else {
+      btn.classList.remove('active');
+      btn.style.background = '#f5f5f5'; btn.style.color = '#000'; btn.style.borderColor = '#aaa';
+    }
+  });
+  renderSinMovimiento();
+}
+
+// Para cada producto, encontrar la fecha de la última venta
+function obtenerUltimaVentaPorProducto(){
+  const ultima = {};
+  facturas.forEach(f => {
+    if(f.tipo !== 'venta' || f.anulada) return;
+    const fecha = parseFechaFactura(f.fecha);
+    if(!fecha) return;
+    f.lineas.forEach(l => {
+      const id = Number(l.prodId);
+      if(!ultima[id] || fecha > ultima[id].fecha){
+        ultima[id] = { fecha, total: 0, cantidad: 0 };
+      }
+    });
+  });
+  // Calcular total vendido y cantidad total por producto
+  facturas.forEach(f => {
+    if(f.tipo !== 'venta' || f.anulada) return;
+    f.lineas.forEach(l => {
+      const id = Number(l.prodId);
+      if(ultima[id]){
+        ultima[id].total += l.subtotal || 0;
+        ultima[id].cantidad += l.cantidad || 0;
+      }
+    });
+  });
+  return ultima;
+}
+
+function renderSinMovimiento(){
+  const ultima = obtenerUltimaVentaPorProducto();
+  const ahora = new Date();
+  const limite = _diasSinMov > 0 ? new Date(ahora.getTime() - _diasSinMov * 86400000) : null;
+
+  // Filtrar productos
+  let lista = productos.map(p => {
+    const id = Number(p.id);
+    const u = ultima[id];
+    const stockActual = stock[id] || 0;
+    const valorStock = stockActual * (p.costo || 0);
+    let dias, ultimaVenta;
+    if(u){
+      dias = Math.floor((ahora - u.fecha) / 86400000);
+      ultimaVenta = u.fecha.toLocaleDateString('es-AR');
+    } else {
+      dias = -1; // nunca vendido
+      ultimaVenta = 'Nunca';
+    }
+    return {
+      prod: p, id, stockActual, valorStock,
+      dias, ultimaVenta,
+      totalVendido: u ? u.total : 0,
+      cantidadVendida: u ? u.cantidad : 0
+    };
+  });
+
+  // Filtrar por días
+  if(_diasSinMov === 0){
+    lista = lista.filter(x => x.dias === -1);
+  } else {
+    lista = lista.filter(x => x.dias === -1 || x.dias >= _diasSinMov);
+  }
+
+  // Filtrar por familia
+  if(_famFiltroSinMov){
+    lista = lista.filter(x => (x.prod.familia || x.prod.marca || 'Sin categoría') === _famFiltroSinMov);
+  }
+
+  // Solo con stock > 0 (los que importan)
+  lista = lista.filter(x => x.stockActual > 0);
+
+  // Ordenar por valor de stock descendente (los que más capital atan primero)
+  lista.sort((a,b) => b.valorStock - a.valorStock);
+
+  // KPIs
+  const totalProductos = lista.length;
+  const valorTotal = lista.reduce((s,x) => s + x.valorStock, 0);
+  const productosNuncaVendidos = lista.filter(x => x.dias === -1).length;
+  const productosTotal = productos.filter(p => (stock[Number(p.id)]||0) > 0).length;
+  const porcentaje = productosTotal > 0 ? (totalProductos / productosTotal * 100).toFixed(1) : 0;
+
+  document.getElementById('ana-kpis-sinmov').innerHTML = `
+    <div style="background:#fff;border:1px solid #e0e0e8;border-radius:10px;padding:14px;text-align:center;">
+      <div style="font-size:0.72rem;color:#666;font-weight:600;text-transform:uppercase;">Productos sin mov.</div>
+      <div style="font-size:1.8rem;font-weight:800;color:#c0392b;font-family:'Consolas',monospace;">${totalProductos}</div>
+      <div style="font-size:0.72rem;color:#888;">${porcentaje}% del catálogo</div>
+    </div>
+    <div style="background:#fff;border:1px solid #e0e0e8;border-radius:10px;padding:14px;text-align:center;">
+      <div style="font-size:0.72rem;color:#666;font-weight:600;text-transform:uppercase;">Capital inmovilizado</div>
+      <div style="font-size:1.8rem;font-weight:800;color:#c0392b;font-family:'Consolas',monospace;">$${fmt(valorTotal)}</div>
+      <div style="font-size:0.72rem;color:#888;">en costo de stock</div>
+    </div>
+    <div style="background:#fff;border:1px solid #e0e0e8;border-radius:10px;padding:14px;text-align:center;">
+      <div style="font-size:0.72rem;color:#666;font-weight:600;text-transform:uppercase;">Nunca vendidos</div>
+      <div style="font-size:1.8rem;font-weight:800;color:#7a1a1a;font-family:'Consolas',monospace;">${productosNuncaVendidos}</div>
+      <div style="font-size:0.72rem;color:#888;">con stock disponible</div>
+    </div>
+    <div style="background:#fff;border:1px solid #e0e0e8;border-radius:10px;padding:14px;text-align:center;">
+      <div style="font-size:0.72rem;color:#666;font-weight:600;text-transform:uppercase;">Período analizado</div>
+      <div style="font-size:1.8rem;font-weight:800;color:#1a1a2e;font-family:'Consolas',monospace;">${_diasSinMov === 0 ? '∞' : _diasSinMov + 'd'}</div>
+      <div style="font-size:0.72rem;color:#888;">${_diasSinMov === 0 ? 'jamás vendidos' : 'sin ventas'}</div>
+    </div>
+  `;
+
+  // Pills de familias
+  const fams = {};
+  productos.forEach(p => {
+    const f = p.familia || p.marca || 'Sin categoría';
+    if(!fams[f]) fams[f] = 0;
+    fams[f]++;
+  });
+  const pillCont = document.getElementById('ana-familia-pills');
+  let pillHtml = `<button onclick="setFamFiltroSinMov('')" style="padding:5px 12px;border-radius:14px;border:1px solid ${_famFiltroSinMov===''?'#1a1a2e':'#aaa'};background:${_famFiltroSinMov===''?'#1a1a2e':'#fff'};color:${_famFiltroSinMov===''?'#fff':'#333'};font-size:0.75rem;font-weight:600;cursor:pointer;">Todas</button>`;
+  Object.keys(fams).sort().forEach(fam => {
+    const activa = _famFiltroSinMov === fam;
+    pillHtml += `<button onclick="setFamFiltroSinMov('${fam.replace(/'/g, "\\'")}')" style="padding:5px 12px;border-radius:14px;border:1px solid ${activa?'#1a1a2e':'#aaa'};background:${activa?'#1a1a2e':'#fff'};color:${activa?'#fff':'#333'};font-size:0.75rem;font-weight:600;cursor:pointer;">${fam}</button>`;
+  });
+  pillCont.innerHTML = pillHtml;
+
+  // Tabla
+  const tabla = document.getElementById('ana-tabla-sin-mov');
+  if(lista.length === 0){
+    tabla.innerHTML = '<tr><td style="padding:30px;text-align:center;color:#888;font-style:italic;">🎉 ¡Excelente! No hay productos sin movimiento en este período.</td></tr>';
+  } else {
+    let html = `<thead style="background:#1a1a2e;color:#fff;">
+      <tr>
+        <th style="padding:8px;text-align:left;font-size:0.78rem;">Producto</th>
+        <th style="padding:8px;text-align:left;font-size:0.78rem;">Familia</th>
+        <th style="padding:8px;text-align:right;font-size:0.78rem;">Stock</th>
+        <th style="padding:8px;text-align:right;font-size:0.78rem;">Costo unit.</th>
+        <th style="padding:8px;text-align:right;font-size:0.78rem;">Capital atado</th>
+        <th style="padding:8px;text-align:center;font-size:0.78rem;">Última venta</th>
+        <th style="padding:8px;text-align:center;font-size:0.78rem;">Días sin vender</th>
+      </tr></thead><tbody>`;
+    lista.forEach((x, i) => {
+      const bg = i % 2 === 0 ? '#fff' : '#f9f9f9';
+      const diasTxt = x.dias === -1 ? '⚠️ NUNCA' : `${x.dias}d`;
+      const diasColor = x.dias === -1 ? '#7a1a1a' : (x.dias >= 90 ? '#c0392b' : (x.dias >= 60 ? '#e67e22' : '#888'));
+      html += `<tr style="background:${bg};border-bottom:1px solid #eee;">
+        <td style="padding:7px;"><strong>${x.prod.marca||''}</strong> ${x.prod.nombre||''}</td>
+        <td style="padding:7px;color:#666;font-size:0.78rem;">${x.prod.familia || x.prod.marca || ''}</td>
+        <td style="padding:7px;text-align:right;font-family:monospace;">${fmt(x.stockActual)}</td>
+        <td style="padding:7px;text-align:right;font-family:monospace;">$${fmt(x.prod.costo||0)}</td>
+        <td style="padding:7px;text-align:right;font-weight:700;color:#c0392b;font-family:monospace;">$${fmt(x.valorStock)}</td>
+        <td style="padding:7px;text-align:center;font-size:0.78rem;color:#666;">${x.ultimaVenta}</td>
+        <td style="padding:7px;text-align:center;font-weight:700;color:${diasColor};">${diasTxt}</td>
+      </tr>`;
+    });
+    html += '</tbody>';
+    tabla.innerHTML = html;
+  }
+
+  // Recomendaciones
+  const recCont = document.getElementById('ana-recomendaciones');
+  if(lista.length === 0){
+    recCont.innerHTML = '✅ Tu inventario está rotando bien. Todos los productos con stock se vendieron recientemente.';
+  } else {
+    const top3 = lista.slice(0, 3);
+    let recHtml = `<ul style="margin:0;padding-left:20px;">`;
+    if(productosNuncaVendidos > 0){
+      recHtml += `<li><strong>${productosNuncaVendidos} productos nunca se vendieron</strong>. Considerá hacer ofertas, combos o devolverlos al proveedor.</li>`;
+    }
+    if(valorTotal > 0){
+      recHtml += `<li>Tenés <strong>$${fmt(valorTotal)}</strong> de capital atado en mercadería que no rota. Ese dinero podría usarse en productos que sí se vendan.</li>`;
+    }
+    if(top3.length > 0){
+      recHtml += `<li>Los productos con más capital inmovilizado son:<br>`;
+      top3.forEach(x => {
+        recHtml += `&nbsp;&nbsp;• <em>${x.prod.marca||''} ${x.prod.nombre||''}</em>: $${fmt(x.valorStock)} (${x.dias === -1 ? 'nunca vendido' : x.dias + ' días sin vender'})<br>`;
+      });
+      recHtml += `</li>`;
+    }
+    recHtml += `<li>💡 <strong>Acciones sugeridas</strong>: bajá el precio temporalmente, hacé combos con productos que sí rotan, o devolvé al proveedor si es posible.</li>`;
+    recHtml += `</ul>`;
+    recCont.innerHTML = recHtml;
+  }
+}
+
+function setFamFiltroSinMov(fam){
+  _famFiltroSinMov = fam;
+  renderSinMovimiento();
+}
+
+function exportarSinMovimiento(){
+  const ultima = obtenerUltimaVentaPorProducto();
+  const ahora = new Date();
+  let csv = 'Producto,Marca,Familia,Stock,Costo unitario,Capital atado,Ultima venta,Dias sin vender\n';
+  productos.forEach(p => {
+    const id = Number(p.id);
+    const stockActual = stock[id] || 0;
+    if(stockActual <= 0) return;
+    const u = ultima[id];
+    const dias = u ? Math.floor((ahora - u.fecha) / 86400000) : -1;
+    if(_diasSinMov === 0 && dias !== -1) return;
+    if(_diasSinMov > 0 && dias !== -1 && dias < _diasSinMov) return;
+    const ultimaVenta = u ? u.fecha.toLocaleDateString('es-AR') : 'Nunca';
+    const diasTxt = dias === -1 ? 'Nunca vendido' : dias;
+    const valorStock = stockActual * (p.costo || 0);
+    csv += `"${p.nombre||''}","${p.marca||''}","${p.familia||p.marca||''}",${stockActual},${p.costo||0},${valorStock.toFixed(2)},"${ultimaVenta}",${diasTxt}\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `productos_sin_movimiento_${_diasSinMov}d_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ CSV descargado');
+}
+
+// ============== ANÁLISIS ABC ==============
+function renderAnalisisABC(){
+  // Calcular ventas totales por producto
+  const ventas = {};
+  facturas.forEach(f => {
+    if(f.tipo !== 'venta' || f.anulada) return;
+    f.lineas.forEach(l => {
+      const id = Number(l.prodId);
+      if(!ventas[id]) ventas[id] = { total: 0, cantidad: 0 };
+      ventas[id].total += l.subtotal || 0;
+      ventas[id].cantidad += l.cantidad || 0;
+    });
+  });
+
+  let lista = productos.map(p => {
+    const id = Number(p.id);
+    const v = ventas[id] || { total: 0, cantidad: 0 };
+    return { prod: p, total: v.total, cantidad: v.cantidad };
+  }).filter(x => x.total > 0);
+
+  lista.sort((a,b) => b.total - a.total);
+  const totalGeneral = lista.reduce((s,x) => s + x.total, 0);
+
+  // Asignar A/B/C según acumulado
+  let acum = 0;
+  lista.forEach(x => {
+    acum += x.total;
+    const pct = (acum / totalGeneral) * 100;
+    if(pct <= 80) x.clase = 'A';
+    else if(pct <= 95) x.clase = 'B';
+    else x.clase = 'C';
+    x.pctAcum = pct;
+    x.pctIndividual = (x.total / totalGeneral) * 100;
+  });
+
+  const cantA = lista.filter(x => x.clase === 'A').length;
+  const cantB = lista.filter(x => x.clase === 'B').length;
+  const cantC = lista.filter(x => x.clase === 'C').length;
+  const totalA = lista.filter(x => x.clase === 'A').reduce((s,x) => s + x.total, 0);
+  const totalB = lista.filter(x => x.clase === 'B').reduce((s,x) => s + x.total, 0);
+  const totalC = lista.filter(x => x.clase === 'C').reduce((s,x) => s + x.total, 0);
+
+  document.getElementById('ana-kpis-abc').innerHTML = `
+    <div style="background:#27500a;color:#fff;border-radius:10px;padding:14px;text-align:center;">
+      <div style="font-size:0.72rem;font-weight:700;opacity:0.9;">CLASE A — Vitales</div>
+      <div style="font-size:1.6rem;font-weight:800;font-family:monospace;">${cantA} prod.</div>
+      <div style="font-size:0.78rem;">$${fmt(totalA)} (${totalGeneral>0?(totalA/totalGeneral*100).toFixed(0):0}%)</div>
+    </div>
+    <div style="background:#e8c84a;color:#1a1a2e;border-radius:10px;padding:14px;text-align:center;">
+      <div style="font-size:0.72rem;font-weight:700;">CLASE B — Importantes</div>
+      <div style="font-size:1.6rem;font-weight:800;font-family:monospace;">${cantB} prod.</div>
+      <div style="font-size:0.78rem;">$${fmt(totalB)} (${totalGeneral>0?(totalB/totalGeneral*100).toFixed(0):0}%)</div>
+    </div>
+    <div style="background:#c0392b;color:#fff;border-radius:10px;padding:14px;text-align:center;">
+      <div style="font-size:0.72rem;font-weight:700;opacity:0.9;">CLASE C — Marginales</div>
+      <div style="font-size:1.6rem;font-weight:800;font-family:monospace;">${cantC} prod.</div>
+      <div style="font-size:0.78rem;">$${fmt(totalC)} (${totalGeneral>0?(totalC/totalGeneral*100).toFixed(0):0}%)</div>
+    </div>
+  `;
+
+  const tabla = document.getElementById('ana-tabla-abc');
+  if(lista.length === 0){
+    tabla.innerHTML = '<tr><td style="padding:30px;text-align:center;color:#888;">Sin datos de ventas aún</td></tr>';
+  } else {
+    let html = `<thead style="background:#1a1a2e;color:#fff;">
+      <tr>
+        <th style="padding:8px;text-align:center;font-size:0.78rem;">Clase</th>
+        <th style="padding:8px;text-align:left;font-size:0.78rem;">Producto</th>
+        <th style="padding:8px;text-align:right;font-size:0.78rem;">Vendido</th>
+        <th style="padding:8px;text-align:right;font-size:0.78rem;">Cant.</th>
+        <th style="padding:8px;text-align:right;font-size:0.78rem;">% indiv.</th>
+        <th style="padding:8px;text-align:right;font-size:0.78rem;">% acum.</th>
+      </tr></thead><tbody>`;
+    lista.slice(0, 100).forEach((x, i) => {
+      const claseColor = x.clase === 'A' ? '#27500a' : x.clase === 'B' ? '#e8c84a' : '#c0392b';
+      const claseFg = x.clase === 'B' ? '#1a1a2e' : '#fff';
+      html += `<tr style="background:${i%2===0?'#fff':'#f9f9f9'};border-bottom:1px solid #eee;">
+        <td style="padding:7px;text-align:center;"><span style="background:${claseColor};color:${claseFg};padding:3px 10px;border-radius:12px;font-weight:700;font-size:0.78rem;">${x.clase}</span></td>
+        <td style="padding:7px;"><strong>${x.prod.marca||''}</strong> ${x.prod.nombre||''}</td>
+        <td style="padding:7px;text-align:right;font-family:monospace;font-weight:700;">$${fmt(x.total)}</td>
+        <td style="padding:7px;text-align:right;font-family:monospace;">${fmt(x.cantidad)}</td>
+        <td style="padding:7px;text-align:right;font-family:monospace;">${x.pctIndividual.toFixed(2)}%</td>
+        <td style="padding:7px;text-align:right;font-family:monospace;color:#666;">${x.pctAcum.toFixed(1)}%</td>
+      </tr>`;
+    });
+    html += '</tbody>';
+    tabla.innerHTML = html;
+  }
+}
+
+// ============== ROTACIÓN ==============
+function renderAnalisisRotacion(){
+  // Calcular ventas de los últimos 30 días por producto
+  const ahora = new Date();
+  const hace30 = new Date(ahora.getTime() - 30 * 86400000);
+  const vendido30d = {};
+  facturas.forEach(f => {
+    if(f.tipo !== 'venta' || f.anulada) return;
+    const fecha = parseFechaFactura(f.fecha);
+    if(!fecha || fecha < hace30) return;
+    f.lineas.forEach(l => {
+      const id = Number(l.prodId);
+      if(!vendido30d[id]) vendido30d[id] = 0;
+      vendido30d[id] += l.cantidad || 0;
+    });
+  });
+
+  let lista = productos.map(p => {
+    const id = Number(p.id);
+    const stockActual = stock[id] || 0;
+    const ventas30 = vendido30d[id] || 0;
+    // Rotación = ventas / stock promedio. Aproximación: ventas30 / stock actual
+    const rotacion = stockActual > 0 ? ventas30 / stockActual : 0;
+    // Días para agotar stock al ritmo actual
+    const diasAgote = ventas30 > 0 ? Math.round((stockActual / ventas30) * 30) : -1;
+    return { prod: p, stockActual, ventas30, rotacion, diasAgote };
+  }).filter(x => x.stockActual > 0 || x.ventas30 > 0);
+
+  lista.sort((a,b) => b.rotacion - a.rotacion);
+
+  const tabla = document.getElementById('ana-tabla-rotacion');
+  let html = `<thead style="background:#1a1a2e;color:#fff;">
+    <tr>
+      <th style="padding:8px;text-align:left;font-size:0.78rem;">Producto</th>
+      <th style="padding:8px;text-align:right;font-size:0.78rem;">Stock actual</th>
+      <th style="padding:8px;text-align:right;font-size:0.78rem;">Vendido (30d)</th>
+      <th style="padding:8px;text-align:right;font-size:0.78rem;">Rotación</th>
+      <th style="padding:8px;text-align:center;font-size:0.78rem;">Días para agotar</th>
+      <th style="padding:8px;text-align:center;font-size:0.78rem;">Estado</th>
+    </tr></thead><tbody>`;
+  lista.slice(0, 100).forEach((x, i) => {
+    let estado = '', estadoColor = '';
+    if(x.diasAgote === -1){ estado = '🐌 Sin movimiento'; estadoColor = '#7a1a1a'; }
+    else if(x.diasAgote <= 7){ estado = '🔥 ¡Reponer YA!'; estadoColor = '#c0392b'; }
+    else if(x.diasAgote <= 15){ estado = '⚠️ Pronto a reponer'; estadoColor = '#e67e22'; }
+    else if(x.diasAgote <= 60){ estado = '✅ Normal'; estadoColor = '#27500a'; }
+    else { estado = '📦 Sobrestock'; estadoColor = '#888'; }
+    html += `<tr style="background:${i%2===0?'#fff':'#f9f9f9'};border-bottom:1px solid #eee;">
+      <td style="padding:7px;"><strong>${x.prod.marca||''}</strong> ${x.prod.nombre||''}</td>
+      <td style="padding:7px;text-align:right;font-family:monospace;">${fmt(x.stockActual)}</td>
+      <td style="padding:7px;text-align:right;font-family:monospace;">${fmt(x.ventas30)}</td>
+      <td style="padding:7px;text-align:right;font-family:monospace;font-weight:700;">${x.rotacion.toFixed(2)}</td>
+      <td style="padding:7px;text-align:center;font-family:monospace;">${x.diasAgote === -1 ? '∞' : x.diasAgote + 'd'}</td>
+      <td style="padding:7px;text-align:center;font-weight:700;color:${estadoColor};font-size:0.78rem;">${estado}</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  tabla.innerHTML = html;
+}
+
+// ============== RENTABILIDAD ==============
+function renderAnalisisRentabilidad(){
+  const ventas = {};
+  facturas.forEach(f => {
+    if(f.tipo !== 'venta' || f.anulada) return;
+    f.lineas.forEach(l => {
+      const id = Number(l.prodId);
+      if(!ventas[id]) ventas[id] = { totalVendido: 0, cantidad: 0, costo: 0 };
+      ventas[id].totalVendido += l.subtotal || 0;
+      ventas[id].cantidad += l.cantidad || 0;
+      const prod = productos.find(p => Number(p.id) === id);
+      if(prod) ventas[id].costo += (prod.costo || 0) * (l.cantidad || 0);
+    });
+  });
+
+  let lista = productos.map(p => {
+    const id = Number(p.id);
+    const v = ventas[id] || { totalVendido:0, cantidad:0, costo:0 };
+    const ganancia = v.totalVendido - v.costo;
+    const margen = v.totalVendido > 0 ? (ganancia / v.totalVendido * 100) : 0;
+    return { prod: p, totalVendido: v.totalVendido, cantidad: v.cantidad, costo: v.costo, ganancia, margen };
+  }).filter(x => x.totalVendido > 0);
+
+  lista.sort((a,b) => b.ganancia - a.ganancia);
+
+  const tabla = document.getElementById('ana-tabla-rentabilidad');
+  let html = `<thead style="background:#1a1a2e;color:#fff;">
+    <tr>
+      <th style="padding:8px;text-align:left;font-size:0.78rem;">Producto</th>
+      <th style="padding:8px;text-align:right;font-size:0.78rem;">Vendido $</th>
+      <th style="padding:8px;text-align:right;font-size:0.78rem;">Costo total</th>
+      <th style="padding:8px;text-align:right;font-size:0.78rem;">Ganancia $</th>
+      <th style="padding:8px;text-align:right;font-size:0.78rem;">Margen %</th>
+    </tr></thead><tbody>`;
+  lista.slice(0, 100).forEach((x, i) => {
+    const margenColor = x.margen >= 40 ? '#27500a' : x.margen >= 20 ? '#e67e22' : '#c0392b';
+    html += `<tr style="background:${i%2===0?'#fff':'#f9f9f9'};border-bottom:1px solid #eee;">
+      <td style="padding:7px;"><strong>${x.prod.marca||''}</strong> ${x.prod.nombre||''}</td>
+      <td style="padding:7px;text-align:right;font-family:monospace;">$${fmt(x.totalVendido)}</td>
+      <td style="padding:7px;text-align:right;font-family:monospace;color:#888;">$${fmt(x.costo)}</td>
+      <td style="padding:7px;text-align:right;font-family:monospace;font-weight:700;color:#27500a;">$${fmt(x.ganancia)}</td>
+      <td style="padding:7px;text-align:right;font-family:monospace;font-weight:700;color:${margenColor};">${x.margen.toFixed(1)}%</td>
+    </tr>`;
+  });
+  html += '</tbody>';
+  tabla.innerHTML = html;
+}
+
+function renderAnalisis(){
+  if(_analisisTab === 'sin-mov') renderSinMovimiento();
+  else if(_analisisTab === 'abc') renderAnalisisABC();
+  else if(_analisisTab === 'rotacion') renderAnalisisRotacion();
+  else if(_analisisTab === 'rentabilidad') renderAnalisisRentabilidad();
+}
 
 function renderEstadisticas(){
   const desdeStr=document.getElementById('est-desde').value;
