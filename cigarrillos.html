@@ -9638,6 +9638,14 @@ renderAll = function(){
   if(document.getElementById('cig-grid')) renderCigarrillos();
 };
 
+// Hook a renderStock: si se edita el stock desde la pestaña Stock (sin pasar
+// por renderAll), igual sincronizamos la pestaña Cigarrillos.
+const _renderStockOrig = renderStock;
+renderStock = function(){
+  _renderStockOrig();
+  if(document.getElementById('cig-grid')) renderCigarrillos();
+};
+
 const _showTabCigs = showTab;
 showTab = function(name, btn){
   _showTabCigs(name, btn);
