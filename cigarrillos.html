@@ -1156,6 +1156,7 @@ select {
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #888;background:#f0f0f0;color:#333;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #1f5005;background:#2a6e2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/></label>
     <button onclick="limpiarMercaderia()" style="padding:10px 18px;border-radius:6px;border:1px solid #b56b00;background:#d68910;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Borrar productos del minimarket (mantiene combustibles, clientes y proveedores)">🧹 Limpiar mercadería</button>
+    <button onclick="recuperarBackupSeguridad()" style="padding:10px 18px;border-radius:6px;border:1px solid #1a5a8a;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Si perdiste datos, recuperar el último backup automático guardado en este navegador">🛟 Recuperar backup</button>
     <button onclick="cerrarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #6b1818;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">🚪 Cerrar sesión</button>
   </div>
 </div>
@@ -3213,25 +3214,68 @@ function nowStr(){const d=new Date();return d.toLocaleDateString('es-AR')+' '+d.
 function calcTotal(){return productos.reduce((a,p)=>a+(stock[p.id]||0),0)}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 
+// Variable global: indica si estamos guardando en la nube en este momento
+let _guardandoEnNube = false;
+let _saveTimer = null;
+
+function mostrarBarraGuardando(activo){
+  let div = document.getElementById('barra-guardando');
+  if(!div){
+    div = document.createElement('div');
+    div.id = 'barra-guardando';
+    div.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:12px;background:#f0c040;color:#1a1a2e;text-align:center;font-weight:800;z-index:99999;display:none;font-family:"Segoe UI",Arial,sans-serif;font-size:0.95rem;box-shadow:0 2px 10px rgba(0,0,0,0.3);';
+    div.innerHTML = '💾 Guardando en la nube... <span style="font-weight:600;font-size:0.85rem;">no cierres ni recargues la página</span>';
+    document.body.appendChild(div);
+  }
+  div.style.display = activo ? 'block' : 'none';
+}
+
+// Bloquear el cierre de la página si estamos en medio de un guardado
+window.addEventListener('beforeunload', function(e){
+  if(_guardandoEnNube){
+    e.preventDefault();
+    e.returnValue = 'Hay datos guardándose. Si cerrás ahora podés perder cambios.';
+    return e.returnValue;
+  }
+});
+
 async function saveAll(){
-  localStorage.setItem(KEY_P,JSON.stringify(productos));
-  localStorage.setItem(KEY_S,JSON.stringify(stock));
-  localStorage.setItem(KEY_L,JSON.stringify(log));
-  localStorage.setItem(KEY_F,JSON.stringify(facturas));
-  localStorage.setItem(KEY_CLI,JSON.stringify(clientes));
-  localStorage.setItem(KEY_PROV,JSON.stringify(proveedores));
-  localStorage.setItem(KEY_CC,JSON.stringify(movimientosCC));
-  localStorage.setItem(KEY_DESC,JSON.stringify(descuentos));
-  localStorage.setItem(KEY_GAS,JSON.stringify(gastos));
-  localStorage.setItem(KEY_TUR,JSON.stringify(turnos));
+  // Guardar SIEMPRE en localStorage primero (instantáneo)
+  try { localStorage.setItem(KEY_P,JSON.stringify(productos)); } catch(e){}
+  try { localStorage.setItem(KEY_S,JSON.stringify(stock)); } catch(e){}
+  try { localStorage.setItem(KEY_L,JSON.stringify(log)); } catch(e){}
+  try { localStorage.setItem(KEY_F,JSON.stringify(facturas)); } catch(e){}
+  try { localStorage.setItem(KEY_CLI,JSON.stringify(clientes)); } catch(e){}
+  try { localStorage.setItem(KEY_PROV,JSON.stringify(proveedores)); } catch(e){}
+  try { localStorage.setItem(KEY_CC,JSON.stringify(movimientosCC)); } catch(e){}
+  try { localStorage.setItem(KEY_DESC,JSON.stringify(descuentos)); } catch(e){}
+  try { localStorage.setItem(KEY_GAS,JSON.stringify(gastos)); } catch(e){}
+  try { localStorage.setItem(KEY_TUR,JSON.stringify(turnos)); } catch(e){}
+  
+  // Backup adicional con timestamp por si algo sale mal
+  try {
+    const backup = { ts: Date.now(), fecha: nowStr(), productos, stock, log, facturas, clientes, proveedores, movimientosCC, descuentos, gastos, turnos };
+    localStorage.setItem('mm_backup_seguridad', JSON.stringify(backup));
+  } catch(e){}
+  
   if (!SCRIPT_URL) return;
+  
+  // Mostrar indicador
+  _guardandoEnNube = true;
+  mostrarBarraGuardando(true);
+  
   try{
     const data={productos,stock,log,facturas,clientes,proveedores,movimientosCC,descuentos,gastos,turnos};
     const formData=new FormData();
     formData.append('data', JSON.stringify(data));
     await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body: formData});
     toast('✅ Guardado en la nube');
-  }catch(err){ toast('💾 Solo local'); }
+  }catch(err){ 
+    toast('⚠️ No subió a la nube (datos guardados local)'); 
+  } finally {
+    _guardandoEnNube = false;
+    mostrarBarraGuardando(false);
+  }
 }
 
 function loadFromJsonp(){
@@ -3244,16 +3288,21 @@ function loadFromJsonp(){
     s.src=SCRIPT_URL+'?callback='+cbName+'&t='+Date.now();
     s.onerror=()=>{ delete window[cbName]; resolve(null); };
     document.head.appendChild(s);
-    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; resolve(null); } },5000);
+    // Timeout aumentado de 5s a 20s (Sheets puede tardar)
+    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; resolve(null); } },20000);
   });
 }
 
 async function loadAll(){
   let loadedFromCloud=false;
+  let intentoNube = false;
+  
   if(SCRIPT_URL){
+    intentoNube = true;
     try{
       const data=await loadFromJsonp();
-      if(data && data.productos){
+      // SOLO si llegan datos válidos con productos, usarlos
+      if(data && data.productos && Array.isArray(data.productos)){
         productos=data.productos; stock=data.stock||{}; log=data.log||[]; facturas=data.facturas||[];
         clientes=data.clientes||[]; proveedores=data.proveedores||[]; movimientosCC=data.movimientosCC||[];
         descuentos=data.descuentos||[]; gastos=data.gastos||[]; turnos=data.turnos||[];
@@ -3263,6 +3312,22 @@ async function loadAll(){
     }catch(e){}
   }
   if(!loadedFromCloud){
+    // Si la nube falló pero el SCRIPT_URL está configurado, advertir al usuario
+    if(intentoNube){
+      // Mostrar cartel rojo CRÍTICO si falla la conexión con la nube
+      setTimeout(() => {
+        let alerta = document.getElementById('alerta-sin-nube');
+        if(!alerta){
+          alerta = document.createElement('div');
+          alerta.id = 'alerta-sin-nube';
+          alerta.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:14px;background:#c0392b;color:#fff;text-align:center;font-weight:800;z-index:99998;font-family:"Segoe UI",Arial,sans-serif;font-size:0.95rem;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:pointer;';
+          alerta.innerHTML = '⚠️ <strong>SIN CONEXIÓN A LA NUBE.</strong> Trabajando con datos locales. <span style="font-weight:600;font-size:0.85rem;">Tocá acá para reintentar.</span>';
+          alerta.onclick = () => { location.reload(); };
+          document.body.appendChild(alerta);
+        }
+      }, 2500);
+    }
+    
     try{const p=localStorage.getItem(KEY_P);if(p)productos=JSON.parse(p)}catch(e){}
     try{const s=localStorage.getItem(KEY_S);if(s)stock=JSON.parse(s)}catch(e){}
     try{const l=localStorage.getItem(KEY_L);if(l)log=JSON.parse(l)}catch(e){}
@@ -3281,7 +3346,7 @@ async function loadAll(){
         {id:4,nombre:'Cigarrillos Marlboro',marca:'Cigarrillos',precio:3000,costo:2400,barcode:'',tipo:'unidad'}
       ];
     }
-    toast('📀 Datos locales (ejemplo)');
+    toast('📀 Datos locales');
   }
   productos.forEach(p=>{if(stock[p.id]===undefined)stock[p.id]=0;if(!p.costo)p.costo=0;if(!p.barcode)p.barcode='';if(!p.tipo)p.tipo='unidad';});
   nextId=Math.max(...productos.map(p=>p.id),99)+1;
@@ -3296,6 +3361,8 @@ async function loadAll(){
   turnoActual = turnos.find(t => !t.cerrado) || null;
   nextCliId = clientes.length ? Math.max(...clientes.map(c=>c.id),0)+1 : 1;
   nextProvId = proveedores.length ? Math.max(...proveedores.map(p=>p.id),0)+1 : 1;
+  // Indicador de éxito en la conexión: ocultar si había alerta previa
+  return loadedFromCloud;
 }
 
 function addLog(tipo,prod,antes,despues,qty, facturaId=null){
@@ -8040,7 +8107,29 @@ function cerrarCamara(){
   document.getElementById('camara-modal').classList.remove('open');
 }
 
-autenticar().then(()=>{ (async()=>{ await loadAll(); renderAll(); initEventos(); iniciarInterfazSegunDispositivo();
+autenticar().then(()=>{ (async()=>{ 
+  const cargoNube = await loadAll(); 
+  
+  // Solo crear combustibles base si realmente NO hay productos cargados.
+  // Esta condición es estricta para evitar que se pisen datos cuando la
+  // nube tarda o falla momentáneamente.
+  const hayDatosReales = productos.length > 0 && productos.some(p => p.id);
+  const sonSoloEjemplos = productos.length === 4 && 
+                          productos.every(p => [1,2,3,4].includes(p.id)) &&
+                          !productos.some(p => p.esCombustible);
+  
+  if(!hayDatosReales || sonSoloEjemplos){
+    // Está realmente vacío o solo tiene los 4 ejemplos por defecto
+    // → ahí sí podemos inicializar combustibles
+    if(typeof inicializarCombustibles === 'function'){
+      inicializarCombustibles();
+    }
+  }
+  
+  renderAll(); 
+  initEventos(); 
+  iniciarInterfazSegunDispositivo();
+  
   // Inicializar rangos de gastos
   const hoy = new Date().toISOString().split('T')[0];
   const gasDesde = document.getElementById('gasto-desde');
@@ -8578,8 +8667,9 @@ function inicializarCombustibles(){
     productos.push(prod);
     stock[prod.id] = Math.round(c.capacidadTanque * 0.6);
   });
-  saveAll();
-  toast('⛽ Combustibles iniciales creados');
+  // NO hacemos saveAll() automático para evitar pisar datos en la nube.
+  // Los combustibles quedan en memoria y se guardan cuando el usuario haga su primer cambio.
+  toast('⛽ Combustibles iniciales creados (se guardan al hacer un cambio)');
 }
 
 function combustibles(){
@@ -9073,13 +9163,70 @@ showTab = function(name, btn){
   if(name === 'surtidor') renderSurtidor();
 };
 
-// Inicializar combustibles cuando todo esté cargado
-setTimeout(() => {
-  if(typeof productos !== 'undefined' && productos.length >= 0){
-    inicializarCombustibles();
-    renderSurtidor();
+// La inicialización de combustibles ahora se hace DESPUÉS del loadAll
+// (movida al autenticar().then(...) para evitar que pise datos por timing)
+
+// ========================================================================
+// =================== RECUPERAR BACKUP DE SEGURIDAD ====================
+// ========================================================================
+// Si en algún momento se perdieron datos (porque se pisó la nube por error),
+// este botón recupera el último estado bueno guardado en este navegador.
+function recuperarBackupSeguridad(){
+  const raw = localStorage.getItem('mm_backup_seguridad');
+  if(!raw){
+    alert('⚠️ No hay backup de seguridad guardado en este navegador.\n\nLos backups se generan automáticamente cada vez que el sistema guarda datos.');
+    return;
   }
-}, 1500);
+  
+  let backup;
+  try {
+    backup = JSON.parse(raw);
+  } catch(e) {
+    alert('❌ El backup está corrupto, no se puede leer.');
+    return;
+  }
+  
+  const fecha = backup.fecha || new Date(backup.ts).toLocaleString('es-AR');
+  const cantProds = backup.productos ? backup.productos.length : 0;
+  const cantFact = backup.facturas ? backup.facturas.length : 0;
+  const cantCli = backup.clientes ? backup.clientes.length : 0;
+  
+  const msg = `🛟 RECUPERAR BACKUP DE SEGURIDAD\n\n` +
+    `Último backup automático:\n` +
+    `📅 Fecha: ${fecha}\n\n` +
+    `Contiene:\n` +
+    `  • ${cantProds} productos\n` +
+    `  • ${cantFact} facturas\n` +
+    `  • ${cantCli} clientes\n\n` +
+    `⚠️ Esto va a REEMPLAZAR los datos actuales con los del backup.\n` +
+    `Si los datos actuales son nuevos, vas a perderlos.\n\n` +
+    `¿Querés continuar?`;
+  
+  if(!confirm(msg)) return;
+  
+  if(!confirm(`⚠️ ÚLTIMA CONFIRMACIÓN\n\nVas a reemplazar todo lo actual con el backup del ${fecha}.\n\n¿Confirmás?`)){
+    toast('Cancelado');
+    return;
+  }
+  
+  // Restaurar todo desde el backup
+  if(backup.productos) productos = backup.productos;
+  if(backup.stock) stock = backup.stock;
+  if(backup.log) log = backup.log;
+  if(backup.facturas) facturas = backup.facturas;
+  if(backup.clientes) clientes = backup.clientes;
+  if(backup.proveedores) proveedores = backup.proveedores;
+  if(backup.movimientosCC) movimientosCC = backup.movimientosCC;
+  if(backup.descuentos) descuentos = backup.descuentos;
+  if(backup.gastos) gastos = backup.gastos;
+  if(backup.turnos) turnos = backup.turnos;
+  
+  nextId = Math.max(...productos.map(p=>p.id), 99) + 1;
+  
+  saveAll();
+  renderAll();
+  toast(`✅ Backup restaurado del ${fecha}`);
+}
 
 // ========================================================================
 // =================== MENÚ DESPLEGABLE "MÁS" ============================
