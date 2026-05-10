@@ -10580,12 +10580,16 @@ function calcularVentasDelTurno(){
   // Calcula totales de ventas y despachos durante el turno actual
   if(!turnoActual) return null;
   
-  const desde = new Date(turnoActual.apertura).getTime();
+  // ⚠️ FIX: turnoActual.apertura está en ISO, las facturas en formato es-AR
+  // Hay que parsearlas con parseFechaFactura (que maneja ambos formatos)
+  const desdeMs = new Date(turnoActual.apertura).getTime();
   const facturasTurno = (facturas||[]).filter(f => {
     if(f.anulada) return false;
     if(f.tipo !== 'venta') return false;
-    const fts = new Date(f.fecha).getTime();
-    return fts >= desde;
+    // Usar parseFechaFactura para parsear formato argentino DD/MM/YYYY HH:MM
+    const fechaFact = parseFechaFactura(f.fecha);
+    if(!fechaFact) return false;
+    return fechaFact.getTime() >= desdeMs;
   });
   
   // Litros vendidos por cada combustible (según facturas con esDespacho:true)
@@ -10977,13 +10981,15 @@ function mostrarResumenTurnoCerrado(turno){
   if(headerEstado) headerEstado.textContent = '✅ Turno cerrado';
   
   // Recalcular datos basándose en el turno (ahora cerrado)
-  const desde = new Date(turno.apertura).getTime();
-  const hasta = new Date(turno.cierre).getTime();
+  const desdeMs = new Date(turno.apertura).getTime();
+  const hastaMs = new Date(turno.cierre).getTime();
   const facturasTurno = (facturas||[]).filter(f => {
     if(f.anulada) return false;
     if(f.tipo !== 'venta') return false;
-    const fts = new Date(f.fecha).getTime();
-    return fts >= desde && fts <= hasta;
+    const fechaFact = parseFechaFactura(f.fecha);
+    if(!fechaFact) return false;
+    const fts = fechaFact.getTime();
+    return fts >= desdeMs && fts <= hastaMs;
   });
   
   const combustibles = getCombustiblesActivos();
@@ -11060,13 +11066,15 @@ function imprimirResumenTurno(turno){
   }
   
   // Recalcular datos
-  const desde = new Date(turno.apertura).getTime();
-  const hasta = new Date(turno.cierre).getTime();
+  const desdeMs = new Date(turno.apertura).getTime();
+  const hastaMs = new Date(turno.cierre).getTime();
   const facturasTurno = (facturas||[]).filter(f => {
     if(f.anulada) return false;
     if(f.tipo !== 'venta') return false;
-    const fts = new Date(f.fecha).getTime();
-    return fts >= desde && fts <= hasta;
+    const fechaFact = parseFechaFactura(f.fecha);
+    if(!fechaFact) return false;
+    const fts = fechaFact.getTime();
+    return fts >= desdeMs && fts <= hastaMs;
   });
   
   const combustibles = getCombustiblesActivos();
@@ -11213,6 +11221,18 @@ const _showTabMiTurno = showTab;
 showTab = function(name, btn){
   _showTabMiTurno(name, btn);
   if(name === 'miturno') renderPanelMiTurno();
+};
+
+// Hook en renderAll para que el panel Mi Turno se mantenga actualizado
+// cuando se hacen ventas o despachos desde otras pestañas
+const _renderAllMiTurno = renderAll;
+renderAll = function(){
+  _renderAllMiTurno();
+  // Si el panel Mi Turno está visible, actualizarlo
+  const panelMt = document.getElementById('panel-miturno');
+  if(panelMt && panelMt.classList.contains('active')){
+    renderPanelMiTurno();
+  }
 };
 
 // ========================================================================
