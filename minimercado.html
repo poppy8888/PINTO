@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>👑 Reina Mi Amor</title>
+<title>⛽ Estación Don Ramón</title>
 <style>
 /* ========== CLAVE OVERLAY ========== */
 #clave-overlay {
@@ -962,6 +962,18 @@ select {
   .cig-grid{grid-template-columns:repeat(2,1fr);}
 }
 
+/* ============= ESTILOS POR ROL ============= */
+/* Cuando body tiene .rol-cajero, ocultamos elementos admin-only */
+body.rol-cajero .admin-only,
+body.rol-operadora .admin-only {
+  display: none !important;
+}
+/* Para cajero específicamente, ocultar columnas de costo */
+body.rol-cajero .col-costo,
+body.rol-cajero [data-rol="admin"] {
+  display: none !important;
+}
+
 /* ============= MENÚ DESPLEGABLE "MÁS" ============= */
 .dropdown-mas{position:relative;display:inline-block;}
 .dropdown-menu-mas{
@@ -1004,13 +1016,18 @@ select {
 
 <div id="clave-overlay">
   <div class="clave-card">
-    <h2>👑 Reina Mi Amor</h2>
+    <h2>⛽ Estación Don Ramón</h2>
+    <div style="font-size:0.78rem;color:#888;margin-bottom:10px;text-align:center;">Sistema de gestión integral</div>
     <input type="password" id="clave-input" placeholder="Contraseña" autofocus>
     <label class="clave-recordar">
       <input type="checkbox" id="clave-recordar"> Recordarme en este dispositivo
     </label>
     <button id="btn-validar">Ingresar</button>
     <div id="clave-error" class="mensaje-error"></div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;font-size:0.72rem;color:#888;text-align:center;line-height:1.5;">
+      👑 Admin · 📝 Operadora · 💼 Cajero<br>
+      <span style="font-size:0.68rem;opacity:0.7;">Cada usuario tiene su propia contraseña</span>
+    </div>
   </div>
 </div>
 
@@ -1025,7 +1042,7 @@ select {
         <svg viewBox="0 0 24 24" width="22" height="22" fill="#1a1a2e"><path d="M2 18 L4 8 L8 12 L12 5 L16 12 L20 8 L22 18 Z"/><rect x="2" y="18" width="20" height="2.5" rx="0.5"/></svg>
       </div>
       <div>
-        <div style="color:#fff;font-weight:800;font-size:1rem;line-height:1;">👑 Reina Mi Amor</div>
+        <div style="color:#fff;font-weight:800;font-size:1rem;line-height:1;">⛽ Estación Don Ramón</div>
         <div style="color:#8888aa;font-size:0.72rem;">Sistema de gestión</div>
       </div>
     </div>
@@ -1146,8 +1163,8 @@ select {
       </svg>
     </div>
     <div>
-      <div class="header-title">👑 Reina Mi Amor</div>
-      <div class="header-sub">MiniMarket La Reina · Venta por unidad o peso</div>
+      <div class="header-title">⛽ Estación Don Ramón</div>
+      <div class="header-sub">Sistema de gestión · Surtidor + Minimarket</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -1156,6 +1173,8 @@ select {
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #888;background:#f0f0f0;color:#333;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #1f5005;background:#2a6e2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/></label>
     <button onclick="limpiarMercaderia()" style="padding:10px 18px;border-radius:6px;border:1px solid #b56b00;background:#d68910;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Borrar productos del minimarket (mantiene combustibles, clientes y proveedores)">🧹 Limpiar mercadería</button>
+    <button onclick="recuperarBackupSeguridad()" style="padding:10px 18px;border-radius:6px;border:1px solid #1a5a8a;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Si perdiste datos, recuperar el último backup automático guardado en este navegador">🛟 Recuperar backup</button>
+    <button onclick="abrirGestionUsuarios()" id="btn-usuarios" style="padding:10px 18px;border-radius:6px;border:1px solid #1a3a6b;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Cambiar contraseñas de los usuarios del sistema">👥 Usuarios</button>
     <button onclick="cerrarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #6b1818;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">🚪 Cerrar sesión</button>
   </div>
 </div>
@@ -1224,7 +1243,7 @@ select {
     <ellipse cx="40" cy="80" rx="3" ry="10" fill="rgba(255,255,255,0.5)" transform="rotate(-15 40 80)"/>
     <ellipse cx="120" cy="55" rx="3" ry="14" fill="rgba(255,255,255,0.4)" transform="rotate(15 120 55)"/>
   </svg>
-  <div class="marca">Reina Mi Amor</div>
+  <div class="marca">Estación Don Ramón</div>
   <div class="sub">Sistema de Gestión</div>
 </div>
 
@@ -2708,7 +2727,7 @@ select {
         <div id="est-ventas-tipo-cliente"></div>
       </div>
       <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
-        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">👑 Top clientes por $ facturado (período)</div>
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">🏆 Top clientes por $ facturado (período)</div>
         <div id="est-top-clientes-facturado"></div>
       </div>
     </div>
@@ -3192,10 +3211,82 @@ function fmtUnidad(valor, tipo) {
 }
 
 // ========== URL DE APPS SCRIPT (cambiar si es necesario) ==========
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWDaRGHkye087DSZ6llaP2uZSJf074fu-BbKtOpRxCVbl-Vu0ravphH0K_5S3sgWg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0mHAzf3uyFfHVapnyTUTIZANQTj_P6cRNNWV3DFEF35ZmR9Ac1H2mvNrY4WtW0Uo0/exec";
 
 // ========== CLAVE DE ACCESO ==========
-const CLAVE_ACCESO = "admin123";
+// ============================================================
+// SISTEMA DE USUARIOS Y ROLES
+// ============================================================
+// Hay 4 niveles con permisos diferentes. Cada uno tiene su propia clave.
+// El usuario ingresa la clave y el sistema lo manda al rol correspondiente.
+//
+// IMPORTANTE: las claves se guardan en localStorage para que el admin las
+// pueda cambiar desde el sistema. Si nunca se cambiaron, se usan las
+// iniciales de abajo.
+const CLAVES_INICIALES = {
+  admin:     "admin123",
+  operadora: "compras123",
+  cajero1:   "cajero1",
+  cajero2:   "cajero2"
+};
+
+const ROLES_INFO = {
+  admin:     { nombre: "Don Ramón",   icono: "👑", color: "#6b1818" },
+  operadora: { nombre: "Operadora",   icono: "📝", color: "#1f5f9e" },
+  cajero1:   { nombre: "Cajero 1",    icono: "💼", color: "#27500a" },
+  cajero2:   { nombre: "Cajero 2",    icono: "💼", color: "#a06820" }
+};
+
+// Pestañas que ve cada rol (las que NO están acá quedan ocultas)
+const PESTANAS_PERMITIDAS = {
+  admin:     "TODAS",  // ve todo
+  operadora: ["compra","proveedores"],  // solo compras y proveedores. NO stock.
+  cajero1:   ["surtidor","venta","cigarrillos","cuentas"],
+  cajero2:   ["surtidor","venta","cigarrillos","cuentas"]
+};
+
+// Botones/acciones bloqueadas según rol (selectores CSS)
+const ACCIONES_BLOQUEADAS = {
+  admin:     [],  // ninguna
+  operadora: [],  // por ahora ninguna, ya tiene acceso solo a compra/proveedores
+  cajero1:   [],
+  cajero2:   []
+};
+
+let _rolActual = null; // se llena al loguearse: 'admin' | 'operadora' | 'cajero1' | 'cajero2'
+
+function getClavesActuales(){
+  // Lee las claves desde localStorage. Si no existen, usa las iniciales.
+  try {
+    const guardadas = localStorage.getItem('ER_CLAVES_USUARIOS');
+    if(guardadas){
+      const obj = JSON.parse(guardadas);
+      // Mergear con las iniciales por si falta alguna
+      return { ...CLAVES_INICIALES, ...obj };
+    }
+  } catch(e) {}
+  return { ...CLAVES_INICIALES };
+}
+
+function guardarClaves(claves){
+  try {
+    localStorage.setItem('ER_CLAVES_USUARIOS', JSON.stringify(claves));
+    return true;
+  } catch(e) { return false; }
+}
+
+function getRolPorClave(claveIngresada){
+  const claves = getClavesActuales();
+  for(const rol in claves){
+    if(claves[rol] === claveIngresada){
+      return rol;
+    }
+  }
+  return null;
+}
+
+// Compatibilidad con código viejo
+const CLAVE_ACCESO = "admin123"; // ya no se usa, queda por compatibilidad
 const KEY_AUTH = "MINIMARKET_AUTH_RECORDADO";
 
 // ========== CLAVES DE ALMACENAMIENTO LOCAL ==========
@@ -3213,25 +3304,68 @@ function nowStr(){const d=new Date();return d.toLocaleDateString('es-AR')+' '+d.
 function calcTotal(){return productos.reduce((a,p)=>a+(stock[p.id]||0),0)}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 
+// Variable global: indica si estamos guardando en la nube en este momento
+let _guardandoEnNube = false;
+let _saveTimer = null;
+
+function mostrarBarraGuardando(activo){
+  let div = document.getElementById('barra-guardando');
+  if(!div){
+    div = document.createElement('div');
+    div.id = 'barra-guardando';
+    div.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:12px;background:#f0c040;color:#1a1a2e;text-align:center;font-weight:800;z-index:99999;display:none;font-family:"Segoe UI",Arial,sans-serif;font-size:0.95rem;box-shadow:0 2px 10px rgba(0,0,0,0.3);';
+    div.innerHTML = '💾 Guardando en la nube... <span style="font-weight:600;font-size:0.85rem;">no cierres ni recargues la página</span>';
+    document.body.appendChild(div);
+  }
+  div.style.display = activo ? 'block' : 'none';
+}
+
+// Bloquear el cierre de la página si estamos en medio de un guardado
+window.addEventListener('beforeunload', function(e){
+  if(_guardandoEnNube){
+    e.preventDefault();
+    e.returnValue = 'Hay datos guardándose. Si cerrás ahora podés perder cambios.';
+    return e.returnValue;
+  }
+});
+
 async function saveAll(){
-  localStorage.setItem(KEY_P,JSON.stringify(productos));
-  localStorage.setItem(KEY_S,JSON.stringify(stock));
-  localStorage.setItem(KEY_L,JSON.stringify(log));
-  localStorage.setItem(KEY_F,JSON.stringify(facturas));
-  localStorage.setItem(KEY_CLI,JSON.stringify(clientes));
-  localStorage.setItem(KEY_PROV,JSON.stringify(proveedores));
-  localStorage.setItem(KEY_CC,JSON.stringify(movimientosCC));
-  localStorage.setItem(KEY_DESC,JSON.stringify(descuentos));
-  localStorage.setItem(KEY_GAS,JSON.stringify(gastos));
-  localStorage.setItem(KEY_TUR,JSON.stringify(turnos));
+  // Guardar SIEMPRE en localStorage primero (instantáneo)
+  try { localStorage.setItem(KEY_P,JSON.stringify(productos)); } catch(e){}
+  try { localStorage.setItem(KEY_S,JSON.stringify(stock)); } catch(e){}
+  try { localStorage.setItem(KEY_L,JSON.stringify(log)); } catch(e){}
+  try { localStorage.setItem(KEY_F,JSON.stringify(facturas)); } catch(e){}
+  try { localStorage.setItem(KEY_CLI,JSON.stringify(clientes)); } catch(e){}
+  try { localStorage.setItem(KEY_PROV,JSON.stringify(proveedores)); } catch(e){}
+  try { localStorage.setItem(KEY_CC,JSON.stringify(movimientosCC)); } catch(e){}
+  try { localStorage.setItem(KEY_DESC,JSON.stringify(descuentos)); } catch(e){}
+  try { localStorage.setItem(KEY_GAS,JSON.stringify(gastos)); } catch(e){}
+  try { localStorage.setItem(KEY_TUR,JSON.stringify(turnos)); } catch(e){}
+  
+  // Backup adicional con timestamp por si algo sale mal
+  try {
+    const backup = { ts: Date.now(), fecha: nowStr(), productos, stock, log, facturas, clientes, proveedores, movimientosCC, descuentos, gastos, turnos };
+    localStorage.setItem('mm_backup_seguridad', JSON.stringify(backup));
+  } catch(e){}
+  
   if (!SCRIPT_URL) return;
+  
+  // Mostrar indicador
+  _guardandoEnNube = true;
+  mostrarBarraGuardando(true);
+  
   try{
     const data={productos,stock,log,facturas,clientes,proveedores,movimientosCC,descuentos,gastos,turnos};
     const formData=new FormData();
     formData.append('data', JSON.stringify(data));
     await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body: formData});
     toast('✅ Guardado en la nube');
-  }catch(err){ toast('💾 Solo local'); }
+  }catch(err){ 
+    toast('⚠️ No subió a la nube (datos guardados local)'); 
+  } finally {
+    _guardandoEnNube = false;
+    mostrarBarraGuardando(false);
+  }
 }
 
 function loadFromJsonp(){
@@ -3244,16 +3378,21 @@ function loadFromJsonp(){
     s.src=SCRIPT_URL+'?callback='+cbName+'&t='+Date.now();
     s.onerror=()=>{ delete window[cbName]; resolve(null); };
     document.head.appendChild(s);
-    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; resolve(null); } },5000);
+    // Timeout aumentado de 5s a 20s (Sheets puede tardar)
+    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; resolve(null); } },20000);
   });
 }
 
 async function loadAll(){
   let loadedFromCloud=false;
+  let intentoNube = false;
+  
   if(SCRIPT_URL){
+    intentoNube = true;
     try{
       const data=await loadFromJsonp();
-      if(data && data.productos){
+      // SOLO si llegan datos válidos con productos, usarlos
+      if(data && data.productos && Array.isArray(data.productos)){
         productos=data.productos; stock=data.stock||{}; log=data.log||[]; facturas=data.facturas||[];
         clientes=data.clientes||[]; proveedores=data.proveedores||[]; movimientosCC=data.movimientosCC||[];
         descuentos=data.descuentos||[]; gastos=data.gastos||[]; turnos=data.turnos||[];
@@ -3263,6 +3402,22 @@ async function loadAll(){
     }catch(e){}
   }
   if(!loadedFromCloud){
+    // Si la nube falló pero el SCRIPT_URL está configurado, advertir al usuario
+    if(intentoNube){
+      // Mostrar cartel rojo CRÍTICO si falla la conexión con la nube
+      setTimeout(() => {
+        let alerta = document.getElementById('alerta-sin-nube');
+        if(!alerta){
+          alerta = document.createElement('div');
+          alerta.id = 'alerta-sin-nube';
+          alerta.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:14px;background:#c0392b;color:#fff;text-align:center;font-weight:800;z-index:99998;font-family:"Segoe UI",Arial,sans-serif;font-size:0.95rem;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:pointer;';
+          alerta.innerHTML = '⚠️ <strong>SIN CONEXIÓN A LA NUBE.</strong> Trabajando con datos locales. <span style="font-weight:600;font-size:0.85rem;">Tocá acá para reintentar.</span>';
+          alerta.onclick = () => { location.reload(); };
+          document.body.appendChild(alerta);
+        }
+      }, 2500);
+    }
+    
     try{const p=localStorage.getItem(KEY_P);if(p)productos=JSON.parse(p)}catch(e){}
     try{const s=localStorage.getItem(KEY_S);if(s)stock=JSON.parse(s)}catch(e){}
     try{const l=localStorage.getItem(KEY_L);if(l)log=JSON.parse(l)}catch(e){}
@@ -3281,7 +3436,7 @@ async function loadAll(){
         {id:4,nombre:'Cigarrillos Marlboro',marca:'Cigarrillos',precio:3000,costo:2400,barcode:'',tipo:'unidad'}
       ];
     }
-    toast('📀 Datos locales (ejemplo)');
+    toast('📀 Datos locales');
   }
   productos.forEach(p=>{if(stock[p.id]===undefined)stock[p.id]=0;if(!p.costo)p.costo=0;if(!p.barcode)p.barcode='';if(!p.tipo)p.tipo='unidad';});
   nextId=Math.max(...productos.map(p=>p.id),99)+1;
@@ -3296,6 +3451,8 @@ async function loadAll(){
   turnoActual = turnos.find(t => !t.cerrado) || null;
   nextCliId = clientes.length ? Math.max(...clientes.map(c=>c.id),0)+1 : 1;
   nextProvId = proveedores.length ? Math.max(...proveedores.map(p=>p.id),0)+1 : 1;
+  // Indicador de éxito en la conexión: ocultar si había alerta previa
+  return loadedFromCloud;
 }
 
 function addLog(tipo,prod,antes,despues,qty, facturaId=null){
@@ -4588,7 +4745,7 @@ function generarTicketTexto(factura, lineas){
   // ENCABEZADO
   t += sep2 + '\n';
   t += center('REINA MI AMOR') + '\n';
-  t += center('MiniMarket La Reina') + '\n';
+  t += center('Estación Don Ramón') + '\n';
   t += center('CUIT: 00-00000000-0') + '\n';
   t += center('Resp. Monotributo') + '\n';
   t += sep2 + '\n';
@@ -6030,7 +6187,7 @@ function generarTextoPedido(){
   t += sep2 + '\n';
   t += `Proveedor: ${_pedidoActual.nombreProv}\n`;
   t += `Fecha: ${new Date().toLocaleString('es-AR')}\n`;
-  t += `Cliente: REINA MI AMOR — MiniMarket La Reina\n`;
+  t += `Cliente: ESTACIÓN DON RAMÓN\n`;
   t += sep + '\n';
   t += 'Cant.  Producto                       Subtotal\n';
   t += sep + '\n';
@@ -7681,8 +7838,149 @@ function initEventos(){
   });
 }
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-function autenticar(){ return new Promise((resolve)=>{ const ov=document.getElementById('clave-overlay'), inp=document.getElementById('clave-input'), btn=document.getElementById('btn-validar'), err=document.getElementById('clave-error'), rec=document.getElementById('clave-recordar'); if(localStorage.getItem(KEY_AUTH)==="1"){ ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); return; } const validar=()=>{ if(inp.value===CLAVE_ACCESO){ if(rec && rec.checked){ localStorage.setItem(KEY_AUTH,"1"); } ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); } else{ err.textContent='Contraseña incorrecta.'; inp.value=''; inp.focus(); } }; btn.onclick=validar; inp.onkeypress=e=>{if(e.key==='Enter')validar();}; inp.focus(); }); }
-function cerrarSesion(){ if(confirm('¿Cerrar sesión en este dispositivo? Tendrás que volver a poner la clave.')){ localStorage.removeItem(KEY_AUTH); location.reload(); } }
+function autenticar(){ 
+  return new Promise((resolve)=>{ 
+    const ov=document.getElementById('clave-overlay');
+    const inp=document.getElementById('clave-input');
+    const btn=document.getElementById('btn-validar');
+    const err=document.getElementById('clave-error');
+    const rec=document.getElementById('clave-recordar');
+    
+    // Si tenía sesión recordada con rol guardado, recuperarla
+    const rolGuardado = localStorage.getItem('ER_ROL_ACTUAL');
+    if(localStorage.getItem(KEY_AUTH)==="1" && rolGuardado && ROLES_INFO[rolGuardado]){
+      _rolActual = rolGuardado;
+      ov.style.display='none';
+      document.getElementById('app-contenido').style.display='block';
+      aplicarRestriccionesPorRol();
+      resolve(true);
+      return;
+    }
+    
+    const validar=()=>{
+      const rol = getRolPorClave(inp.value);
+      if(rol){
+        _rolActual = rol;
+        if(rec && rec.checked){
+          localStorage.setItem(KEY_AUTH,"1");
+          localStorage.setItem('ER_ROL_ACTUAL', rol);
+        }
+        ov.style.display='none';
+        document.getElementById('app-contenido').style.display='block';
+        aplicarRestriccionesPorRol();
+        const info = ROLES_INFO[rol];
+        toast(`${info.icono} Bienvenido — ${info.nombre}`);
+        resolve(true);
+      } else {
+        err.textContent='Contraseña incorrecta.';
+        inp.value='';
+        inp.focus();
+      }
+    };
+    btn.onclick=validar;
+    inp.onkeypress=e=>{if(e.key==='Enter')validar();};
+    inp.focus();
+  }); 
+}
+
+// Aplicar restricciones según el rol actual
+function aplicarRestriccionesPorRol(){
+  if(!_rolActual) return;
+  const permitidas = PESTANAS_PERMITIDAS[_rolActual];
+  setTimeout(() => {
+    if(permitidas === "TODAS"){
+      document.querySelectorAll('.tab').forEach(tab => { tab.style.display = ''; });
+      const btnMas = document.getElementById('btn-mas');
+      if(btnMas) btnMas.parentElement.style.display = '';
+    } else {
+      document.querySelectorAll('.tab').forEach(tab => {
+        const onclickAttr = tab.getAttribute('onclick') || '';
+        const match = onclickAttr.match(/showTab\('(\w+)'/);
+        if(match){
+          const nombreTab = match[1];
+          if(permitidas.includes(nombreTab)){ tab.style.display = ''; }
+          else { tab.style.display = 'none'; }
+        }
+      });
+      const btnMas = document.getElementById('btn-mas');
+      if(btnMas) btnMas.parentElement.style.display = 'none';
+      const masMenu = document.getElementById('mas-menu');
+      if(masMenu) masMenu.style.display = 'none';
+      
+      const panelActivo = document.querySelector('.panel.active');
+      if(panelActivo){
+        const idActivo = panelActivo.id.replace('panel-', '');
+        if(!permitidas.includes(idActivo)){
+          const primeraPermitida = permitidas[0];
+          const tabPrimera = document.querySelector(`.tab[onclick*="showTab('${primeraPermitida}'"]`);
+          if(tabPrimera){ showTab(primeraPermitida, tabPrimera); }
+        }
+      }
+    }
+    mostrarBadgeRol();
+    aplicarRestriccionesUI();
+  }, 100);
+}
+
+function mostrarBadgeRol(){
+  if(!_rolActual) return;
+  const info = ROLES_INFO[_rolActual];
+  let badge = document.getElementById('badge-rol');
+  if(!badge){
+    badge = document.createElement('span');
+    badge.id = 'badge-rol';
+    badge.style.cssText = `display:inline-flex;align-items:center;padding:6px 12px;background:${info.color};color:#fff;border-radius:20px;font-size:0.82rem;font-weight:700;margin-right:8px;font-family:'Segoe UI',Arial,sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.15);`;
+    const btnCerrar = document.querySelector('button[onclick="cerrarSesion()"]');
+    if(btnCerrar && btnCerrar.parentElement){
+      btnCerrar.parentElement.insertBefore(badge, btnCerrar);
+    }
+  }
+  badge.style.background = info.color;
+  badge.textContent = `${info.icono} ${info.nombre}`;
+}
+
+function aplicarRestriccionesUI(){
+  if(_rolActual === 'admin') return;
+  document.querySelectorAll('button[onclick="limpiarMercaderia()"]').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('button[onclick="recuperarBackupSeguridad()"]').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('button[onclick="exportarBackup()"]').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('label').forEach(lbl => {
+    const inp = lbl.querySelector('input[onchange*="importarBackup"]');
+    const inp2 = lbl.querySelector('input[onchange*="importarCSV"]');
+    if(inp || inp2) lbl.style.display = 'none';
+  });
+  if(_rolActual === 'cajero1' || _rolActual === 'cajero2'){
+    document.body.classList.add('rol-cajero');
+  }
+  if(_rolActual === 'operadora'){
+    document.body.classList.add('rol-operadora');
+  }
+}
+
+function rolPuede(accion){
+  if(!_rolActual) return false;
+  if(_rolActual === 'admin') return true;
+  const permisos = {
+    'modificar_productos': ['admin'],
+    'modificar_precios': ['admin'],
+    'borrar_facturas': ['admin'],
+    'ver_costos': ['admin', 'operadora'],
+    'ver_contabilidad': ['admin'],
+    'ver_gastos': ['admin'],
+    'cargar_compra': ['admin', 'operadora'],
+    'cargar_proveedor': ['admin', 'operadora'],
+    'cargar_cliente': ['admin'],
+    'vender': ['admin', 'cajero1', 'cajero2'],
+    'cobrar_cta_cte': ['admin', 'cajero1', 'cajero2'],
+    'limpiar_datos': ['admin'],
+    'recuperar_backup': ['admin'],
+    'exportar_backup': ['admin'],
+    'importar_datos': ['admin'],
+    'cambiar_claves': ['admin']
+  };
+  return permisos[accion]?.includes(_rolActual) || false;
+}
+function cerrarSesion(){ if(confirm('¿Cerrar sesión en este dispositivo? Tendrás que volver a poner la clave.')){ localStorage.removeItem(KEY_AUTH); localStorage.removeItem('ER_ROL_ACTUAL'); _rolActual = null; location.reload(); } }
 // ========== INTERFAZ MÓVIL ==========
 function esCelular(){
   return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) 
@@ -8040,7 +8338,29 @@ function cerrarCamara(){
   document.getElementById('camara-modal').classList.remove('open');
 }
 
-autenticar().then(()=>{ (async()=>{ await loadAll(); renderAll(); initEventos(); iniciarInterfazSegunDispositivo();
+autenticar().then(()=>{ (async()=>{ 
+  const cargoNube = await loadAll(); 
+  
+  // Solo crear combustibles base si realmente NO hay productos cargados.
+  // Esta condición es estricta para evitar que se pisen datos cuando la
+  // nube tarda o falla momentáneamente.
+  const hayDatosReales = productos.length > 0 && productos.some(p => p.id);
+  const sonSoloEjemplos = productos.length === 4 && 
+                          productos.every(p => [1,2,3,4].includes(p.id)) &&
+                          !productos.some(p => p.esCombustible);
+  
+  if(!hayDatosReales || sonSoloEjemplos){
+    // Está realmente vacío o solo tiene los 4 ejemplos por defecto
+    // → ahí sí podemos inicializar combustibles
+    if(typeof inicializarCombustibles === 'function'){
+      inicializarCombustibles();
+    }
+  }
+  
+  renderAll(); 
+  initEventos(); 
+  iniciarInterfazSegunDispositivo();
+  
   // Inicializar rangos de gastos
   const hoy = new Date().toISOString().split('T')[0];
   const gasDesde = document.getElementById('gasto-desde');
@@ -8578,8 +8898,9 @@ function inicializarCombustibles(){
     productos.push(prod);
     stock[prod.id] = Math.round(c.capacidadTanque * 0.6);
   });
-  saveAll();
-  toast('⛽ Combustibles iniciales creados');
+  // NO hacemos saveAll() automático para evitar pisar datos en la nube.
+  // Los combustibles quedan en memoria y se guardan cuando el usuario haga su primer cambio.
+  toast('⛽ Combustibles iniciales creados (se guardan al hacer un cambio)');
 }
 
 function combustibles(){
@@ -9073,13 +9394,165 @@ showTab = function(name, btn){
   if(name === 'surtidor') renderSurtidor();
 };
 
-// Inicializar combustibles cuando todo esté cargado
-setTimeout(() => {
-  if(typeof productos !== 'undefined' && productos.length >= 0){
-    inicializarCombustibles();
-    renderSurtidor();
+// La inicialización de combustibles ahora se hace DESPUÉS del loadAll
+// (movida al autenticar().then(...) para evitar que pise datos por timing)
+
+// ========================================================================
+// =================== RECUPERAR BACKUP DE SEGURIDAD ====================
+// ========================================================================
+// Si en algún momento se perdieron datos (porque se pisó la nube por error),
+// este botón recupera el último estado bueno guardado en este navegador.
+function recuperarBackupSeguridad(){
+  const raw = localStorage.getItem('mm_backup_seguridad');
+  if(!raw){
+    alert('⚠️ No hay backup de seguridad guardado en este navegador.\n\nLos backups se generan automáticamente cada vez que el sistema guarda datos.');
+    return;
   }
-}, 1500);
+  
+  let backup;
+  try {
+    backup = JSON.parse(raw);
+  } catch(e) {
+    alert('❌ El backup está corrupto, no se puede leer.');
+    return;
+  }
+  
+  const fecha = backup.fecha || new Date(backup.ts).toLocaleString('es-AR');
+  const cantProds = backup.productos ? backup.productos.length : 0;
+  const cantFact = backup.facturas ? backup.facturas.length : 0;
+  const cantCli = backup.clientes ? backup.clientes.length : 0;
+  
+  const msg = `🛟 RECUPERAR BACKUP DE SEGURIDAD\n\n` +
+    `Último backup automático:\n` +
+    `📅 Fecha: ${fecha}\n\n` +
+    `Contiene:\n` +
+    `  • ${cantProds} productos\n` +
+    `  • ${cantFact} facturas\n` +
+    `  • ${cantCli} clientes\n\n` +
+    `⚠️ Esto va a REEMPLAZAR los datos actuales con los del backup.\n` +
+    `Si los datos actuales son nuevos, vas a perderlos.\n\n` +
+    `¿Querés continuar?`;
+  
+  if(!confirm(msg)) return;
+  
+  if(!confirm(`⚠️ ÚLTIMA CONFIRMACIÓN\n\nVas a reemplazar todo lo actual con el backup del ${fecha}.\n\n¿Confirmás?`)){
+    toast('Cancelado');
+    return;
+  }
+  
+  // Restaurar todo desde el backup
+  if(backup.productos) productos = backup.productos;
+  if(backup.stock) stock = backup.stock;
+  if(backup.log) log = backup.log;
+  if(backup.facturas) facturas = backup.facturas;
+  if(backup.clientes) clientes = backup.clientes;
+  if(backup.proveedores) proveedores = backup.proveedores;
+  if(backup.movimientosCC) movimientosCC = backup.movimientosCC;
+  if(backup.descuentos) descuentos = backup.descuentos;
+  if(backup.gastos) gastos = backup.gastos;
+  if(backup.turnos) turnos = backup.turnos;
+  
+  nextId = Math.max(...productos.map(p=>p.id), 99) + 1;
+  
+  saveAll();
+  renderAll();
+  toast(`✅ Backup restaurado del ${fecha}`);
+}
+
+// ========================================================================
+// =================== GESTIÓN DE USUARIOS Y CLAVES ======================
+// ========================================================================
+
+function abrirGestionUsuarios(){
+  if(!rolPuede('cambiar_claves')){
+    toast('⚠️ Solo el admin puede cambiar contraseñas');
+    return;
+  }
+  
+  const claves = getClavesActuales();
+  
+  // Crear modal si no existe
+  let modal = document.getElementById('usuarios-modal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'usuarios-modal';
+    modal.className = 'modal-overlay';
+    modal.style.zIndex = '2500';
+    modal.innerHTML = `
+      <div class="modal" style="width:min(95vw,560px);padding:0;background:#fff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#1a3a6b,#2980b9);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:1.1rem;font-weight:800;">👥 Gestión de usuarios</span>
+          <button onclick="document.getElementById('usuarios-modal').classList.remove('open');" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:30px;height:30px;border-radius:6px;font-size:1rem;cursor:pointer;">✕</button>
+        </div>
+        <div style="padding:18px 20px;" id="usuarios-modal-body">
+          <!-- contenido dinámico -->
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+  
+  // Llenar el contenido
+  const body = document.getElementById('usuarios-modal-body');
+  body.innerHTML = `
+    <div style="font-size:0.85rem;color:#666;margin-bottom:14px;background:#fff8e0;padding:10px;border-radius:6px;border-left:3px solid #f0c040;">
+      ℹ️ <strong>Importante</strong>: cambiá las contraseñas iniciales por unas propias.
+      Las claves se guardan solo en este navegador (no en la nube), así que cada vez que abras el sistema en un dispositivo nuevo, tenés que ponérselas otra vez.
+    </div>
+    
+    ${Object.keys(ROLES_INFO).map(rol => {
+      const info = ROLES_INFO[rol];
+      const claveActual = claves[rol] || '(sin definir)';
+      return `
+      <div style="background:#f5f5fa;border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid ${info.color};">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div>
+            <div style="font-size:1rem;font-weight:800;color:${info.color};">${info.icono} ${info.nombre}</div>
+            <div style="font-size:0.72rem;color:#888;">Rol: ${rol}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="clave-${rol}" value="${claveActual}" style="flex:1;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-family:monospace;font-size:0.9rem;">
+          <button onclick="guardarClaveRol('${rol}')" style="padding:8px 14px;background:#27500a;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.85rem;">💾 Guardar</button>
+        </div>
+      </div>
+      `;
+    }).join('')}
+    
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;border-top:1px solid #ddd;padding-top:14px;">
+      <button onclick="document.getElementById('usuarios-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:5px;font-weight:700;cursor:pointer;">Cerrar</button>
+    </div>
+  `;
+  
+  modal.classList.add('open');
+}
+
+function guardarClaveRol(rol){
+  const inp = document.getElementById('clave-' + rol);
+  const nueva = (inp?.value || '').trim();
+  
+  if(nueva.length < 4){
+    toast('⚠️ La clave debe tener al menos 4 caracteres');
+    return;
+  }
+  
+  // Verificar que no se duplique con otra
+  const claves = getClavesActuales();
+  for(const otroRol in claves){
+    if(otroRol !== rol && claves[otroRol] === nueva){
+      toast(`⚠️ Esa clave ya está usada por ${ROLES_INFO[otroRol].nombre}`);
+      return;
+    }
+  }
+  
+  claves[rol] = nueva;
+  if(guardarClaves(claves)){
+    const info = ROLES_INFO[rol];
+    toast(`✅ Clave de ${info.nombre} actualizada`);
+  } else {
+    toast('❌ Error al guardar');
+  }
+}
 
 // ========================================================================
 // =================== MENÚ DESPLEGABLE "MÁS" ============================
@@ -9635,6 +10108,14 @@ function renderCigarrillos(){
 const _renderAllCigs = renderAll;
 renderAll = function(){
   _renderAllCigs();
+  if(document.getElementById('cig-grid')) renderCigarrillos();
+};
+
+// Hook a renderStock: si se edita el stock desde la pestaña Stock (sin pasar
+// por renderAll), igual sincronizamos la pestaña Cigarrillos.
+const _renderStockOrig = renderStock;
+renderStock = function(){
+  _renderStockOrig();
   if(document.getElementById('cig-grid')) renderCigarrillos();
 };
 
