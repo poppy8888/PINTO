@@ -1122,15 +1122,25 @@ body.rol-operadora #tanques-grid {
 
 /* ============= ESTILOS DE IMPRESIÓN ============= */
 @media print {
-  /* Ocultar todo lo de la app */
-  body > *:not(#zona-impresion){
-    display:none !important;
+  /* Mientras se imprime, ocultar TODO */
+  body * {
+    visibility: hidden !important;
   }
-  #zona-impresion{
-    display:block !important;
-    padding:20px;
-    font-family:'Segoe UI',Tahoma,Arial,sans-serif;
-    color:#000;
+  /* Pero MOSTRAR el contenido de impresión y todos sus hijos */
+  #zona-impresion, #zona-impresion * {
+    visibility: visible !important;
+  }
+  /* Posicionar la zona de impresión al inicio de la página */
+  #zona-impresion {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    display: block !important;
+    padding: 20px !important;
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif !important;
+    color: #000 !important;
+    background: #fff !important;
   }
   .imp-titulo{
     font-size:1.6rem;font-weight:900;text-align:center;margin-bottom:8px;
@@ -10566,6 +10576,37 @@ showTab = function(name, btn){
 // anoten los totalizadores de surtidor y al cerrar puedan imprimir
 // el resumen para entregar al rendir.
 
+// Función especializada para parsear fechas de facturas en el módulo de turno.
+// Maneja: ISO 8601, DD/MM/YYYY HH:MM, DD/MM/YYYY, etc.
+function parseFechaFacturaTurno(fechaStr){
+  if(!fechaStr) return null;
+  if(typeof fechaStr !== 'string'){
+    if(fechaStr instanceof Date) return fechaStr;
+    return null;
+  }
+  
+  // Intento 1: parseo nativo (funciona con ISO 8601)
+  const d = new Date(fechaStr);
+  if(!isNaN(d.getTime()) && fechaStr.indexOf('T') >= 0){
+    return d;
+  }
+  
+  // Intento 2: formato argentino "DD/MM/YYYY HH:MM" o "DD/MM/YYYY HH:MM:SS"
+  const m = fechaStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[, ]+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+  if(m){
+    let y = parseInt(m[3]);
+    if(y < 100) y += 2000;
+    const mes = parseInt(m[2]) - 1; // mes en JS es 0-indexed
+    const dia = parseInt(m[1]);
+    const hh = m[4] ? parseInt(m[4]) : 0;
+    const mm = m[5] ? parseInt(m[5]) : 0;
+    const ss = m[6] ? parseInt(m[6]) : 0;
+    return new Date(y, mes, dia, hh, mm, ss);
+  }
+  
+  return null;
+}
+
 function fmtMiles(n){
   if(n===null||n===undefined||isNaN(n)) return '0';
   return Math.round(Number(n)).toLocaleString('es-AR');
@@ -10580,16 +10621,35 @@ function calcularVentasDelTurno(){
   // Calcula totales de ventas y despachos durante el turno actual
   if(!turnoActual) return null;
   
-  // ⚠️ FIX: turnoActual.apertura está en ISO, las facturas en formato es-AR
-  // Hay que parsearlas con parseFechaFactura (que maneja ambos formatos)
-  const desdeMs = new Date(turnoActual.apertura).getTime();
+  // ⚠️ FIX V2: el filtrado por hora puede fallar si parseFechaFactura no parsea bien las horas.
+  // Por eso usamos parseFechaFacturaTurno que es más tolerante: parsea fecha + hora, 
+  // y si no encuentra hora, compara solo por DÍA con el día del turno.
+  const aperturaDate = new Date(turnoActual.apertura);
+  const desdeMs = aperturaDate.getTime();
+  const diaApertura = aperturaDate.toLocaleDateString('es-AR'); // "10/5/2026"
+  
   const facturasTurno = (facturas||[]).filter(f => {
     if(f.anulada) return false;
     if(f.tipo !== 'venta') return false;
-    // Usar parseFechaFactura para parsear formato argentino DD/MM/YYYY HH:MM
-    const fechaFact = parseFechaFactura(f.fecha);
-    if(!fechaFact) return false;
-    return fechaFact.getTime() >= desdeMs;
+    
+    // Estrategia 1: si la factura tiene fecha con hora, comparar por timestamp exacto
+    const fechaFact = parseFechaFacturaTurno(f.fecha);
+    if(fechaFact){
+      return fechaFact.getTime() >= desdeMs;
+    }
+    
+    // Estrategia 2: si solo se pudo parsear el día, comparar por día completo
+    // (se incluyen TODAS las ventas del día del turno hasta ahora)
+    if(typeof f.fecha === 'string'){
+      const m = f.fecha.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if(m){
+        let y = parseInt(m[3]);
+        if(y < 100) y += 2000;
+        const diaFact = `${parseInt(m[1])}/${parseInt(m[2])}/${y}`;
+        return diaFact === diaApertura;
+      }
+    }
+    return false;
   });
   
   // Litros vendidos por cada combustible (según facturas con esDespacho:true)
@@ -10981,15 +11041,31 @@ function mostrarResumenTurnoCerrado(turno){
   if(headerEstado) headerEstado.textContent = '✅ Turno cerrado';
   
   // Recalcular datos basándose en el turno (ahora cerrado)
-  const desdeMs = new Date(turno.apertura).getTime();
-  const hastaMs = new Date(turno.cierre).getTime();
+  const aperturaD = new Date(turno.apertura);
+  const cierreD = new Date(turno.cierre);
+  const desdeMs = aperturaD.getTime();
+  const hastaMs = cierreD.getTime();
+  const diaApertura = aperturaD.toLocaleDateString('es-AR');
+  
   const facturasTurno = (facturas||[]).filter(f => {
     if(f.anulada) return false;
     if(f.tipo !== 'venta') return false;
-    const fechaFact = parseFechaFactura(f.fecha);
-    if(!fechaFact) return false;
-    const fts = fechaFact.getTime();
-    return fts >= desdeMs && fts <= hastaMs;
+    const fechaFact = parseFechaFacturaTurno(f.fecha);
+    if(fechaFact){
+      const fts = fechaFact.getTime();
+      return fts >= desdeMs && fts <= hastaMs;
+    }
+    // Fallback: comparar por día
+    if(typeof f.fecha === 'string'){
+      const m = f.fecha.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if(m){
+        let y = parseInt(m[3]);
+        if(y < 100) y += 2000;
+        const diaFact = `${parseInt(m[1])}/${parseInt(m[2])}/${y}`;
+        return diaFact === diaApertura;
+      }
+    }
+    return false;
   });
   
   const combustibles = getCombustiblesActivos();
@@ -11065,16 +11141,44 @@ function imprimirResumenTurno(turno){
     try { turno = JSON.parse(turno); } catch(e) { return; }
   }
   
+  // Asegurarnos que la zona de impresión sea hijo DIRECTO de body
+  // (para que el CSS @media print funcione correctamente)
+  let zona = document.getElementById('zona-impresion');
+  if(zona && zona.parentElement !== document.body){
+    document.body.appendChild(zona); // moverlo a body
+  }
+  if(!zona){
+    zona = document.createElement('div');
+    zona.id = 'zona-impresion';
+    zona.style.display = 'none';
+    document.body.appendChild(zona);
+  }
+  
   // Recalcular datos
-  const desdeMs = new Date(turno.apertura).getTime();
-  const hastaMs = new Date(turno.cierre).getTime();
+  const aperturaD = new Date(turno.apertura);
+  const cierreD = new Date(turno.cierre);
+  const desdeMs = aperturaD.getTime();
+  const hastaMs = cierreD.getTime();
+  const diaApertura = aperturaD.toLocaleDateString('es-AR');
+  
   const facturasTurno = (facturas||[]).filter(f => {
     if(f.anulada) return false;
     if(f.tipo !== 'venta') return false;
-    const fechaFact = parseFechaFactura(f.fecha);
-    if(!fechaFact) return false;
-    const fts = fechaFact.getTime();
-    return fts >= desdeMs && fts <= hastaMs;
+    const fechaFact = parseFechaFacturaTurno(f.fecha);
+    if(fechaFact){
+      const fts = fechaFact.getTime();
+      return fts >= desdeMs && fts <= hastaMs;
+    }
+    if(typeof f.fecha === 'string'){
+      const m = f.fecha.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if(m){
+        let y = parseInt(m[3]);
+        if(y < 100) y += 2000;
+        const diaFact = `${parseInt(m[1])}/${parseInt(m[2])}/${y}`;
+        return diaFact === diaApertura;
+      }
+    }
+    return false;
   });
   
   const combustibles = getCombustiblesActivos();
@@ -11109,8 +11213,7 @@ function imprimirResumenTurno(turno){
   const efectivoEsperado = recaudacion.efectivo;
   const dif = (turno.efectivoEntregado || 0) - efectivoEsperado;
   
-  // Generar HTML imprimible
-  const zona = document.getElementById('zona-impresion');
+  // Generar HTML imprimible (zona ya está creada arriba)
   if(!zona) return;
   
   zona.innerHTML = `
@@ -11208,12 +11311,18 @@ function imprimirResumenTurno(turno){
     </div>
   `;
   
+  // Mostrar la zona ANTES de imprimir para que el navegador la vea
+  zona.style.display = 'block';
+  
   // Imprimir
   setTimeout(() => {
     window.print();
-    // Limpiar después de imprimir
-    setTimeout(() => { zona.innerHTML = ''; }, 1000);
-  }, 200);
+    // Después de imprimir, ocultar y limpiar
+    setTimeout(() => { 
+      zona.style.display = 'none';
+      zona.innerHTML = ''; 
+    }, 1000);
+  }, 300);
 }
 
 // Hook en showTab para que cuando entre a 'miturno' se renderice
