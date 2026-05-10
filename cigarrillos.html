@@ -968,10 +968,195 @@ body.rol-cajero .admin-only,
 body.rol-operadora .admin-only {
   display: none !important;
 }
-/* Para cajero específicamente, ocultar columnas de costo */
-body.rol-cajero .col-costo,
-body.rol-cajero [data-rol="admin"] {
+
+/* ============================================================ */
+/* CAJERO: ocultar TODO lo que tenga que ver con stock          */
+/* ============================================================ */
+
+/* SURTIDOR: ocultar el panel de tanques (visualización de stock) */
+body.rol-cajero #tanques-grid,
+body.rol-cajero .tanque-grid,
+body.rol-cajero .tanque-card,
+body.rol-cajero #panel-surtidor [data-stock-info] {
   display: none !important;
+}
+
+/* SURTIDOR: ocultar cualquier mini-tanque dentro de las cards de combustible */
+body.rol-cajero .surt-tanque-mini,
+body.rol-cajero .surt-tanque-bar,
+body.rol-cajero .surt-tanque-info,
+body.rol-cajero .surt-tanque-fill {
+  display: none !important;
+}
+
+/* CIGARRILLOS: ocultar dashboard completo (capital, valor venta, utilidad) */
+body.rol-cajero .cig-dashboard {
+  display: none !important;
+}
+
+/* CIGARRILLOS: ocultar el badge de stock en cada tarjeta */
+body.rol-cajero .cig-card-stock {
+  display: none !important;
+}
+
+/* CIGARRILLOS: ocultar campos de costo en el modal de edición (por las dudas) */
+body.rol-cajero .campo-costo,
+body.rol-cajero [data-campo="costo"] {
+  display: none !important;
+}
+
+/* VENTA: ocultar columnas de stock en listados */
+body.rol-cajero .col-stock,
+body.rol-cajero .columna-stock,
+body.rol-cajero .stock-info,
+body.rol-cajero .col-costo,
+body.rol-cajero [data-rol="admin"],
+body.rol-cajero .stock-disponible,
+body.rol-cajero .badge-stock {
+  display: none !important;
+}
+
+/* MÓVIL del cajero: ocultar lo mismo */
+body.rol-cajero .mobile-stock-bar,
+body.rol-cajero .mobile-tanque-info,
+body.rol-cajero .mobile-stock,
+body.rol-cajero [class*="stock"]:not(.mt-tot-card):not([class*="cuentas"]):not([class*="mt-"]) {
+  /* Esto cubre cualquier clase con "stock" en el nombre, EXCEPTO las del módulo Mi Turno
+     y excepto Cuentas Corrientes (que muestra "saldo" no "stock") */
+}
+
+/* OPERADORA: también NO debe ver stock cuando carga compras */
+body.rol-operadora .col-stock,
+body.rol-operadora .stock-disponible,
+body.rol-operadora .stock-info,
+body.rol-operadora .badge-stock,
+body.rol-operadora #tanques-grid {
+  display: none !important;
+}
+
+/* ============= MÓDULO MI TURNO ============= */
+.mt-card{
+  background:#fff;border:1px solid #e0e0ec;border-radius:12px;padding:18px;margin-bottom:14px;
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+}
+.mt-card-titulo{
+  font-size:1.05rem;font-weight:800;color:#1a1a2e;margin-bottom:12px;
+  padding-bottom:8px;border-bottom:2px solid #e0e0ec;
+}
+.mt-grid-totalizadores{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;
+}
+.mt-tot-card{
+  background:#f5f5fa;border:2px solid #e0e0ec;border-radius:10px;padding:14px;
+}
+.mt-tot-card.nafta{border-left:6px solid #2da859;}
+.mt-tot-card.gasoil{border-left:6px solid #2a6cb0;}
+.mt-tot-card.gasoil-premium{border-left:6px solid #5a3da8;}
+.mt-tot-card.nafta-premium{border-left:6px solid #a02828;}
+.mt-tot-card.otro{border-left:6px solid #6a6a8a;}
+.mt-tot-nombre{font-size:0.85rem;font-weight:800;color:#1a1a2e;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.mt-tot-input-grupo{display:flex;flex-direction:column;gap:5px;}
+.mt-tot-input-grupo label{font-size:0.72rem;font-weight:600;color:#666;}
+.mt-tot-input-grupo input{
+  width:100%;padding:10px 12px;font-size:1.15rem;font-weight:800;
+  border:2px solid #c0c0c8;border-radius:6px;background:#fff;color:#1a1a2e;
+  font-family:'Consolas',monospace;text-align:right;
+}
+.mt-tot-input-grupo input:focus{outline:none;border-color:#27500a;box-shadow:0 0 0 3px rgba(39,80,10,0.15);}
+.mt-tot-comparacion{
+  background:#fff;border-radius:6px;padding:8px;margin-top:6px;
+  display:grid;grid-template-columns:1fr auto;gap:4px;font-size:0.78rem;
+}
+.mt-tot-comparacion strong{color:#27500a;font-family:'Consolas',monospace;}
+.mt-tot-diff{font-size:0.72rem;color:#666;font-weight:600;}
+
+.mt-resumen-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;
+}
+.mt-res-box{
+  background:#fff;border:1px solid #e0e0ec;border-radius:10px;padding:14px;text-align:center;
+}
+.mt-res-label{font-size:0.72rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.5px;}
+.mt-res-valor{font-size:1.5rem;font-weight:900;color:#1a1a2e;font-family:'Consolas',monospace;margin-top:4px;}
+.mt-res-valor.efectivo{color:#27500a;}
+.mt-res-valor.transferencia{color:#1f5f9e;}
+.mt-res-valor.tarjeta{color:#a06820;}
+.mt-res-valor.cta-cte{color:#6b1818;}
+
+.mt-btn-iniciar{
+  width:100%;padding:18px;background:linear-gradient(135deg,#1e7a3e,#2da859);color:#fff;
+  border:none;border-radius:12px;font-size:1.2rem;font-weight:900;cursor:pointer;
+  letter-spacing:1px;text-transform:uppercase;
+  box-shadow:0 4px 14px rgba(30,122,62,0.35);transition:transform 0.1s;
+}
+.mt-btn-iniciar:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(30,122,62,0.45);}
+.mt-btn-iniciar:active{transform:translateY(0);}
+
+.mt-btn-cerrar{
+  width:100%;padding:18px;background:linear-gradient(135deg,#a02828,#c0392b);color:#fff;
+  border:none;border-radius:12px;font-size:1.2rem;font-weight:900;cursor:pointer;
+  letter-spacing:1px;text-transform:uppercase;
+  box-shadow:0 4px 14px rgba(160,40,40,0.35);
+}
+
+.mt-btn-imprimir{
+  padding:14px 28px;background:linear-gradient(135deg,#1f5f9e,#2980b9);color:#fff;
+  border:none;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;
+  box-shadow:0 4px 12px rgba(31,95,158,0.3);
+}
+.mt-btn-imprimir:hover{background:#1a5288;}
+
+.mt-info-banner{
+  background:#fff8e0;border:1px solid #f0c040;border-radius:8px;padding:10px 14px;
+  font-size:0.85rem;color:#6b5012;margin-bottom:14px;
+  border-left:4px solid #d4a020;
+}
+
+.mt-input-nombre{
+  width:100%;padding:14px;font-size:1.1rem;font-weight:600;
+  border:2px solid #c0c0c8;border-radius:8px;background:#fff;
+  font-family:'Segoe UI',Arial,sans-serif;
+}
+.mt-input-nombre:focus{outline:none;border-color:#27500a;}
+
+/* ============= ESTILOS DE IMPRESIÓN ============= */
+@media print {
+  /* Ocultar todo lo de la app */
+  body > *:not(#zona-impresion){
+    display:none !important;
+  }
+  #zona-impresion{
+    display:block !important;
+    padding:20px;
+    font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+    color:#000;
+  }
+  .imp-titulo{
+    font-size:1.6rem;font-weight:900;text-align:center;margin-bottom:8px;
+    border-bottom:3px solid #000;padding-bottom:8px;
+  }
+  .imp-sub{text-align:center;font-size:0.95rem;margin-bottom:16px;color:#444;}
+  .imp-seccion{margin-bottom:14px;}
+  .imp-seccion-titulo{
+    font-size:1rem;font-weight:800;background:#1a1a2e;color:#fff;
+    padding:6px 10px;margin-bottom:6px;letter-spacing:0.5px;
+  }
+  .imp-tabla{width:100%;border-collapse:collapse;font-size:0.85rem;}
+  .imp-tabla th,.imp-tabla td{
+    border:1px solid #888;padding:5px 8px;text-align:left;
+  }
+  .imp-tabla th{background:#e0e0e0;font-weight:800;}
+  .imp-tabla td.num{text-align:right;font-family:monospace;}
+  .imp-total-final{
+    background:#000;color:#fff;padding:10px;text-align:center;
+    font-size:1.2rem;font-weight:900;margin-top:14px;letter-spacing:1px;
+  }
+  .imp-firmas{
+    margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:30px;
+  }
+  .imp-firma{text-align:center;font-size:0.85rem;}
+  .imp-firma-linea{border-top:1px solid #000;margin-top:40px;padding-top:5px;}
 }
 
 /* ============= MENÚ DESPLEGABLE "MÁS" ============= */
@@ -1809,6 +1994,7 @@ body.rol-cajero [data-rol="admin"] {
   <button class="tab" onclick="showTab('clientes',this)">👥 Clientes</button>
   <button class="tab" onclick="showTab('proveedores',this)">🚚 Proveedores</button>
   <button class="tab" onclick="showTab('cuentas',this)">💳 Cuentas Corrientes</button>
+  <button class="tab" onclick="showTab('miturno',this)">📋 Mi Turno</button>
   <button class="tab" onclick="showTab('gastos',this)">💸 Gastos</button>
   <button class="tab" onclick="showTab('caja',this)">🏦 Caja/Turno</button>
   <div class="dropdown-mas" style="position:relative;display:inline-block;">
@@ -1832,8 +2018,8 @@ body.rol-cajero [data-rol="admin"] {
       <span style="font-size:0.85rem;opacity:0.85;">Despacho rápido de combustible</span>
     </div>
 
-    <!-- Tanques -->
-    <div style="background:#0f0f22;border-radius:12px;padding:14px;margin-bottom:18px;">
+    <!-- Tanques (solo admin/operadora pueden ver el stock) -->
+    <div class="admin-only seccion-tanques" style="background:#0f0f22;border-radius:12px;padding:14px;margin-bottom:18px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
         <div style="color:#e8c84a;font-weight:800;font-size:0.95rem;letter-spacing:1px;">🛢️ STOCK DE TANQUES</div>
         <button onclick="abrirNuevoCombustible()" style="padding:6px 14px;background:#27500a;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.82rem;">➕ Nuevo combustible</button>
@@ -2027,8 +2213,8 @@ body.rol-cajero [data-rol="admin"] {
       <input type="text" id="cig-buscar" placeholder="🔍 Buscar marca, nombre o código..." 
              style="flex:1;min-width:220px;padding:10px;font-size:0.95rem;border:2px solid #c8c8d8;border-radius:8px;" 
              oninput="renderCigarrillos()">
-      <button onclick="abrirModalCigarrillo()" style="padding:10px 22px;background:#27500a;color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.95rem;">➕ NUEVO</button>
-      <button onclick="importarListaCigarrillos()" style="padding:10px 18px;background:#1f5f9e;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.9rem;" title="Importar 65 cigarrillos del listado de precios (con sus códigos de barra)">📋 Importar lista</button>
+      <button onclick="abrirModalCigarrillo()" class="admin-only" style="padding:10px 22px;background:#27500a;color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.95rem;">➕ NUEVO</button>
+      <button onclick="importarListaCigarrillos()" class="admin-only" style="padding:10px 18px;background:#1f5f9e;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.9rem;" title="Importar 65 cigarrillos del listado de precios (con sus códigos de barra)">📋 Importar lista</button>
     </div>
 
     <!-- Filtros por marca -->
@@ -2114,6 +2300,21 @@ body.rol-cajero [data-rol="admin"] {
     </div>
   </div>
 </div>
+
+<!-- PANEL MI TURNO (cajero) -->
+<div id="panel-miturno" class="panel">
+  <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
+    <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#1e7a3e,#2da859);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+      <span style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">📋 MI TURNO</span>
+      <span style="font-size:0.85rem;opacity:0.85;" id="mt-estado-header">Sin turno abierto</span>
+    </div>
+    
+    <div id="mt-contenido"><!-- contenido dinámico --></div>
+  </div>
+</div>
+
+<!-- ZONA DE IMPRESIÓN (oculta normalmente, se muestra solo al imprimir) -->
+<div id="zona-impresion" style="display:none;"></div>
 
 <div id="panel-stock" class="panel">
   <!-- Filtro por familia -->
@@ -3241,8 +3442,8 @@ const ROLES_INFO = {
 const PESTANAS_PERMITIDAS = {
   admin:     "TODAS",  // ve todo
   operadora: ["compra","proveedores"],  // solo compras y proveedores. NO stock.
-  cajero1:   ["surtidor","venta","cigarrillos","cuentas"],
-  cajero2:   ["surtidor","venta","cigarrillos","cuentas"]
+  cajero1:   ["surtidor","venta","cigarrillos","cuentas","miturno"],
+  cajero2:   ["surtidor","venta","cigarrillos","cuentas","miturno"]
 };
 
 // Botones/acciones bloqueadas según rol (selectores CSS)
@@ -8910,6 +9111,18 @@ function combustibles(){
 function renderTanques(){
   const cont = document.getElementById('tanques-grid');
   if(!cont) return;
+  
+  // SEGURIDAD: si es cajero u operadora, NO mostrar el panel de tanques (no deben ver stock)
+  if(_rolActual === 'cajero1' || _rolActual === 'cajero2' || _rolActual === 'operadora'){
+    cont.innerHTML = '';
+    cont.style.display = 'none';
+    // También ocultar el contenedor padre si tiene título "Tanques" o similar
+    const padre = cont.closest('.surt-tanques-section, .panel-stock-section');
+    if(padre) padre.style.display = 'none';
+    return;
+  }
+  cont.style.display = '';
+  
   const fuels = combustibles();
   if(!fuels.length){
     cont.innerHTML = '<div style="color:#aaa;font-size:0.85rem;padding:14px;text-align:center;grid-column:1/-1;">No hay combustibles cargados. Agregá uno con el botón ➕</div>';
@@ -8942,29 +9155,35 @@ function renderSurtidoresBotones(){
     return;
   }
   cont.innerHTML = fuels.map(p => {
+    const esCajero = (_rolActual === 'cajero1' || _rolActual === 'cajero2');
     const litros = stock[p.id] || 0;
     const cap = p.capacidadTanque || 1;
     const pct = Math.max(0, Math.min(100, (litros/cap)*100));
     const color = p.colorSurtidor || 'otro';
+    
+    // SEGURIDAD: para cajeros NO mostrar badges de stock ni mini-tanque
     let badge = '';
-    if(litros <= 0) badge = '<span class="badge-vacio">VACÍO</span>';
-    else if(pct < 15) badge = '<span class="badge-vacio">CRÍTICO</span>';
-    else if(pct < 30) badge = '<span class="badge-bajo">BAJO</span>';
+    if(!esCajero){
+      if(litros <= 0) badge = '<span class="badge-vacio">VACÍO</span>';
+      else if(pct < 15) badge = '<span class="badge-vacio">CRÍTICO</span>';
+      else if(pct < 30) badge = '<span class="badge-bajo">BAJO</span>';
+    }
     
     const fillClass = pct < 15 ? 'critico' : (pct < 30 ? 'bajo' : '');
+    const miniTanque = esCajero ? '' : `<div class="surt-tanque-mini">
+        <div class="surt-tanque-info">
+          <span>Tanque: ${fmt(litros)} L</span>
+          <span>${pct.toFixed(0)}%</span>
+        </div>
+        <div class="surt-tanque-bar"><div class="surt-tanque-fill ${fillClass}" style="width:${pct}%;"></div></div>
+      </div>`;
     
     return `<div class="surt-card ${color}" onclick="abrirDespacho(${p.id})">
       ${badge}
       <div class="surt-nombre">⛽ ${p.nombre}</div>
       <div class="surt-precio">$${fmt(p.precio)}</div>
       <div class="surt-precio-sub">por litro</div>
-      <div class="surt-tanque-mini">
-        <div class="surt-tanque-info">
-          <span>Tanque: ${fmt(litros)} L</span>
-          <span>${pct.toFixed(0)}%</span>
-        </div>
-        <div class="surt-tanque-bar"><div class="surt-tanque-fill ${fillClass}" style="width:${pct}%;"></div></div>
-      </div>
+      ${miniTanque}
       <div class="surt-precio-edit" onclick="event.stopPropagation();">
         <span style="font-size:0.78rem;font-weight:600;opacity:0.9;">Cambiar $/L:</span>
         <input type="text" id="precio-rapido-${p.id}" placeholder="${p.precio}" inputmode="decimal">
@@ -8991,8 +9210,12 @@ function abrirDespacho(prodId){
   const prod = productos.find(p => Number(p.id) === Number(prodId));
   if(!prod){ toast('Combustible no encontrado'); return; }
   const litros = stock[prod.id] || 0;
+  const esCajero = (_rolActual === 'cajero1' || _rolActual === 'cajero2');
   if(litros <= 0){
-    if(!confirm(`⚠️ El tanque de ${prod.nombre} está VACÍO o con saldo negativo (${fmt(litros)} L).\n\n¿Querés despachar igual?`)) return;
+    const mensaje = esCajero
+      ? `⚠️ El tanque de ${prod.nombre} está vacío.\n\nAvisá al dueño para que recargue.\n\n¿Querés intentar el despacho igual?`
+      : `⚠️ El tanque de ${prod.nombre} está VACÍO o con saldo negativo (${fmt(litros)} L).\n\n¿Querés despachar igual?`;
+    if(!confirm(mensaje)) return;
   }
   
   despachoActual = { prodId: prod.id, precioLt: prod.precio };
@@ -10014,6 +10237,11 @@ function renderCigarrillos(){
   const cont = document.getElementById('cig-grid');
   if(!cont) return;
   
+  // SEGURIDAD: si es cajero, ocultar el dashboard completo y el resumen de stock total
+  const esCajero = (_rolActual === 'cajero1' || _rolActual === 'cajero2');
+  const dashboard = document.querySelector('.cig-dashboard');
+  if(dashboard) dashboard.style.display = esCajero ? 'none' : '';
+  
   const buscar = (document.getElementById('cig-buscar')?.value || '').toLowerCase().trim();
   let cigs = productos.filter(p => p.esCigarrillo);
   
@@ -10026,19 +10254,27 @@ function renderCigarrillos(){
   const margen = capital > 0 ? ((utilidad / capital) * 100) : 0;
   const marcasUnicas = new Set(todos.map(p => p.marca || 'Otra')).size;
   
-  // Actualizar tarjetas del dashboard
-  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-  setText('cig-dash-variedades', todos.length);
-  setText('cig-dash-marcas', marcasUnicas + ' marca' + (marcasUnicas !== 1 ? 's' : ''));
-  setText('cig-dash-stock', fmt(stockTotal));
-  setText('cig-dash-capital', '$' + fmt(Math.round(capital)));
-  setText('cig-dash-venta', '$' + fmt(Math.round(valorVenta)));
-  setText('cig-dash-utilidad', '$' + fmt(Math.round(utilidad)));
-  setText('cig-dash-margen', capital > 0 ? `Margen: ${margen.toFixed(1)}% si vendés todo` : 'sin costos cargados');
+  // Actualizar tarjetas del dashboard (solo si NO es cajero)
+  if(!esCajero){
+    const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+    setText('cig-dash-variedades', todos.length);
+    setText('cig-dash-marcas', marcasUnicas + ' marca' + (marcasUnicas !== 1 ? 's' : ''));
+    setText('cig-dash-stock', fmt(stockTotal));
+    setText('cig-dash-capital', '$' + fmt(Math.round(capital)));
+    setText('cig-dash-venta', '$' + fmt(Math.round(valorVenta)));
+    setText('cig-dash-utilidad', '$' + fmt(Math.round(utilidad)));
+    setText('cig-dash-margen', capital > 0 ? `Margen: ${margen.toFixed(1)}% si vendés todo` : 'sin costos cargados');
+  }
   
-  // Actualizar resumen del header
+  // Actualizar resumen del header (sin info de stock para cajeros)
   const r = document.getElementById('cig-resumen');
-  if(r) r.textContent = `${marcasUnicas} marcas · ${todos.length} variedades · ${stockTotal} paquetes`;
+  if(r){
+    if(esCajero){
+      r.textContent = `${marcasUnicas} marcas · ${todos.length} variedades`;
+    } else {
+      r.textContent = `${marcasUnicas} marcas · ${todos.length} variedades · ${stockTotal} paquetes`;
+    }
+  }
   
   // Aplicar filtros para la grilla
   if(cigFiltroMarca){
@@ -10088,7 +10324,7 @@ function renderCigarrillos(){
       <div style="position:relative;">
         ${fotoHtml}
         ${p.marca ? `<div class="cig-card-marca">${p.marca}</div>` : ''}
-        <div class="cig-card-stock ${stockClass}">${s} u</div>
+        ${esCajero ? '' : `<div class="cig-card-stock ${stockClass}">${s} u</div>`}
       </div>
       <div class="cig-card-body">
         <div class="cig-card-nombre">${p.nombre}</div>
@@ -10097,8 +10333,8 @@ function renderCigarrillos(){
       </div>
       <div class="cig-card-acciones">
         <button class="btn-vender" onclick="venderCigarrilloRapido(${p.id})" title="Vender">💰</button>
-        <button onclick="abrirModalCigarrillo(${p.id})" title="Editar">✏️</button>
-        <button class="btn-del" onclick="eliminarCigarrillo(${p.id})" title="Eliminar">🗑️</button>
+        ${esCajero ? '' : `<button onclick="abrirModalCigarrillo(${p.id})" title="Editar">✏️</button>`}
+        ${esCajero ? '' : `<button class="btn-del" onclick="eliminarCigarrillo(${p.id})" title="Eliminar">🗑️</button>`}
       </div>
     </div>`;
   }).join('');
@@ -10127,6 +10363,667 @@ showTab = function(name, btn){
 
 // ========================================================================
 // =================== FIN MÓDULO CIGARRILLOS ============================
+// ========================================================================
+
+
+// ========================================================================
+// =================== MÓDULO MI TURNO (cajeros) =========================
+// ========================================================================
+// Pestaña simplificada para que los cajeros gestionen su turno,
+// anoten los totalizadores de surtidor y al cerrar puedan imprimir
+// el resumen para entregar al rendir.
+
+function fmtMiles(n){
+  if(n===null||n===undefined||isNaN(n)) return '0';
+  return Math.round(Number(n)).toLocaleString('es-AR');
+}
+
+function getCombustiblesActivos(){
+  // Devuelve los productos esCombustible:true ordenados
+  return productos.filter(p => p.esCombustible).sort((a,b) => a.id - b.id);
+}
+
+function calcularVentasDelTurno(){
+  // Calcula totales de ventas y despachos durante el turno actual
+  if(!turnoActual) return null;
+  
+  const desde = new Date(turnoActual.apertura).getTime();
+  const facturasTurno = (facturas||[]).filter(f => {
+    if(f.anulada) return false;
+    if(f.tipo !== 'venta') return false;
+    const fts = new Date(f.fecha).getTime();
+    return fts >= desde;
+  });
+  
+  // Litros vendidos por cada combustible (según facturas con esDespacho:true)
+  const litrosPorCombustible = {};
+  const combustibles = getCombustiblesActivos();
+  combustibles.forEach(c => { litrosPorCombustible[c.id] = 0; });
+  
+  // Recaudación por forma de pago
+  const recaudacion = {
+    efectivo: 0, transferencia: 0, tarjeta: 0, ctacte: 0
+  };
+  
+  let totalDespachos = 0;
+  let totalProductos = 0;
+  let cantDespachos = 0;
+  let cantVentasMostrador = 0;
+  
+  facturasTurno.forEach(f => {
+    const total = Number(f.total) || 0;
+    
+    // Recaudar por forma de pago
+    const fp = (f.formaPago || 'efectivo').toLowerCase();
+    if(fp.includes('transfer')) recaudacion.transferencia += total;
+    else if(fp.includes('tarjeta') || fp.includes('debito') || fp.includes('credito')) recaudacion.tarjeta += total;
+    else if(fp.includes('cuenta') || fp.includes('cta')) recaudacion.ctacte += total;
+    else recaudacion.efectivo += total;
+    
+    if(f.esDespacho){
+      totalDespachos += total;
+      cantDespachos++;
+      // Sumar litros vendidos
+      (f.lineas || []).forEach(l => {
+        if(litrosPorCombustible[l.prodId] !== undefined){
+          litrosPorCombustible[l.prodId] += Number(l.cantidad) || 0;
+        }
+      });
+    } else {
+      totalProductos += total;
+      cantVentasMostrador++;
+    }
+  });
+  
+  return {
+    facturasTurno, totalDespachos, totalProductos,
+    cantDespachos, cantVentasMostrador,
+    totalGeneral: totalDespachos + totalProductos,
+    litrosPorCombustible, recaudacion
+  };
+}
+
+function renderPanelMiTurno(){
+  const cont = document.getElementById('mt-contenido');
+  const headerEstado = document.getElementById('mt-estado-header');
+  if(!cont) return;
+  
+  // Si no hay turno abierto → pantalla de inicio
+  if(!turnoActual){
+    if(headerEstado) headerEstado.textContent = '⚪ Sin turno abierto';
+    renderMiTurnoInicio();
+    return;
+  }
+  
+  // Si está cerrado pero todavía no se confirmó cerrar → estado intermedio
+  if(turnoActual && turnoActual.estadoCierre === 'pendiente'){
+    if(headerEstado) headerEstado.textContent = '🟠 Cerrando turno...';
+    renderMiTurnoCierre();
+    return;
+  }
+  
+  // Si hay turno abierto → vista en vivo
+  if(headerEstado) headerEstado.textContent = `🟢 Turno abierto desde ${turnoActual.aperturaStr}`;
+  renderMiTurnoEnCurso();
+}
+
+function renderMiTurnoInicio(){
+  const cont = document.getElementById('mt-contenido');
+  const combustibles = getCombustiblesActivos();
+  const nombreSugerido = (_rolActual === 'cajero1') ? 'Cajero 1' : (_rolActual === 'cajero2') ? 'Cajero 2' : '';
+  
+  cont.innerHTML = `
+    <div class="mt-info-banner">
+      ℹ️ <strong>Antes de empezar a trabajar:</strong> anotá los números de los totalizadores de cada surtidor (los que están en el visor mecánico de cada manguera). Estos números los vas a comparar al cierre del turno para saber cuántos litros se vendieron realmente.
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-card-titulo">📝 Datos del turno</div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:0.82rem;font-weight:700;color:#666;margin-bottom:5px;">Nombre del cajero / playero (opcional):</label>
+        <input type="text" id="mt-nombre-cajero" class="mt-input-nombre" placeholder="Ej: Juan, María..." value="${nombreSugerido}">
+      </div>
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-card-titulo">⛽ Totalizadores INICIALES de surtidor</div>
+      <div style="font-size:0.82rem;color:#666;margin-bottom:12px;">Mirá el visor mecánico de cada surtidor y anotá el número que muestra. Es el contador acumulado de litros despachados.</div>
+      
+      <div class="mt-grid-totalizadores">
+        ${combustibles.map(c => {
+          const colorClass = (c.colorSurtidor || 'otro').replace(/_/g,'-');
+          return `
+          <div class="mt-tot-card ${colorClass}">
+            <div class="mt-tot-nombre">⛽ ${c.nombre}</div>
+            <div class="mt-tot-input-grupo">
+              <label>Lectura inicial (litros):</label>
+              <input type="number" inputmode="decimal" step="0.01" id="mt-tot-ini-${c.id}" placeholder="0" autocomplete="off">
+            </div>
+          </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+    
+    <button class="mt-btn-iniciar" onclick="iniciarTurnoPlayero()">🟢 INICIAR TURNO</button>
+  `;
+}
+
+function iniciarTurnoPlayero(){
+  const nombreCajero = (document.getElementById('mt-nombre-cajero')?.value || '').trim();
+  const combustibles = getCombustiblesActivos();
+  
+  // Recolectar totalizadores iniciales
+  const totalizadores = {};
+  let algunoCargado = false;
+  combustibles.forEach(c => {
+    const inp = document.getElementById('mt-tot-ini-' + c.id);
+    const val = inp ? Number(inp.value) : 0;
+    totalizadores[c.id] = val;
+    if(val > 0) algunoCargado = true;
+  });
+  
+  if(!algunoCargado){
+    if(!confirm('⚠️ No cargaste ningún totalizador inicial.\n\nSi seguís, no podrás controlar al cierre cuántos litros se vendieron por surtidor.\n\n¿Querés iniciar el turno igual?')){
+      return;
+    }
+  }
+  
+  // Crear el turno
+  const ahora = new Date();
+  turnoActual = {
+    id: ahora.getTime(),
+    apertura: ahora.toISOString(),
+    aperturaStr: ahora.toLocaleString('es-AR'),
+    cerrado: false,
+    rolApertura: _rolActual,
+    nombreCajero: nombreCajero,
+    totalizadores: totalizadores,
+    fondo: 0,
+    cierre: null,
+    cierreStr: null,
+    totalizadoresFinal: null,
+    efectivoEntregado: null,
+    observaciones: null
+  };
+  
+  if(!turnos) turnos = [];
+  turnos.push(turnoActual);
+  
+  saveAll();
+  renderPanelMiTurno();
+  toast('🟢 Turno iniciado correctamente');
+}
+
+function renderMiTurnoEnCurso(){
+  const cont = document.getElementById('mt-contenido');
+  const combustibles = getCombustiblesActivos();
+  const datos = calcularVentasDelTurno();
+  
+  // Calcular tiempo transcurrido
+  const desde = new Date(turnoActual.apertura);
+  const ahora = new Date();
+  const diffMin = Math.round((ahora - desde) / 60000);
+  const horas = Math.floor(diffMin / 60);
+  const mins = diffMin % 60;
+  const tiempoStr = horas > 0 ? `${horas}h ${mins}min` : `${mins} min`;
+  
+  cont.innerHTML = `
+    <div class="mt-card">
+      <div class="mt-card-titulo">📊 Resumen en vivo del turno</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:0.9rem;margin-bottom:14px;">
+        <div><strong>👤 Cajero:</strong> ${turnoActual.nombreCajero || '(sin nombre)'}</div>
+        <div><strong>🕐 Iniciado:</strong> ${turnoActual.aperturaStr}</div>
+        <div><strong>⏱️ Tiempo abierto:</strong> ${tiempoStr}</div>
+        <div><strong>🧾 Operaciones:</strong> ${datos.cantDespachos + datos.cantVentasMostrador} (${datos.cantDespachos} despachos · ${datos.cantVentasMostrador} ventas)</div>
+      </div>
+      
+      <div class="mt-resumen-grid">
+        <div class="mt-res-box">
+          <div class="mt-res-label">💵 Efectivo</div>
+          <div class="mt-res-valor efectivo">$${fmtMiles(datos.recaudacion.efectivo)}</div>
+        </div>
+        <div class="mt-res-box">
+          <div class="mt-res-label">🏦 Transferencia</div>
+          <div class="mt-res-valor transferencia">$${fmtMiles(datos.recaudacion.transferencia)}</div>
+        </div>
+        <div class="mt-res-box">
+          <div class="mt-res-label">💳 Tarjeta</div>
+          <div class="mt-res-valor tarjeta">$${fmtMiles(datos.recaudacion.tarjeta)}</div>
+        </div>
+        <div class="mt-res-box">
+          <div class="mt-res-label">📋 Cta. Cte.</div>
+          <div class="mt-res-valor cta-cte">$${fmtMiles(datos.recaudacion.ctacte)}</div>
+        </div>
+      </div>
+      
+      <div style="margin-top:14px;background:#1a1a2e;color:#fff;padding:14px;border-radius:8px;text-align:center;">
+        <div style="font-size:0.85rem;opacity:0.85;">TOTAL DEL TURNO</div>
+        <div style="font-size:2rem;font-weight:900;font-family:'Consolas',monospace;letter-spacing:1px;">$${fmtMiles(datos.totalGeneral)}</div>
+      </div>
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-card-titulo">⛽ Litros vendidos según ventas registradas</div>
+      <div class="mt-grid-totalizadores">
+        ${combustibles.map(c => {
+          const litros = datos.litrosPorCombustible[c.id] || 0;
+          const totIni = (turnoActual.totalizadores || {})[c.id] || 0;
+          const colorClass = (c.colorSurtidor || 'otro').replace(/_/g,'-');
+          return `
+          <div class="mt-tot-card ${colorClass}">
+            <div class="mt-tot-nombre">${c.nombre}</div>
+            <div style="font-size:1.6rem;font-weight:900;font-family:'Consolas',monospace;color:#1a1a2e;">${fmtMiles(litros)} L</div>
+            <div style="font-size:0.72rem;color:#888;margin-top:4px;">Totalizador inicial: <strong>${fmtMiles(totIni)}</strong></div>
+          </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+    
+    <button class="mt-btn-cerrar" onclick="prepararCierreTurno()">🔴 CERRAR TURNO Y RENDIR</button>
+  `;
+}
+
+function prepararCierreTurno(){
+  if(!turnoActual) return;
+  if(!confirm('¿Querés cerrar el turno?\n\nVas a tener que cargar los totalizadores finales y el efectivo en caja para rendir.')){
+    return;
+  }
+  // Marcar como pendiente de cierre y mostrar form de cierre
+  turnoActual.estadoCierre = 'pendiente';
+  renderPanelMiTurno();
+}
+
+function renderMiTurnoCierre(){
+  const cont = document.getElementById('mt-contenido');
+  const combustibles = getCombustiblesActivos();
+  const datos = calcularVentasDelTurno();
+  
+  cont.innerHTML = `
+    <div class="mt-info-banner">
+      ⚠️ <strong>Cierre de turno:</strong> antes de rendir, anotá los totalizadores finales de cada surtidor (los del visor mecánico) y el efectivo que tenés en caja. Después podés imprimir el resumen para entregar.
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-card-titulo">⛽ Totalizadores FINALES de surtidor</div>
+      <div style="font-size:0.82rem;color:#666;margin-bottom:12px;">Anotá la lectura actual de cada totalizador. La diferencia con la lectura inicial te da los litros realmente vendidos.</div>
+      
+      <div class="mt-grid-totalizadores">
+        ${combustibles.map(c => {
+          const totIni = (turnoActual.totalizadores || {})[c.id] || 0;
+          const colorClass = (c.colorSurtidor || 'otro').replace(/_/g,'-');
+          const litrosVentas = datos.litrosPorCombustible[c.id] || 0;
+          return `
+          <div class="mt-tot-card ${colorClass}">
+            <div class="mt-tot-nombre">⛽ ${c.nombre}</div>
+            <div style="font-size:0.78rem;color:#666;margin-bottom:4px;">Inicial: <strong style="font-family:monospace;">${fmtMiles(totIni)}</strong></div>
+            <div class="mt-tot-input-grupo">
+              <label>Lectura final:</label>
+              <input type="number" inputmode="decimal" step="0.01" id="mt-tot-fin-${c.id}" placeholder="${fmtMiles(totIni)}" oninput="actualizarDiffTurno(${c.id}, ${totIni}, ${litrosVentas})">
+            </div>
+            <div id="mt-diff-${c.id}" class="mt-tot-comparacion" style="display:none;"></div>
+          </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-card-titulo">💰 Efectivo en caja</div>
+      <div style="font-size:0.82rem;color:#666;margin-bottom:8px;">Contá el efectivo que tenés en caja AHORA y ponelo acá:</div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span style="font-size:1.4rem;font-weight:900;color:#27500a;">$</span>
+        <input type="number" inputmode="decimal" step="1" id="mt-efectivo-caja" placeholder="0" style="flex:1;padding:14px;font-size:1.4rem;font-weight:900;border:2px solid #27500a;border-radius:8px;font-family:'Consolas',monospace;text-align:right;color:#27500a;">
+      </div>
+      <div style="font-size:0.78rem;color:#666;margin-top:8px;">
+        💡 Según el sistema, deberías tener <strong style="color:#27500a;">$${fmtMiles(datos.recaudacion.efectivo)}</strong> en efectivo (de las ventas registradas en este turno).
+      </div>
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-card-titulo">📝 Observaciones (opcional)</div>
+      <textarea id="mt-observaciones" rows="3" placeholder="Algo a destacar del turno (faltantes, problemas, etc.)..." style="width:100%;padding:10px;border:1px solid #c0c0c8;border-radius:6px;font-family:inherit;font-size:0.9rem;resize:vertical;"></textarea>
+    </div>
+    
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="mt-btn-cerrar" style="flex:1;min-width:200px;" onclick="finalizarTurnoPlayero()">✅ CONFIRMAR CIERRE</button>
+      <button onclick="cancelarCierreTurno()" style="padding:18px 28px;background:#888;color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;">↩️ Cancelar</button>
+    </div>
+  `;
+}
+
+function actualizarDiffTurno(prodId, totIni, litrosVentas){
+  const inp = document.getElementById('mt-tot-fin-' + prodId);
+  const div = document.getElementById('mt-diff-' + prodId);
+  if(!inp || !div) return;
+  
+  const totFin = Number(inp.value);
+  if(isNaN(totFin) || totFin === 0){
+    div.style.display = 'none';
+    return;
+  }
+  
+  const litrosSegunSurtidor = totFin - totIni;
+  const dif = litrosSegunSurtidor - litrosVentas;
+  
+  let claseColor = '#27500a';
+  let icono = '✅';
+  let textoDif = 'OK';
+  if(Math.abs(dif) > 0.5){
+    if(dif > 0){
+      claseColor = '#a06820';
+      icono = '⚠️';
+      textoDif = `Faltan ${dif.toFixed(1)}L registrados`;
+    } else {
+      claseColor = '#c0392b';
+      icono = '❌';
+      textoDif = `${Math.abs(dif).toFixed(1)}L vendidos de más`;
+    }
+  }
+  
+  div.style.display = 'grid';
+  div.innerHTML = `
+    <span>Surtidor:</span><strong>${litrosSegunSurtidor.toFixed(1)} L</strong>
+    <span>Sistema:</span><strong>${litrosVentas.toFixed(1)} L</strong>
+    <span style="color:${claseColor};">${icono} ${textoDif}</span><span></span>
+  `;
+}
+
+function cancelarCierreTurno(){
+  if(turnoActual) delete turnoActual.estadoCierre;
+  renderPanelMiTurno();
+  toast('Cierre cancelado');
+}
+
+function finalizarTurnoPlayero(){
+  if(!turnoActual) return;
+  
+  const combustibles = getCombustiblesActivos();
+  const totalizadoresFinal = {};
+  combustibles.forEach(c => {
+    const inp = document.getElementById('mt-tot-fin-' + c.id);
+    totalizadoresFinal[c.id] = inp ? Number(inp.value) : 0;
+  });
+  
+  const efectivoCaja = Number(document.getElementById('mt-efectivo-caja')?.value) || 0;
+  const obs = (document.getElementById('mt-observaciones')?.value || '').trim();
+  
+  if(!confirm('¿Confirmás el cierre del turno?\n\nUna vez cerrado no se puede volver atrás.\n\nDespués vas a poder imprimir el resumen.')){
+    return;
+  }
+  
+  // Cerrar el turno
+  const ahora = new Date();
+  turnoActual.cerrado = true;
+  turnoActual.cierre = ahora.toISOString();
+  turnoActual.cierreStr = ahora.toLocaleString('es-AR');
+  turnoActual.totalizadoresFinal = totalizadoresFinal;
+  turnoActual.efectivoEntregado = efectivoCaja;
+  turnoActual.observaciones = obs;
+  delete turnoActual.estadoCierre;
+  
+  // Guardar referencia al turno cerrado para imprimir
+  const turnoCerrado = { ...turnoActual };
+  
+  // Actualizar el array
+  const idx = turnos.findIndex(t => t.id === turnoActual.id);
+  if(idx >= 0) turnos[idx] = turnoActual;
+  
+  turnoActual = null;
+  saveAll();
+  
+  // Mostrar pantalla de resumen final con botón imprimir
+  mostrarResumenTurnoCerrado(turnoCerrado);
+  toast('✅ Turno cerrado correctamente');
+}
+
+function mostrarResumenTurnoCerrado(turno){
+  const cont = document.getElementById('mt-contenido');
+  const headerEstado = document.getElementById('mt-estado-header');
+  if(headerEstado) headerEstado.textContent = '✅ Turno cerrado';
+  
+  // Recalcular datos basándose en el turno (ahora cerrado)
+  const desde = new Date(turno.apertura).getTime();
+  const hasta = new Date(turno.cierre).getTime();
+  const facturasTurno = (facturas||[]).filter(f => {
+    if(f.anulada) return false;
+    if(f.tipo !== 'venta') return false;
+    const fts = new Date(f.fecha).getTime();
+    return fts >= desde && fts <= hasta;
+  });
+  
+  const combustibles = getCombustiblesActivos();
+  const litros = {};
+  combustibles.forEach(c => { litros[c.id] = 0; });
+  
+  const recaudacion = {efectivo:0, transferencia:0, tarjeta:0, ctacte:0};
+  let totalDespachos = 0, totalProductos = 0;
+  
+  facturasTurno.forEach(f => {
+    const total = Number(f.total) || 0;
+    const fp = (f.formaPago || 'efectivo').toLowerCase();
+    if(fp.includes('transfer')) recaudacion.transferencia += total;
+    else if(fp.includes('tarjeta') || fp.includes('debito') || fp.includes('credito')) recaudacion.tarjeta += total;
+    else if(fp.includes('cuenta') || fp.includes('cta')) recaudacion.ctacte += total;
+    else recaudacion.efectivo += total;
+    
+    if(f.esDespacho){
+      totalDespachos += total;
+      (f.lineas || []).forEach(l => { 
+        if(litros[l.prodId] !== undefined) litros[l.prodId] += Number(l.cantidad) || 0; 
+      });
+    } else {
+      totalProductos += total;
+    }
+  });
+  
+  const totalGen = totalDespachos + totalProductos;
+  const efectivoEsperado = recaudacion.efectivo;
+  const dif = (turno.efectivoEntregado || 0) - efectivoEsperado;
+  
+  cont.innerHTML = `
+    <div style="background:linear-gradient(135deg,#27500a,#3d8011);color:#fff;padding:20px;border-radius:12px;text-align:center;margin-bottom:18px;">
+      <div style="font-size:2.5rem;">✅</div>
+      <div style="font-size:1.3rem;font-weight:900;margin-top:6px;">Turno cerrado correctamente</div>
+      <div style="font-size:0.9rem;opacity:0.9;margin-top:4px;">${turno.aperturaStr} → ${turno.cierreStr}</div>
+    </div>
+    
+    <div style="text-align:center;margin-bottom:20px;">
+      <button class="mt-btn-imprimir" onclick='imprimirResumenTurno(${JSON.stringify(turno).replace(/"/g,"&quot;").replace(/'/g,"\\'")})'">🖨️ IMPRIMIR RESUMEN PARA RENDIR</button>
+    </div>
+    
+    <div class="mt-card">
+      <div class="mt-card-titulo">📊 Resumen final</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:0.9rem;margin-bottom:14px;">
+        <div><strong>👤 Cajero:</strong> ${turno.nombreCajero || '(sin nombre)'}</div>
+        <div><strong>📅 Cerrado:</strong> ${turno.cierreStr}</div>
+        <div><strong>💵 Efectivo declarado:</strong> $${fmtMiles(turno.efectivoEntregado)}</div>
+        <div><strong>💰 Esperado:</strong> $${fmtMiles(efectivoEsperado)}</div>
+      </div>
+      
+      ${Math.abs(dif) > 0.5 ? `
+        <div style="padding:10px;border-radius:6px;background:${dif < 0 ? '#fee' : '#fff8e0'};border-left:4px solid ${dif < 0 ? '#c0392b' : '#d4a020'};font-size:0.88rem;">
+          ${dif < 0 ? '❌' : '⚠️'} <strong>Diferencia: $${fmtMiles(Math.abs(dif))}</strong> ${dif < 0 ? 'faltante en caja' : 'sobrante en caja'}
+        </div>
+      ` : '<div style="padding:8px;color:#27500a;font-weight:700;">✅ Caja cuadrada perfectamente</div>'}
+      
+      <div style="margin-top:14px;background:#1a1a2e;color:#fff;padding:14px;border-radius:8px;text-align:center;">
+        <div style="font-size:0.85rem;opacity:0.85;">TOTAL FACTURADO</div>
+        <div style="font-size:2rem;font-weight:900;font-family:'Consolas',monospace;">$${fmtMiles(totalGen)}</div>
+      </div>
+    </div>
+    
+    <div style="text-align:center;margin-top:20px;">
+      <button onclick="renderPanelMiTurno()" style="padding:12px 24px;background:#1e7a3e;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">🟢 Iniciar nuevo turno</button>
+    </div>
+  `;
+}
+
+function imprimirResumenTurno(turno){
+  // Si pasaron el turno como string, parsearlo
+  if(typeof turno === 'string'){
+    try { turno = JSON.parse(turno); } catch(e) { return; }
+  }
+  
+  // Recalcular datos
+  const desde = new Date(turno.apertura).getTime();
+  const hasta = new Date(turno.cierre).getTime();
+  const facturasTurno = (facturas||[]).filter(f => {
+    if(f.anulada) return false;
+    if(f.tipo !== 'venta') return false;
+    const fts = new Date(f.fecha).getTime();
+    return fts >= desde && fts <= hasta;
+  });
+  
+  const combustibles = getCombustiblesActivos();
+  const litros = {};
+  combustibles.forEach(c => { litros[c.id] = 0; });
+  
+  const recaudacion = {efectivo:0, transferencia:0, tarjeta:0, ctacte:0};
+  let totalDespachos = 0, totalProductos = 0;
+  let cantDespachos = 0, cantVentas = 0;
+  
+  facturasTurno.forEach(f => {
+    const total = Number(f.total) || 0;
+    const fp = (f.formaPago || 'efectivo').toLowerCase();
+    if(fp.includes('transfer')) recaudacion.transferencia += total;
+    else if(fp.includes('tarjeta') || fp.includes('debito') || fp.includes('credito')) recaudacion.tarjeta += total;
+    else if(fp.includes('cuenta') || fp.includes('cta')) recaudacion.ctacte += total;
+    else recaudacion.efectivo += total;
+    
+    if(f.esDespacho){
+      totalDespachos += total;
+      cantDespachos++;
+      (f.lineas || []).forEach(l => { 
+        if(litros[l.prodId] !== undefined) litros[l.prodId] += Number(l.cantidad) || 0; 
+      });
+    } else {
+      totalProductos += total;
+      cantVentas++;
+    }
+  });
+  
+  const totalGen = totalDespachos + totalProductos;
+  const efectivoEsperado = recaudacion.efectivo;
+  const dif = (turno.efectivoEntregado || 0) - efectivoEsperado;
+  
+  // Generar HTML imprimible
+  const zona = document.getElementById('zona-impresion');
+  if(!zona) return;
+  
+  zona.innerHTML = `
+    <div class="imp-titulo">⛽ ESTACIÓN DON RAMÓN</div>
+    <div class="imp-sub">RESUMEN DE TURNO PARA RENDIR</div>
+    
+    <div class="imp-seccion">
+      <div class="imp-seccion-titulo">DATOS DEL TURNO</div>
+      <table class="imp-tabla">
+        <tr><th>Cajero / Playero</th><td>${turno.nombreCajero || '(sin nombre)'}</td></tr>
+        <tr><th>Apertura</th><td>${turno.aperturaStr}</td></tr>
+        <tr><th>Cierre</th><td>${turno.cierreStr}</td></tr>
+        <tr><th>Operaciones</th><td>${cantDespachos} despachos · ${cantVentas} ventas mostrador</td></tr>
+      </table>
+    </div>
+    
+    <div class="imp-seccion">
+      <div class="imp-seccion-titulo">CONTROL DE COMBUSTIBLE (TOTALIZADORES)</div>
+      <table class="imp-tabla">
+        <thead>
+          <tr>
+            <th>Combustible</th>
+            <th class="num">Inicial</th>
+            <th class="num">Final</th>
+            <th class="num">Litros (surtidor)</th>
+            <th class="num">Litros (sistema)</th>
+            <th class="num">Diferencia</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${combustibles.map(c => {
+            const ini = (turno.totalizadores || {})[c.id] || 0;
+            const fin = (turno.totalizadoresFinal || {})[c.id] || 0;
+            const litSurt = fin - ini;
+            const litSist = litros[c.id] || 0;
+            const dif = litSurt - litSist;
+            return `<tr>
+              <td><strong>${c.nombre}</strong></td>
+              <td class="num">${fmtMiles(ini)}</td>
+              <td class="num">${fmtMiles(fin)}</td>
+              <td class="num"><strong>${litSurt.toFixed(1)}</strong></td>
+              <td class="num">${litSist.toFixed(1)}</td>
+              <td class="num">${Math.abs(dif) < 0.5 ? '✓ OK' : (dif > 0 ? '+'+dif.toFixed(1) : dif.toFixed(1))}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="imp-seccion">
+      <div class="imp-seccion-titulo">RECAUDACIÓN POR FORMA DE PAGO</div>
+      <table class="imp-tabla">
+        <tr><th>💵 Efectivo</th><td class="num">$${fmtMiles(recaudacion.efectivo)}</td></tr>
+        <tr><th>🏦 Transferencia</th><td class="num">$${fmtMiles(recaudacion.transferencia)}</td></tr>
+        <tr><th>💳 Tarjeta</th><td class="num">$${fmtMiles(recaudacion.tarjeta)}</td></tr>
+        <tr><th>📋 Cuenta corriente</th><td class="num">$${fmtMiles(recaudacion.ctacte)}</td></tr>
+        <tr style="background:#e0e0e0;font-weight:900;"><th>TOTAL</th><td class="num">$${fmtMiles(totalGen)}</td></tr>
+      </table>
+    </div>
+    
+    <div class="imp-seccion">
+      <div class="imp-seccion-titulo">CIERRE DE CAJA</div>
+      <table class="imp-tabla">
+        <tr><th>Efectivo esperado (sistema)</th><td class="num">$${fmtMiles(efectivoEsperado)}</td></tr>
+        <tr><th>Efectivo declarado por cajero</th><td class="num">$${fmtMiles(turno.efectivoEntregado)}</td></tr>
+        <tr style="background:${Math.abs(dif) < 0.5 ? '#d4f5d4' : (dif < 0 ? '#fee' : '#fff8e0')};font-weight:900;">
+          <th>DIFERENCIA</th>
+          <td class="num">${dif === 0 ? '✓ OK' : (dif > 0 ? '+ $'+fmtMiles(dif)+' (sobrante)' : '- $'+fmtMiles(Math.abs(dif))+' (faltante)')}</td>
+        </tr>
+      </table>
+    </div>
+    
+    ${turno.observaciones ? `
+      <div class="imp-seccion">
+        <div class="imp-seccion-titulo">OBSERVACIONES</div>
+        <div style="padding:8px;border:1px solid #888;font-size:0.88rem;min-height:30px;">${turno.observaciones}</div>
+      </div>
+    ` : ''}
+    
+    <div class="imp-total-final">
+      TOTAL DEL TURNO: $${fmtMiles(totalGen)}
+    </div>
+    
+    <div class="imp-firmas">
+      <div class="imp-firma">
+        <div class="imp-firma-linea">Firma del Cajero / Playero</div>
+      </div>
+      <div class="imp-firma">
+        <div class="imp-firma-linea">Firma de quien recibe</div>
+      </div>
+    </div>
+    
+    <div style="text-align:center;margin-top:30px;font-size:0.7rem;color:#666;">
+      Generado el ${new Date().toLocaleString('es-AR')}
+    </div>
+  `;
+  
+  // Imprimir
+  setTimeout(() => {
+    window.print();
+    // Limpiar después de imprimir
+    setTimeout(() => { zona.innerHTML = ''; }, 1000);
+  }, 200);
+}
+
+// Hook en showTab para que cuando entre a 'miturno' se renderice
+const _showTabMiTurno = showTab;
+showTab = function(name, btn){
+  _showTabMiTurno(name, btn);
+  if(name === 'miturno') renderPanelMiTurno();
+};
+
+// ========================================================================
+// =================== FIN MÓDULO MI TURNO ===============================
 // ========================================================================
 
 </script>
