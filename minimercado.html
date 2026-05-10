@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⛽ Estación Don Ramón</title>
+<title>👑 Reina Mi Amor</title>
 <style>
 /* ========== CLAVE OVERLAY ========== */
 #clave-overlay {
@@ -302,10 +302,22 @@ body{
 .vsf-input-grande{font-size:0.95rem;font-weight:600;letter-spacing:0.5px;}
 
 .vsf-btn-camara{
-  background:#f0c040;border:1px solid #b89020;border-radius:3px;font-size:1.2rem;
-  cursor:pointer;height:32px;width:50px;
+  background:#f0c040;border:1px solid #b89020;border-radius:3px;font-size:1.4rem;
+  cursor:pointer;height:38px;width:55px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.15);
+  transition:transform 0.1s;
 }
 .vsf-btn-camara:hover{background:#e8c84a;}
+.vsf-btn-camara:active{transform:scale(0.95);}
+@media (max-width:768px){
+  .vsf-btn-camara{
+    font-size:1.8rem;
+    height:44px;
+    width:64px;
+    background:linear-gradient(180deg,#f5d050 0%,#e8c84a 100%);
+    border:2px solid #b89020;
+  }
+}
 
 .vsf-btn-agregar{
   background:#3d8011;color:#fff;border:1px solid #2a5a08;padding:6px 16px;
@@ -668,346 +680,68 @@ select {
   padding-right: 24px !important;
 }
 
-/* ============= MÓDULO SURTIDOR ============= */
-.surt-grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:14px;margin-bottom:18px;
+/* === BOTONES DEL TABLERO - icono arriba + texto abajo === */
+.tab {
+  flex-direction: column !important;
+  min-width: 110px !important;
+  min-height: 56px !important;
+  padding: 10px 14px !important;
+  gap: 2px !important;
+  background: linear-gradient(180deg, #fafafa 0%, #e8e8ec 100%) !important;
+  border: 1px solid #c0c0c8 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 2px rgba(0,0,0,0.05) !important;
+  flex: 0 0 auto !important;
 }
-.surt-card{
-  border-radius:14px;padding:18px;cursor:pointer;color:#fff;
-  box-shadow:0 6px 18px rgba(0,0,0,0.18);transition:transform 0.1s, box-shadow 0.1s;
-  position:relative;overflow:hidden;border:none;text-align:left;
-  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+.tab:hover {
+  background: linear-gradient(180deg, #fff 0%, #d8d8dc 100%) !important;
+  border-color: #888 !important;
 }
-.surt-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,0.25);}
-.surt-card:active{transform:translateY(0);}
-.surt-card.nafta-super{background:linear-gradient(135deg,#1e7a3e,#2da859);}
-.surt-card.nafta-premium{background:linear-gradient(135deg,#6b1818,#a02828);}
-.surt-card.gasoil-comun{background:linear-gradient(135deg,#1a3d6b,#2a6cb0);}
-.surt-card.gasoil-premium{background:linear-gradient(135deg,#3a2a6b,#5a3da8);}
-.surt-card.gnc{background:linear-gradient(135deg,#a06820,#d68910);}
-.surt-card.otro{background:linear-gradient(135deg,#4a4a5a,#6a6a8a);}
-.surt-nombre{font-size:1.3rem;font-weight:800;letter-spacing:0.5px;margin-bottom:6px;}
-.surt-precio{font-size:2.6rem;font-weight:900;font-family:'Consolas',monospace;line-height:1;margin-bottom:4px;}
-.surt-precio-sub{font-size:0.78rem;opacity:0.85;font-weight:600;letter-spacing:0.5px;}
-.surt-tanque-mini{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.25);}
-.surt-tanque-bar{height:8px;background:rgba(0,0,0,0.25);border-radius:4px;overflow:hidden;margin-top:4px;}
-.surt-tanque-fill{height:100%;background:#fff;border-radius:4px;transition:width 0.3s;}
-.surt-tanque-fill.bajo{background:#f0c040;}
-.surt-tanque-fill.critico{background:#e24b4a;}
-.surt-tanque-info{display:flex;justify-content:space-between;font-size:0.78rem;font-weight:600;opacity:0.95;}
-.surt-precio-edit{
-  display:flex;gap:6px;margin-top:10px;align-items:center;
+.tab.active {
+  background: linear-gradient(180deg, #2c3e5e 0%, #1a1a2e 100%) !important;
+  color: #fff !important;
+  border-color: #1a1a2e !important;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4) !important;
 }
-.surt-precio-edit input{
-  flex:1;padding:5px 8px;border-radius:5px;border:1px solid rgba(255,255,255,0.4);
-  background:rgba(255,255,255,0.18);color:#fff;font-weight:700;font-family:'Consolas',monospace;
-  font-size:0.85rem;text-align:right;outline:none;
+.tab-icon {
+  font-size: 1.5rem !important;
+  line-height: 1 !important;
+  margin-bottom: 2px !important;
+  pointer-events: none;
 }
-.surt-precio-edit input::placeholder{color:rgba(255,255,255,0.6);}
-.surt-precio-edit button{
-  background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);
-  color:#fff;border-radius:5px;padding:5px 10px;cursor:pointer;font-size:0.78rem;font-weight:700;
+.tab-label {
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  pointer-events: none;
 }
-.surt-precio-edit button:hover{background:rgba(255,255,255,0.35);}
-.surt-card .badge-vacio{
-  position:absolute;top:10px;right:10px;background:#e24b4a;color:#fff;
-  font-size:0.7rem;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:0.5px;
-}
-.surt-card .badge-bajo{
-  position:absolute;top:10px;right:10px;background:#f0c040;color:#1a1a2e;
-  font-size:0.7rem;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:0.5px;
+@media (max-width:900px){
+  .tab { min-width: 90px !important; min-height: 50px !important; padding: 8px 10px !important; }
+  .tab-icon { font-size: 1.25rem !important; }
+  .tab-label { font-size: 0.7rem !important; }
 }
 
-.tanque-grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-  gap:10px;
+/* === ITEMS DEL MENÚ GESTIÓN === */
+.gestion-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1a1a2e;
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  border-bottom: 1px solid #f0f0f0;
 }
-.tanque-card{
-  background:#1a1a2e;color:#fff;border-radius:10px;padding:12px;
-  border:1px solid #2a2a45;
+.gestion-item:hover {
+  background: linear-gradient(180deg, #2c3e5e 0%, #1a1a2e 100%);
+  color: #fff;
 }
-.tanque-nombre{font-size:0.85rem;font-weight:700;color:#e8c84a;margin-bottom:8px;}
-.tanque-litros{font-size:1.4rem;font-weight:800;font-family:'Consolas',monospace;line-height:1;}
-.tanque-cap{font-size:0.72rem;color:#aaa;margin-top:2px;}
-.tanque-bar-wrap{height:14px;background:#0a0a18;border-radius:7px;overflow:hidden;margin-top:8px;border:1px solid #333;}
-.tanque-bar{height:100%;background:linear-gradient(90deg,#27500a,#3d8011);transition:width 0.3s;}
-.tanque-bar.bajo{background:linear-gradient(90deg,#b08010,#f0c040);}
-.tanque-bar.critico{background:linear-gradient(90deg,#a02020,#e24b4a);}
-.tanque-acciones{display:flex;gap:5px;margin-top:8px;}
-.tanque-acciones button{
-  flex:1;padding:5px;font-size:0.72rem;border-radius:5px;
-  border:1px solid #444;background:#2a2a45;color:#fff;cursor:pointer;font-weight:600;
-}
-.tanque-acciones button:hover{background:#3a3a5a;}
+.gestion-item:last-child { border-bottom: none; }
 
-#despacho-modal .modal{
-  width:min(95vw,520px);padding:0;background:#fff;
-  font-family:'Segoe UI',Tahoma,Arial,sans-serif;overflow:hidden;
-}
-.desp-header{
-  padding:16px 20px;color:#fff;font-weight:800;font-size:1.1rem;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.desp-cerrar{
-  background:rgba(255,255,255,0.2);border:none;color:#fff;width:30px;height:30px;
-  border-radius:6px;font-size:1rem;cursor:pointer;
-}
-.desp-body{padding:18px 20px;}
-.desp-precio-lt{
-  background:#f5f5fa;border-radius:8px;padding:10px 14px;margin-bottom:14px;
-  display:flex;justify-content:space-between;align-items:center;border:2px solid #e0e0ec;
-}
-.desp-precio-lt label{font-size:0.78rem;font-weight:700;color:#555;letter-spacing:0.5px;}
-.desp-precio-lt input{
-  width:100px;padding:6px 8px;font-size:1rem;font-weight:700;text-align:right;
-  border:1px solid #c0c0c8;border-radius:5px;font-family:'Consolas',monospace;
-}
-.desp-calc{
-  display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;margin-bottom:16px;
-}
-.desp-calc-arrow{font-size:1.5rem;color:#888;padding-bottom:14px;text-align:center;}
-.desp-calc-grupo label{
-  display:block;font-size:0.78rem;font-weight:700;color:#444;
-  text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;
-}
-.desp-calc-grupo input{
-  width:100%;padding:14px;font-size:1.8rem;font-weight:800;text-align:right;
-  border:2px solid #c0c0c8;border-radius:8px;font-family:'Consolas',monospace;
-  background:#fffef0;color:#1a1a2e;outline:none;
-}
-.desp-calc-grupo input:focus{border-color:#27500a;box-shadow:0 0 0 3px rgba(39,80,10,0.15);}
-.desp-calc-grupo .desp-unidad{font-size:0.72rem;color:#888;margin-top:3px;text-align:right;}
-.desp-rapidos{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
-.desp-rapido{
-  flex:1;min-width:60px;padding:8px 4px;background:#fff;border:1px solid #c0c0c8;
-  border-radius:5px;font-size:0.85rem;font-weight:700;cursor:pointer;color:#333;
-  font-family:'Consolas',monospace;
-}
-.desp-rapido:hover{background:#27500a;color:#fff;border-color:#27500a;}
-.desp-campos{
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;
-}
-.desp-campos-full{grid-column:1/-1;}
-.desp-campos label{font-size:0.72rem;font-weight:700;color:#444;text-transform:uppercase;letter-spacing:0.5px;}
-.desp-campos input,.desp-campos select{
-  width:100%;padding:8px 10px;font-size:0.9rem;border:1px solid #c0c0c8;
-  border-radius:5px;background:#fff;outline:none;margin-top:3px;
-  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
-}
-.desp-campos input:focus,.desp-campos select:focus{border-color:#27500a;}
-.desp-footer{
-  background:#f5f5fa;padding:14px 20px;display:flex;justify-content:space-between;
-  align-items:center;border-top:1px solid #e0e0ec;flex-wrap:wrap;gap:10px;
-}
-.desp-total-box{
-  background:#1a1a2e;color:#fff;padding:8px 18px;border-radius:6px;
-}
-.desp-total-lbl{font-size:0.7rem;font-weight:700;letter-spacing:1.5px;opacity:0.8;}
-.desp-total-monto{font-size:1.6rem;font-weight:900;color:#7be374;font-family:'Consolas',monospace;line-height:1;}
-.desp-btns{display:flex;gap:8px;}
-.desp-btn-cancel{
-  padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;
-  border-radius:5px;font-weight:700;cursor:pointer;font-size:0.9rem;
-}
-.desp-btn-confirm{
-  padding:9px 22px;border:none;background:#27500a;color:#fff;
-  border-radius:5px;font-weight:700;cursor:pointer;font-size:0.9rem;
-}
-.desp-btn-confirm:hover{background:#1f3e07;}
-
-.desp-log-item{
-  background:#fff;border:1px solid #e0e0ec;border-radius:10px;padding:10px 14px;
-  display:grid;grid-template-columns:auto 1fr auto;gap:12px;margin-bottom:6px;align-items:center;
-}
-.desp-log-fuel{
-  font-weight:800;padding:4px 10px;border-radius:6px;color:#fff;font-size:0.78rem;
-  letter-spacing:0.5px;min-width:90px;text-align:center;
-}
-.desp-log-info{font-size:0.85rem;}
-.desp-log-info .meta{font-size:0.72rem;color:#888;margin-top:2px;}
-.desp-log-monto{font-weight:900;font-size:1.05rem;color:#27500a;font-family:'Consolas',monospace;}
-
-@media (max-width:768px){
-  .desp-calc{grid-template-columns:1fr;}
-  .desp-calc-arrow{transform:rotate(90deg);padding:0;}
-  .desp-campos{grid-template-columns:1fr;}
-}
-
-/* ============= MÓDULO CIGARRILLOS ============= */
-.cig-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));
-  gap:8px;
-}
-.cig-card{
-  background:#fff;border:1px solid #e0e0ec;border-radius:10px;
-  padding:0;overflow:hidden;
-  box-shadow:0 2px 6px rgba(0,0,0,0.06);
-  transition:transform 0.1s, box-shadow 0.1s;
-  display:flex;flex-direction:column;
-  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
-  position:relative;
-}
-.cig-card:hover{
-  transform:translateY(-2px);
-  box-shadow:0 6px 14px rgba(0,0,0,0.12);
-}
-.cig-card-foto{
-  width:100%;height:120px;
-  background:#f5f5fa;
-  /* contain = se ve TODO el paquete sin recortar */
-  background-size:contain;background-position:center;background-repeat:no-repeat;
-  display:flex;align-items:center;justify-content:center;
-  font-size:2.2rem;color:#bbb;
-  border-bottom:1px solid #e0e0ec;
-  position:relative;
-}
-.cig-card-foto.sin-foto{
-  background:linear-gradient(135deg,#3a1a0e,#6b1818);
-  color:rgba(255,255,255,0.4);
-}
-.cig-card-marca{
-  position:absolute;top:5px;left:5px;
-  background:rgba(255,255,255,0.92);color:#333;
-  font-size:0.62rem;font-weight:700;padding:2px 6px;border-radius:4px;
-  letter-spacing:0.2px;
-  max-width:70%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.cig-card-stock{
-  position:absolute;top:5px;right:5px;
-  background:rgba(0,0,0,0.78);color:#fff;
-  font-size:1.1rem;font-weight:900;padding:4px 10px;border-radius:6px;
-  font-family:'Consolas',monospace;
-  line-height:1;
-  box-shadow:0 2px 6px rgba(0,0,0,0.25);
-  letter-spacing:0.3px;
-}
-.cig-card-stock.sin-stock{background:rgba(226,75,74,0.95);}
-.cig-card-stock.poco-stock{background:rgba(240,192,64,0.95);color:#1a1a2e;}
-.cig-card-body{
-  padding:7px 9px;flex:1;display:flex;flex-direction:column;gap:2px;
-}
-.cig-card-nombre{
-  font-size:0.74rem;font-weight:700;color:#1a1a2e;line-height:1.2;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  overflow:hidden;min-height:2em;
-}
-.cig-card-codigo{
-  font-size:0.58rem;color:#aaa;font-family:monospace;
-}
-.cig-card-precio{
-  font-size:1rem;font-weight:900;color:#27500a;
-  font-family:'Consolas',monospace;
-  margin-top:auto;
-}
-.cig-card-precio.sin-precio{color:#aaa;font-size:0.72rem;font-style:italic;font-weight:600;}
-.cig-card-acciones{
-  display:flex;gap:3px;padding:5px 7px;
-  background:#fafafd;border-top:1px solid #eee;
-}
-.cig-card-acciones button{
-  flex:1;padding:4px 2px;font-size:0.78rem;font-weight:700;
-  border:1px solid #c8c8d8;background:#fff;color:#333;
-  border-radius:4px;cursor:pointer;
-  line-height:1;
-}
-.cig-card-acciones button:hover{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}
-.cig-card-acciones .btn-vender{background:#27500a;color:#fff;border-color:#27500a;}
-.cig-card-acciones .btn-vender:hover{background:#1f3e07;}
-.cig-card-acciones .btn-del{color:#e24b4a;}
-.cig-card-acciones .btn-del:hover{background:#e24b4a;color:#fff;border-color:#e24b4a;}
-
-.cig-marca-pill{
-  padding:5px 10px;border-radius:18px;border:1px solid #aaa;background:#fff;color:#333;
-  font-size:0.74rem;font-weight:600;cursor:pointer;
-  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
-}
-.cig-marca-pill.activa{background:#6b1818;color:#fff;border-color:#6b1818;}
-
-.cig-empty{
-  text-align:center;padding:40px 20px;color:#888;font-style:italic;
-  background:#f5f5fa;border-radius:10px;grid-column:1/-1;
-}
-
-/* Dashboard de stock/capital */
-.cig-dashboard{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:10px;margin-bottom:14px;
-}
-.cig-dash-card{
-  border-radius:10px;padding:14px;color:#fff;
-  box-shadow:0 4px 10px rgba(0,0,0,0.12);
-}
-.cig-dash-card.azul    {background:linear-gradient(135deg,#3498db,#2980b9);}
-.cig-dash-card.verde   {background:linear-gradient(135deg,#27500a,#3d8011);}
-.cig-dash-card.naranja {background:linear-gradient(135deg,#d68910,#a06820);}
-.cig-dash-card.rojo    {background:linear-gradient(135deg,#c0392b,#a02828);}
-.cig-dash-card.violeta {background:linear-gradient(135deg,#8e44ad,#5a3da8);}
-.cig-dash-label{font-size:0.72rem;opacity:0.9;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
-.cig-dash-valor{font-size:1.6rem;font-weight:900;line-height:1.1;margin-top:4px;font-family:'Consolas',monospace;}
-.cig-dash-sub{font-size:0.7rem;opacity:0.85;margin-top:2px;}
-
-@media (max-width:600px){
-  .cig-grid{grid-template-columns:repeat(3,1fr);gap:6px;}
-  .cig-card-foto{height:95px;}
-  .cig-card-nombre{font-size:0.68rem;min-height:1.6em;-webkit-line-clamp:1;}
-  .cig-card-precio{font-size:0.88rem;}
-  .cig-card-codigo{display:none;}
-  .cig-card-body{padding:5px 6px;}
-  .cig-card-acciones{padding:4px 5px;}
-  .cig-dashboard{grid-template-columns:1fr 1fr;}
-  .cig-dash-valor{font-size:1.2rem;}
-}
-@media (max-width:400px){
-  .cig-grid{grid-template-columns:repeat(2,1fr);}
-}
-
-/* ============= ESTILOS POR ROL ============= */
-/* Cuando body tiene .rol-cajero, ocultamos elementos admin-only */
-body.rol-cajero .admin-only,
-body.rol-operadora .admin-only {
-  display: none !important;
-}
-/* Para cajero específicamente, ocultar columnas de costo */
-body.rol-cajero .col-costo,
-body.rol-cajero [data-rol="admin"] {
-  display: none !important;
-}
-
-/* ============= MENÚ DESPLEGABLE "MÁS" ============= */
-.dropdown-mas{position:relative;display:inline-block;}
-.dropdown-menu-mas{
-  position:absolute;top:calc(100% + 4px);right:0;
-  background:#fff;border:1px solid #c8c8d0;border-radius:8px;
-  box-shadow:0 8px 24px rgba(0,0,0,0.18);
-  min-width:240px;z-index:1500;padding:6px;
-  animation:dropdownFadeIn 0.15s ease;
-}
-@keyframes dropdownFadeIn{
-  from{opacity:0;transform:translateY(-4px);}
-  to{opacity:1;transform:translateY(0);}
-}
-.dropdown-menu-mas .dropdown-item{
-  display:block;width:100%;text-align:left;
-  padding:10px 14px;border:none;background:transparent;
-  font-size:0.92rem;font-weight:600;color:#333;cursor:pointer;
-  border-radius:6px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;
-  transition:background 0.1s;
-}
-.dropdown-menu-mas .dropdown-item:hover{
-  background:#1a1a2e;color:#fff;
-}
-.dropdown-menu-mas .dropdown-item.active-item{
-  background:#e8c84a;color:#1a1a2e;
-}
-#btn-mas.has-active{
-  background:#1a1a2e !important;
-  color:#fff !important;
-  border-color:#1a1a2e !important;
-}
-@media (max-width:768px){
-  .dropdown-menu-mas{right:auto;left:0;min-width:200px;}
-}
 </style>
 <!-- Librería para generar códigos de barras EAN/CODE128 -->
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -1016,18 +750,13 @@ body.rol-cajero [data-rol="admin"] {
 
 <div id="clave-overlay">
   <div class="clave-card">
-    <h2>⛽ Estación Don Ramón</h2>
-    <div style="font-size:0.78rem;color:#888;margin-bottom:10px;text-align:center;">Sistema de gestión integral</div>
+    <h2>👑 Reina Mi Amor</h2>
     <input type="password" id="clave-input" placeholder="Contraseña" autofocus>
     <label class="clave-recordar">
       <input type="checkbox" id="clave-recordar"> Recordarme en este dispositivo
     </label>
     <button id="btn-validar">Ingresar</button>
     <div id="clave-error" class="mensaje-error"></div>
-    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;font-size:0.72rem;color:#888;text-align:center;line-height:1.5;">
-      👑 Admin · 📝 Operadora · 💼 Cajero<br>
-      <span style="font-size:0.68rem;opacity:0.7;">Cada usuario tiene su propia contraseña</span>
-    </div>
   </div>
 </div>
 
@@ -1042,7 +771,7 @@ body.rol-cajero [data-rol="admin"] {
         <svg viewBox="0 0 24 24" width="22" height="22" fill="#1a1a2e"><path d="M2 18 L4 8 L8 12 L12 5 L16 12 L20 8 L22 18 Z"/><rect x="2" y="18" width="20" height="2.5" rx="0.5"/></svg>
       </div>
       <div>
-        <div style="color:#fff;font-weight:800;font-size:1rem;line-height:1;">⛽ Estación Don Ramón</div>
+        <div style="color:#fff;font-weight:800;font-size:1rem;line-height:1;">👑 Reina Mi Amor</div>
         <div style="color:#8888aa;font-size:0.72rem;">Sistema de gestión</div>
       </div>
     </div>
@@ -1163,8 +892,8 @@ body.rol-cajero [data-rol="admin"] {
       </svg>
     </div>
     <div>
-      <div class="header-title">⛽ Estación Don Ramón</div>
-      <div class="header-sub">Sistema de gestión · Surtidor + Minimarket</div>
+      <div class="header-title">👑 Reina Mi Amor</div>
+      <div class="header-sub">MiniMarket La Reina · Venta por unidad o peso</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -1172,9 +901,6 @@ body.rol-cajero [data-rol="admin"] {
     <button onclick="exportarBackup()" style="padding:10px 18px;border-radius:6px;border:1px solid #d4a020;background:#e8c84a;color:#1a1a2e;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">💾 Backup</button>
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #888;background:#f0f0f0;color:#333;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #1f5005;background:#2a6e2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/></label>
-    <button onclick="limpiarMercaderia()" style="padding:10px 18px;border-radius:6px;border:1px solid #b56b00;background:#d68910;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Borrar productos del minimarket (mantiene combustibles, clientes y proveedores)">🧹 Limpiar mercadería</button>
-    <button onclick="recuperarBackupSeguridad()" style="padding:10px 18px;border-radius:6px;border:1px solid #1a5a8a;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Si perdiste datos, recuperar el último backup automático guardado en este navegador">🛟 Recuperar backup</button>
-    <button onclick="abrirGestionUsuarios()" id="btn-usuarios" style="padding:10px 18px;border-radius:6px;border:1px solid #1a3a6b;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Cambiar contraseñas de los usuarios del sistema">👥 Usuarios</button>
     <button onclick="cerrarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #6b1818;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">🚪 Cerrar sesión</button>
   </div>
 </div>
@@ -1243,7 +969,7 @@ body.rol-cajero [data-rol="admin"] {
     <ellipse cx="40" cy="80" rx="3" ry="10" fill="rgba(255,255,255,0.5)" transform="rotate(-15 40 80)"/>
     <ellipse cx="120" cy="55" rx="3" ry="14" fill="rgba(255,255,255,0.4)" transform="rotate(15 120 55)"/>
   </svg>
-  <div class="marca">Estación Don Ramón</div>
+  <div class="marca">Reina Mi Amor</div>
   <div class="sub">Sistema de Gestión</div>
 </div>
 
@@ -1781,341 +1507,38 @@ body.rol-cajero [data-rol="admin"] {
 </div>
 
 <!-- MODAL CÁMARA -->
-<div class="modal-overlay" id="camara-modal" style="z-index:3000;background:rgba(0,0,0,0.92);">
-  <div style="background:#1a1a2e;border-radius:20px;padding:20px;width:min(95vw,420px);text-align:center;">
-    <div style="font-size:1rem;font-weight:700;color:#e8c84a;margin-bottom:12px;">📷 Escaneá el código</div>
-    <div style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;">
-      <video id="camara-video" autoplay playsinline style="width:100%;max-height:300px;display:block;"></video>
-      <canvas id="camara-canvas" style="display:none;"></canvas>
-    </div>
-    <div id="camara-status" style="margin-top:10px;font-size:0.8rem;color:#8888aa;">Iniciando...</div>
-    <div style="display:flex;gap:10px;margin-top:14px;justify-content:center;">
-      <button onclick="cambiarCamara()" style="padding:8px 16px;border-radius:10px;border:1px solid #444;background:#2a2a4a;color:#fff;cursor:pointer;font-size:0.8rem;">🔄 Cambiar</button>
-      <button onclick="cerrarCamara()" style="padding:8px 20px;border-radius:10px;border:none;background:#e24b4a;color:#fff;cursor:pointer;font-weight:700;">✕ Cerrar</button>
-    </div>
-  </div>
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('surtidor',this)">⛽ Surtidor</button>
-  <button class="tab" onclick="showTab('stock',this)">📦 Stock</button>
-  <button class="tab" onclick="showTab('cigarrillos',this)">🚬 Cigarrillos</button>
-  <button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button>
-  <button class="tab" onclick="showTab('compra',this)">🛒 Compra</button>
-  <button class="tab" onclick="showTab('venta',this)">💰 Venta</button>
-  <button class="tab" onclick="showTab('facturas',this)">🧾 Facturas</button>
-  <button class="tab" onclick="showTab('movimientos',this)">📜 Movimientos</button>
-  <button class="tab" onclick="showTab('contabilidad',this)">📊 Contabilidad</button>
-  <button class="tab" onclick="showTab('clientes',this)">👥 Clientes</button>
-  <button class="tab" onclick="showTab('proveedores',this)">🚚 Proveedores</button>
-  <button class="tab" onclick="showTab('cuentas',this)">💳 Cuentas Corrientes</button>
-  <button class="tab" onclick="showTab('gastos',this)">💸 Gastos</button>
-  <button class="tab" onclick="showTab('caja',this)">🏦 Caja/Turno</button>
-  <div class="dropdown-mas" style="position:relative;display:inline-block;">
-    <button id="btn-mas" class="tab" onclick="toggleMasMenu(event)">🔧 Más ▾</button>
-    <div id="mas-menu" class="dropdown-menu-mas" style="display:none;">
-      <button class="dropdown-item" onclick="showTabFromMenu('estadisticas')">📈 Estadísticas</button>
-      <button class="dropdown-item" onclick="showTabFromMenu('analisis')">🔍 Análisis</button>
-      <button class="dropdown-item" onclick="showTabFromMenu('descuentos')">🏷️ Descuentos</button>
-      <button class="dropdown-item" onclick="showTabFromMenu('reportez')">📑 Reporte Z</button>
-      <button class="dropdown-item" onclick="showTabFromMenu('pedidos')">📦 Pedidos a Proveedor</button>
-      <button class="dropdown-item" onclick="showTabFromMenu('etiquetas')">🏷️ Etiquetas</button>
+  <button class="tab active" onclick="showTab('stock',this)"><span class="tab-icon">📦</span><span class="tab-label">Stock</span></button>
+  <button class="tab" onclick="showTab('compra',this)"><span class="tab-icon">🛒</span><span class="tab-label">Compra</span></button>
+  <button class="tab" onclick="showTab('venta',this)"><span class="tab-icon">💰</span><span class="tab-label">Venta</span></button>
+  <button class="tab" onclick="showTab('facturas',this)"><span class="tab-icon">🧾</span><span class="tab-label">Facturas</span></button>
+  <button class="tab" onclick="showTab('clientes',this)"><span class="tab-icon">👥</span><span class="tab-label">Clientes</span></button>
+  <button class="tab" onclick="showTab('proveedores',this)"><span class="tab-icon">🚚</span><span class="tab-label">Proveedores</span></button>
+  <button class="tab" onclick="showTab('cuentas',this)"><span class="tab-icon">💳</span><span class="tab-label">Cta. Corriente</span></button>
+  <button class="tab" onclick="showTab('caja',this)"><span class="tab-icon">🏦</span><span class="tab-label">Caja</span></button>
+  <button class="tab" onclick="showTab('contabilidad',this)"><span class="tab-icon">📊</span><span class="tab-label">Contabilidad</span></button>
+  <button class="tab" onclick="showTab('estadisticas',this)"><span class="tab-icon">📈</span><span class="tab-label">Estadísticas</span></button>
+
+  <div style="position:relative;display:inline-block;">
+    <button class="tab" id="btn-gestion-menu" onclick="toggleGestionMenu(event)">
+      <span class="tab-icon">⚙️</span><span class="tab-label">Gestión ▼</span>
+    </button>
+    <div id="gestion-menu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#fff;border:1px solid #888;border-radius:4px;box-shadow:0 8px 20px rgba(0,0,0,0.3);min-width:240px;z-index:10000;overflow:hidden;">
+      <button class="gestion-item" onclick="showTabFromMenu('acciones')">⚙️ Agregar producto</button>
+      <button class="gestion-item" onclick="showTabFromMenu('movimientos')">📜 Movimientos</button>
+      <button class="gestion-item" onclick="showTabFromMenu('analisis')">🔍 Análisis avanzado</button>
+      <button class="gestion-item" onclick="showTabFromMenu('descuentos')">🏷️ Descuentos / Ofertas</button>
+      <button class="gestion-item" onclick="showTabFromMenu('gastos')">💸 Gastos varios</button>
+      <button class="gestion-item" onclick="showTabFromMenu('reportez')">📑 Reporte Z (cierre)</button>
+      <button class="gestion-item" onclick="showTabFromMenu('pedidos')">📦 Pedidos a Proveedor</button>
+      <button class="gestion-item" onclick="showTabFromMenu('etiquetas')">🏷️ Imprimir Etiquetas</button>
     </div>
   </div>
 </div>
 
-<!-- PANEL SURTIDOR -->
-<div id="panel-surtidor" class="panel active">
-  <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
-    <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#1a1a2e,#3a2e5e);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
-      <span style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">⛽ SURTIDOR</span>
-      <span style="font-size:0.85rem;opacity:0.85;">Despacho rápido de combustible</span>
-    </div>
-
-    <!-- Tanques -->
-    <div style="background:#0f0f22;border-radius:12px;padding:14px;margin-bottom:18px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-        <div style="color:#e8c84a;font-weight:800;font-size:0.95rem;letter-spacing:1px;">🛢️ STOCK DE TANQUES</div>
-        <button onclick="abrirNuevoCombustible()" style="padding:6px 14px;background:#27500a;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.82rem;">➕ Nuevo combustible</button>
-      </div>
-      <div id="tanques-grid" class="tanque-grid"></div>
-    </div>
-
-    <!-- Botones de surtidores -->
-    <div style="font-size:0.85rem;font-weight:800;color:#1a1a2e;margin-bottom:10px;letter-spacing:0.5px;">⚡ DESPACHO RÁPIDO — Tocá el combustible</div>
-    <div id="surtidores-grid" class="surt-grid"></div>
-
-    <!-- Despachos recientes -->
-    <div style="background:#f5f5fa;border-radius:10px;padding:14px;margin-top:8px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-        <div style="font-size:0.95rem;font-weight:800;color:#1a1a2e;">📋 ÚLTIMOS DESPACHOS</div>
-        <div style="font-size:0.78rem;color:#666;" id="desp-resumen-hoy"></div>
-      </div>
-      <div id="despachos-list"></div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL DESPACHO -->
-<div class="modal-overlay" id="despacho-modal" style="z-index:2500;">
-  <div class="modal">
-    <div class="desp-header" id="desp-header">
-      <span id="desp-titulo">⛽ Despachar combustible</span>
-      <button class="desp-cerrar" onclick="cerrarDespacho()">✕</button>
-    </div>
-    <div class="desp-body">
-      <div class="desp-precio-lt">
-        <label>💲 Precio por litro:</label>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span style="font-size:0.85rem;color:#888;">$</span>
-          <input type="text" id="desp-precio-lt" oninput="recalcularDespachoPorPrecio()">
-          <span style="font-size:0.78rem;color:#888;">/L</span>
-        </div>
-      </div>
-
-      <div class="desp-calc">
-        <div class="desp-calc-grupo">
-          <label>Litros</label>
-          <input type="text" id="desp-litros" placeholder="0" inputmode="decimal" oninput="calcularDespachoDesdeLitros()">
-          <div class="desp-unidad">L</div>
-        </div>
-        <div class="desp-calc-arrow">⇄</div>
-        <div class="desp-calc-grupo">
-          <label>Pesos</label>
-          <input type="text" id="desp-pesos" placeholder="0" inputmode="decimal" oninput="calcularDespachoDesdePesos()">
-          <div class="desp-unidad">$</div>
-        </div>
-      </div>
-
-      <div style="font-size:0.72rem;color:#888;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;">Montos rápidos</div>
-      <div class="desp-rapidos">
-        <button class="desp-rapido" onclick="ponerMontoDespacho(1000)">$1.000</button>
-        <button class="desp-rapido" onclick="ponerMontoDespacho(2000)">$2.000</button>
-        <button class="desp-rapido" onclick="ponerMontoDespacho(5000)">$5.000</button>
-        <button class="desp-rapido" onclick="ponerMontoDespacho(10000)">$10.000</button>
-        <button class="desp-rapido" onclick="ponerMontoDespacho(20000)">$20.000</button>
-        <button class="desp-rapido" onclick="ponerLitrosDespacho('lleno')" style="background:#1a1a2e;color:#fff;">🛢️ TANQUE LLENO</button>
-      </div>
-
-      <div class="desp-campos">
-        <div class="desp-campos-full">
-          <label>👤 Cliente / Cuenta</label>
-          <select id="desp-cliente" onchange="onCambioClienteDespacho()">
-            <option value="">— Consumidor Final —</option>
-          </select>
-        </div>
-        <div>
-          <label>🚗 Patente / Vehículo</label>
-          <input type="text" id="desp-patente" placeholder="AA123BB" style="text-transform:uppercase;">
-        </div>
-        <div>
-          <label>👷 Empleado / Playero</label>
-          <input type="text" id="desp-empleado" placeholder="Nombre">
-        </div>
-        <div>
-          <label>🔢 Surtidor / Pico</label>
-          <input type="text" id="desp-pico" placeholder="Ej: 1, 2A">
-        </div>
-        <div>
-          <label>💳 Forma de pago</label>
-          <select id="desp-pago" onchange="onCambioPagoDespacho()">
-            <option value="efectivo">💵 Efectivo</option>
-            <option value="transferencia">📱 Transferencia</option>
-            <option value="tarjeta">💳 Tarjeta</option>
-            <option value="cuenta_corriente">📋 Cuenta Corriente</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <div class="desp-footer">
-      <div class="desp-total-box">
-        <div class="desp-total-lbl">TOTAL</div>
-        <div class="desp-total-monto" id="desp-total">$0</div>
-      </div>
-      <div class="desp-btns">
-        <button class="desp-btn-cancel" onclick="cerrarDespacho()">Cancelar</button>
-        <button class="desp-btn-confirm" onclick="confirmarDespacho()">⛽ DESPACHAR</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL NUEVO COMBUSTIBLE -->
-<div class="modal-overlay" id="combustible-modal" style="z-index:2500;">
-  <div class="modal" style="width:min(95vw,460px);padding:20px;">
-    <div class="modal-title" style="font-size:1.05rem;font-weight:700;color:#333;border-bottom:1px solid #d0d0d0;padding-bottom:8px;margin-bottom:14px;">⛽ Nuevo combustible / tanque</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div style="grid-column:span 2;">
-        <label style="font-size:0.78rem;font-weight:700;color:#444;">Nombre *</label>
-        <input type="text" id="comb-nombre" placeholder="Ej: Nafta Súper" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;">
-      </div>
-      <div>
-        <label style="font-size:0.78rem;font-weight:700;color:#444;">Color visual</label>
-        <select id="comb-color" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;background:#fff;">
-          <option value="nafta-super">🟢 Verde (Súper)</option>
-          <option value="nafta-premium">🔴 Rojo (Premium)</option>
-          <option value="gasoil-comun">🔵 Azul (Gasoil)</option>
-          <option value="gasoil-premium">🟣 Violeta (Gasoil Premium)</option>
-          <option value="gnc">🟠 Naranja (GNC)</option>
-          <option value="otro">⚫ Gris (Otro)</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:0.78rem;font-weight:700;color:#444;">Capacidad tanque (L)</label>
-        <input type="text" id="comb-capacidad" placeholder="20000" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;">
-      </div>
-      <div>
-        <label style="font-size:0.78rem;font-weight:700;color:#444;">Stock actual (L)</label>
-        <input type="text" id="comb-stock" placeholder="0" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;">
-      </div>
-      <div>
-        <label style="font-size:0.78rem;font-weight:700;color:#444;">Costo por litro ($)</label>
-        <input type="text" id="comb-costo" placeholder="0" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;">
-      </div>
-      <div>
-        <label style="font-size:0.78rem;font-weight:700;color:#444;">Precio venta ($/L) *</label>
-        <input type="text" id="comb-precio" placeholder="0" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.9rem;">
-      </div>
-    </div>
-    <div class="modal-btns" style="margin-top:18px;">
-      <button class="btn-cancel" onclick="document.getElementById('combustible-modal').classList.remove('open');">Cancelar</button>
-      <button class="btn-confirm" style="background:#27500a;" onclick="guardarCombustible()">💾 Guardar</button>
-    </div>
-  </div>
-</div>
-
-<!-- PANEL CIGARRILLOS -->
-<div id="panel-cigarrillos" class="panel">
-  <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
-    <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#3a1a0e,#6b1818);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
-      <span style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">🚬 CIGARRILLOS</span>
-      <span style="font-size:0.85rem;opacity:0.85;" id="cig-resumen">—</span>
-    </div>
-
-    <!-- Dashboard de stock y capital -->
-    <div class="cig-dashboard">
-      <div class="cig-dash-card azul">
-        <div class="cig-dash-label">📋 Variedades</div>
-        <div class="cig-dash-valor" id="cig-dash-variedades">0</div>
-        <div class="cig-dash-sub" id="cig-dash-marcas">0 marcas</div>
-      </div>
-      <div class="cig-dash-card violeta">
-        <div class="cig-dash-label">📦 Stock total</div>
-        <div class="cig-dash-valor" id="cig-dash-stock">0</div>
-        <div class="cig-dash-sub">paquetes</div>
-      </div>
-      <div class="cig-dash-card naranja">
-        <div class="cig-dash-label">💰 Capital invertido</div>
-        <div class="cig-dash-valor" id="cig-dash-capital">$0</div>
-        <div class="cig-dash-sub">stock × costo</div>
-      </div>
-      <div class="cig-dash-card verde">
-        <div class="cig-dash-label">💵 Valor de venta</div>
-        <div class="cig-dash-valor" id="cig-dash-venta">$0</div>
-        <div class="cig-dash-sub">stock × precio</div>
-      </div>
-      <div class="cig-dash-card rojo">
-        <div class="cig-dash-label">📈 Utilidad pendiente</div>
-        <div class="cig-dash-valor" id="cig-dash-utilidad">$0</div>
-        <div class="cig-dash-sub" id="cig-dash-margen">si vendés todo</div>
-      </div>
-    </div>
-
-    <!-- Acciones superiores -->
-    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-      <input type="text" id="cig-buscar" placeholder="🔍 Buscar marca, nombre o código..." 
-             style="flex:1;min-width:220px;padding:10px;font-size:0.95rem;border:2px solid #c8c8d8;border-radius:8px;" 
-             oninput="renderCigarrillos()">
-      <button onclick="abrirModalCigarrillo()" style="padding:10px 22px;background:#27500a;color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.95rem;">➕ NUEVO</button>
-      <button onclick="importarListaCigarrillos()" style="padding:10px 18px;background:#1f5f9e;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.9rem;" title="Importar 65 cigarrillos del listado de precios (con sus códigos de barra)">📋 Importar lista</button>
-    </div>
-
-    <!-- Filtros por marca -->
-    <div style="margin-bottom:14px;">
-      <div id="cig-filtro-marcas" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-    </div>
-
-    <!-- Grilla de tarjetas -->
-    <div id="cig-grid" class="cig-grid"></div>
-  </div>
-</div>
-
-<!-- MODAL NUEVO/EDITAR CIGARRILLO -->
-<div class="modal-overlay" id="cigarrillo-modal" style="z-index:2500;">
-  <div class="modal" style="width:min(95vw,520px);padding:0;background:#fff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;overflow:hidden;">
-    <div style="background:linear-gradient(135deg,#3a1a0e,#6b1818);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-size:1.05rem;font-weight:800;" id="cig-modal-titulo">🚬 Nuevo cigarrillo</span>
-      <button onclick="document.getElementById('cigarrillo-modal').classList.remove('open');" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:30px;height:30px;border-radius:6px;font-size:1rem;cursor:pointer;">✕</button>
-    </div>
-    
-    <div style="padding:18px 20px;">
-      <!-- Foto -->
-      <div style="display:flex;gap:14px;align-items:center;margin-bottom:14px;background:#f5f5fa;padding:12px;border-radius:10px;border:2px dashed #c8c8d8;">
-        <div style="position:relative;">
-          <div id="cig-foto-preview" style="width:90px;height:120px;border-radius:10px;background:#e0e0e8;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#888;border:2px solid #c8c8d8;overflow:hidden;background-size:contain;background-position:center;background-repeat:no-repeat;">🚬</div>
-          <button onclick="quitarFotoCigarrillo()" id="cig-foto-quitar" style="display:none;position:absolute;top:-6px;right:-6px;background:#e24b4a;color:#fff;border:none;width:22px;height:22px;border-radius:50%;font-size:0.8rem;cursor:pointer;font-weight:700;" title="Quitar foto">✕</button>
-        </div>
-        <div style="flex:1;">
-          <div style="font-size:0.78rem;font-weight:700;color:#444;margin-bottom:4px;">📷 FOTO DEL CIGARRILLO</div>
-          <div style="font-size:0.72rem;color:#777;margin-bottom:8px;">Para identificarlo visualmente</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            <label style="padding:7px 12px;background:#1f5f9e;color:#fff;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.82rem;">📁 Subir foto<input type="file" accept="image/*" onchange="onCigFotoSeleccionada(event)" style="display:none;"></label>
-            <label style="padding:7px 12px;background:#27500a;color:#fff;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.82rem;">📷 Cámara<input type="file" accept="image/*" capture="environment" onchange="onCigFotoSeleccionada(event)" style="display:none;"></label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Campos -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div style="grid-column:span 2;">
-          <label style="font-size:0.72rem;font-weight:700;color:#444;text-transform:uppercase;">Nombre completo *</label>
-          <input type="text" id="cig-nombre" placeholder="Ej: Marlboro Red KS x20" style="width:100%;padding:9px;border:2px solid #c8c8d8;border-radius:6px;font-size:0.95rem;margin-top:3px;">
-        </div>
-        <div>
-          <label style="font-size:0.72rem;font-weight:700;color:#444;text-transform:uppercase;">Marca</label>
-          <input type="text" id="cig-marca" placeholder="Ej: Marlboro" style="width:100%;padding:9px;border:1px solid #c8c8d8;border-radius:6px;font-size:0.9rem;margin-top:3px;">
-        </div>
-        <div>
-          <label style="font-size:0.72rem;font-weight:700;color:#444;text-transform:uppercase;">Código de barras</label>
-          <input type="text" id="cig-barcode" placeholder="Escaneá o escribí" style="width:100%;padding:9px;border:1px solid #c8c8d8;border-radius:6px;font-size:0.9rem;margin-top:3px;font-family:monospace;">
-        </div>
-      </div>
-
-      <!-- Precios -->
-      <div style="background:#f5f5f5;border:1px solid #c8c8c8;border-radius:8px;padding:10px;margin-top:12px;">
-        <div style="font-size:0.72rem;font-weight:700;color:#444;margin-bottom:6px;text-transform:uppercase;">💰 Precios</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-          <div>
-            <label style="font-size:0.7rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Costo</label>
-            <input type="text" id="cig-costo" placeholder="0" style="width:100%;padding:8px;border:2px solid #4a7eb8;border-radius:5px;font-size:0.95rem;font-weight:700;background:#eaf3ff;font-family:monospace;text-align:right;" oninput="cigCalcPrecio()">
-          </div>
-          <div>
-            <label style="font-size:0.7rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Util %</label>
-            <input type="text" id="cig-utilidad" value="20" style="width:100%;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-size:0.95rem;font-weight:700;font-family:monospace;text-align:right;" oninput="cigCalcPrecio()">
-          </div>
-          <div>
-            <label style="font-size:0.7rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">P. Venta</label>
-            <input type="text" id="cig-precio" placeholder="0" style="width:100%;padding:8px;border:2px solid #27500a;border-radius:5px;font-size:0.95rem;font-weight:700;background:#f0f8e8;font-family:monospace;text-align:right;" oninput="cigCalcUtil()">
-          </div>
-        </div>
-      </div>
-
-      <!-- Stock -->
-      <div style="margin-top:12px;">
-        <label style="font-size:0.72rem;font-weight:700;color:#444;text-transform:uppercase;">📦 Stock actual (paquetes)</label>
-        <input type="text" id="cig-stock" placeholder="0" style="width:100%;padding:9px;border:1px solid #c8c8d8;border-radius:6px;font-size:0.9rem;margin-top:3px;font-family:monospace;text-align:right;">
-      </div>
-    </div>
-
-    <div style="background:#f5f5fa;padding:14px 20px;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #e0e0ec;">
-      <button class="btn-cancel" onclick="document.getElementById('cigarrillo-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:5px;font-weight:700;cursor:pointer;">Cancelar</button>
-      <button onclick="guardarCigarrillo()" style="padding:9px 22px;border:none;background:#27500a;color:#fff;border-radius:5px;font-weight:700;cursor:pointer;">💾 Guardar</button>
-    </div>
-  </div>
-</div>
-
-<div id="panel-stock" class="panel">
+<div id="panel-stock" class="panel active">
   <!-- Filtro por familia -->
   <div style="background:#f5f5f5;border:1px solid #c8c8c8;border-radius:6px;padding:10px 14px;margin-bottom:12px;">
     <div style="font-size:0.78rem;font-weight:700;color:#444;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📂 Filtrar por familia / categoría</div>
@@ -2271,7 +1694,22 @@ body.rol-cajero [data-rol="admin"] {
       <div style="background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(52,152,219,0.3);">
         <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">💰 ACTIVOS (STOCK)</div>
         <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-activos">$0</div>
-        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Stock actual × Costo</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Stock × Costo (lo invertido)</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#27ae60,#229954);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(39,174,96,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">📈 VALOR POTENCIAL DE VENTA</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-valor-potencial">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Si vendés TODO el stock</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#16a085,#138d75);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(22,160,133,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">💎 GANANCIA POTENCIAL</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-ganancia-potencial">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;" id="cont-margen-potencial">Margen: 0%</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#d4ac0d,#b7950b);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(212,172,13,0.3);">
+        <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">🏠 VALOR LISTA CASA</div>
+        <div style="font-size:1.8rem;font-weight:900;margin-top:6px;line-height:1;" id="cont-valor-casa">$0</div>
+        <div style="font-size:0.75rem;opacity:0.85;margin-top:6px;">Stock × Precio Casa</div>
       </div>
       <div style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;padding:18px;border-radius:12px;box-shadow:0 4px 12px rgba(155,89,182,0.3);">
         <div style="font-size:0.85rem;opacity:0.9;letter-spacing:1px;font-weight:700;">🛒 COMPRAS</div>
@@ -2569,6 +2007,22 @@ body.rol-cajero [data-rol="admin"] {
 
 </div><!-- cierre app-pc -->
 
+<!-- MODAL CÁMARA - fuera de app-pc para móvil -->
+<div class="modal-overlay" id="camara-modal" style="z-index:3000;background:rgba(0,0,0,0.92);">
+  <div style="background:#1a1a2e;border-radius:20px;padding:20px;width:min(95vw,420px);text-align:center;">
+    <div style="font-size:1rem;font-weight:700;color:#e8c84a;margin-bottom:12px;">📷 Escaneá el código</div>
+    <div style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;">
+      <video id="camara-video" autoplay playsinline style="width:100%;max-height:300px;display:block;"></video>
+      <canvas id="camara-canvas" style="display:none;"></canvas>
+    </div>
+    <div id="camara-status" style="margin-top:10px;font-size:0.8rem;color:#8888aa;">Iniciando...</div>
+    <div style="display:flex;gap:10px;margin-top:14px;justify-content:center;">
+      <button onclick="cambiarCamara()" style="padding:8px 16px;border-radius:10px;border:1px solid #444;background:#2a2a4a;color:#fff;cursor:pointer;font-size:0.8rem;">🔄 Cambiar</button>
+      <button onclick="cerrarCamara()" style="padding:8px 20px;border-radius:10px;border:none;background:#e24b4a;color:#fff;cursor:pointer;font-weight:700;">✕ Cerrar</button>
+    </div>
+  </div>
+
+
 <!-- MODAL FLOTANTE DE VENTA -->
 <div class="modal-overlay" id="venta-modal" style="z-index:1500;">
   <div class="venta-stockfacil" style="width:min(95vw,950px);height:75vh;display:flex;flex-direction:column;overflow:hidden;">
@@ -2727,7 +2181,7 @@ body.rol-cajero [data-rol="admin"] {
         <div id="est-ventas-tipo-cliente"></div>
       </div>
       <div style="background:#fff;border:1px solid #e0e0e8;border-radius:12px;padding:16px;">
-        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">🏆 Top clientes por $ facturado (período)</div>
+        <div style="font-size:0.85rem;font-weight:700;color:#333;margin-bottom:12px;">👑 Top clientes por $ facturado (período)</div>
         <div id="est-top-clientes-facturado"></div>
       </div>
     </div>
@@ -3211,82 +2665,10 @@ function fmtUnidad(valor, tipo) {
 }
 
 // ========== URL DE APPS SCRIPT (cambiar si es necesario) ==========
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0mHAzf3uyFfHVapnyTUTIZANQTj_P6cRNNWV3DFEF35ZmR9Ac1H2mvNrY4WtW0Uo0/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWDaRGHkye087DSZ6llaP2uZSJf074fu-BbKtOpRxCVbl-Vu0ravphH0K_5S3sgWg/exec";
 
 // ========== CLAVE DE ACCESO ==========
-// ============================================================
-// SISTEMA DE USUARIOS Y ROLES
-// ============================================================
-// Hay 4 niveles con permisos diferentes. Cada uno tiene su propia clave.
-// El usuario ingresa la clave y el sistema lo manda al rol correspondiente.
-//
-// IMPORTANTE: las claves se guardan en localStorage para que el admin las
-// pueda cambiar desde el sistema. Si nunca se cambiaron, se usan las
-// iniciales de abajo.
-const CLAVES_INICIALES = {
-  admin:     "admin123",
-  operadora: "compras123",
-  cajero1:   "cajero1",
-  cajero2:   "cajero2"
-};
-
-const ROLES_INFO = {
-  admin:     { nombre: "Don Ramón",   icono: "👑", color: "#6b1818" },
-  operadora: { nombre: "Operadora",   icono: "📝", color: "#1f5f9e" },
-  cajero1:   { nombre: "Cajero 1",    icono: "💼", color: "#27500a" },
-  cajero2:   { nombre: "Cajero 2",    icono: "💼", color: "#a06820" }
-};
-
-// Pestañas que ve cada rol (las que NO están acá quedan ocultas)
-const PESTANAS_PERMITIDAS = {
-  admin:     "TODAS",  // ve todo
-  operadora: ["compra","proveedores"],  // solo compras y proveedores. NO stock.
-  cajero1:   ["surtidor","venta","cigarrillos","cuentas"],
-  cajero2:   ["surtidor","venta","cigarrillos","cuentas"]
-};
-
-// Botones/acciones bloqueadas según rol (selectores CSS)
-const ACCIONES_BLOQUEADAS = {
-  admin:     [],  // ninguna
-  operadora: [],  // por ahora ninguna, ya tiene acceso solo a compra/proveedores
-  cajero1:   [],
-  cajero2:   []
-};
-
-let _rolActual = null; // se llena al loguearse: 'admin' | 'operadora' | 'cajero1' | 'cajero2'
-
-function getClavesActuales(){
-  // Lee las claves desde localStorage. Si no existen, usa las iniciales.
-  try {
-    const guardadas = localStorage.getItem('ER_CLAVES_USUARIOS');
-    if(guardadas){
-      const obj = JSON.parse(guardadas);
-      // Mergear con las iniciales por si falta alguna
-      return { ...CLAVES_INICIALES, ...obj };
-    }
-  } catch(e) {}
-  return { ...CLAVES_INICIALES };
-}
-
-function guardarClaves(claves){
-  try {
-    localStorage.setItem('ER_CLAVES_USUARIOS', JSON.stringify(claves));
-    return true;
-  } catch(e) { return false; }
-}
-
-function getRolPorClave(claveIngresada){
-  const claves = getClavesActuales();
-  for(const rol in claves){
-    if(claves[rol] === claveIngresada){
-      return rol;
-    }
-  }
-  return null;
-}
-
-// Compatibilidad con código viejo
-const CLAVE_ACCESO = "admin123"; // ya no se usa, queda por compatibilidad
+const CLAVE_ACCESO = "admin123";
 const KEY_AUTH = "MINIMARKET_AUTH_RECORDADO";
 
 // ========== CLAVES DE ALMACENAMIENTO LOCAL ==========
@@ -3304,68 +2686,25 @@ function nowStr(){const d=new Date();return d.toLocaleDateString('es-AR')+' '+d.
 function calcTotal(){return productos.reduce((a,p)=>a+(stock[p.id]||0),0)}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 
-// Variable global: indica si estamos guardando en la nube en este momento
-let _guardandoEnNube = false;
-let _saveTimer = null;
-
-function mostrarBarraGuardando(activo){
-  let div = document.getElementById('barra-guardando');
-  if(!div){
-    div = document.createElement('div');
-    div.id = 'barra-guardando';
-    div.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:12px;background:#f0c040;color:#1a1a2e;text-align:center;font-weight:800;z-index:99999;display:none;font-family:"Segoe UI",Arial,sans-serif;font-size:0.95rem;box-shadow:0 2px 10px rgba(0,0,0,0.3);';
-    div.innerHTML = '💾 Guardando en la nube... <span style="font-weight:600;font-size:0.85rem;">no cierres ni recargues la página</span>';
-    document.body.appendChild(div);
-  }
-  div.style.display = activo ? 'block' : 'none';
-}
-
-// Bloquear el cierre de la página si estamos en medio de un guardado
-window.addEventListener('beforeunload', function(e){
-  if(_guardandoEnNube){
-    e.preventDefault();
-    e.returnValue = 'Hay datos guardándose. Si cerrás ahora podés perder cambios.';
-    return e.returnValue;
-  }
-});
-
 async function saveAll(){
-  // Guardar SIEMPRE en localStorage primero (instantáneo)
-  try { localStorage.setItem(KEY_P,JSON.stringify(productos)); } catch(e){}
-  try { localStorage.setItem(KEY_S,JSON.stringify(stock)); } catch(e){}
-  try { localStorage.setItem(KEY_L,JSON.stringify(log)); } catch(e){}
-  try { localStorage.setItem(KEY_F,JSON.stringify(facturas)); } catch(e){}
-  try { localStorage.setItem(KEY_CLI,JSON.stringify(clientes)); } catch(e){}
-  try { localStorage.setItem(KEY_PROV,JSON.stringify(proveedores)); } catch(e){}
-  try { localStorage.setItem(KEY_CC,JSON.stringify(movimientosCC)); } catch(e){}
-  try { localStorage.setItem(KEY_DESC,JSON.stringify(descuentos)); } catch(e){}
-  try { localStorage.setItem(KEY_GAS,JSON.stringify(gastos)); } catch(e){}
-  try { localStorage.setItem(KEY_TUR,JSON.stringify(turnos)); } catch(e){}
-  
-  // Backup adicional con timestamp por si algo sale mal
-  try {
-    const backup = { ts: Date.now(), fecha: nowStr(), productos, stock, log, facturas, clientes, proveedores, movimientosCC, descuentos, gastos, turnos };
-    localStorage.setItem('mm_backup_seguridad', JSON.stringify(backup));
-  } catch(e){}
-  
+  localStorage.setItem(KEY_P,JSON.stringify(productos));
+  localStorage.setItem(KEY_S,JSON.stringify(stock));
+  localStorage.setItem(KEY_L,JSON.stringify(log));
+  localStorage.setItem(KEY_F,JSON.stringify(facturas));
+  localStorage.setItem(KEY_CLI,JSON.stringify(clientes));
+  localStorage.setItem(KEY_PROV,JSON.stringify(proveedores));
+  localStorage.setItem(KEY_CC,JSON.stringify(movimientosCC));
+  localStorage.setItem(KEY_DESC,JSON.stringify(descuentos));
+  localStorage.setItem(KEY_GAS,JSON.stringify(gastos));
+  localStorage.setItem(KEY_TUR,JSON.stringify(turnos));
   if (!SCRIPT_URL) return;
-  
-  // Mostrar indicador
-  _guardandoEnNube = true;
-  mostrarBarraGuardando(true);
-  
   try{
     const data={productos,stock,log,facturas,clientes,proveedores,movimientosCC,descuentos,gastos,turnos};
     const formData=new FormData();
     formData.append('data', JSON.stringify(data));
     await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body: formData});
     toast('✅ Guardado en la nube');
-  }catch(err){ 
-    toast('⚠️ No subió a la nube (datos guardados local)'); 
-  } finally {
-    _guardandoEnNube = false;
-    mostrarBarraGuardando(false);
-  }
+  }catch(err){ toast('💾 Solo local'); }
 }
 
 function loadFromJsonp(){
@@ -3378,21 +2717,16 @@ function loadFromJsonp(){
     s.src=SCRIPT_URL+'?callback='+cbName+'&t='+Date.now();
     s.onerror=()=>{ delete window[cbName]; resolve(null); };
     document.head.appendChild(s);
-    // Timeout aumentado de 5s a 20s (Sheets puede tardar)
-    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; resolve(null); } },20000);
+    setTimeout(()=>{ if(window[cbName]){ delete window[cbName]; resolve(null); } },5000);
   });
 }
 
 async function loadAll(){
   let loadedFromCloud=false;
-  let intentoNube = false;
-  
   if(SCRIPT_URL){
-    intentoNube = true;
     try{
       const data=await loadFromJsonp();
-      // SOLO si llegan datos válidos con productos, usarlos
-      if(data && data.productos && Array.isArray(data.productos)){
+      if(data && data.productos){
         productos=data.productos; stock=data.stock||{}; log=data.log||[]; facturas=data.facturas||[];
         clientes=data.clientes||[]; proveedores=data.proveedores||[]; movimientosCC=data.movimientosCC||[];
         descuentos=data.descuentos||[]; gastos=data.gastos||[]; turnos=data.turnos||[];
@@ -3402,22 +2736,6 @@ async function loadAll(){
     }catch(e){}
   }
   if(!loadedFromCloud){
-    // Si la nube falló pero el SCRIPT_URL está configurado, advertir al usuario
-    if(intentoNube){
-      // Mostrar cartel rojo CRÍTICO si falla la conexión con la nube
-      setTimeout(() => {
-        let alerta = document.getElementById('alerta-sin-nube');
-        if(!alerta){
-          alerta = document.createElement('div');
-          alerta.id = 'alerta-sin-nube';
-          alerta.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:14px;background:#c0392b;color:#fff;text-align:center;font-weight:800;z-index:99998;font-family:"Segoe UI",Arial,sans-serif;font-size:0.95rem;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:pointer;';
-          alerta.innerHTML = '⚠️ <strong>SIN CONEXIÓN A LA NUBE.</strong> Trabajando con datos locales. <span style="font-weight:600;font-size:0.85rem;">Tocá acá para reintentar.</span>';
-          alerta.onclick = () => { location.reload(); };
-          document.body.appendChild(alerta);
-        }
-      }, 2500);
-    }
-    
     try{const p=localStorage.getItem(KEY_P);if(p)productos=JSON.parse(p)}catch(e){}
     try{const s=localStorage.getItem(KEY_S);if(s)stock=JSON.parse(s)}catch(e){}
     try{const l=localStorage.getItem(KEY_L);if(l)log=JSON.parse(l)}catch(e){}
@@ -3430,13 +2748,13 @@ async function loadAll(){
     try{const tr=localStorage.getItem(KEY_TUR);if(tr)turnos=JSON.parse(tr)}catch(e){}
     if(!productos.length){
       productos=[
-        {id:1,nombre:'Coca-Cola 500ml',marca:'Bebidas',precio:1500,costo:900,barcode:'',tipo:'unidad'},
-        {id:2,nombre:'Agua Mineral 500ml',marca:'Bebidas',precio:800,costo:400,barcode:'',tipo:'unidad'},
-        {id:3,nombre:'Aceite Motor SAE 20W50 1L',marca:'Lubricantes',precio:8500,costo:6200,barcode:'',tipo:'unidad'},
-        {id:4,nombre:'Cigarrillos Marlboro',marca:'Cigarrillos',precio:3000,costo:2400,barcode:'',tipo:'unidad'}
+        {id:1,nombre:'Manzana',marca:'Frutas',precio:800,costo:0,barcode:'',tipo:'peso'},
+        {id:2,nombre:'Pera',marca:'Frutas',precio:700,costo:0,barcode:'',tipo:'peso'},
+        {id:3,nombre:'Arroz 1kg',marca:'Alimentos',precio:1200,costo:0,barcode:'',tipo:'unidad'},
+        {id:4,nombre:'Leche 1L',marca:'Alimentos',precio:1100,costo:0,barcode:'',tipo:'unidad'}
       ];
     }
-    toast('📀 Datos locales');
+    toast('📀 Datos locales (ejemplo)');
   }
   productos.forEach(p=>{if(stock[p.id]===undefined)stock[p.id]=0;if(!p.costo)p.costo=0;if(!p.barcode)p.barcode='';if(!p.tipo)p.tipo='unidad';});
   nextId=Math.max(...productos.map(p=>p.id),99)+1;
@@ -3451,8 +2769,6 @@ async function loadAll(){
   turnoActual = turnos.find(t => !t.cerrado) || null;
   nextCliId = clientes.length ? Math.max(...clientes.map(c=>c.id),0)+1 : 1;
   nextProvId = proveedores.length ? Math.max(...proveedores.map(p=>p.id),0)+1 : 1;
-  // Indicador de éxito en la conexión: ocultar si había alerta previa
-  return loadedFromCloud;
 }
 
 function addLog(tipo,prod,antes,despues,qty, facturaId=null){
@@ -4745,7 +4061,7 @@ function generarTicketTexto(factura, lineas){
   // ENCABEZADO
   t += sep2 + '\n';
   t += center('REINA MI AMOR') + '\n';
-  t += center('Estación Don Ramón') + '\n';
+  t += center('MiniMarket La Reina') + '\n';
   t += center('CUIT: 00-00000000-0') + '\n';
   t += center('Resp. Monotributo') + '\n';
   t += sep2 + '\n';
@@ -5148,11 +4464,36 @@ function updatePreview(){
   if(prevL2 && precioL2El) prevL2.textContent = precioL2El.value ? '$'+fmt(parseNumero(precioL2El.value)) : '—';
   if(prevCasa && casaEl) prevCasa.textContent = casaEl.value ? '$'+fmt(parseNumero(casaEl.value)) : '—';
 }
+// ===== MENÚ DESPLEGABLE GESTIÓN =====
+function toggleGestionMenu(e){
+  if(e) e.stopPropagation();
+  var menu = document.getElementById('gestion-menu');
+  if(!menu) return;
+  menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+}
+function showTabFromMenu(name){
+  var menu = document.getElementById('gestion-menu');
+  if(menu) menu.style.display = 'none';
+  showTab(name, null);
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  var btnGestion = document.getElementById('btn-gestion-menu');
+  if(btnGestion) btnGestion.classList.add('active');
+}
+document.addEventListener('click', function(e){
+  var menu = document.getElementById('gestion-menu');
+  var btn = document.getElementById('btn-gestion-menu');
+  if(!menu || !btn) return;
+  if(!menu.contains(e.target) && !btn.contains(e.target)){
+    menu.style.display = 'none';
+  }
+});
+
 function showTab(name,btn){ 
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); 
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); 
-  document.getElementById('panel-'+name).classList.add('active'); 
-  btn.classList.add('active'); 
+  var panel = document.getElementById('panel-'+name);
+  if(panel) panel.classList.add('active'); 
+  if(btn) btn.classList.add('active');
   if(name==='movimientos') renderLog(); 
   if(name==='facturas') renderFacturas(); 
   if(name==='compra'){ actualizarDatalistCompra(); llenarSelectorProveedoresCompra(); setTimeout(()=>document.getElementById('compra-scan-input').focus(),100); }
@@ -5169,7 +4510,6 @@ function showTab(name,btn){
   if(name==='reportez'){ setReporteZHoy(); }
   if(name==='pedidos'){ renderPedidos(); }
   if(name==='etiquetas'){ inicializarEtiquetas(); }
-  if(name==='cigarrillos'){ if(typeof renderCigarrillos === 'function') renderCigarrillos(); }
 }
 
 // ========== ESTADÍSTICAS ==========
@@ -6187,7 +5527,7 @@ function generarTextoPedido(){
   t += sep2 + '\n';
   t += `Proveedor: ${_pedidoActual.nombreProv}\n`;
   t += `Fecha: ${new Date().toLocaleString('es-AR')}\n`;
-  t += `Cliente: ESTACIÓN DON RAMÓN\n`;
+  t += `Cliente: REINA MI AMOR — MiniMarket La Reina\n`;
   t += sep + '\n';
   t += 'Cant.  Producto                       Subtotal\n';
   t += sep + '\n';
@@ -7674,13 +7014,23 @@ function renderContabilidad(){
   const desde = desdeStr ? new Date(desdeStr + 'T00:00:00') : new Date(2020,0,1);
   const hasta = hastaStr ? new Date(hastaStr + 'T23:59:59') : new Date();
 
-  // ACTIVOS = stock actual × costo (siempre, no se filtra por fecha)
+  // ACTIVOS = stock actual × costo (lo invertido)
+  // VALOR POTENCIAL = stock actual × precio venta (lo que sacarías si vendés todo)
   let activos = 0;
+  let valorPotencialVenta = 0;
+  let valorPotencialCasa = 0;
   productos.forEach(p => {
     const q = stock[p.id] || 0;
+    if(q <= 0) return;
     const c = p.costo || 0;
+    const v = p.precio || 0;
+    const vc = p.precioCasa || c;
     activos += q * c;
+    valorPotencialVenta += q * v;
+    valorPotencialCasa += q * vc;
   });
+  const gananciaPotencial = valorPotencialVenta - activos;
+  const margenPotencial = activos > 0 ? (gananciaPotencial / activos * 100) : 0;
 
   // Filtrar facturas por rango
   let totalVentas = 0, totalCompras = 0, cmv = 0;
@@ -7729,6 +7079,15 @@ function renderContabilidad(){
   const utilidadNeta = utilidad - totalGastos;
 
   document.getElementById('cont-activos').textContent = '$' + fmt(activos);
+  // Valor potencial de venta (si vendés todo el stock)
+  const elVP = document.getElementById('cont-valor-potencial');
+  if(elVP) elVP.textContent = '$' + fmt(valorPotencialVenta);
+  const elGP = document.getElementById('cont-ganancia-potencial');
+  if(elGP) elGP.textContent = '$' + fmt(gananciaPotencial);
+  const elMP = document.getElementById('cont-margen-potencial');
+  if(elMP) elMP.textContent = `Margen: ${margenPotencial.toFixed(1)}%`;
+  const elPC = document.getElementById('cont-valor-casa');
+  if(elPC) elPC.textContent = '$' + fmt(valorPotencialCasa);
   document.getElementById('cont-ventas').textContent = '$' + fmt(totalVentas);
   document.getElementById('cont-ventas-cant').textContent = `${cantVentas} factura${cantVentas!==1?'s':''}`;
   document.getElementById('cont-compras').textContent = '$' + fmt(totalCompras);
@@ -7838,149 +7197,8 @@ function initEventos(){
   });
 }
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-function autenticar(){ 
-  return new Promise((resolve)=>{ 
-    const ov=document.getElementById('clave-overlay');
-    const inp=document.getElementById('clave-input');
-    const btn=document.getElementById('btn-validar');
-    const err=document.getElementById('clave-error');
-    const rec=document.getElementById('clave-recordar');
-    
-    // Si tenía sesión recordada con rol guardado, recuperarla
-    const rolGuardado = localStorage.getItem('ER_ROL_ACTUAL');
-    if(localStorage.getItem(KEY_AUTH)==="1" && rolGuardado && ROLES_INFO[rolGuardado]){
-      _rolActual = rolGuardado;
-      ov.style.display='none';
-      document.getElementById('app-contenido').style.display='block';
-      aplicarRestriccionesPorRol();
-      resolve(true);
-      return;
-    }
-    
-    const validar=()=>{
-      const rol = getRolPorClave(inp.value);
-      if(rol){
-        _rolActual = rol;
-        if(rec && rec.checked){
-          localStorage.setItem(KEY_AUTH,"1");
-          localStorage.setItem('ER_ROL_ACTUAL', rol);
-        }
-        ov.style.display='none';
-        document.getElementById('app-contenido').style.display='block';
-        aplicarRestriccionesPorRol();
-        const info = ROLES_INFO[rol];
-        toast(`${info.icono} Bienvenido — ${info.nombre}`);
-        resolve(true);
-      } else {
-        err.textContent='Contraseña incorrecta.';
-        inp.value='';
-        inp.focus();
-      }
-    };
-    btn.onclick=validar;
-    inp.onkeypress=e=>{if(e.key==='Enter')validar();};
-    inp.focus();
-  }); 
-}
-
-// Aplicar restricciones según el rol actual
-function aplicarRestriccionesPorRol(){
-  if(!_rolActual) return;
-  const permitidas = PESTANAS_PERMITIDAS[_rolActual];
-  setTimeout(() => {
-    if(permitidas === "TODAS"){
-      document.querySelectorAll('.tab').forEach(tab => { tab.style.display = ''; });
-      const btnMas = document.getElementById('btn-mas');
-      if(btnMas) btnMas.parentElement.style.display = '';
-    } else {
-      document.querySelectorAll('.tab').forEach(tab => {
-        const onclickAttr = tab.getAttribute('onclick') || '';
-        const match = onclickAttr.match(/showTab\('(\w+)'/);
-        if(match){
-          const nombreTab = match[1];
-          if(permitidas.includes(nombreTab)){ tab.style.display = ''; }
-          else { tab.style.display = 'none'; }
-        }
-      });
-      const btnMas = document.getElementById('btn-mas');
-      if(btnMas) btnMas.parentElement.style.display = 'none';
-      const masMenu = document.getElementById('mas-menu');
-      if(masMenu) masMenu.style.display = 'none';
-      
-      const panelActivo = document.querySelector('.panel.active');
-      if(panelActivo){
-        const idActivo = panelActivo.id.replace('panel-', '');
-        if(!permitidas.includes(idActivo)){
-          const primeraPermitida = permitidas[0];
-          const tabPrimera = document.querySelector(`.tab[onclick*="showTab('${primeraPermitida}'"]`);
-          if(tabPrimera){ showTab(primeraPermitida, tabPrimera); }
-        }
-      }
-    }
-    mostrarBadgeRol();
-    aplicarRestriccionesUI();
-  }, 100);
-}
-
-function mostrarBadgeRol(){
-  if(!_rolActual) return;
-  const info = ROLES_INFO[_rolActual];
-  let badge = document.getElementById('badge-rol');
-  if(!badge){
-    badge = document.createElement('span');
-    badge.id = 'badge-rol';
-    badge.style.cssText = `display:inline-flex;align-items:center;padding:6px 12px;background:${info.color};color:#fff;border-radius:20px;font-size:0.82rem;font-weight:700;margin-right:8px;font-family:'Segoe UI',Arial,sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.15);`;
-    const btnCerrar = document.querySelector('button[onclick="cerrarSesion()"]');
-    if(btnCerrar && btnCerrar.parentElement){
-      btnCerrar.parentElement.insertBefore(badge, btnCerrar);
-    }
-  }
-  badge.style.background = info.color;
-  badge.textContent = `${info.icono} ${info.nombre}`;
-}
-
-function aplicarRestriccionesUI(){
-  if(_rolActual === 'admin') return;
-  document.querySelectorAll('button[onclick="limpiarMercaderia()"]').forEach(b => b.style.display = 'none');
-  document.querySelectorAll('button[onclick="recuperarBackupSeguridad()"]').forEach(b => b.style.display = 'none');
-  document.querySelectorAll('button[onclick="exportarBackup()"]').forEach(b => b.style.display = 'none');
-  document.querySelectorAll('label').forEach(lbl => {
-    const inp = lbl.querySelector('input[onchange*="importarBackup"]');
-    const inp2 = lbl.querySelector('input[onchange*="importarCSV"]');
-    if(inp || inp2) lbl.style.display = 'none';
-  });
-  if(_rolActual === 'cajero1' || _rolActual === 'cajero2'){
-    document.body.classList.add('rol-cajero');
-  }
-  if(_rolActual === 'operadora'){
-    document.body.classList.add('rol-operadora');
-  }
-}
-
-function rolPuede(accion){
-  if(!_rolActual) return false;
-  if(_rolActual === 'admin') return true;
-  const permisos = {
-    'modificar_productos': ['admin'],
-    'modificar_precios': ['admin'],
-    'borrar_facturas': ['admin'],
-    'ver_costos': ['admin', 'operadora'],
-    'ver_contabilidad': ['admin'],
-    'ver_gastos': ['admin'],
-    'cargar_compra': ['admin', 'operadora'],
-    'cargar_proveedor': ['admin', 'operadora'],
-    'cargar_cliente': ['admin'],
-    'vender': ['admin', 'cajero1', 'cajero2'],
-    'cobrar_cta_cte': ['admin', 'cajero1', 'cajero2'],
-    'limpiar_datos': ['admin'],
-    'recuperar_backup': ['admin'],
-    'exportar_backup': ['admin'],
-    'importar_datos': ['admin'],
-    'cambiar_claves': ['admin']
-  };
-  return permisos[accion]?.includes(_rolActual) || false;
-}
-function cerrarSesion(){ if(confirm('¿Cerrar sesión en este dispositivo? Tendrás que volver a poner la clave.')){ localStorage.removeItem(KEY_AUTH); localStorage.removeItem('ER_ROL_ACTUAL'); _rolActual = null; location.reload(); } }
+function autenticar(){ return new Promise((resolve)=>{ const ov=document.getElementById('clave-overlay'), inp=document.getElementById('clave-input'), btn=document.getElementById('btn-validar'), err=document.getElementById('clave-error'), rec=document.getElementById('clave-recordar'); if(localStorage.getItem(KEY_AUTH)==="1"){ ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); return; } const validar=()=>{ if(inp.value===CLAVE_ACCESO){ if(rec && rec.checked){ localStorage.setItem(KEY_AUTH,"1"); } ov.style.display='none'; document.getElementById('app-contenido').style.display='block'; resolve(true); } else{ err.textContent='Contraseña incorrecta.'; inp.value=''; inp.focus(); } }; btn.onclick=validar; inp.onkeypress=e=>{if(e.key==='Enter')validar();}; inp.focus(); }); }
+function cerrarSesion(){ if(confirm('¿Cerrar sesión en este dispositivo? Tendrás que volver a poner la clave.')){ localStorage.removeItem(KEY_AUTH); location.reload(); } }
 // ========== INTERFAZ MÓVIL ==========
 function esCelular(){
   return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent) 
@@ -8242,7 +7460,22 @@ async function iniciarStream(){
   try {
     if(camaraStream){ camaraStream.getTracks().forEach(t=>t.stop()); camaraStream = null; }
 
-    // Constraints optimizados para celulares: primero exact, si falla prueba sin exact
+    // Verificar que el navegador soporte acceso a cámara
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      document.getElementById('camara-status').innerHTML = '❌ Tu navegador no soporta cámara.<br>Usá Chrome o Safari actualizados.';
+      return;
+    }
+
+    // Verificar protocolo seguro (HTTPS o localhost) - REQUERIDO para cámara
+    const esLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    const esHTTPS = location.protocol === 'https:';
+    const esArchivo = location.protocol === 'file:';
+    if(!esHTTPS && !esLocalhost && !esArchivo){
+      document.getElementById('camara-status').innerHTML = '❌ Para usar la cámara la página debe estar en HTTPS.<br>Subí el archivo a GitHub Pages.';
+      return;
+    }
+
+    // Constraints optimizados: primero exact, después fallback
     let stream;
     const constraintsExact = { video: { facingMode: { exact: camarasFacingMode }, width:{ideal:1280}, height:{ideal:720} } };
     const constraintsFallback = { video: { facingMode: camarasFacingMode, width:{ideal:1280}, height:{ideal:720} } };
@@ -8267,10 +7500,13 @@ async function iniciarStream(){
     iniciarEscaneo();
   } catch(err){
     let msg = '❌ No se pudo acceder a la cámara.';
-    if(err.name === 'NotAllowedError') msg = '❌ Permiso de cámara denegado. Habilitalo en el navegador.';
-    else if(err.name === 'NotFoundError') msg = '❌ No se encontró ninguna cámara.';
-    else if(err.name === 'NotReadableError') msg = '❌ La cámara está en uso por otra app.';
-    document.getElementById('camara-status').textContent = msg;
+    if(err.name === 'NotAllowedError') msg = '❌ Permiso de cámara denegado.<br>📱 Tocá el candado/icono al lado de la URL → Permitir cámara.';
+    else if(err.name === 'NotFoundError') msg = '❌ No se encontró ninguna cámara en el dispositivo.';
+    else if(err.name === 'NotReadableError') msg = '❌ La cámara está siendo usada por otra app. Cerrala y reintentá.';
+    else if(err.name === 'OverconstrainedError') msg = '❌ La cámara no soporta esa configuración.';
+    else msg = '❌ Error: ' + (err.message || err.name || 'desconocido');
+    document.getElementById('camara-status').innerHTML = msg;
+    console.error('[Cámara]', err);
   }
 }
 
@@ -8338,29 +7574,7 @@ function cerrarCamara(){
   document.getElementById('camara-modal').classList.remove('open');
 }
 
-autenticar().then(()=>{ (async()=>{ 
-  const cargoNube = await loadAll(); 
-  
-  // Solo crear combustibles base si realmente NO hay productos cargados.
-  // Esta condición es estricta para evitar que se pisen datos cuando la
-  // nube tarda o falla momentáneamente.
-  const hayDatosReales = productos.length > 0 && productos.some(p => p.id);
-  const sonSoloEjemplos = productos.length === 4 && 
-                          productos.every(p => [1,2,3,4].includes(p.id)) &&
-                          !productos.some(p => p.esCombustible);
-  
-  if(!hayDatosReales || sonSoloEjemplos){
-    // Está realmente vacío o solo tiene los 4 ejemplos por defecto
-    // → ahí sí podemos inicializar combustibles
-    if(typeof inicializarCombustibles === 'function'){
-      inicializarCombustibles();
-    }
-  }
-  
-  renderAll(); 
-  initEventos(); 
-  iniciarInterfazSegunDispositivo();
-  
+autenticar().then(()=>{ (async()=>{ await loadAll(); renderAll(); initEventos(); iniciarInterfazSegunDispositivo();
   // Inicializar rangos de gastos
   const hoy = new Date().toISOString().split('T')[0];
   const gasDesde = document.getElementById('gasto-desde');
@@ -8864,1271 +8078,6 @@ function renderCaja(){
         }).join('');
   }
 }
-
-// ========================================================================
-// ============================ MÓDULO SURTIDOR ===========================
-// ========================================================================
-
-let despachoActual = null;
-
-function inicializarCombustibles(){
-  const yaHay = productos.some(p => p.esCombustible);
-  if(yaHay) return;
-  
-  const baseCombustibles = [
-    {nombre:'Nafta Súper',     color:'nafta-super',    capacidadTanque:20000, precio:1300, costo:1050},
-    {nombre:'Nafta Premium',   color:'nafta-premium',  capacidadTanque:15000, precio:1550, costo:1250},
-    {nombre:'Gasoil Común',    color:'gasoil-comun',   capacidadTanque:25000, precio:1280, costo:1020},
-    {nombre:'Gasoil Premium',  color:'gasoil-premium', capacidadTanque:20000, precio:1480, costo:1180},
-  ];
-  baseCombustibles.forEach(c => {
-    const prod = {
-      id: nextId++,
-      nombre: c.nombre,
-      marca: 'Combustible',
-      familia: 'Combustibles',
-      precio: c.precio,
-      costo: c.costo,
-      barcode: '',
-      tipo: 'litro',
-      esCombustible: true,
-      colorSurtidor: c.color,
-      capacidadTanque: c.capacidadTanque
-    };
-    productos.push(prod);
-    stock[prod.id] = Math.round(c.capacidadTanque * 0.6);
-  });
-  // NO hacemos saveAll() automático para evitar pisar datos en la nube.
-  // Los combustibles quedan en memoria y se guardan cuando el usuario haga su primer cambio.
-  toast('⛽ Combustibles iniciales creados (se guardan al hacer un cambio)');
-}
-
-function combustibles(){
-  return productos.filter(p => p.esCombustible);
-}
-
-function renderTanques(){
-  const cont = document.getElementById('tanques-grid');
-  if(!cont) return;
-  const fuels = combustibles();
-  if(!fuels.length){
-    cont.innerHTML = '<div style="color:#aaa;font-size:0.85rem;padding:14px;text-align:center;grid-column:1/-1;">No hay combustibles cargados. Agregá uno con el botón ➕</div>';
-    return;
-  }
-  cont.innerHTML = fuels.map(p => {
-    const litros = stock[p.id] || 0;
-    const cap = p.capacidadTanque || 1;
-    const pct = Math.max(0, Math.min(100, (litros/cap)*100));
-    const barClass = pct < 15 ? 'critico' : (pct < 30 ? 'bajo' : '');
-    return `<div class="tanque-card">
-      <div class="tanque-nombre">${p.nombre}</div>
-      <div class="tanque-litros">${fmt(litros)} L</div>
-      <div class="tanque-cap">de ${fmt(cap)} L (${pct.toFixed(0)}%)</div>
-      <div class="tanque-bar-wrap"><div class="tanque-bar ${barClass}" style="width:${pct}%;"></div></div>
-      <div class="tanque-acciones">
-        <button onclick="cargarTanqueRapido(${p.id})" title="Registrar carga al tanque (compra al proveedor)">⛽ Cargar</button>
-        <button onclick="ajustarStockTanque(${p.id})" title="Ajustar manualmente">✏️ Ajustar</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function renderSurtidoresBotones(){
-  const cont = document.getElementById('surtidores-grid');
-  if(!cont) return;
-  const fuels = combustibles();
-  if(!fuels.length){
-    cont.innerHTML = '<div style="color:#666;font-size:0.9rem;padding:20px;text-align:center;grid-column:1/-1;background:#f5f5fa;border-radius:10px;">No hay combustibles configurados.<br>Agregá uno con el botón "➕ Nuevo combustible"</div>';
-    return;
-  }
-  cont.innerHTML = fuels.map(p => {
-    const litros = stock[p.id] || 0;
-    const cap = p.capacidadTanque || 1;
-    const pct = Math.max(0, Math.min(100, (litros/cap)*100));
-    const color = p.colorSurtidor || 'otro';
-    let badge = '';
-    if(litros <= 0) badge = '<span class="badge-vacio">VACÍO</span>';
-    else if(pct < 15) badge = '<span class="badge-vacio">CRÍTICO</span>';
-    else if(pct < 30) badge = '<span class="badge-bajo">BAJO</span>';
-    
-    const fillClass = pct < 15 ? 'critico' : (pct < 30 ? 'bajo' : '');
-    
-    return `<div class="surt-card ${color}" onclick="abrirDespacho(${p.id})">
-      ${badge}
-      <div class="surt-nombre">⛽ ${p.nombre}</div>
-      <div class="surt-precio">$${fmt(p.precio)}</div>
-      <div class="surt-precio-sub">por litro</div>
-      <div class="surt-tanque-mini">
-        <div class="surt-tanque-info">
-          <span>Tanque: ${fmt(litros)} L</span>
-          <span>${pct.toFixed(0)}%</span>
-        </div>
-        <div class="surt-tanque-bar"><div class="surt-tanque-fill ${fillClass}" style="width:${pct}%;"></div></div>
-      </div>
-      <div class="surt-precio-edit" onclick="event.stopPropagation();">
-        <span style="font-size:0.78rem;font-weight:600;opacity:0.9;">Cambiar $/L:</span>
-        <input type="text" id="precio-rapido-${p.id}" placeholder="${p.precio}" inputmode="decimal">
-        <button onclick="actualizarPrecioRapido(${p.id})">💾</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function actualizarPrecioRapido(prodId){
-  const inp = document.getElementById('precio-rapido-'+prodId);
-  const nuevo = parseNumero(inp.value);
-  if(isNaN(nuevo) || nuevo <= 0){ toast('Precio inválido'); return; }
-  const prod = productos.find(p => Number(p.id) === Number(prodId));
-  if(!prod) return;
-  const anterior = prod.precio;
-  prod.precio = nuevo;
-  saveAll();
-  renderSurtidoresBotones();
-  toast(`✅ ${prod.nombre}: $${fmt(anterior)} → $${fmt(nuevo)} /L`);
-}
-
-function abrirDespacho(prodId){
-  const prod = productos.find(p => Number(p.id) === Number(prodId));
-  if(!prod){ toast('Combustible no encontrado'); return; }
-  const litros = stock[prod.id] || 0;
-  if(litros <= 0){
-    if(!confirm(`⚠️ El tanque de ${prod.nombre} está VACÍO o con saldo negativo (${fmt(litros)} L).\n\n¿Querés despachar igual?`)) return;
-  }
-  
-  despachoActual = { prodId: prod.id, precioLt: prod.precio };
-  
-  const header = document.getElementById('desp-header');
-  const color = prod.colorSurtidor || 'otro';
-  const colorMap = {
-    'nafta-super':    'linear-gradient(135deg,#1e7a3e,#2da859)',
-    'nafta-premium':  'linear-gradient(135deg,#6b1818,#a02828)',
-    'gasoil-comun':   'linear-gradient(135deg,#1a3d6b,#2a6cb0)',
-    'gasoil-premium': 'linear-gradient(135deg,#3a2a6b,#5a3da8)',
-    'gnc':            'linear-gradient(135deg,#a06820,#d68910)',
-    'otro':           'linear-gradient(135deg,#4a4a5a,#6a6a8a)',
-  };
-  header.style.background = colorMap[color] || colorMap.otro;
-  document.getElementById('desp-titulo').textContent = `⛽ Despachar ${prod.nombre}`;
-  
-  document.getElementById('desp-precio-lt').value = prod.precio;
-  document.getElementById('desp-litros').value = '';
-  document.getElementById('desp-pesos').value = '';
-  document.getElementById('desp-total').textContent = '$0';
-  document.getElementById('desp-patente').value = '';
-  document.getElementById('desp-empleado').value = localStorage.getItem('ER_ULTIMO_EMPLEADO') || '';
-  document.getElementById('desp-pico').value = '';
-  document.getElementById('desp-pago').value = 'efectivo';
-  
-  const sel = document.getElementById('desp-cliente');
-  sel.innerHTML = '<option value="">— Consumidor Final —</option>' +
-    clientes.slice().sort((a,b) => (a.apellido||'').localeCompare(b.apellido||'')).map(c => {
-      const saldo = calcularSaldoCC('cliente', c.id);
-      const lbl = `${c.apellido||''} ${c.nombre||''}${saldo>0?` (Debe $${fmt(saldo)})`:''}`;
-      return `<option value="${c.id}">${lbl}</option>`;
-    }).join('');
-  sel.value = '';
-  
-  document.getElementById('despacho-modal').classList.add('open');
-  setTimeout(() => document.getElementById('desp-litros').focus(), 100);
-}
-
-function cerrarDespacho(){
-  document.getElementById('despacho-modal').classList.remove('open');
-  despachoActual = null;
-}
-
-function getPrecioLtDespacho(){
-  const v = parseNumero(document.getElementById('desp-precio-lt').value);
-  return (!isNaN(v) && v > 0) ? v : (despachoActual ? despachoActual.precioLt : 0);
-}
-
-function calcularDespachoDesdeLitros(){
-  const litros = parseNumero(document.getElementById('desp-litros').value);
-  const precio = getPrecioLtDespacho();
-  if(isNaN(litros) || precio <= 0){ document.getElementById('desp-pesos').value=''; document.getElementById('desp-total').textContent='$0'; return; }
-  const pesos = Math.round(litros * precio);
-  document.getElementById('desp-pesos').value = pesos;
-  document.getElementById('desp-total').textContent = '$' + fmt(pesos);
-}
-
-function calcularDespachoDesdePesos(){
-  const pesos = parseNumero(document.getElementById('desp-pesos').value);
-  const precio = getPrecioLtDespacho();
-  if(isNaN(pesos) || precio <= 0){ document.getElementById('desp-litros').value=''; document.getElementById('desp-total').textContent='$0'; return; }
-  const litros = Math.round((pesos / precio) * 100) / 100;
-  document.getElementById('desp-litros').value = litros;
-  document.getElementById('desp-total').textContent = '$' + fmt(pesos);
-}
-
-function recalcularDespachoPorPrecio(){
-  const litros = parseNumero(document.getElementById('desp-litros').value);
-  if(!isNaN(litros) && litros > 0){
-    calcularDespachoDesdeLitros();
-  } else {
-    const pesos = parseNumero(document.getElementById('desp-pesos').value);
-    if(!isNaN(pesos) && pesos > 0) calcularDespachoDesdePesos();
-  }
-}
-
-function ponerMontoDespacho(monto){
-  document.getElementById('desp-pesos').value = monto;
-  calcularDespachoDesdePesos();
-}
-
-function ponerLitrosDespacho(modo){
-  if(modo === 'lleno' && despachoActual){
-    const restante = stock[despachoActual.prodId] || 0;
-    document.getElementById('desp-litros').value = restante > 0 ? Math.floor(restante) : 0;
-    calcularDespachoDesdeLitros();
-  }
-}
-
-function onCambioPagoDespacho(){
-  const fp = document.getElementById('desp-pago').value;
-  const cli = document.getElementById('desp-cliente');
-  if(fp === 'cuenta_corriente'){
-    cli.style.borderColor = '#e24b4a';
-    cli.style.background = '#fde8e8';
-    if(!cli.value) toast('⚠️ Seleccioná el cliente para cuenta corriente');
-  } else {
-    cli.style.borderColor = '';
-    cli.style.background = '';
-  }
-}
-
-function onCambioClienteDespacho(){
-  const cliId = document.getElementById('desp-cliente').value;
-  if(cliId){
-    const cli = clientes.find(c => Number(c.id) === Number(cliId));
-    if(cli && cli.listaPrecio === 'lista2'){
-      document.getElementById('desp-pago').value = 'cuenta_corriente';
-      onCambioPagoDespacho();
-    }
-  }
-}
-
-async function confirmarDespacho(){
-  if(!despachoActual){ toast('Sin despacho activo'); return; }
-  const prod = productos.find(p => Number(p.id) === Number(despachoActual.prodId));
-  if(!prod){ toast('Combustible no encontrado'); return; }
-  
-  const litros = parseNumero(document.getElementById('desp-litros').value);
-  const pesos = parseNumero(document.getElementById('desp-pesos').value);
-  const precioLt = getPrecioLtDespacho();
-  
-  if(isNaN(litros) || litros <= 0){ toast('⚠️ Ingresá litros o pesos'); return; }
-  if(isNaN(pesos) || pesos <= 0){ toast('⚠️ Total inválido'); return; }
-  
-  const formaPago = document.getElementById('desp-pago').value;
-  const clienteId = document.getElementById('desp-cliente').value;
-  const patente = document.getElementById('desp-patente').value.trim().toUpperCase();
-  const empleado = document.getElementById('desp-empleado').value.trim();
-  const pico = document.getElementById('desp-pico').value.trim();
-  
-  if(formaPago === 'cuenta_corriente' && !clienteId){
-    toast('⚠️ Para cuenta corriente debe seleccionar un cliente');
-    return;
-  }
-  
-  let resumen = `⛽ DESPACHO\n\n`;
-  resumen += `Combustible: ${prod.nombre}\n`;
-  resumen += `Cantidad: ${fmt(litros)} L\n`;
-  resumen += `Precio: $${fmt(precioLt)}/L\n`;
-  resumen += `TOTAL: $${fmt(pesos)}\n\n`;
-  resumen += `Forma de pago: ${formaPago}\n`;
-  if(patente) resumen += `Patente: ${patente}\n`;
-  if(empleado) resumen += `Empleado: ${empleado}\n`;
-  if(pico) resumen += `Pico: ${pico}\n`;
-  if(clienteId){
-    const cli = clientes.find(c => Number(c.id) === Number(clienteId));
-    if(cli) resumen += `Cliente: ${cli.apellido||''} ${cli.nombre||''}\n`;
-  }
-  resumen += `\n¿Confirmar despacho?`;
-  
-  if(!confirm(resumen)) return;
-  
-  if(empleado) localStorage.setItem('ER_ULTIMO_EMPLEADO', empleado);
-  
-  if(Math.abs(precioLt - prod.precio) > 0.01){
-    prod.precio = precioLt;
-  }
-  
-  const fid = Date.now();
-  const antes = stock[prod.id] || 0;
-  stock[prod.id] = Math.round((antes - litros) * 100) / 100;
-  
-  const factura = {
-    id: fid,
-    fecha: nowStr(),
-    total: pesos,
-    lineas: [{
-      prodId: prod.id,
-      cantidad: litros,
-      precioVenta: precioLt,
-      subtotal: pesos,
-      stockAntes: antes
-    }],
-    tipo: 'venta',
-    anulada: false,
-    clienteId: clienteId ? Number(clienteId) : null,
-    formaPago: formaPago,
-    esDespacho: true,
-    patente: patente || null,
-    empleado: empleado || null,
-    pico: pico || null
-  };
-  facturas.push(factura);
-  
-  addLog('venta', prod, antes, stock[prod.id], litros, fid);
-  
-  if(formaPago === 'cuenta_corriente' && clienteId){
-    let conceptoExtra = '';
-    if(patente) conceptoExtra += ` [${patente}]`;
-    movimientosCC.push({
-      id: Date.now() + Math.random(),
-      tipo: 'cliente',
-      entidadId: Number(clienteId),
-      fecha: nowStr(),
-      concepto: `Despacho ${prod.nombre} ${fmt(litros)}L${conceptoExtra} #${fid}`,
-      debe: pesos,
-      haber: 0,
-      facturaId: fid
-    });
-  }
-  
-  saveAll();
-  renderAll();
-  cerrarDespacho();
-  toast(`✅ Despacho registrado: ${fmt(litros)}L · $${fmt(pesos)}`);
-}
-
-function ajustarStockTanque(prodId){
-  const prod = productos.find(p => Number(p.id) === Number(prodId));
-  if(!prod) return;
-  const actual = stock[prod.id] || 0;
-  const nuevo = prompt(`Stock actual de ${prod.nombre}: ${fmt(actual)} L\n\nIngresá el nuevo stock (litros):`, actual);
-  if(nuevo === null) return;
-  const n = parseNumero(nuevo);
-  if(isNaN(n) || n < 0){ toast('Valor inválido'); return; }
-  const antes = actual;
-  stock[prod.id] = Math.round(n * 100) / 100;
-  const diff = stock[prod.id] - antes;
-  addLog('ajuste', prod, antes, stock[prod.id], Math.abs(diff));
-  saveAll();
-  renderAll();
-  toast(`✅ Stock actualizado: ${fmt(antes)} → ${fmt(stock[prod.id])} L`);
-}
-
-function cargarTanqueRapido(prodId){
-  const prod = productos.find(p => Number(p.id) === Number(prodId));
-  if(!prod) return;
-  
-  const litrosStr = prompt(`⛽ Cargar tanque de ${prod.nombre}\n\nStock actual: ${fmt(stock[prod.id]||0)} L\nCapacidad: ${fmt(prod.capacidadTanque||0)} L\n\nLitros recibidos del proveedor:`);
-  if(litrosStr === null) return;
-  const litros = parseNumero(litrosStr);
-  if(isNaN(litros) || litros <= 0){ toast('Cantidad inválida'); return; }
-  
-  const costoStr = prompt(`Costo por litro recibido (actual: $${fmt(prod.costo||0)}):`, prod.costo || 0);
-  if(costoStr === null) return;
-  const costo = parseNumero(costoStr);
-  if(isNaN(costo) || costo < 0){ toast('Costo inválido'); return; }
-  
-  const total = Math.round(litros * costo);
-  if(!confirm(`Registrar carga al tanque:\n\n${prod.nombre}\n+ ${fmt(litros)} L\nCosto $${fmt(costo)}/L\nTOTAL: $${fmt(total)}\n\n¿Confirmar?`)) return;
-  
-  const fid = Date.now();
-  const antes = stock[prod.id] || 0;
-  stock[prod.id] = Math.round((antes + litros) * 100) / 100;
-  
-  if(Math.abs(costo - (prod.costo||0)) > 0.01){
-    prod.costo = costo;
-  }
-  
-  const factura = {
-    id: fid,
-    fecha: nowStr(),
-    total: total,
-    lineas: [{
-      prodId: prod.id,
-      cantidad: litros,
-      precioCosto: costo,
-      subtotal: total,
-      stockAntes: antes
-    }],
-    tipo: 'compra',
-    anulada: false,
-    proveedorId: prod.proveedorId || null,
-    formaPago: 'efectivo',
-    esCargaTanque: true
-  };
-  facturas.push(factura);
-  addLog('compra', prod, antes, stock[prod.id], litros, fid);
-  
-  saveAll();
-  renderAll();
-  toast(`✅ Tanque cargado: +${fmt(litros)}L · $${fmt(total)}`);
-}
-
-function abrirNuevoCombustible(){
-  document.getElementById('comb-nombre').value = '';
-  document.getElementById('comb-color').value = 'nafta-super';
-  document.getElementById('comb-capacidad').value = '20000';
-  document.getElementById('comb-stock').value = '0';
-  document.getElementById('comb-costo').value = '';
-  document.getElementById('comb-precio').value = '';
-  document.getElementById('combustible-modal').classList.add('open');
-  setTimeout(() => document.getElementById('comb-nombre').focus(), 100);
-}
-
-function guardarCombustible(){
-  const nombre = document.getElementById('comb-nombre').value.trim();
-  const color = document.getElementById('comb-color').value;
-  const capacidad = parseNumero(document.getElementById('comb-capacidad').value) || 0;
-  const stockIni = parseNumero(document.getElementById('comb-stock').value) || 0;
-  const costo = parseNumero(document.getElementById('comb-costo').value) || 0;
-  const precio = parseNumero(document.getElementById('comb-precio').value) || 0;
-  
-  if(!nombre){ toast('Falta el nombre'); return; }
-  if(precio <= 0){ toast('Precio de venta inválido'); return; }
-  if(capacidad <= 0){ toast('Capacidad del tanque inválida'); return; }
-  
-  const prod = {
-    id: nextId++,
-    nombre: nombre,
-    marca: 'Combustible',
-    familia: 'Combustibles',
-    precio: precio,
-    costo: costo,
-    barcode: '',
-    tipo: 'litro',
-    esCombustible: true,
-    colorSurtidor: color,
-    capacidadTanque: capacidad
-  };
-  productos.push(prod);
-  stock[prod.id] = stockIni;
-  if(stockIni > 0){
-    addLog('ajuste', prod, 0, stockIni, stockIni);
-  }
-  saveAll();
-  renderAll();
-  document.getElementById('combustible-modal').classList.remove('open');
-  toast(`✅ ${nombre} agregado`);
-}
-
-function renderDespachos(){
-  const cont = document.getElementById('despachos-list');
-  if(!cont) return;
-  
-  const despachos = facturas
-    .filter(f => f.esDespacho && !f.anulada)
-    .sort((a,b) => b.id - a.id)
-    .slice(0, 15);
-  
-  if(!despachos.length){
-    cont.innerHTML = '<div style="color:#888;font-style:italic;padding:14px;text-align:center;">Aún no hay despachos registrados</div>';
-    const r = document.getElementById('desp-resumen-hoy');
-    if(r) r.textContent = '';
-    return;
-  }
-  
-  const hoy = new Date().toLocaleDateString('es-AR');
-  const despachosHoy = facturas.filter(f => f.esDespacho && !f.anulada && f.fecha && f.fecha.includes(hoy));
-  let totalLitrosHoy = 0, totalPesosHoy = 0;
-  despachosHoy.forEach(f => {
-    f.lineas.forEach(l => totalLitrosHoy += (l.cantidad||0));
-    totalPesosHoy += (f.total||0);
-  });
-  const r = document.getElementById('desp-resumen-hoy');
-  if(r) r.innerHTML = `Hoy: <strong>${despachosHoy.length}</strong> despachos · <strong>${fmt(totalLitrosHoy)} L</strong> · <strong style="color:#27500a;">$${fmt(totalPesosHoy)}</strong>`;
-  
-  cont.innerHTML = despachos.map(f => {
-    const linea = f.lineas[0] || {};
-    const prod = productos.find(p => Number(p.id) === Number(linea.prodId));
-    if(!prod) return '';
-    const color = prod.colorSurtidor || 'otro';
-    const colorMap = {
-      'nafta-super':'#2da859','nafta-premium':'#a02828','gasoil-comun':'#2a6cb0',
-      'gasoil-premium':'#5a3da8','gnc':'#d68910','otro':'#6a6a8a'
-    };
-    const bgColor = colorMap[color] || colorMap.otro;
-    
-    let cli = '';
-    if(f.clienteId){
-      const c = clientes.find(c => Number(c.id) === Number(f.clienteId));
-      if(c) cli = ` · 👤 ${c.apellido||''} ${c.nombre||''}`;
-    }
-    const pat = f.patente ? ` · 🚗 ${f.patente}` : '';
-    const emp = f.empleado ? ` · 👷 ${f.empleado}` : '';
-    const pico = f.pico ? ` · #${f.pico}` : '';
-    
-    const pagoEmoji = {efectivo:'💵',transferencia:'📱',tarjeta:'💳',cuenta_corriente:'📋'};
-    
-    return `<div class="desp-log-item">
-      <div class="desp-log-fuel" style="background:${bgColor};">${prod.nombre}</div>
-      <div class="desp-log-info">
-        <div><strong>${fmt(linea.cantidad||0)} L</strong> a $${fmt(linea.precioVenta||0)}/L · ${pagoEmoji[f.formaPago]||''} ${f.formaPago}</div>
-        <div class="meta">${f.fecha}${pat}${cli}${emp}${pico}</div>
-      </div>
-      <div class="desp-log-monto">$${fmt(f.total||0)}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderSurtidor(){
-  renderTanques();
-  renderSurtidoresBotones();
-  renderDespachos();
-}
-
-// Hook para que renderAll y showTab actualicen también el surtidor
-const _renderAllSurt = renderAll;
-renderAll = function(){
-  _renderAllSurt();
-  renderSurtidor();
-};
-
-const _showTabSurt = showTab;
-showTab = function(name, btn){
-  _showTabSurt(name, btn);
-  if(name === 'surtidor') renderSurtidor();
-};
-
-// La inicialización de combustibles ahora se hace DESPUÉS del loadAll
-// (movida al autenticar().then(...) para evitar que pise datos por timing)
-
-// ========================================================================
-// =================== RECUPERAR BACKUP DE SEGURIDAD ====================
-// ========================================================================
-// Si en algún momento se perdieron datos (porque se pisó la nube por error),
-// este botón recupera el último estado bueno guardado en este navegador.
-function recuperarBackupSeguridad(){
-  const raw = localStorage.getItem('mm_backup_seguridad');
-  if(!raw){
-    alert('⚠️ No hay backup de seguridad guardado en este navegador.\n\nLos backups se generan automáticamente cada vez que el sistema guarda datos.');
-    return;
-  }
-  
-  let backup;
-  try {
-    backup = JSON.parse(raw);
-  } catch(e) {
-    alert('❌ El backup está corrupto, no se puede leer.');
-    return;
-  }
-  
-  const fecha = backup.fecha || new Date(backup.ts).toLocaleString('es-AR');
-  const cantProds = backup.productos ? backup.productos.length : 0;
-  const cantFact = backup.facturas ? backup.facturas.length : 0;
-  const cantCli = backup.clientes ? backup.clientes.length : 0;
-  
-  const msg = `🛟 RECUPERAR BACKUP DE SEGURIDAD\n\n` +
-    `Último backup automático:\n` +
-    `📅 Fecha: ${fecha}\n\n` +
-    `Contiene:\n` +
-    `  • ${cantProds} productos\n` +
-    `  • ${cantFact} facturas\n` +
-    `  • ${cantCli} clientes\n\n` +
-    `⚠️ Esto va a REEMPLAZAR los datos actuales con los del backup.\n` +
-    `Si los datos actuales son nuevos, vas a perderlos.\n\n` +
-    `¿Querés continuar?`;
-  
-  if(!confirm(msg)) return;
-  
-  if(!confirm(`⚠️ ÚLTIMA CONFIRMACIÓN\n\nVas a reemplazar todo lo actual con el backup del ${fecha}.\n\n¿Confirmás?`)){
-    toast('Cancelado');
-    return;
-  }
-  
-  // Restaurar todo desde el backup
-  if(backup.productos) productos = backup.productos;
-  if(backup.stock) stock = backup.stock;
-  if(backup.log) log = backup.log;
-  if(backup.facturas) facturas = backup.facturas;
-  if(backup.clientes) clientes = backup.clientes;
-  if(backup.proveedores) proveedores = backup.proveedores;
-  if(backup.movimientosCC) movimientosCC = backup.movimientosCC;
-  if(backup.descuentos) descuentos = backup.descuentos;
-  if(backup.gastos) gastos = backup.gastos;
-  if(backup.turnos) turnos = backup.turnos;
-  
-  nextId = Math.max(...productos.map(p=>p.id), 99) + 1;
-  
-  saveAll();
-  renderAll();
-  toast(`✅ Backup restaurado del ${fecha}`);
-}
-
-// ========================================================================
-// =================== GESTIÓN DE USUARIOS Y CLAVES ======================
-// ========================================================================
-
-function abrirGestionUsuarios(){
-  if(!rolPuede('cambiar_claves')){
-    toast('⚠️ Solo el admin puede cambiar contraseñas');
-    return;
-  }
-  
-  const claves = getClavesActuales();
-  
-  // Crear modal si no existe
-  let modal = document.getElementById('usuarios-modal');
-  if(!modal){
-    modal = document.createElement('div');
-    modal.id = 'usuarios-modal';
-    modal.className = 'modal-overlay';
-    modal.style.zIndex = '2500';
-    modal.innerHTML = `
-      <div class="modal" style="width:min(95vw,560px);padding:0;background:#fff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;overflow:hidden;">
-        <div style="background:linear-gradient(135deg,#1a3a6b,#2980b9);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="font-size:1.1rem;font-weight:800;">👥 Gestión de usuarios</span>
-          <button onclick="document.getElementById('usuarios-modal').classList.remove('open');" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:30px;height:30px;border-radius:6px;font-size:1rem;cursor:pointer;">✕</button>
-        </div>
-        <div style="padding:18px 20px;" id="usuarios-modal-body">
-          <!-- contenido dinámico -->
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-  }
-  
-  // Llenar el contenido
-  const body = document.getElementById('usuarios-modal-body');
-  body.innerHTML = `
-    <div style="font-size:0.85rem;color:#666;margin-bottom:14px;background:#fff8e0;padding:10px;border-radius:6px;border-left:3px solid #f0c040;">
-      ℹ️ <strong>Importante</strong>: cambiá las contraseñas iniciales por unas propias.
-      Las claves se guardan solo en este navegador (no en la nube), así que cada vez que abras el sistema en un dispositivo nuevo, tenés que ponérselas otra vez.
-    </div>
-    
-    ${Object.keys(ROLES_INFO).map(rol => {
-      const info = ROLES_INFO[rol];
-      const claveActual = claves[rol] || '(sin definir)';
-      return `
-      <div style="background:#f5f5fa;border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid ${info.color};">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <div>
-            <div style="font-size:1rem;font-weight:800;color:${info.color};">${info.icono} ${info.nombre}</div>
-            <div style="font-size:0.72rem;color:#888;">Rol: ${rol}</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:6px;">
-          <input type="text" id="clave-${rol}" value="${claveActual}" style="flex:1;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-family:monospace;font-size:0.9rem;">
-          <button onclick="guardarClaveRol('${rol}')" style="padding:8px 14px;background:#27500a;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.85rem;">💾 Guardar</button>
-        </div>
-      </div>
-      `;
-    }).join('')}
-    
-    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;border-top:1px solid #ddd;padding-top:14px;">
-      <button onclick="document.getElementById('usuarios-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:5px;font-weight:700;cursor:pointer;">Cerrar</button>
-    </div>
-  `;
-  
-  modal.classList.add('open');
-}
-
-function guardarClaveRol(rol){
-  const inp = document.getElementById('clave-' + rol);
-  const nueva = (inp?.value || '').trim();
-  
-  if(nueva.length < 4){
-    toast('⚠️ La clave debe tener al menos 4 caracteres');
-    return;
-  }
-  
-  // Verificar que no se duplique con otra
-  const claves = getClavesActuales();
-  for(const otroRol in claves){
-    if(otroRol !== rol && claves[otroRol] === nueva){
-      toast(`⚠️ Esa clave ya está usada por ${ROLES_INFO[otroRol].nombre}`);
-      return;
-    }
-  }
-  
-  claves[rol] = nueva;
-  if(guardarClaves(claves)){
-    const info = ROLES_INFO[rol];
-    toast(`✅ Clave de ${info.nombre} actualizada`);
-  } else {
-    toast('❌ Error al guardar');
-  }
-}
-
-// ========================================================================
-// =================== MENÚ DESPLEGABLE "MÁS" ============================
-// ========================================================================
-// Las pestañas Estadísticas, Análisis, Descuentos, Reporte Z, Pedidos y
-// Etiquetas están agrupadas en un menú desplegable para no saturar la barra.
-
-function toggleMasMenu(e){
-  if(e) e.stopPropagation();
-  const m = document.getElementById('mas-menu');
-  if(!m) return;
-  m.style.display = (m.style.display === 'block') ? 'none' : 'block';
-}
-
-function cerrarMasMenu(){
-  const m = document.getElementById('mas-menu');
-  if(m) m.style.display = 'none';
-}
-
-function showTabFromMenu(name){
-  // Quitar active de todas las tabs
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  // Quitar active de items del menú
-  document.querySelectorAll('.dropdown-menu-mas .dropdown-item').forEach(t => t.classList.remove('active-item'));
-  // Marcar el item correspondiente
-  const items = document.querySelectorAll('.dropdown-menu-mas .dropdown-item');
-  items.forEach(it => {
-    if(it.getAttribute('onclick') && it.getAttribute('onclick').includes(`'${name}'`)){
-      it.classList.add('active-item');
-    }
-  });
-  // Marcar el botón Más como activo (resaltado)
-  const btnMas = document.getElementById('btn-mas');
-  if(btnMas){
-    btnMas.classList.add('active');
-    btnMas.classList.add('has-active');
-  }
-  // Llamar a showTab pasándole el botón Más como btn (para que showTab no rompa)
-  showTab(name, btnMas);
-  // Cerrar el menú
-  cerrarMasMenu();
-}
-
-// Cerrar el menú al hacer clic afuera
-document.addEventListener('click', function(e){
-  const menu = document.getElementById('mas-menu');
-  const btn = document.getElementById('btn-mas');
-  if(!menu || !btn) return;
-  if(menu.style.display === 'block' && !menu.contains(e.target) && e.target !== btn){
-    cerrarMasMenu();
-  }
-});
-
-// Cuando se hace click en una tab principal, quitar el resaltado del Más
-const _showTabConMenu = showTab;
-showTab = function(name, btn){
-  _showTabConMenu(name, btn);
-  // Si la tab que se abrió NO es del menú Más, sacar resaltado del botón Más
-  const tabsDelMenu = ['estadisticas','analisis','descuentos','reportez','pedidos','etiquetas'];
-  if(!tabsDelMenu.includes(name)){
-    const btnMas = document.getElementById('btn-mas');
-    if(btnMas){
-      btnMas.classList.remove('active');
-      btnMas.classList.remove('has-active');
-    }
-    document.querySelectorAll('.dropdown-menu-mas .dropdown-item').forEach(t => t.classList.remove('active-item'));
-  }
-};
-
-// ========================================================================
-// =================== LIMPIAR MERCADERÍA ================================
-// ========================================================================
-// Borra todos los productos NO combustibles, junto con facturas y log.
-// Mantiene: combustibles del surtidor, clientes, proveedores, cuentas corrientes.
-// Carga 4 productos de ejemplo limpios para empezar de cero.
-function limpiarMercaderia(){
-  // Contar lo que se va a borrar
-  const totalProds = productos.length;
-  const combustiblesActuales = productos.filter(p => p.esCombustible);
-  const noCombustibles = productos.filter(p => !p.esCombustible);
-  const totalFact = facturas ? facturas.length : 0;
-  const totalLog = log ? log.length : 0;
-  
-  if(noCombustibles.length === 0 && totalFact === 0 && totalLog === 0){
-    toast('No hay mercadería para limpiar');
-    return;
-  }
-  
-  // Confirmación 1
-  const msg1 = `🧹 LIMPIAR MERCADERÍA\n\n` +
-    `Se van a BORRAR:\n` +
-    `  • ${noCombustibles.length} productos del minimarket\n` +
-    `  • ${totalFact} facturas (ventas y compras)\n` +
-    `  • ${totalLog} movimientos en historial\n\n` +
-    `Se MANTIENEN:\n` +
-    `  • ${combustiblesActuales.length} combustibles del surtidor\n` +
-    `  • ${clientes ? clientes.length : 0} clientes\n` +
-    `  • ${proveedores ? proveedores.length : 0} proveedores\n` +
-    `  • Cuentas corrientes\n\n` +
-    `Esta acción NO SE PUEDE DESHACER.\n\n` +
-    `¿Estás seguro?`;
-  if(!confirm(msg1)) return;
-  
-  // Confirmación 2 (doble check)
-  const msg2 = `⚠️ ÚLTIMA CONFIRMACIÓN\n\n` +
-    `Vas a borrar ${noCombustibles.length} productos y todo el historial de ventas.\n\n` +
-    `Te recomiendo hacer BACKUP primero (botón 💾).\n\n` +
-    `¿Confirmar y limpiar?`;
-  if(!confirm(msg2)) { toast('Cancelado'); return; }
-  
-  // Hacer la limpieza
-  // 1. Mantener solo combustibles
-  productos = productos.filter(p => p.esCombustible);
-  
-  // 2. Mantener stock solo de combustibles
-  const nuevoStock = {};
-  productos.forEach(p => { nuevoStock[p.id] = stock[p.id] || 0; });
-  stock = nuevoStock;
-  
-  // 3. Borrar facturas
-  facturas = [];
-  
-  // 4. Borrar movimientos del log
-  log = [];
-  
-  // 5. Borrar movimientos de cta cte vinculados a facturas (los pagos manuales se mantienen)
-  // Mejor mantenemos las CCs, son saldos del cliente. Si querés borrar también CC, descomentar:
-  // movimientosCC = [];
-  
-  // 6. Agregar 4 productos de ejemplo limpios
-  let idEjemplo = 100; // empieza en 100 para no chocar con combustibles
-  while(productos.some(p => p.id === idEjemplo)) idEjemplo++;
-  
-  const ejemplos = [
-    {nombre:'Coca-Cola 500ml',     marca:'Bebidas',     precio:1500, costo:900,  tipo:'unidad'},
-    {nombre:'Agua Mineral 500ml',  marca:'Bebidas',     precio:800,  costo:400,  tipo:'unidad'},
-    {nombre:'Aceite Motor 1L',     marca:'Lubricantes', precio:8500, costo:6200, tipo:'unidad'},
-    {nombre:'Cigarrillos',         marca:'Cigarrillos', precio:3000, costo:2400, tipo:'unidad'}
-  ];
-  ejemplos.forEach(e => {
-    const prod = {
-      id: idEjemplo++,
-      nombre: e.nombre,
-      marca: e.marca,
-      familia: e.marca,
-      precio: e.precio,
-      costo: e.costo,
-      barcode: '',
-      tipo: e.tipo,
-      stockMin: 0,
-      stockIdeal: 0
-    };
-    productos.push(prod);
-    stock[prod.id] = 0;
-  });
-  
-  // Actualizar nextId
-  nextId = Math.max(...productos.map(p => p.id), 99) + 1;
-  
-  saveAll();
-  renderAll();
-  toast(`✅ Mercadería limpia. ${ejemplos.length} productos de ejemplo cargados.`);
-}
-
-// ========================================================================
-// =================== FIN MÓDULO SURTIDOR ===============================
-// ========================================================================
-
-// ========================================================================
-// =================== MÓDULO CIGARRILLOS ================================
-// ========================================================================
-// Lista base de los 65 cigarrillos del listado de precios (sin precios)
-const _LISTA_CIGARRILLOS_BASE = [{"nombre": "VIRGINIA SLIM", "barcode": "77993410", "marca": "Virginia"}, {"nombre": "MARLBOR PARLIAMENT", "barcode": "77993403", "marca": "Otra"}, {"nombre": "MARLBORO RED KS X 20", "barcode": "77916433", "marca": "Marlboro"}, {"nombre": "MARLBORO RED BOX X 20", "barcode": "77918482", "marca": "Marlboro"}, {"nombre": "MARLBORO RED BOX X 12", "barcode": "77983343", "marca": "Marlboro"}, {"nombre": "MARLBORO CORAL XL X 20", "barcode": "77968401", "marca": "Marlboro"}, {"nombre": "MARLBORO BOX X 12 FUSION", "barcode": "77978141", "marca": "Marlboro"}, {"nombre": "MARLBORO BOX X 20 FUSION", "barcode": "77947550", "marca": "Marlboro"}, {"nombre": "MARLBORO KS CRAFTED RED", "barcode": "77987303", "marca": "Marlboro"}, {"nombre": "MARLBORO KS CRAFTED AZUL", "barcode": "77993397", "marca": "Marlboro"}, {"nombre": "MARLBORO CRAFTED BOX AZUL", "barcode": "77988225", "marca": "Marlboro"}, {"nombre": "MARLBORO CRAFTED BOX RED", "barcode": "77987297", "marca": "Marlboro"}, {"nombre": "MARLBORO CRAFTED PURPLE X 20", "barcode": "77958099", "marca": "Marlboro"}, {"nombre": "MARLBORO CRAFTED SUAVE X 20", "barcode": "77987310", "marca": "Marlboro"}, {"nombre": "MARLBORO CORAL CRAFTED X 20 BOX", "barcode": "77989345", "marca": "Marlboro"}, {"nombre": "MARLBORO DORADO KS X 20", "barcode": "77905819", "marca": "Marlboro"}, {"nombre": "MARLBORO HARMOY KS X 20", "barcode": "77966759", "marca": "Marlboro"}, {"nombre": "PHILIPS SELECT X 20", "barcode": "77992536", "marca": "Philips"}, {"nombre": "PHILIPS MORRIS KS X 20", "barcode": "77912879", "marca": "Philips"}, {"nombre": "PHILIPS MORRIS BOX X 20", "barcode": "77912954", "marca": "Philips"}, {"nombre": "PHILIPS MORRIS BOX X 12", "barcode": "77981813", "marca": "Philips"}, {"nombre": "PHILIPS MORRIS CAPS X 20", "barcode": "77940735", "marca": "Philips"}, {"nombre": "PHILIPS MORRIS CAPS X 12", "barcode": "77971913", "marca": "Philips"}, {"nombre": "CHESTER RED KS X 20", "barcode": "77953513", "marca": "Chester"}, {"nombre": "CHESTER RED BOX 20", "barcode": "77953476", "marca": "Chester"}, {"nombre": "CHESTER RED BOX X 12", "barcode": "77994059", "marca": "Chester"}, {"nombre": "CHESTER FRESH X 12", "barcode": "77953964", "marca": "Chester"}, {"nombre": "CHESTER FRESH KS X 20", "barcode": "77983916", "marca": "Chester"}, {"nombre": "CHESTER FRESH BOX X 20", "barcode": "77953957", "marca": "Chester"}, {"nombre": "CHESTER PURPLE BOX X 20", "barcode": "77973887", "marca": "Chester"}, {"nombre": "CHESTER CORAL X 20", "barcode": "77982476", "marca": "Chester"}, {"nombre": "PIER RED", "barcode": "77990501", "marca": "Pier"}, {"nombre": "PIER LIMA-LIMON", "barcode": "77965561", "marca": "Pier"}, {"nombre": "PIER VERDE", "barcode": "77990570", "marca": "Pier"}, {"nombre": "LIVERPOOL RED", "barcode": "77990556", "marca": "Liverpool"}, {"nombre": "LIVERPOOL VERDE", "barcode": "77990549", "marca": "Liverpool"}, {"nombre": "LIVERPOOL AZUL", "barcode": "77990525", "marca": "Liverpool"}, {"nombre": "CAMEL BOX", "barcode": "77977205", "marca": "Camel"}, {"nombre": "CAMEL KS", "barcode": "77977212", "marca": "Camel"}, {"nombre": "CAMEL X 12", "barcode": "77988041", "marca": "Camel"}, {"nombre": "CAMEL LEGENDARIO", "barcode": "77990914", "marca": "Camel"}, {"nombre": "LUCKY 20 BOX", "barcode": "77980892", "marca": "Lucky"}, {"nombre": "LUCKY AZUL CONVERTIBLE X 20", "barcode": "77976956", "marca": "Lucky"}, {"nombre": "LUCKY AZUL CONVERTIBLE X 12", "barcode": "77976994", "marca": "Lucky"}, {"nombre": "LUCKY XL PURPLE MIX", "barcode": "77976949", "marca": "Lucky"}, {"nombre": "LUCKY XL 2", "barcode": "", "marca": "Lucky"}, {"nombre": "LUCKY XL 3", "barcode": "", "marca": "Lucky"}, {"nombre": "LUCKY PARIS BOX", "barcode": "77977090", "marca": "Lucky"}, {"nombre": "ROTHMAN 43/70 XL", "barcode": "77977106", "marca": "Rothman"}, {"nombre": "ROTHMANS XL CONV", "barcode": "77977137", "marca": "Rothman"}, {"nombre": "ROTHMAN RED X 20 KS", "barcode": "77955388", "marca": "Rothman"}, {"nombre": "ROTHMAN CONVERTIBLE", "barcode": "", "marca": "Rothman"}, {"nombre": "MELBOURNE KS X 20", "barcode": "77959027", "marca": "Melbourne"}, {"nombre": "MILL KS X 20", "barcode": "77906595", "marca": "Mill"}, {"nombre": "KIEL KS", "barcode": "", "marca": "Kiel"}, {"nombre": "KIEL BOX", "barcode": "77978226", "marca": "Kiel"}, {"nombre": "RED POINT KS", "barcode": "77900883", "marca": "Red Point"}, {"nombre": "RED POINT GREEN KS", "barcode": "77970763", "marca": "Red Point"}, {"nombre": "RED POINT BOX 20", "barcode": "77927965", "marca": "Red Point"}, {"nombre": "RED POINT BOX X 10", "barcode": "77974907", "marca": "Red Point"}, {"nombre": "RED POINT BOX CLICK X 20", "barcode": "77959751", "marca": "Red Point"}, {"nombre": "BOXE KS", "barcode": "78427754", "marca": "Boxe"}, {"nombre": "BOXE BOX VERDE X 20", "barcode": "77961259", "marca": "Boxe"}, {"nombre": "MASTER BOX X 20", "barcode": "", "marca": "Master"}, {"nombre": "MASTERS KS X 20", "barcode": "77941558", "marca": "Master"}];
-
-let cigEditandoId = null;
-let cigFotoTemp = null; // base64 de la foto que se está editando
-let cigFiltroMarca = ''; // filtro de marca activo
-
-// Tomar el ARCHIVO de imagen del input y redimensionar a algo chico
-function onCigFotoSeleccionada(event){
-  const file = event.target.files[0];
-  if(!file) return;
-  if(!file.type.startsWith('image/')){ toast('El archivo no es una imagen'); return; }
-  
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const img = new Image();
-    img.onload = function(){
-      // Redimensionar a max 240x240 manteniendo proporción
-      const MAX = 240;
-      let w = img.width, h = img.height;
-      if(w > h){
-        if(w > MAX){ h = h * (MAX / w); w = MAX; }
-      } else {
-        if(h > MAX){ w = w * (MAX / h); h = MAX; }
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, w, h);
-      // JPEG calidad 0.7 ≈ 10-25 KB
-      cigFotoTemp = canvas.toDataURL('image/jpeg', 0.7);
-      const prev = document.getElementById('cig-foto-preview');
-      prev.style.backgroundImage = `url(${cigFotoTemp})`;
-      prev.textContent = '';
-      document.getElementById('cig-foto-quitar').style.display = 'block';
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-  event.target.value = ''; // resetear input para poder elegir el mismo archivo otra vez
-}
-
-function quitarFotoCigarrillo(){
-  cigFotoTemp = null;
-  const prev = document.getElementById('cig-foto-preview');
-  prev.style.backgroundImage = '';
-  prev.textContent = '🚬';
-  document.getElementById('cig-foto-quitar').style.display = 'none';
-}
-
-function cigCalcPrecio(){
-  const c = parseNumero(document.getElementById('cig-costo').value);
-  const u = parseNumero(document.getElementById('cig-utilidad').value);
-  if(!isNaN(c) && c > 0 && !isNaN(u)){
-    document.getElementById('cig-precio').value = Math.round(c * (1 + u/100));
-  }
-}
-function cigCalcUtil(){
-  const c = parseNumero(document.getElementById('cig-costo').value);
-  const p = parseNumero(document.getElementById('cig-precio').value);
-  if(!isNaN(c) && c > 0 && !isNaN(p) && p > 0){
-    document.getElementById('cig-utilidad').value = ((p - c) / c * 100).toFixed(1);
-  }
-}
-
-function abrirModalCigarrillo(id){
-  cigEditandoId = id || null;
-  cigFotoTemp = null;
-  
-  document.getElementById('cig-modal-titulo').textContent = id ? '🚬 Editar cigarrillo' : '🚬 Nuevo cigarrillo';
-  
-  if(id){
-    const prod = productos.find(p => Number(p.id) === Number(id));
-    if(!prod) return;
-    document.getElementById('cig-nombre').value = prod.nombre || '';
-    document.getElementById('cig-marca').value = prod.marca || '';
-    document.getElementById('cig-barcode').value = prod.barcode || '';
-    document.getElementById('cig-costo').value = prod.costo || '';
-    document.getElementById('cig-precio').value = prod.precio || '';
-    document.getElementById('cig-stock').value = stock[prod.id] || 0;
-    if(prod.costo > 0 && prod.precio > 0){
-      document.getElementById('cig-utilidad').value = ((prod.precio - prod.costo) / prod.costo * 100).toFixed(1);
-    } else {
-      document.getElementById('cig-utilidad').value = '20';
-    }
-    cigFotoTemp = prod.foto || null;
-    const prev = document.getElementById('cig-foto-preview');
-    if(cigFotoTemp){
-      prev.style.backgroundImage = `url(${cigFotoTemp})`;
-      prev.textContent = '';
-      document.getElementById('cig-foto-quitar').style.display = 'block';
-    } else {
-      prev.style.backgroundImage = '';
-      prev.textContent = '🚬';
-      document.getElementById('cig-foto-quitar').style.display = 'none';
-    }
-  } else {
-    document.getElementById('cig-nombre').value = '';
-    document.getElementById('cig-marca').value = '';
-    document.getElementById('cig-barcode').value = '';
-    document.getElementById('cig-costo').value = '';
-    document.getElementById('cig-precio').value = '';
-    document.getElementById('cig-stock').value = '0';
-    document.getElementById('cig-utilidad').value = '20';
-    quitarFotoCigarrillo();
-  }
-  
-  document.getElementById('cigarrillo-modal').classList.add('open');
-  setTimeout(() => document.getElementById('cig-nombre').focus(), 100);
-}
-
-function guardarCigarrillo(){
-  const nombre = document.getElementById('cig-nombre').value.trim();
-  const marca = document.getElementById('cig-marca').value.trim() || 'Cigarrillos';
-  const barcode = document.getElementById('cig-barcode').value.trim();
-  const costo = parseNumero(document.getElementById('cig-costo').value) || 0;
-  const precio = parseNumero(document.getElementById('cig-precio').value) || 0;
-  const stockNuevo = parseNumero(document.getElementById('cig-stock').value) || 0;
-  
-  if(!nombre){ toast('Falta el nombre'); return; }
-  
-  if(barcode && productos.some(p => p.barcode === barcode && Number(p.id) !== Number(cigEditandoId))){
-    toast('❌ Ese código ya existe en otro producto');
-    return;
-  }
-  
-  if(cigEditandoId){
-    // Editar
-    const prod = productos.find(p => Number(p.id) === Number(cigEditandoId));
-    if(!prod) return;
-    prod.nombre = nombre;
-    prod.marca = marca;
-    prod.barcode = barcode;
-    prod.costo = costo;
-    prod.precio = precio;
-    prod.foto = cigFotoTemp;
-    prod.esCigarrillo = true;
-    prod.familia = 'Cigarrillos';
-    const stockAntes = stock[prod.id] || 0;
-    if(Math.round(stockNuevo) !== Math.round(stockAntes)){
-      stock[prod.id] = Math.round(stockNuevo);
-      addLog('ajuste', prod, stockAntes, stock[prod.id], Math.abs(stock[prod.id] - stockAntes));
-    }
-    toast(`✅ ${nombre} actualizado`);
-  } else {
-    // Nuevo
-    const prod = {
-      id: nextId++,
-      nombre: nombre,
-      marca: marca,
-      familia: 'Cigarrillos',
-      precio: precio,
-      costo: costo,
-      barcode: barcode,
-      tipo: 'unidad',
-      esCigarrillo: true,
-      foto: cigFotoTemp,
-      stockMin: 0,
-      stockIdeal: 0
-    };
-    productos.push(prod);
-    stock[prod.id] = Math.round(stockNuevo);
-    if(stockNuevo > 0){
-      addLog('ajuste', prod, 0, stockNuevo, stockNuevo);
-    }
-    toast(`✅ ${nombre} agregado`);
-  }
-  
-  document.getElementById('cigarrillo-modal').classList.remove('open');
-  saveAll();
-  renderAll();
-}
-
-function eliminarCigarrillo(id){
-  const prod = productos.find(p => Number(p.id) === Number(id));
-  if(!prod) return;
-  if(!confirm(`¿Eliminar "${prod.nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
-  productos = productos.filter(p => Number(p.id) !== Number(id));
-  delete stock[id];
-  saveAll();
-  renderAll();
-  toast('Cigarrillo eliminado');
-}
-
-function venderCigarrilloRapido(id){
-  const prod = productos.find(p => Number(p.id) === Number(id));
-  if(!prod) return;
-  if((stock[prod.id] || 0) <= 0){
-    if(!confirm(`⚠️ Stock de ${prod.nombre} es 0. ¿Vender igual?`)) return;
-  }
-  if(prod.precio <= 0){
-    toast('⚠️ Este cigarrillo no tiene precio cargado. Editalo primero.');
-    return;
-  }
-  const cantStr = prompt(`🚬 Vender ${prod.nombre}\n\nPrecio unitario: $${fmt(prod.precio)}\nStock: ${stock[prod.id]||0}\n\n¿Cuántos paquetes?`, '1');
-  if(cantStr === null) return;
-  const cant = parseInt(cantStr);
-  if(isNaN(cant) || cant <= 0){ toast('Cantidad inválida'); return; }
-  
-  const total = cant * prod.precio;
-  if(!confirm(`Confirmar venta:\n\n${cant} × ${prod.nombre}\nTotal: $${fmt(total)}\n\n¿Cobrar en efectivo?`)) return;
-  
-  const fid = Date.now();
-  const antes = stock[prod.id] || 0;
-  stock[prod.id] = antes - cant;
-  
-  const factura = {
-    id: fid, fecha: nowStr(), total: total,
-    lineas: [{ prodId: prod.id, cantidad: cant, precioVenta: prod.precio, subtotal: total, stockAntes: antes }],
-    tipo: 'venta', anulada: false,
-    clienteId: null, formaPago: 'efectivo'
-  };
-  facturas.push(factura);
-  addLog('venta', prod, antes, stock[prod.id], cant, fid);
-  
-  saveAll();
-  renderAll();
-  toast(`✅ Vendido: ${cant} × ${prod.nombre} · $${fmt(total)}`);
-}
-
-function importarListaCigarrillos(){
-  const yaExisten = productos.filter(p => p.esCigarrillo).length;
-  let mensaje = `📋 Vamos a importar ${_LISTA_CIGARRILLOS_BASE.length} cigarrillos del listado de precios.\n\n`;
-  if(yaExisten > 0){
-    mensaje += `Ya tenés ${yaExisten} cigarrillos cargados. Los que ya existen (por código de barras) NO se duplican.\n\n`;
-  }
-  mensaje += `Los cigarrillos se cargan con stock 0 y SIN precio (los completás vos después).\n\n¿Continuar?`;
-  if(!confirm(mensaje)) return;
-  
-  let agregados = 0, salteados = 0;
-  _LISTA_CIGARRILLOS_BASE.forEach(item => {
-    // Saltar si ya existe por código de barras
-    if(item.barcode && productos.some(p => p.barcode === item.barcode)){
-      salteados++; return;
-    }
-    // Saltar si existe por nombre exacto (case insensitive)
-    if(productos.some(p => p.esCigarrillo && p.nombre.toLowerCase() === item.nombre.toLowerCase())){
-      salteados++; return;
-    }
-    const prod = {
-      id: nextId++,
-      nombre: item.nombre,
-      marca: item.marca || 'Cigarrillos',
-      familia: 'Cigarrillos',
-      precio: 0,
-      costo: 0,
-      barcode: item.barcode || '',
-      tipo: 'unidad',
-      esCigarrillo: true,
-      foto: null,
-      stockMin: 0,
-      stockIdeal: 0
-    };
-    productos.push(prod);
-    stock[prod.id] = 0;
-    agregados++;
-  });
-  
-  saveAll();
-  renderAll();
-  toast(`✅ ${agregados} cigarrillos agregados${salteados>0?`, ${salteados} ya existían`:''}`);
-}
-
-function renderCigarrillosFiltroMarcas(){
-  const cont = document.getElementById('cig-filtro-marcas');
-  if(!cont) return;
-  const cigs = productos.filter(p => p.esCigarrillo);
-  const marcas = {};
-  cigs.forEach(p => {
-    const m = p.marca || 'Otra';
-    marcas[m] = (marcas[m] || 0) + 1;
-  });
-  const lista = Object.keys(marcas).sort((a,b) => a.localeCompare(b));
-  let html = `<button class="cig-marca-pill ${cigFiltroMarca===''?'activa':''}" onclick="setCigFiltroMarca('')">📋 Todas (${cigs.length})</button>`;
-  lista.forEach(m => {
-    const activa = cigFiltroMarca === m;
-    html += `<button class="cig-marca-pill ${activa?'activa':''}" onclick="setCigFiltroMarca('${m.replace(/'/g,"\\'")}')">${m} (${marcas[m]})</button>`;
-  });
-  cont.innerHTML = html;
-}
-
-function setCigFiltroMarca(m){
-  cigFiltroMarca = m;
-  renderCigarrillos();
-}
-
-function renderCigarrillos(){
-  const cont = document.getElementById('cig-grid');
-  if(!cont) return;
-  
-  const buscar = (document.getElementById('cig-buscar')?.value || '').toLowerCase().trim();
-  let cigs = productos.filter(p => p.esCigarrillo);
-  
-  // Calcular dashboard sobre TODOS los cigarrillos (no afectado por filtros)
-  const todos = productos.filter(p => p.esCigarrillo);
-  const stockTotal = todos.reduce((a,p) => a + (stock[p.id]||0), 0);
-  const capital = todos.reduce((a,p) => a + ((stock[p.id]||0) * (p.costo||0)), 0);
-  const valorVenta = todos.reduce((a,p) => a + ((stock[p.id]||0) * (p.precio||0)), 0);
-  const utilidad = valorVenta - capital;
-  const margen = capital > 0 ? ((utilidad / capital) * 100) : 0;
-  const marcasUnicas = new Set(todos.map(p => p.marca || 'Otra')).size;
-  
-  // Actualizar tarjetas del dashboard
-  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-  setText('cig-dash-variedades', todos.length);
-  setText('cig-dash-marcas', marcasUnicas + ' marca' + (marcasUnicas !== 1 ? 's' : ''));
-  setText('cig-dash-stock', fmt(stockTotal));
-  setText('cig-dash-capital', '$' + fmt(Math.round(capital)));
-  setText('cig-dash-venta', '$' + fmt(Math.round(valorVenta)));
-  setText('cig-dash-utilidad', '$' + fmt(Math.round(utilidad)));
-  setText('cig-dash-margen', capital > 0 ? `Margen: ${margen.toFixed(1)}% si vendés todo` : 'sin costos cargados');
-  
-  // Actualizar resumen del header
-  const r = document.getElementById('cig-resumen');
-  if(r) r.textContent = `${marcasUnicas} marcas · ${todos.length} variedades · ${stockTotal} paquetes`;
-  
-  // Aplicar filtros para la grilla
-  if(cigFiltroMarca){
-    cigs = cigs.filter(p => (p.marca || 'Otra') === cigFiltroMarca);
-  }
-  if(buscar){
-    cigs = cigs.filter(p => 
-      (p.nombre||'').toLowerCase().includes(buscar) ||
-      (p.marca||'').toLowerCase().includes(buscar) ||
-      (p.barcode||'').toLowerCase().includes(buscar)
-    );
-  }
-  
-  renderCigarrillosFiltroMarcas();
-  
-  if(cigs.length === 0){
-    cont.innerHTML = `<div class="cig-empty">
-      ${todos.length === 0 
-        ? 'No hay cigarrillos cargados.<br><br>📋 Tocá <strong>"Importar lista"</strong> para cargar los 65 del listado de precios,<br>o ➕ <strong>"NUEVO"</strong> para agregar uno.' 
-        : 'Ningún cigarrillo coincide con la búsqueda.'}
-    </div>`;
-    return;
-  }
-  
-  // Ordenar por marca y nombre
-  cigs.sort((a,b) => {
-    const ma = (a.marca||'').localeCompare(b.marca||'');
-    if(ma !== 0) return ma;
-    return (a.nombre||'').localeCompare(b.nombre||'');
-  });
-  
-  cont.innerHTML = cigs.map(p => {
-    const s = stock[p.id] || 0;
-    let stockClass = '';
-    if(s === 0) stockClass = 'sin-stock';
-    else if(s <= 3) stockClass = 'poco-stock';
-    
-    const fotoHtml = p.foto 
-      ? `<div class="cig-card-foto" style="background-image:url(${p.foto});"></div>`
-      : `<div class="cig-card-foto sin-foto">🚬</div>`;
-    
-    const precioHtml = p.precio > 0 
-      ? `<div class="cig-card-precio">$${fmt(p.precio)}</div>`
-      : `<div class="cig-card-precio sin-precio">Sin precio</div>`;
-    
-    return `<div class="cig-card">
-      <div style="position:relative;">
-        ${fotoHtml}
-        ${p.marca ? `<div class="cig-card-marca">${p.marca}</div>` : ''}
-        <div class="cig-card-stock ${stockClass}">${s} u</div>
-      </div>
-      <div class="cig-card-body">
-        <div class="cig-card-nombre">${p.nombre}</div>
-        ${p.barcode ? `<div class="cig-card-codigo">${p.barcode}</div>` : ''}
-        ${precioHtml}
-      </div>
-      <div class="cig-card-acciones">
-        <button class="btn-vender" onclick="venderCigarrilloRapido(${p.id})" title="Vender">💰</button>
-        <button onclick="abrirModalCigarrillo(${p.id})" title="Editar">✏️</button>
-        <button class="btn-del" onclick="eliminarCigarrillo(${p.id})" title="Eliminar">🗑️</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// Hook para que renderAll y showTab actualicen también cigarrillos
-const _renderAllCigs = renderAll;
-renderAll = function(){
-  _renderAllCigs();
-  if(document.getElementById('cig-grid')) renderCigarrillos();
-};
-
-// Hook a renderStock: si se edita el stock desde la pestaña Stock (sin pasar
-// por renderAll), igual sincronizamos la pestaña Cigarrillos.
-const _renderStockOrig = renderStock;
-renderStock = function(){
-  _renderStockOrig();
-  if(document.getElementById('cig-grid')) renderCigarrillos();
-};
-
-const _showTabCigs = showTab;
-showTab = function(name, btn){
-  _showTabCigs(name, btn);
-  if(name === 'cigarrillos') renderCigarrillos();
-};
-
-// ========================================================================
-// =================== FIN MÓDULO CIGARRILLOS ============================
-// ========================================================================
-
 </script>
 </body>
 </html>
