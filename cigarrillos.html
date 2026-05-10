@@ -3455,18 +3455,84 @@ const ACCIONES_BLOQUEADAS = {
 };
 
 let _rolActual = null; // se llena al loguearse: 'admin' | 'operadora' | 'cajero1' | 'cajero2'
+let _usuariosNube = null; // cache de usuarios leídos de la nube
 
 function getClavesActuales(){
-  // Lee las claves desde localStorage. Si no existen, usa las iniciales.
+  // Si tenemos las claves de la nube en cache, usarlas
+  if(_usuariosNube){
+    const claves = {};
+    for(const rol in _usuariosNube){
+      const u = _usuariosNube[rol];
+      // Solo incluir usuarios ACTIVOS (los bloqueados no pueden entrar)
+      if(u.estado === 'activo' || u.estado === 'Activo' || u.estado === 'ACTIVO'){
+        claves[rol] = u.clave;
+      }
+    }
+    return claves;
+  }
+  
+  // Fallback: leer del localStorage o de las iniciales
   try {
     const guardadas = localStorage.getItem('ER_CLAVES_USUARIOS');
     if(guardadas){
       const obj = JSON.parse(guardadas);
-      // Mergear con las iniciales por si falta alguna
       return { ...CLAVES_INICIALES, ...obj };
     }
   } catch(e) {}
   return { ...CLAVES_INICIALES };
+}
+
+// Cargar usuarios desde la nube al inicio
+async function cargarUsuariosDesdeNube(){
+  if(!SCRIPT_URL) return null;
+  return new Promise((resolve) => {
+    const cbName = 'cbu_' + Date.now();
+    window[cbName] = function(data){
+      delete window[cbName];
+      document.getElementById('jsonp-usuarios')?.remove();
+      if(data && data.usuarios){
+        _usuariosNube = data.usuarios;
+        resolve(data.usuarios);
+      } else if(data && data._usuarios){
+        _usuariosNube = data._usuarios;
+        resolve(data._usuarios);
+      } else {
+        resolve(null);
+      }
+    };
+    const s = document.createElement('script');
+    s.id = 'jsonp-usuarios';
+    s.src = SCRIPT_URL + '?accion=leer_usuarios&callback=' + cbName + '&t=' + Date.now();
+    s.onerror = () => { delete window[cbName]; resolve(null); };
+    document.head.appendChild(s);
+    setTimeout(() => { if(window[cbName]){ delete window[cbName]; resolve(null); } }, 15000);
+  });
+}
+
+// Guardar usuarios en la nube (todos los cambios)
+async function guardarUsuariosEnNube(usuarios){
+  if(!SCRIPT_URL) return false;
+  try {
+    const formData = new FormData();
+    formData.append('accion', 'guardar_usuarios');
+    formData.append('usuarios', JSON.stringify(usuarios));
+    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
+    _usuariosNube = usuarios; // actualizar cache local
+    return true;
+  } catch(e){
+    return false;
+  }
+}
+
+// Registrar último acceso de un usuario
+async function registrarAccesoNube(rol){
+  if(!SCRIPT_URL) return;
+  try {
+    const formData = new FormData();
+    formData.append('accion', 'registrar_acceso');
+    formData.append('rol', rol);
+    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
+  } catch(e){}
 }
 
 function guardarClaves(claves){
@@ -8040,27 +8106,67 @@ function initEventos(){
 }
 document.getElementById('hdate').textContent=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 function autenticar(){ 
-  return new Promise((resolve)=>{ 
+  return new Promise(async (resolve)=>{ 
     const ov=document.getElementById('clave-overlay');
     const inp=document.getElementById('clave-input');
     const btn=document.getElementById('btn-validar');
     const err=document.getElementById('clave-error');
     const rec=document.getElementById('clave-recordar');
     
-    // Si tenía sesión recordada con rol guardado, recuperarla
+    // PASO 1: Intentar cargar las claves desde la NUBE primero
+    // Mostrar mensaje "Conectando..." mientras carga
+    if(err) err.textContent = '🔄 Conectando con el servidor...';
+    err.style.color = '#666';
+    
+    try {
+      await cargarUsuariosDesdeNube();
+    } catch(e){}
+    
+    if(err){ err.textContent = ''; err.style.color = '#c0392b'; }
+    
+    // Si tenía sesión recordada con rol guardado, verificar que el rol siga ACTIVO
     const rolGuardado = localStorage.getItem('ER_ROL_ACTUAL');
     if(localStorage.getItem(KEY_AUTH)==="1" && rolGuardado && ROLES_INFO[rolGuardado]){
-      _rolActual = rolGuardado;
-      ov.style.display='none';
-      document.getElementById('app-contenido').style.display='block';
-      aplicarRestriccionesPorRol();
-      resolve(true);
-      return;
+      // Verificar contra la nube que el rol siga activo
+      let rolActivo = true;
+      if(_usuariosNube && _usuariosNube[rolGuardado]){
+        const estado = (_usuariosNube[rolGuardado].estado || '').toLowerCase();
+        rolActivo = (estado === 'activo');
+      }
+      
+      if(rolActivo){
+        _rolActual = rolGuardado;
+        ov.style.display='none';
+        document.getElementById('app-contenido').style.display='block';
+        aplicarRestriccionesPorRol();
+        registrarAccesoNube(rolGuardado);
+        resolve(true);
+        return;
+      } else {
+        // El rol fue bloqueado, limpiar sesión y forzar nuevo login
+        localStorage.removeItem(KEY_AUTH);
+        localStorage.removeItem('ER_ROL_ACTUAL');
+        if(err){
+          err.textContent = '🚫 Tu usuario fue bloqueado. Pedile al admin que te reactive.';
+        }
+      }
     }
     
     const validar=()=>{
+      // Verificar que el usuario no esté bloqueado
       const rol = getRolPorClave(inp.value);
       if(rol){
+        // Doble check: si está en nube, ver que esté activo
+        if(_usuariosNube && _usuariosNube[rol]){
+          const estado = (_usuariosNube[rol].estado || 'activo').toLowerCase();
+          if(estado !== 'activo'){
+            err.textContent = '🚫 Este usuario está bloqueado. Pedile al admin que te reactive.';
+            inp.value='';
+            inp.focus();
+            return;
+          }
+        }
+        
         _rolActual = rol;
         if(rec && rec.checked){
           localStorage.setItem(KEY_AUTH,"1");
@@ -8071,6 +8177,7 @@ function autenticar(){
         aplicarRestriccionesPorRol();
         const info = ROLES_INFO[rol];
         toast(`${info.icono} Bienvenido — ${info.nombre}`);
+        registrarAccesoNube(rol);
         resolve(true);
       } else {
         err.textContent='Contraseña incorrecta.';
@@ -9692,9 +9799,11 @@ function abrirGestionUsuarios(){
     return;
   }
   
-  const claves = getClavesActuales();
-  
-  // Crear modal si no existe
+  // Recargar de la nube por las dudas
+  cargarUsuariosDesdeNube().then(() => {
+    renderizarModalUsuarios();
+  });
+  // Mostrar modal con loader mientras carga
   let modal = document.getElementById('usuarios-modal');
   if(!modal){
     modal = document.createElement('div');
@@ -9702,55 +9811,88 @@ function abrirGestionUsuarios(){
     modal.className = 'modal-overlay';
     modal.style.zIndex = '2500';
     modal.innerHTML = `
-      <div class="modal" style="width:min(95vw,560px);padding:0;background:#fff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;overflow:hidden;">
-        <div style="background:linear-gradient(135deg,#1a3a6b,#2980b9);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;">
+      <div class="modal" style="width:min(95vw,640px);padding:0;background:#fff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;overflow:hidden;max-height:90vh;display:flex;flex-direction:column;">
+        <div style="background:linear-gradient(135deg,#1a3a6b,#2980b9);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
           <span style="font-size:1.1rem;font-weight:800;">👥 Gestión de usuarios</span>
           <button onclick="document.getElementById('usuarios-modal').classList.remove('open');" style="background:rgba(255,255,255,0.2);border:none;color:#fff;width:30px;height:30px;border-radius:6px;font-size:1rem;cursor:pointer;">✕</button>
         </div>
-        <div style="padding:18px 20px;" id="usuarios-modal-body">
-          <!-- contenido dinámico -->
+        <div style="padding:18px 20px;overflow-y:auto;flex:1;" id="usuarios-modal-body">
+          <div style="text-align:center;padding:40px;color:#888;">🔄 Cargando usuarios desde la nube...</div>
         </div>
       </div>
     `;
     document.body.appendChild(modal);
   }
-  
-  // Llenar el contenido
+  modal.classList.add('open');
+}
+
+function renderizarModalUsuarios(){
   const body = document.getElementById('usuarios-modal-body');
+  if(!body) return;
+  
+  // Combinar datos de la nube con info de roles
+  const usuariosNube = _usuariosNube || {};
+  
   body.innerHTML = `
-    <div style="font-size:0.85rem;color:#666;margin-bottom:14px;background:#fff8e0;padding:10px;border-radius:6px;border-left:3px solid #f0c040;">
-      ℹ️ <strong>Importante</strong>: cambiá las contraseñas iniciales por unas propias.
-      Las claves se guardan solo en este navegador (no en la nube), así que cada vez que abras el sistema en un dispositivo nuevo, tenés que ponérselas otra vez.
+    <div style="font-size:0.85rem;color:#666;margin-bottom:14px;background:#e0f0ff;padding:12px;border-radius:6px;border-left:3px solid #1f5f9e;">
+      ☁️ <strong>Las claves se guardan en la nube</strong> (Google Sheets). Cuando cambiás una clave acá, se actualiza para TODOS los dispositivos automáticamente.
     </div>
     
-    ${Object.keys(ROLES_INFO).map(rol => {
+    ${ROLES_VALIDOS_LISTA.map(rol => {
       const info = ROLES_INFO[rol];
-      const claveActual = claves[rol] || '(sin definir)';
+      const datos = usuariosNube[rol] || { clave: CLAVES_INICIALES[rol] || '', estado: 'activo' };
+      const estaActivo = (datos.estado || 'activo').toLowerCase() === 'activo';
+      const ultimoAcceso = datos.ultimoAcceso ? new Date(datos.ultimoAcceso).toLocaleString('es-AR') : 'nunca';
+      
       return `
-      <div style="background:#f5f5fa;border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid ${info.color};">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="background:#f5f5fa;border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid ${info.color};${!estaActivo ? 'opacity:0.6;background:#ffeded;' : ''}">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
           <div>
             <div style="font-size:1rem;font-weight:800;color:${info.color};">${info.icono} ${info.nombre}</div>
             <div style="font-size:0.72rem;color:#888;">Rol: ${rol}</div>
+            <div style="font-size:0.7rem;color:#888;margin-top:2px;">Último acceso: ${ultimoAcceso}</div>
+          </div>
+          <div style="text-align:right;">
+            ${estaActivo 
+              ? `<span style="background:#27500a;color:#fff;font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:12px;">✅ ACTIVO</span>`
+              : `<span style="background:#a02828;color:#fff;font-size:0.72rem;font-weight:700;padding:4px 10px;border-radius:12px;">🚫 BLOQUEADO</span>`
+            }
           </div>
         </div>
-        <div style="display:flex;gap:6px;">
-          <input type="text" id="clave-${rol}" value="${claveActual}" style="flex:1;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-family:monospace;font-size:0.9rem;">
-          <button onclick="guardarClaveRol('${rol}')" style="padding:8px 14px;background:#27500a;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.85rem;">💾 Guardar</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <input type="text" id="clave-${rol}" value="${(datos.clave || '').replace(/"/g, '&quot;')}" 
+                 style="flex:1;min-width:140px;padding:8px;border:1px solid #c0c0c8;border-radius:5px;font-family:monospace;font-size:0.9rem;"
+                 ${!estaActivo ? 'disabled' : ''}>
+          <button onclick="guardarClaveRol('${rol}')" 
+                  style="padding:8px 14px;background:#27500a;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.85rem;"
+                  ${!estaActivo ? 'disabled style="opacity:0.5;"' : ''}>💾 Guardar</button>
+          ${rol !== 'admin' ? (
+            estaActivo
+              ? `<button onclick="bloquearUsuario('${rol}')" style="padding:8px 14px;background:#a02828;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.85rem;">🚫 Bloquear</button>`
+              : `<button onclick="activarUsuario('${rol}')" style="padding:8px 14px;background:#1f5f9e;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.85rem;">✅ Activar</button>`
+          ) : '<span style="font-size:0.7rem;color:#888;align-self:center;padding:0 10px;">(no se puede bloquear)</span>'}
         </div>
       </div>
       `;
     }).join('')}
     
-    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;border-top:1px solid #ddd;padding-top:14px;">
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:space-between;border-top:1px solid #ddd;padding-top:14px;align-items:center;flex-wrap:wrap;">
+      <button onclick="recargarUsuariosNube()" style="padding:8px 14px;background:#888;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.82rem;">🔄 Recargar de la nube</button>
       <button onclick="document.getElementById('usuarios-modal').classList.remove('open');" style="padding:9px 18px;border:1px solid #aaa;background:#e8e8e8;color:#444;border-radius:5px;font-weight:700;cursor:pointer;">Cerrar</button>
     </div>
   `;
-  
-  modal.classList.add('open');
 }
 
-function guardarClaveRol(rol){
+const ROLES_VALIDOS_LISTA = ['admin','operadora','cajero1','cajero2'];
+
+async function recargarUsuariosNube(){
+  toast('🔄 Recargando...');
+  await cargarUsuariosDesdeNube();
+  renderizarModalUsuarios();
+  toast('✅ Datos actualizados');
+}
+
+async function guardarClaveRol(rol){
   const inp = document.getElementById('clave-' + rol);
   const nueva = (inp?.value || '').trim();
   
@@ -9760,20 +9902,71 @@ function guardarClaveRol(rol){
   }
   
   // Verificar que no se duplique con otra
-  const claves = getClavesActuales();
-  for(const otroRol in claves){
-    if(otroRol !== rol && claves[otroRol] === nueva){
-      toast(`⚠️ Esa clave ya está usada por ${ROLES_INFO[otroRol].nombre}`);
-      return;
+  const usuariosNube = _usuariosNube || {};
+  for(const otroRol in usuariosNube){
+    if(otroRol !== rol){
+      const u = usuariosNube[otroRol];
+      if((u.estado || 'activo').toLowerCase() === 'activo' && u.clave === nueva){
+        toast(`⚠️ Esa clave ya está usada por ${ROLES_INFO[otroRol].nombre}`);
+        return;
+      }
     }
   }
   
-  claves[rol] = nueva;
-  if(guardarClaves(claves)){
+  // Actualizar en nube
+  const usuariosActualizados = { ..._usuariosNube };
+  if(!usuariosActualizados[rol]) usuariosActualizados[rol] = { clave: nueva, estado: 'activo' };
+  else usuariosActualizados[rol] = { ...usuariosActualizados[rol], clave: nueva };
+  
+  toast('🔄 Guardando en la nube...');
+  const ok = await guardarUsuariosEnNube(usuariosActualizados);
+  if(ok){
     const info = ROLES_INFO[rol];
     toast(`✅ Clave de ${info.nombre} actualizada`);
+    renderizarModalUsuarios();
   } else {
-    toast('❌ Error al guardar');
+    toast('❌ Error guardando en la nube');
+  }
+}
+
+async function bloquearUsuario(rol){
+  if(rol === 'admin'){
+    toast('⚠️ El admin no se puede bloquear (te quedarías afuera)');
+    return;
+  }
+  
+  const info = ROLES_INFO[rol];
+  if(!confirm(`🚫 ¿Bloquear a ${info.nombre}?\n\nNo va a poder entrar al sistema desde NINGÚN dispositivo hasta que lo reactives.\n\nLa clave se conserva, así que después podés activarlo con la misma clave.`)) return;
+  
+  const usuariosActualizados = { ..._usuariosNube };
+  if(!usuariosActualizados[rol]) usuariosActualizados[rol] = { clave: '', estado: 'bloqueado' };
+  else usuariosActualizados[rol] = { ...usuariosActualizados[rol], estado: 'bloqueado' };
+  
+  toast('🔄 Bloqueando...');
+  const ok = await guardarUsuariosEnNube(usuariosActualizados);
+  if(ok){
+    toast(`🚫 ${info.nombre} bloqueado`);
+    renderizarModalUsuarios();
+  } else {
+    toast('❌ Error');
+  }
+}
+
+async function activarUsuario(rol){
+  const info = ROLES_INFO[rol];
+  if(!confirm(`✅ ¿Reactivar a ${info.nombre}?\n\nVa a poder entrar al sistema con su clave.`)) return;
+  
+  const usuariosActualizados = { ..._usuariosNube };
+  if(!usuariosActualizados[rol]) usuariosActualizados[rol] = { clave: CLAVES_INICIALES[rol] || '', estado: 'activo' };
+  else usuariosActualizados[rol] = { ...usuariosActualizados[rol], estado: 'activo' };
+  
+  toast('🔄 Activando...');
+  const ok = await guardarUsuariosEnNube(usuariosActualizados);
+  if(ok){
+    toast(`✅ ${info.nombre} reactivado`);
+    renderizarModalUsuarios();
+  } else {
+    toast('❌ Error');
   }
 }
 
