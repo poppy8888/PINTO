@@ -11084,21 +11084,13 @@ function vuMostrarTodosCigs(){
 }
 
 function vuBuscadorInput(){
-  // Detectar si es un escaneo rápido (lector USB tipea muy rápido)
-  const ahora = Date.now();
-  const delta = ahora - vuUltimoEscaneo;
-  vuUltimoEscaneo = ahora;
-  
-  clearTimeout(vuBuscadorTimer);
-  vuBuscadorTimer = setTimeout(() => {
-    vuMostrarBusqueda();
-  }, 250); // pequeño retraso para esperar a que termine de escribir
+  // Mostrar resultados INMEDIATAMENTE mientras se escribe (sin delay)
+  vuMostrarBusqueda();
 }
 
 function vuBuscadorKeydown(e){
   if(e.key === 'Enter'){
     e.preventDefault();
-    clearTimeout(vuBuscadorTimer);
     vuProcesarBusqueda();
   }
   if(e.key === 'Escape'){
@@ -11121,13 +11113,30 @@ function vuProcesarBusqueda(){
     vuAgregarProducto(exacto.id, 1);
     document.getElementById('vu-buscador').value = '';
     document.getElementById('vu-resultados').style.display = 'none';
-    // Foco vuelve al buscador para escanear el siguiente
     setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
     return;
   }
   
-  // Si no hay match exacto, mostrar búsqueda
-  vuMostrarBusqueda();
+  // Si hay UN solo resultado en la búsqueda, agregarlo automáticamente
+  const qLow = q.toLowerCase();
+  const resultados = productos.filter(p => {
+    if(p.esCombustible) return false;
+    const nombre = (p.nombre || '').toLowerCase();
+    const barcode = (p.barcode || '').toLowerCase();
+    const marca = (p.marca || '').toLowerCase();
+    return nombre.includes(qLow) || barcode.includes(qLow) || marca.includes(qLow);
+  });
+  
+  if(resultados.length === 1){
+    vuAgregarProducto(resultados[0].id, 1);
+    document.getElementById('vu-buscador').value = '';
+    document.getElementById('vu-resultados').style.display = 'none';
+    setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
+    return;
+  }
+  
+  // Si hay varios, mostrarlos
+  vuMostrarResultados(resultados.slice(0, 30));
 }
 
 function vuMostrarBusqueda(){
@@ -11140,7 +11149,7 @@ function vuMostrarBusqueda(){
     return;
   }
   
-  // Buscar productos que coincidan (NO combustibles porque van por su botón)
+  // Buscar productos que coincidan (excluyendo combustibles)
   let resultados = productos.filter(p => {
     if(p.esCombustible) return false;
     const nombre = (p.nombre || '').toLowerCase();
@@ -11158,24 +11167,32 @@ function vuMostrarResultados(resultados){
   
   if(resultados.length === 0){
     cont.style.display = 'block';
-    cont.innerHTML = '<div style="padding:14px;color:#888;font-size:0.88rem;text-align:center;">❌ No se encontraron productos</div>';
+    cont.style.border = '2px solid #c0392b';
+    cont.innerHTML = '<div style="padding:18px;color:#c0392b;font-size:0.95rem;text-align:center;font-weight:700;">❌ No se encontraron productos<br><span style="font-size:0.78rem;font-weight:400;color:#888;">Probá con otra palabra o cargá el producto desde Stock</span></div>';
     return;
   }
   
   cont.style.display = 'block';
-  cont.innerHTML = resultados.map(p => {
-    const icono = p.esCigarrillo ? '🚬' : '🛒';
-    return `
-    <div onclick="vuAgregarProducto(${p.id}, 1); document.getElementById('vu-resultados').style.display='none'; document.getElementById('vu-buscador').value='';" 
-         style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #eee;cursor:pointer;hover:background:#f5f5fa;"
-         onmouseover="this.style.background='#f5f5fa';" onmouseout="this.style.background='#fff';">
-      <div style="flex:1;">
-        <div style="font-weight:700;font-size:0.92rem;">${icono} ${p.nombre}</div>
-        <div style="font-size:0.72rem;color:#888;">${p.barcode ? '📊 '+p.barcode : ''} ${p.marca ? ' · '+p.marca : ''}</div>
-      </div>
-      <div style="font-weight:800;font-size:1rem;color:#1e7a3e;">$${fmt(p.precio || 0)}</div>
-    </div>`;
-  }).join('');
+  cont.style.border = '2px solid #27500a';
+  cont.innerHTML = `
+    <div style="background:#27500a;color:#fff;padding:8px 14px;font-size:0.8rem;font-weight:700;letter-spacing:0.5px;">
+      🎯 ${resultados.length} resultado${resultados.length !== 1 ? 's' : ''} — Tocá para agregar al ticket
+    </div>
+    ${resultados.map(p => {
+      const icono = p.esCigarrillo ? '🚬' : '🛒';
+      return `
+      <div onclick="vuAgregarProducto(${p.id}, 1); document.getElementById('vu-resultados').style.display='none'; document.getElementById('vu-buscador').value=''; setTimeout(()=>document.getElementById('vu-buscador').focus(),100);" 
+           style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #eee;cursor:pointer;transition:background 0.15s;"
+           onmouseover="this.style.background='#e8f5d8';" 
+           onmouseout="this.style.background='#fff';">
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;">${icono} ${p.nombre}</div>
+          <div style="font-size:0.72rem;color:#888;">${p.barcode ? '📊 '+p.barcode : ''} ${p.marca ? ' · '+p.marca : ''}</div>
+        </div>
+        <div style="font-weight:800;font-size:1.05rem;color:#27500a;">$${fmt(p.precio || 0)}</div>
+      </div>`;
+    }).join('')}
+  `;
 }
 
 function vuAgregarProducto(prodId, cantidad){
