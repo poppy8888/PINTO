@@ -5447,56 +5447,88 @@ function iniciarScannerVenta(){
   const inp = document.getElementById('venta-scan-input');
   if(!inp) return;
   
-  // Mostrar resultados al escribir (búsqueda en tiempo real)
+  // Variables para detectar escáner USB sin Enter
+  let ventaUltimaTecla = 0;
+  let ventaTeclasRapidas = 0;
+  let ventaFinEscaneoTimer = null;
+  
+  // Función reutilizable para procesar el valor escaneado
+  const procesarValor = () => {
+    const code = inp.value.trim();
+    if(!code) return;
+    
+    // 1) Match exacto por barcode
+    let p = productos.find(p => (p.barcode || '').trim() === code);
+    
+    if(!p){
+      // 2) Búsqueda parcial
+      const q = code.toLowerCase();
+      const matches = productos.filter(p2 => {
+        if(p2.esCombustible) return false;
+        const n = (p2.nombre || '').toLowerCase();
+        const b = (p2.barcode || '').toLowerCase();
+        const m = (p2.marca || '').toLowerCase();
+        return n.includes(q) || b.includes(q) || m.includes(q);
+      });
+      
+      if(matches.length === 0){
+        toast("❌ Código no encontrado: " + code);
+        inp.value = '';
+        venta_ocultarResultados();
+        return;
+      }
+      
+      if(matches.length === 1){
+        p = matches[0];
+      } else {
+        venta_mostrarResultadosBusqueda(code);
+        toast(`🎯 ${matches.length} resultados — tocá uno`);
+        return;
+      }
+    }
+    
+    // Agregar al ticket
+    ventaSeleccionarProdId(Number(p.id));
+    agregarLineaVenta();
+    inp.value = '';
+    venta_ocultarResultados();
+    setTimeout(() => inp.focus(), 50);
+  };
+  
+  // Búsqueda en tiempo real + detección automática de escáner USB
   inp.addEventListener('input', function(){
     venta_mostrarResultadosBusqueda(this.value);
+    
+    // Detectar escáner USB por velocidad de tipeo
+    const ahora = Date.now();
+    const delta = ahora - ventaUltimaTecla;
+    ventaUltimaTecla = ahora;
+    
+    if(delta < 50){
+      ventaTeclasRapidas++;
+    } else if(delta > 200){
+      ventaTeclasRapidas = 0;
+    }
+    
+    clearTimeout(ventaFinEscaneoTimer);
+    if(ventaTeclasRapidas >= 4){
+      ventaFinEscaneoTimer = setTimeout(() => {
+        const valor = inp.value.trim();
+        if(valor.length >= 4){
+          procesarValor();
+        }
+        ventaTeclasRapidas = 0;
+      }, 150);
+    }
   });
   
-  // Al apretar Enter: buscar match exacto, si no hay, autoseleccionar único resultado
+  // Procesar al apretar Enter
   inp.addEventListener('keydown', function(e){
     if(e.key === 'Enter'){
       e.preventDefault();
-      const code = this.value.trim();
-      if(!code) return;
-      
-      // 1) Match exacto por barcode (típico de lector USB)
-      let p = productos.find(p => (p.barcode || '').trim() === code);
-      
-      if(!p){
-        // 2) Buscar por coincidencia parcial
-        const q = code.toLowerCase();
-        const matches = productos.filter(p2 => {
-          if(p2.esCombustible) return false;
-          const n = (p2.nombre || '').toLowerCase();
-          const b = (p2.barcode || '').toLowerCase();
-          const m = (p2.marca || '').toLowerCase();
-          return n.includes(q) || b.includes(q) || m.includes(q);
-        });
-        
-        if(matches.length === 0){
-          toast("❌ Código no encontrado: " + code);
-          this.value = '';
-          venta_ocultarResultados();
-          return;
-        }
-        
-        if(matches.length === 1){
-          // Si hay un solo resultado, agregarlo automáticamente
-          p = matches[0];
-        } else {
-          // Si hay varios, mostrar la lista
-          venta_mostrarResultadosBusqueda(code);
-          toast(`🎯 ${matches.length} resultados — tocá uno para agregar`);
-          return;
-        }
-      }
-      
-      // Agregar al ticket
-      ventaSeleccionarProdId(Number(p.id));
-      agregarLineaVenta();
-      this.value = '';
-      venta_ocultarResultados();
-      setTimeout(() => this.focus(), 50);
+      clearTimeout(ventaFinEscaneoTimer);
+      ventaTeclasRapidas = 0;
+      procesarValor();
     }
     
     if(e.key === 'Escape'){
@@ -11161,6 +11193,8 @@ window.addEventListener('beforeunload', function(e){
 let vuTicket = []; // array de items: {tipo, prodId, nombre, cantidad, precioUnit, subtotal, esDespacho}
 let vuBuscadorTimer = null;
 let vuUltimoEscaneo = 0; // timestamp del último escaneo para detectar lectores USB
+let vuTeclasRapidas = 0; // contador de teclas rápidas consecutivas
+let vuFinEscaneoTimer = null; // timer para detectar fin de escaneo
 
 function vuInit(){
   // Renderizar cigarrillos frecuentes
@@ -11221,8 +11255,39 @@ function vuMostrarTodosCigs(){
 }
 
 function vuBuscadorInput(){
-  // Mostrar resultados INMEDIATAMENTE mientras se escribe (sin delay)
+  // Mostrar resultados INMEDIATAMENTE mientras se escribe
   vuMostrarBusqueda();
+  
+  // ============================================================
+  // DETECCIÓN DE ESCÁNER USB SIN ENTER
+  // Los lectores USB escriben muy rápido (5-30ms entre teclas)
+  // Si detectamos varias teclas seguidas y después se queda quieto
+  // → es un escáner que terminó. Procesamos automáticamente.
+  // ============================================================
+  const ahora = Date.now();
+  const delta = ahora - vuUltimoEscaneo;
+  vuUltimoEscaneo = ahora;
+  
+  if(delta < 50){
+    // Tecla muy rápida = probablemente escáner
+    vuTeclasRapidas++;
+  } else if(delta > 200){
+    // Tecla lenta = usuario humano, reiniciar contador
+    vuTeclasRapidas = 0;
+  }
+  
+  // Si llegaron al menos 4 teclas rápidas seguidas y se queda quieto 150ms → es un escaneo
+  clearTimeout(vuFinEscaneoTimer);
+  if(vuTeclasRapidas >= 4){
+    vuFinEscaneoTimer = setTimeout(() => {
+      // Procesar como si hubiera apretado Enter
+      const valorActual = document.getElementById('vu-buscador')?.value || '';
+      if(valorActual.trim().length >= 4){
+        vuProcesarBusqueda();
+      }
+      vuTeclasRapidas = 0;
+    }, 150);
+  }
 }
 
 function vuBuscadorKeydown(e){
