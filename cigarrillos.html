@@ -2039,13 +2039,88 @@ body.rol-operadora #tanques-grid {
     </div>
 
     <!-- Botones de surtidores -->
-    <div style="font-size:0.85rem;font-weight:800;color:#1a1a2e;margin-bottom:10px;letter-spacing:0.5px;">⚡ DESPACHO RÁPIDO — Tocá el combustible</div>
+    <div style="font-size:0.85rem;font-weight:800;color:#1a1a2e;margin-bottom:10px;letter-spacing:0.5px;">⚡ COMBUSTIBLES — Tocá para agregar al ticket</div>
     <div id="surtidores-grid" class="surt-grid"></div>
 
-    <!-- Despachos recientes -->
-    <div style="background:#f5f5fa;border-radius:10px;padding:14px;margin-top:8px;">
+    <!-- BUSCADOR / ESCÁNER USB -->
+    <div style="background:#fff8e0;border:2px solid #f0c040;border-radius:12px;padding:12px;margin-top:14px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="font-size:1.4rem;">📷</div>
+        <div style="flex:1;">
+          <div style="font-size:0.92rem;font-weight:800;color:#7a5a00;">ESCANEAR / BUSCAR PRODUCTO</div>
+          <div style="font-size:0.72rem;color:#888;">Pasá el lector USB o escribí parte del nombre</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="vu-buscador" placeholder="🔍 Listo para escanear..." 
+               style="flex:1;padding:11px 14px;border:2px solid #f0c040;border-radius:8px;font-size:1rem;font-family:monospace;font-weight:700;background:#fff;"
+               oninput="vuBuscadorInput()" 
+               onkeydown="vuBuscadorKeydown(event)">
+        <button onclick="vuMostrarBusqueda()" style="padding:11px 18px;background:#3a2e5e;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.9rem;">🔎 Buscar</button>
+      </div>
+      <div id="vu-resultados" style="display:none;background:#fff;border:1px solid #ddd;border-radius:8px;max-height:280px;overflow-y:auto;margin-top:8px;"></div>
+    </div>
+
+    <!-- CIGARRILLOS FRECUENTES -->
+    <div style="background:#f5e8f0;border-radius:12px;padding:12px;margin-top:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:0.88rem;font-weight:800;color:#6b1818;">🚬 CIGARRILLOS — Tocá para agregar al ticket</div>
+        <button onclick="vuMostrarTodosCigs()" style="padding:5px 12px;background:#6b1818;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.78rem;">📋 Ver todos</button>
+      </div>
+      <div id="vu-cigs-frecuentes" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+    </div>
+
+    <!-- TICKET ACTUAL -->
+    <div id="vu-ticket-cont" style="background:linear-gradient(135deg,#0a3a1a,#1e7a3e);color:#fff;border-radius:14px;padding:16px;margin-top:16px;box-shadow:0 4px 14px rgba(30,122,62,0.3);">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-        <div style="font-size:0.95rem;font-weight:800;color:#1a1a2e;">📋 ÚLTIMOS DESPACHOS</div>
+        <div>
+          <div style="font-size:1.1rem;font-weight:800;letter-spacing:1px;">🛒 TICKET ACTUAL</div>
+          <div style="font-size:0.74rem;opacity:0.85;" id="vu-ticket-items-count">Sin productos cargados</div>
+        </div>
+        <button onclick="vuCancelarTicket()" id="vu-btn-cancelar-ticket" style="padding:6px 12px;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:6px;font-weight:700;cursor:pointer;font-size:0.78rem;display:none;">🗑️ Cancelar ticket</button>
+      </div>
+      
+      <div id="vu-ticket-items" style="background:rgba(0,0,0,0.2);border-radius:8px;padding:10px;min-height:70px;margin-bottom:10px;">
+        <div style="text-align:center;color:rgba(255,255,255,0.5);font-size:0.85rem;font-style:italic;padding:18px 0;">Tocá un combustible, escaneá un producto o tocá un cigarrillo para empezar</div>
+      </div>
+
+      <div style="background:rgba(0,0,0,0.35);border-radius:10px;padding:14px;margin-bottom:12px;text-align:center;">
+        <div style="font-size:0.78rem;opacity:0.85;font-weight:700;letter-spacing:1px;">TOTAL A COBRAR</div>
+        <div id="vu-ticket-total" style="font-size:2.4rem;font-weight:900;font-family:'Consolas',monospace;line-height:1;">$0</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div>
+          <label style="font-size:0.72rem;font-weight:700;opacity:0.9;display:block;margin-bottom:3px;">💳 Forma de pago</label>
+          <select id="vu-forma-pago" onchange="vuOnCambioFormaPago()" style="width:100%;padding:9px;border:none;border-radius:6px;font-weight:700;font-size:0.9rem;color:#1a1a2e;">
+            <option value="efectivo">💵 Efectivo</option>
+            <option value="transferencia">📱 Transferencia</option>
+            <option value="tarjeta">💳 Tarjeta</option>
+            <option value="cuenta_corriente">📋 Cuenta Corriente</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:700;opacity:0.9;display:block;margin-bottom:3px;">🚗 Patente (opcional)</label>
+          <input type="text" id="vu-patente" placeholder="AA123BB" style="width:100%;padding:9px;border:none;border-radius:6px;font-weight:700;font-size:0.9rem;color:#1a1a2e;text-transform:uppercase;">
+        </div>
+      </div>
+
+      <div id="vu-cliente-cont" style="display:none;margin-bottom:10px;">
+        <label style="font-size:0.72rem;font-weight:700;opacity:0.9;display:block;margin-bottom:3px;">👤 Cliente (Cuenta Corriente) *</label>
+        <select id="vu-cliente" style="width:100%;padding:9px;border:none;border-radius:6px;font-weight:700;font-size:0.9rem;color:#1a1a2e;">
+          <option value="">— Elegí cliente —</option>
+        </select>
+      </div>
+
+      <button onclick="vuConfirmarCobro()" id="vu-btn-cobrar" style="width:100%;padding:18px;background:#fff;color:#0a3a1a;border:none;border-radius:10px;font-size:1.2rem;font-weight:900;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,0.2);" disabled>
+        ✅ COBRAR Y FINALIZAR
+      </button>
+    </div>
+
+    <!-- Despachos recientes -->
+    <div style="background:#f5f5fa;border-radius:10px;padding:14px;margin-top:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:0.95rem;font-weight:800;color:#1a1a2e;">📋 ÚLTIMAS VENTAS</div>
         <div style="font-size:0.78rem;color:#666;" id="desp-resumen-hoy"></div>
       </div>
       <div id="despachos-list"></div>
@@ -2132,7 +2207,7 @@ body.rol-operadora #tanques-grid {
       </div>
       <div class="desp-btns">
         <button class="desp-btn-cancel" onclick="cerrarDespacho()">Cancelar</button>
-        <button class="desp-btn-confirm" onclick="confirmarDespacho()">⛽ DESPACHAR</button>
+        <button class="desp-btn-confirm" onclick="confirmarDespacho()">➕ AGREGAR AL TICKET</button>
       </div>
     </div>
   </div>
@@ -9559,87 +9634,28 @@ async function confirmarDespacho(){
   if(isNaN(litros) || litros <= 0){ toast('⚠️ Ingresá litros o pesos'); return; }
   if(isNaN(pesos) || pesos <= 0){ toast('⚠️ Total inválido'); return; }
   
-  const formaPago = document.getElementById('desp-pago').value;
-  const clienteId = document.getElementById('desp-cliente').value;
+  // Guardar patente para auto-rellenar después
   const patente = document.getElementById('desp-patente').value.trim().toUpperCase();
-  const empleado = document.getElementById('desp-empleado').value.trim();
-  const pico = document.getElementById('desp-pico').value.trim();
   
-  if(formaPago === 'cuenta_corriente' && !clienteId){
-    toast('⚠️ Para cuenta corriente debe seleccionar un cliente');
-    return;
-  }
-  
-  let resumen = `⛽ DESPACHO\n\n`;
-  resumen += `Combustible: ${prod.nombre}\n`;
-  resumen += `Cantidad: ${fmt(litros)} L\n`;
-  resumen += `Precio: $${fmt(precioLt)}/L\n`;
-  resumen += `TOTAL: $${fmt(pesos)}\n\n`;
-  resumen += `Forma de pago: ${formaPago}\n`;
-  if(patente) resumen += `Patente: ${patente}\n`;
-  if(empleado) resumen += `Empleado: ${empleado}\n`;
-  if(pico) resumen += `Pico: ${pico}\n`;
-  if(clienteId){
-    const cli = clientes.find(c => Number(c.id) === Number(clienteId));
-    if(cli) resumen += `Cliente: ${cli.apellido||''} ${cli.nombre||''}\n`;
-  }
-  resumen += `\n¿Confirmar despacho?`;
-  
-  if(!confirm(resumen)) return;
-  
-  if(empleado) localStorage.setItem('ER_ULTIMO_EMPLEADO', empleado);
-  
+  // Si el precio cambió, actualizar el precio del producto
   if(Math.abs(precioLt - prod.precio) > 0.01){
     prod.precio = precioLt;
   }
   
-  const fid = Date.now();
-  const antes = stock[prod.id] || 0;
-  stock[prod.id] = Math.round((antes - litros) * 100) / 100;
+  // 🆕 AGREGAR AL TICKET UNIFICADO en vez de cobrar directo
+  vuAgregarCombustible(prod.id, litros, precioLt);
   
-  const factura = {
-    id: fid,
-    fecha: nowStr(),
-    total: pesos,
-    lineas: [{
-      prodId: prod.id,
-      cantidad: litros,
-      precioVenta: precioLt,
-      subtotal: pesos,
-      stockAntes: antes
-    }],
-    tipo: 'venta',
-    anulada: false,
-    clienteId: clienteId ? Number(clienteId) : null,
-    formaPago: formaPago,
-    esDespacho: true,
-    patente: patente || null,
-    empleado: empleado || null,
-    pico: pico || null
-  };
-  facturas.push(factura);
-  
-  addLog('venta', prod, antes, stock[prod.id], litros, fid);
-  
-  if(formaPago === 'cuenta_corriente' && clienteId){
-    let conceptoExtra = '';
-    if(patente) conceptoExtra += ` [${patente}]`;
-    movimientosCC.push({
-      id: Date.now() + Math.random(),
-      tipo: 'cliente',
-      entidadId: Number(clienteId),
-      fecha: nowStr(),
-      concepto: `Despacho ${prod.nombre} ${fmt(litros)}L${conceptoExtra} #${fid}`,
-      debe: pesos,
-      haber: 0,
-      facturaId: fid
-    });
+  // Pasar la patente al ticket si la cargaron
+  if(patente){
+    const inpPatente = document.getElementById('vu-patente');
+    if(inpPatente && !inpPatente.value) inpPatente.value = patente;
   }
   
-  saveAll();
-  renderAll();
+  // Cerrar el modal
   cerrarDespacho();
-  toast(`✅ Despacho registrado: ${fmt(litros)}L · $${fmt(pesos)}`);
+  
+  // Toast informativo
+  toast(`✅ ${fmt(litros)} L agregado al ticket. Podés sumar más productos o COBRAR.`);
 }
 
 function ajustarStockTanque(prodId){
@@ -10997,6 +11013,420 @@ window.addEventListener('beforeunload', function(e){
     return e.returnValue;
   }
 });
+
+// ========================================================================
+// ============= MÓDULO VENTA UNIFICADA (TICKET MULTI-PRODUCTO) ==========
+// ========================================================================
+// Ticket que acumula combustibles + cigarrillos + productos
+// y los cobra todo junto en una sola factura.
+// Es el flujo PRINCIPAL del cajero.
+
+let vuTicket = []; // array de items: {tipo, prodId, nombre, cantidad, precioUnit, subtotal, esDespacho}
+let vuBuscadorTimer = null;
+let vuUltimoEscaneo = 0; // timestamp del último escaneo para detectar lectores USB
+
+function vuInit(){
+  // Renderizar cigarrillos frecuentes
+  vuRenderCigsFrecuentes();
+  // Renderizar el ticket vacío
+  vuRenderTicket();
+  // Cargar clientes en el dropdown
+  vuLlenarClientes();
+}
+
+function vuRenderCigsFrecuentes(){
+  const cont = document.getElementById('vu-cigs-frecuentes');
+  if(!cont) return;
+  
+  // Mostrar los 8 cigarrillos más vendidos (o si no hay historial, los primeros)
+  const cigs = productos.filter(p => p.esCigarrillo);
+  
+  // Contar ventas de cigarrillos
+  const ventasCig = {};
+  (facturas || []).forEach(f => {
+    if(f.anulada) return;
+    (f.lineas || []).forEach(l => {
+      const prod = productos.find(p => Number(p.id) === Number(l.prodId));
+      if(prod && prod.esCigarrillo){
+        ventasCig[prod.id] = (ventasCig[prod.id] || 0) + (l.cantidad || 0);
+      }
+    });
+  });
+  
+  // Ordenar por más vendidos, después por nombre
+  const frecuentes = cigs.sort((a,b) => {
+    const va = ventasCig[a.id] || 0;
+    const vb = ventasCig[b.id] || 0;
+    if(va !== vb) return vb - va;
+    return (a.nombre || '').localeCompare(b.nombre || '');
+  }).slice(0, 12); // top 12
+  
+  if(frecuentes.length === 0){
+    cont.innerHTML = '<div style="font-size:0.8rem;color:#888;padding:8px;">No hay cigarrillos cargados.</div>';
+    return;
+  }
+  
+  cont.innerHTML = frecuentes.map(p => {
+    return `<button onclick="vuAgregarProducto(${p.id}, 1)" 
+            style="padding:8px 12px;background:#fff;border:2px solid #6b1818;color:#3a0a0e;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.82rem;min-width:90px;">
+              ${p.nombre}<br>
+              <span style="font-size:0.8rem;color:#1e7a3e;font-weight:900;">$${fmt(p.precio || 0)}</span>
+            </button>`;
+  }).join('');
+}
+
+function vuMostrarTodosCigs(){
+  // Mostrar TODOS los cigarrillos en el panel de resultados
+  const cont = document.getElementById('vu-resultados');
+  if(!cont) return;
+  const cigs = productos.filter(p => p.esCigarrillo).sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
+  vuMostrarResultados(cigs);
+}
+
+function vuBuscadorInput(){
+  // Detectar si es un escaneo rápido (lector USB tipea muy rápido)
+  const ahora = Date.now();
+  const delta = ahora - vuUltimoEscaneo;
+  vuUltimoEscaneo = ahora;
+  
+  clearTimeout(vuBuscadorTimer);
+  vuBuscadorTimer = setTimeout(() => {
+    vuMostrarBusqueda();
+  }, 250); // pequeño retraso para esperar a que termine de escribir
+}
+
+function vuBuscadorKeydown(e){
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    clearTimeout(vuBuscadorTimer);
+    vuProcesarBusqueda();
+  }
+  if(e.key === 'Escape'){
+    document.getElementById('vu-buscador').value = '';
+    document.getElementById('vu-resultados').style.display = 'none';
+  }
+}
+
+function vuProcesarBusqueda(){
+  // Cuando aprietan Enter, intentar match exacto por código de barras
+  const q = (document.getElementById('vu-buscador')?.value || '').trim();
+  if(!q) return;
+  
+  // Match exacto por barcode (típico de escáner USB)
+  const exacto = productos.find(p => 
+    (p.barcode || '').trim() === q
+  );
+  
+  if(exacto){
+    vuAgregarProducto(exacto.id, 1);
+    document.getElementById('vu-buscador').value = '';
+    document.getElementById('vu-resultados').style.display = 'none';
+    // Foco vuelve al buscador para escanear el siguiente
+    setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
+    return;
+  }
+  
+  // Si no hay match exacto, mostrar búsqueda
+  vuMostrarBusqueda();
+}
+
+function vuMostrarBusqueda(){
+  const q = (document.getElementById('vu-buscador')?.value || '').toLowerCase().trim();
+  const cont = document.getElementById('vu-resultados');
+  if(!cont) return;
+  
+  if(!q){
+    cont.style.display = 'none';
+    return;
+  }
+  
+  // Buscar productos que coincidan (NO combustibles porque van por su botón)
+  let resultados = productos.filter(p => {
+    if(p.esCombustible) return false;
+    const nombre = (p.nombre || '').toLowerCase();
+    const barcode = (p.barcode || '').toLowerCase();
+    const marca = (p.marca || '').toLowerCase();
+    return nombre.includes(q) || barcode.includes(q) || marca.includes(q);
+  });
+  
+  vuMostrarResultados(resultados.slice(0, 30));
+}
+
+function vuMostrarResultados(resultados){
+  const cont = document.getElementById('vu-resultados');
+  if(!cont) return;
+  
+  if(resultados.length === 0){
+    cont.style.display = 'block';
+    cont.innerHTML = '<div style="padding:14px;color:#888;font-size:0.88rem;text-align:center;">❌ No se encontraron productos</div>';
+    return;
+  }
+  
+  cont.style.display = 'block';
+  cont.innerHTML = resultados.map(p => {
+    const icono = p.esCigarrillo ? '🚬' : '🛒';
+    return `
+    <div onclick="vuAgregarProducto(${p.id}, 1); document.getElementById('vu-resultados').style.display='none'; document.getElementById('vu-buscador').value='';" 
+         style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #eee;cursor:pointer;hover:background:#f5f5fa;"
+         onmouseover="this.style.background='#f5f5fa';" onmouseout="this.style.background='#fff';">
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:0.92rem;">${icono} ${p.nombre}</div>
+        <div style="font-size:0.72rem;color:#888;">${p.barcode ? '📊 '+p.barcode : ''} ${p.marca ? ' · '+p.marca : ''}</div>
+      </div>
+      <div style="font-weight:800;font-size:1rem;color:#1e7a3e;">$${fmt(p.precio || 0)}</div>
+    </div>`;
+  }).join('');
+}
+
+function vuAgregarProducto(prodId, cantidad){
+  const prod = productos.find(p => Number(p.id) === Number(prodId));
+  if(!prod){
+    toast('❌ Producto no encontrado');
+    return;
+  }
+  
+  // Si ya está en el ticket, incrementar cantidad
+  const existente = vuTicket.find(it => Number(it.prodId) === Number(prodId) && !it.esDespacho);
+  if(existente){
+    existente.cantidad += cantidad;
+    existente.subtotal = existente.cantidad * existente.precioUnit;
+    toast(`✅ +${cantidad} ${prod.nombre} (total: ${existente.cantidad})`);
+  } else {
+    vuTicket.push({
+      tipo: prod.esCigarrillo ? 'cigarrillo' : 'producto',
+      prodId: prod.id,
+      nombre: prod.nombre,
+      cantidad: cantidad,
+      precioUnit: prod.precio || 0,
+      subtotal: cantidad * (prod.precio || 0),
+      esDespacho: false
+    });
+    toast(`✅ ${prod.nombre} agregado`);
+  }
+  
+  vuRenderTicket();
+  // Foco vuelve al buscador para seguir escaneando
+  setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
+}
+
+function vuAgregarCombustible(prodId, litros, precioLt){
+  const prod = productos.find(p => Number(p.id) === Number(prodId));
+  if(!prod){
+    toast('❌ Combustible no encontrado');
+    return;
+  }
+  
+  const lts = Number(litros) || 0;
+  const punit = Number(precioLt) || prod.precio || 0;
+  if(lts <= 0){
+    toast('⚠️ Cantidad inválida');
+    return;
+  }
+  
+  vuTicket.push({
+    tipo: 'combustible',
+    prodId: prod.id,
+    nombre: prod.nombre,
+    cantidad: lts,
+    precioUnit: punit,
+    subtotal: Math.round(lts * punit * 100) / 100,
+    esDespacho: true
+  });
+  
+  toast(`✅ ${fmt(lts)} L de ${prod.nombre} agregado al ticket`);
+  vuRenderTicket();
+}
+
+function vuQuitarItem(idx){
+  vuTicket.splice(idx, 1);
+  vuRenderTicket();
+}
+
+function vuRenderTicket(){
+  const cont = document.getElementById('vu-ticket-items');
+  const lblCount = document.getElementById('vu-ticket-items-count');
+  const totalEl = document.getElementById('vu-ticket-total');
+  const btnCobrar = document.getElementById('vu-btn-cobrar');
+  const btnCancel = document.getElementById('vu-btn-cancelar-ticket');
+  if(!cont) return;
+  
+  if(vuTicket.length === 0){
+    cont.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);font-size:0.85rem;font-style:italic;padding:18px 0;">Tocá un combustible, escaneá un producto o tocá un cigarrillo para empezar</div>';
+    if(lblCount) lblCount.textContent = 'Sin productos cargados';
+    if(totalEl) totalEl.textContent = '$0';
+    if(btnCobrar){ btnCobrar.disabled = true; btnCobrar.style.opacity = '0.5'; }
+    if(btnCancel) btnCancel.style.display = 'none';
+    return;
+  }
+  
+  let total = 0;
+  cont.innerHTML = vuTicket.map((item, idx) => {
+    total += item.subtotal;
+    const icono = item.esDespacho ? '⛽' : (item.tipo === 'cigarrillo' ? '🚬' : '🛒');
+    const cant = item.esDespacho 
+      ? `${fmt(item.cantidad)} L × $${fmt(item.precioUnit)}` 
+      : `${fmt(item.cantidad)} × $${fmt(item.precioUnit)}`;
+    return `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,0.15);">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:0.92rem;">${icono} ${item.nombre}</div>
+        <div style="font-size:0.72rem;opacity:0.8;">${cant}</div>
+      </div>
+      <div style="font-weight:900;font-size:1rem;font-family:'Consolas',monospace;margin-right:8px;">$${fmt(Math.round(item.subtotal))}</div>
+      <button onclick="vuQuitarItem(${idx})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:26px;height:26px;border-radius:5px;cursor:pointer;font-weight:700;">✗</button>
+    </div>`;
+  }).join('');
+  
+  const cantItems = vuTicket.length;
+  const cantDesp = vuTicket.filter(t => t.esDespacho).length;
+  const cantOtros = cantItems - cantDesp;
+  let resumen = `${cantItems} item${cantItems !== 1 ? 's' : ''}`;
+  if(cantDesp > 0) resumen += ` · ${cantDesp} combustible${cantDesp !== 1 ? 's' : ''}`;
+  if(cantOtros > 0) resumen += ` · ${cantOtros} producto${cantOtros !== 1 ? 's' : ''}`;
+  if(lblCount) lblCount.textContent = resumen;
+  
+  if(totalEl) totalEl.textContent = '$' + fmt(Math.round(total));
+  if(btnCobrar){ btnCobrar.disabled = false; btnCobrar.style.opacity = '1'; }
+  if(btnCancel) btnCancel.style.display = 'inline-block';
+}
+
+function vuCancelarTicket(){
+  if(vuTicket.length === 0) return;
+  if(!confirm(`🗑️ ¿Cancelar el ticket actual?\n\nVas a perder ${vuTicket.length} item${vuTicket.length !== 1 ? 's' : ''} sin cobrar.`)) return;
+  vuTicket = [];
+  vuRenderTicket();
+  toast('Ticket cancelado');
+}
+
+function vuOnCambioFormaPago(){
+  const fp = document.getElementById('vu-forma-pago')?.value;
+  const ccCont = document.getElementById('vu-cliente-cont');
+  if(ccCont){
+    ccCont.style.display = (fp === 'cuenta_corriente') ? 'block' : 'none';
+  }
+}
+
+function vuLlenarClientes(){
+  const sel = document.getElementById('vu-cliente');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">— Elegí cliente —</option>' +
+    (clientes || []).map(c => `<option value="${c.id}">${c.apellido}, ${c.nombre}</option>`).join('');
+}
+
+async function vuConfirmarCobro(){
+  if(vuTicket.length === 0){
+    toast('⚠️ Ticket vacío');
+    return;
+  }
+  
+  const formaPago = document.getElementById('vu-forma-pago')?.value || 'efectivo';
+  const patente = (document.getElementById('vu-patente')?.value || '').trim().toUpperCase();
+  let clienteId = null;
+  
+  if(formaPago === 'cuenta_corriente'){
+    clienteId = document.getElementById('vu-cliente')?.value;
+    if(!clienteId){
+      toast('⚠️ Elegí un cliente para cuenta corriente');
+      return;
+    }
+    clienteId = Number(clienteId);
+  }
+  
+  const total = vuTicket.reduce((acc, it) => acc + it.subtotal, 0);
+  const cantDesp = vuTicket.filter(t => t.esDespacho).length;
+  
+  // Confirmar
+  if(!confirm(`💰 ¿Confirmar el cobro?\n\nTotal: $${fmt(Math.round(total))}\nItems: ${vuTicket.length}\nForma de pago: ${formaPago}\n\nSe va a registrar como una sola factura.`)) return;
+  
+  // Crear UNA SOLA factura con todos los items
+  const fid = Date.now();
+  const lineas = vuTicket.map(it => {
+    const antes = stock[it.prodId] || 0;
+    // Descontar del stock
+    stock[it.prodId] = Math.round((antes - it.cantidad) * 100) / 100;
+    return {
+      prodId: it.prodId,
+      cantidad: it.cantidad,
+      precioVenta: it.precioUnit,
+      subtotal: it.subtotal,
+      stockAntes: antes
+    };
+  });
+  
+  const factura = {
+    id: fid,
+    fecha: nowStr(),
+    total: Math.round(total * 100) / 100,
+    lineas: lineas,
+    tipo: 'venta',
+    anulada: false,
+    clienteId: clienteId,
+    formaPago: formaPago,
+    esDespacho: cantDesp > 0, // si hay combustible, marcar como despacho
+    patente: patente || null,
+    empleado: null,
+    pico: null
+  };
+  
+  facturas.push(factura);
+  
+  // Log de movimientos por cada item
+  vuTicket.forEach(it => {
+    const prod = productos.find(p => Number(p.id) === Number(it.prodId));
+    if(prod){
+      const antes = (stock[prod.id] || 0) + it.cantidad;
+      addLog('venta', prod, antes, stock[prod.id], it.cantidad, fid);
+    }
+  });
+  
+  // Si es cuenta corriente, registrar movimiento de CC
+  if(formaPago === 'cuenta_corriente' && clienteId){
+    movimientosCC.push({
+      id: Date.now() + 1,
+      tipo: 'venta',
+      entidadId: clienteId,
+      fecha: nowStr(),
+      concepto: `Venta unificada #${fid}` + (patente ? ` - ${patente}` : ''),
+      debe: total,
+      haber: 0,
+      facturaId: fid
+    });
+  }
+  
+  // Guardar todo
+  toast('🔄 Guardando...');
+  try {
+    await saveAll();
+    
+    // Limpiar ticket
+    vuTicket = [];
+    document.getElementById('vu-patente').value = '';
+    document.getElementById('vu-buscador').value = '';
+    document.getElementById('vu-resultados').style.display = 'none';
+    if(document.getElementById('vu-cliente')) document.getElementById('vu-cliente').value = '';
+    
+    vuRenderTicket();
+    renderAll();
+    
+    toast(`✅ Cobrado $${fmt(Math.round(total))} (${lineas.length} items)`);
+    
+    // Foco al buscador para empezar el próximo ticket
+    setTimeout(() => document.getElementById('vu-buscador')?.focus(), 200);
+  } catch(e){
+    toast('❌ Error guardando. Reintentá.');
+  }
+}
+
+// Re-renderizar cuando se entra al panel surtidor
+const _showTabVU = showTab;
+showTab = function(name, btn){
+  _showTabVU(name, btn);
+  if(name === 'surtidor'){
+    vuInit();
+    // Foco automático al buscador
+    setTimeout(() => document.getElementById('vu-buscador')?.focus(), 300);
+  }
+};
 
 // ========================================================================
 // =================== MÓDULO MI TURNO (cajeros) =========================
