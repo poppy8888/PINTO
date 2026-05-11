@@ -1997,6 +1997,7 @@ body.rol-operadora #tanques-grid {
   <button class="tab" onclick="showTab('cigarrillos',this)">🚬 Cigarrillos</button>
   <button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button>
   <button class="tab" onclick="showTab('compra',this)">🛒 Compra</button>
+  <button class="tab" onclick="showTab('precios',this)">💲 Precios</button>
   <button class="tab" onclick="showTab('venta',this)">💰 Venta</button>
   <button class="tab" onclick="showTab('facturas',this)">🧾 Facturas</button>
   <button class="tab" onclick="showTab('movimientos',this)">📜 Movimientos</button>
@@ -2450,6 +2451,56 @@ body.rol-operadora #tanques-grid {
 </div>
 
 <!-- PANEL VENTA - vacío, se abre la ventana flotante directo desde la pestaña -->
+<!-- ============= PANEL PRECIOS ============= -->
+<div id="panel-precios" class="panel">
+  <div style="background:linear-gradient(135deg,#a06820,#d68910);color:#fff;padding:14px 20px;border-radius:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+    <div>
+      <div style="font-size:1.3rem;font-weight:800;letter-spacing:1px;">💲 ACTUALIZAR PRECIOS</div>
+      <div style="font-size:0.78rem;opacity:0.9;">Modificá costos y precios de toda la mercadería desde acá</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="aumentarPreciosMasivo()" style="padding:9px 14px;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.5);border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85rem;" title="Aumentar todos los precios un %">📈 Aumento masivo</button>
+      <button id="btn-guardar-precios" onclick="guardarTodosLosPrecios()" style="padding:9px 18px;background:#27500a;color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:0.9rem;box-shadow:0 2px 6px rgba(0,0,0,0.2);">💾 Guardar todos los cambios</button>
+    </div>
+  </div>
+
+  <!-- Indicador de cambios pendientes -->
+  <div id="precios-pendientes" style="display:none;background:#fff8e0;border-left:4px solid #f0c040;padding:10px 14px;border-radius:6px;margin-bottom:12px;font-size:0.88rem;color:#7a5a00;">
+    ⚠️ <strong>Tenés cambios sin guardar.</strong> Acordate de tocar 💾 Guardar todos los cambios antes de salir.
+  </div>
+
+  <!-- Filtros y búsqueda -->
+  <div style="background:#f5f3f8;border-radius:12px;padding:14px;margin-bottom:14px;display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:end;flex-wrap:wrap;">
+    <div>
+      <label style="font-size:0.78rem;color:#666;font-weight:700;display:block;margin-bottom:4px;">🔍 Buscar producto</label>
+      <input type="text" id="precios-buscar" placeholder="Escribí parte del nombre o código..." style="width:100%;padding:9px 12px;border:1px solid #c0c0c8;border-radius:8px;font-size:0.92rem;" oninput="renderPanelPrecios()">
+    </div>
+    <div>
+      <label style="font-size:0.78rem;color:#666;font-weight:700;display:block;margin-bottom:4px;">Familia</label>
+      <select id="precios-filtro-familia" style="padding:9px 12px;border:1px solid #c0c0c8;border-radius:8px;font-size:0.9rem;min-width:140px;" onchange="renderPanelPrecios()">
+        <option value="">Todas</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:0.78rem;color:#666;font-weight:700;display:block;margin-bottom:4px;">Tipo</label>
+      <select id="precios-filtro-tipo" style="padding:9px 12px;border:1px solid #c0c0c8;border-radius:8px;font-size:0.9rem;min-width:160px;" onchange="renderPanelPrecios()">
+        <option value="minimarket">🛒 Solo mercadería</option>
+        <option value="cigarrillos">🚬 Solo cigarrillos</option>
+        <option value="combustibles">⛽ Solo combustibles</option>
+        <option value="todos">Todos los productos</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabla de precios -->
+  <div id="precios-resumen" style="font-size:0.85rem;color:#666;margin-bottom:8px;"></div>
+  <div style="background:#fff;border-radius:12px;overflow:hidden;border:1px solid #ddd;">
+    <div id="precios-tabla-cont" style="max-height:65vh;overflow-y:auto;">
+      <!-- tabla generada dinámicamente -->
+    </div>
+  </div>
+</div>
+
 <div id="panel-venta" class="panel"></div>
 
 <!-- PANEL CONTABILIDAD -->
@@ -3183,7 +3234,8 @@ body.rol-operadora #tanques-grid {
         <label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:3px;">Familia</label>
         <div style="display:flex;gap:4px;">
           <input list="pd-familia-list" id="pd-familia" style="flex:1;padding:7px;border:1px solid #c0c0c8;border-radius:3px;font-size:0.85rem;" placeholder="Elegí o escribí nueva">
-          <button onclick="abrirEditorFamilias()" title="Administrar familias" style="padding:5px 10px;border:1px solid #c0c0c8;background:#e8e8e8;border-radius:3px;cursor:pointer;font-weight:700;font-size:0.85rem;">⋯</button>
+          <button onclick="agregarFamiliaRapida()" title="Crear nueva familia" style="padding:5px 10px;border:1px solid #27500a;background:#27500a;color:#fff;border-radius:3px;cursor:pointer;font-weight:700;font-size:0.85rem;">➕ Nueva</button>
+          <button onclick="abrirEditorFamilias()" title="Administrar todas las familias" style="padding:5px 10px;border:1px solid #c0c0c8;background:#e8e8e8;border-radius:3px;cursor:pointer;font-weight:700;font-size:0.85rem;">⋯</button>
         </div>
         <datalist id="pd-familia-list"></datalist>
       </div>
@@ -3451,7 +3503,7 @@ const ROLES_INFO = {
 // Pestañas que ve cada rol (las que NO están acá quedan ocultas)
 const PESTANAS_PERMITIDAS = {
   admin:     "TODAS",  // ve todo
-  operadora: ["compra","proveedores"],  // solo compras y proveedores. NO stock.
+  operadora: ["compra","proveedores","precios"],  // compras, proveedores y precios. NO stock.
   cajero1:   ["surtidor","venta","cigarrillos","cuentas","miturno"],
   cajero2:   ["surtidor","venta","cigarrillos","cuentas","miturno"]
 };
@@ -4113,6 +4165,54 @@ function abrirEditorFamilias(){
   renderFamiliasLista();
   document.getElementById('familias-editor-modal').classList.add('open');
   setTimeout(()=>document.getElementById('fam-nueva-input').focus(), 100);
+}
+
+// Atajo rápido: crear una familia nueva sin abrir el editor completo
+function agregarFamiliaRapida(){
+  const nombre = prompt('➕ Nueva familia / categoría\n\nEjemplos: Golosinas, Gaseosas, Lácteos, Limpieza, Almacén, Panadería...\n\nNombre:');
+  if(!nombre) return;
+  const limpio = nombre.trim();
+  if(limpio.length < 2){
+    toast('⚠️ El nombre es muy corto');
+    return;
+  }
+  
+  // Verificar que no exista ya
+  const existentes = obtenerListaFamilias();
+  const yaExiste = existentes.some(f => f.toLowerCase() === limpio.toLowerCase());
+  if(yaExiste){
+    toast(`ℹ️ La familia "${limpio}" ya existe`);
+    // Igual la seleccionamos en el campo
+    const inp = document.getElementById('pd-familia');
+    if(inp){
+      inp.value = existentes.find(f => f.toLowerCase() === limpio.toLowerCase()) || limpio;
+    }
+    return;
+  }
+  
+  // Aplicar al campo actual del modal de producto
+  const inp = document.getElementById('pd-familia');
+  if(inp){
+    inp.value = limpio;
+  }
+  
+  // Actualizar el datalist para que aparezca como opción
+  actualizarDatalistFamilias();
+  
+  toast(`✅ Familia "${limpio}" agregada. Quedará guardada al confirmar el producto.`);
+}
+
+// Refrescar el datalist con todas las familias actuales
+function actualizarDatalistFamilias(){
+  const dl = document.getElementById('pd-familia-list');
+  if(!dl) return;
+  const fams = obtenerListaFamilias();
+  // También considerar el valor que esté en el input (si es nuevo)
+  const inp = document.getElementById('pd-familia');
+  if(inp && inp.value && !fams.includes(inp.value)){
+    fams.push(inp.value);
+  }
+  dl.innerHTML = fams.sort().map(f => `<option value="${f}">`).join('');
 }
 
 function obtenerListaFamilias(){
@@ -10568,6 +10668,335 @@ showTab = function(name, btn){
 // =================== FIN MÓDULO CIGARRILLOS ============================
 // ========================================================================
 
+
+// ========================================================================
+// =================== MÓDULO PRECIOS (operadora/admin) ==================
+// ========================================================================
+// Pestaña para actualizar costos y precios de TODA la mercadería de una vez.
+// La operadora puede editar valores directamente en la tabla y guardar todo
+// junto con un solo botón.
+
+let _preciosPendientes = {}; // { prodId: { costo, precio, precioLista2 } }
+
+function renderPanelPrecios(){
+  const cont = document.getElementById('precios-tabla-cont');
+  if(!cont) return;
+  
+  const buscar = (document.getElementById('precios-buscar')?.value || '').toLowerCase().trim();
+  const filtroFam = document.getElementById('precios-filtro-familia')?.value || '';
+  const filtroTipo = document.getElementById('precios-filtro-tipo')?.value || 'minimarket';
+  
+  // Actualizar opciones de familia
+  actualizarFiltroFamilias();
+  
+  // Filtrar productos según tipo
+  let prods = productos.filter(p => {
+    if(filtroTipo === 'cigarrillos') return p.esCigarrillo;
+    if(filtroTipo === 'combustibles') return p.esCombustible;
+    if(filtroTipo === 'minimarket') return !p.esCigarrillo && !p.esCombustible;
+    return true; // todos
+  });
+  
+  // Filtros adicionales
+  if(filtroFam){
+    prods = prods.filter(p => (p.familia || '') === filtroFam);
+  }
+  if(buscar){
+    prods = prods.filter(p => 
+      (p.nombre || '').toLowerCase().includes(buscar) ||
+      (p.barcode || '').toLowerCase().includes(buscar) ||
+      (p.marca || '').toLowerCase().includes(buscar)
+    );
+  }
+  
+  // Ordenar por nombre
+  prods.sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
+  
+  // Actualizar resumen
+  const resumen = document.getElementById('precios-resumen');
+  if(resumen){
+    const totalCambios = Object.keys(_preciosPendientes).length;
+    let texto = `Mostrando <strong>${prods.length}</strong> producto${prods.length !== 1 ? 's' : ''}`;
+    if(totalCambios > 0) texto += ` · <span style="color:#a06820;font-weight:700;">${totalCambios} con cambios pendientes</span>`;
+    resumen.innerHTML = texto;
+  }
+  
+  // Mostrar/ocultar cartel de cambios pendientes
+  const pendientesDiv = document.getElementById('precios-pendientes');
+  if(pendientesDiv) pendientesDiv.style.display = Object.keys(_preciosPendientes).length > 0 ? 'block' : 'none';
+  
+  if(prods.length === 0){
+    cont.innerHTML = '<div style="padding:40px;text-align:center;color:#aaa;">No hay productos que coincidan con los filtros.</div>';
+    return;
+  }
+  
+  // Renderizar tabla
+  cont.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+      <thead>
+        <tr style="background:#1a1a2e;color:#fff;position:sticky;top:0;z-index:5;">
+          <th style="padding:10px;text-align:left;">Producto</th>
+          <th style="padding:10px;text-align:center;width:120px;">Costo $</th>
+          <th style="padding:10px;text-align:center;width:120px;">Precio venta $</th>
+          <th style="padding:10px;text-align:center;width:120px;">Lista 2 $</th>
+          <th style="padding:10px;text-align:center;width:90px;">Margen</th>
+          <th style="padding:10px;text-align:center;width:90px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${prods.map((p,i) => {
+          const tienePendiente = _preciosPendientes[p.id];
+          const costoActual = tienePendiente ? tienePendiente.costo : (p.costo || 0);
+          const precioActual = tienePendiente ? tienePendiente.precio : (p.precio || 0);
+          const precio2Actual = tienePendiente ? tienePendiente.precioLista2 : (p.precioLista2 || 0);
+          const margen = costoActual > 0 ? ((precioActual - costoActual) / costoActual * 100) : 0;
+          const margenColor = margen < 10 ? '#c0392b' : (margen < 30 ? '#a06820' : '#27500a');
+          const bgFila = tienePendiente ? '#fff8e0' : (i % 2 === 0 ? '#fafafa' : '#fff');
+          const icono = p.esCigarrillo ? '🚬' : (p.esCombustible ? '⛽' : '🛒');
+          
+          return `
+          <tr style="background:${bgFila};border-bottom:1px solid #eee;" data-prod="${p.id}">
+            <td style="padding:8px 10px;">
+              <div style="font-weight:700;">${icono} ${p.nombre}</div>
+              <div style="font-size:0.72rem;color:#888;">
+                ${p.familia ? `📂 ${p.familia}` : ''}
+                ${p.marca ? ` · 🏷️ ${p.marca}` : ''}
+                ${p.barcode ? ` · 📊 ${p.barcode}` : ''}
+              </div>
+            </td>
+            <td style="padding:6px 10px;">
+              <input type="number" step="0.01" value="${costoActual}" 
+                     onchange="marcarPrecioPendiente(${p.id}, 'costo', this.value)"
+                     style="width:100%;padding:6px 8px;border:1px solid #c0c0c8;border-radius:5px;font-family:monospace;text-align:right;font-size:0.92rem;">
+            </td>
+            <td style="padding:6px 10px;">
+              <input type="number" step="0.01" value="${precioActual}" 
+                     onchange="marcarPrecioPendiente(${p.id}, 'precio', this.value)"
+                     style="width:100%;padding:6px 8px;border:2px solid #27500a;border-radius:5px;font-family:monospace;text-align:right;font-size:0.95rem;font-weight:700;color:#27500a;">
+            </td>
+            <td style="padding:6px 10px;">
+              <input type="number" step="0.01" value="${precio2Actual}" 
+                     onchange="marcarPrecioPendiente(${p.id}, 'precioLista2', this.value)"
+                     style="width:100%;padding:6px 8px;border:1px solid #c0c0c8;border-radius:5px;font-family:monospace;text-align:right;font-size:0.92rem;color:#1f5f9e;">
+            </td>
+            <td style="padding:6px 10px;text-align:center;font-weight:700;color:${margenColor};">
+              ${margen > 0 ? `+${margen.toFixed(0)}%` : (margen < 0 ? `${margen.toFixed(0)}%` : '—')}
+            </td>
+            <td style="padding:6px 10px;text-align:center;">
+              ${tienePendiente 
+                ? `<button onclick="descartarCambioPrecio(${p.id})" style="padding:5px 9px;background:#c0392b;color:#fff;border:none;border-radius:5px;font-size:0.75rem;font-weight:700;cursor:pointer;" title="Descartar cambio">✗</button>` 
+                : ''}
+            </td>
+          </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function actualizarFiltroFamilias(){
+  const sel = document.getElementById('precios-filtro-familia');
+  if(!sel) return;
+  const valActual = sel.value;
+  const familias = [...new Set(productos.map(p => p.familia).filter(f => f))].sort();
+  sel.innerHTML = '<option value="">Todas</option>' + 
+    familias.map(f => `<option value="${f}">${f}</option>`).join('');
+  if(familias.includes(valActual)) sel.value = valActual;
+}
+
+function marcarPrecioPendiente(prodId, campo, valor){
+  const num = Number(valor);
+  if(isNaN(num) || num < 0){
+    toast('⚠️ Valor inválido');
+    renderPanelPrecios();
+    return;
+  }
+  const prod = productos.find(p => Number(p.id) === Number(prodId));
+  if(!prod) return;
+  
+  // Inicializar si no existe el pendiente
+  if(!_preciosPendientes[prodId]){
+    _preciosPendientes[prodId] = {
+      costo: prod.costo || 0,
+      precio: prod.precio || 0,
+      precioLista2: prod.precioLista2 || 0
+    };
+  }
+  _preciosPendientes[prodId][campo] = num;
+  
+  // Si todos los valores volvieron a ser los originales, quitar de pendientes
+  const pend = _preciosPendientes[prodId];
+  if(pend.costo === (prod.costo || 0) && 
+     pend.precio === (prod.precio || 0) && 
+     pend.precioLista2 === (prod.precioLista2 || 0)){
+    delete _preciosPendientes[prodId];
+  }
+  
+  // Re-renderizar para actualizar margen y resumen (sin perder foco al input)
+  // Solo actualizamos el cartel y el margen de la fila
+  const fila = document.querySelector(`tr[data-prod="${prodId}"]`);
+  if(fila){
+    const totalCambios = Object.keys(_preciosPendientes).length;
+    const pendientesDiv = document.getElementById('precios-pendientes');
+    if(pendientesDiv) pendientesDiv.style.display = totalCambios > 0 ? 'block' : 'none';
+    const resumen = document.getElementById('precios-resumen');
+    if(resumen){
+      const cant = document.querySelectorAll('tr[data-prod]').length;
+      let texto = `Mostrando <strong>${cant}</strong> producto${cant !== 1 ? 's' : ''}`;
+      if(totalCambios > 0) texto += ` · <span style="color:#a06820;font-weight:700;">${totalCambios} con cambios pendientes</span>`;
+      resumen.innerHTML = texto;
+    }
+    fila.style.background = _preciosPendientes[prodId] ? '#fff8e0' : '#fff';
+    // Recalcular margen visible
+    const tdMargen = fila.children[4];
+    if(tdMargen){
+      const costoNuevo = _preciosPendientes[prodId] ? _preciosPendientes[prodId].costo : (prod.costo || 0);
+      const precioNuevo = _preciosPendientes[prodId] ? _preciosPendientes[prodId].precio : (prod.precio || 0);
+      const margen = costoNuevo > 0 ? ((precioNuevo - costoNuevo) / costoNuevo * 100) : 0;
+      const color = margen < 10 ? '#c0392b' : (margen < 30 ? '#a06820' : '#27500a');
+      tdMargen.style.color = color;
+      tdMargen.innerHTML = margen > 0 ? `+${margen.toFixed(0)}%` : (margen < 0 ? `${margen.toFixed(0)}%` : '—');
+    }
+    // Botón descartar
+    const tdAcciones = fila.children[5];
+    if(tdAcciones){
+      tdAcciones.innerHTML = _preciosPendientes[prodId] 
+        ? `<button onclick="descartarCambioPrecio(${prodId})" style="padding:5px 9px;background:#c0392b;color:#fff;border:none;border-radius:5px;font-size:0.75rem;font-weight:700;cursor:pointer;" title="Descartar cambio">✗</button>` 
+        : '';
+    }
+  }
+}
+
+function descartarCambioPrecio(prodId){
+  delete _preciosPendientes[prodId];
+  renderPanelPrecios();
+  toast('↩️ Cambio descartado');
+}
+
+async function guardarTodosLosPrecios(){
+  const totalCambios = Object.keys(_preciosPendientes).length;
+  if(totalCambios === 0){
+    toast('ℹ️ No hay cambios para guardar');
+    return;
+  }
+  
+  if(!confirm(`💾 ¿Confirmás guardar los cambios de ${totalCambios} producto${totalCambios !== 1 ? 's' : ''}?\n\nLos precios y costos nuevos van a quedar aplicados en todo el sistema.`)) return;
+  
+  const btn = document.getElementById('btn-guardar-precios');
+  const textoOriginal = btn ? btn.innerHTML : '';
+  if(btn){
+    btn.disabled = true;
+    btn.innerHTML = '🔄 Guardando...';
+    btn.style.opacity = '0.7';
+  }
+  
+  // Aplicar los cambios a los productos
+  let aplicados = 0;
+  for(const prodId in _preciosPendientes){
+    const prod = productos.find(p => Number(p.id) === Number(prodId));
+    if(prod){
+      const pend = _preciosPendientes[prodId];
+      prod.costo = pend.costo;
+      prod.precio = pend.precio;
+      prod.precioLista2 = pend.precioLista2;
+      aplicados++;
+    }
+  }
+  
+  // Guardar en la nube
+  try {
+    await saveAll();
+    _preciosPendientes = {};
+    if(btn){
+      btn.disabled = false;
+      btn.innerHTML = textoOriginal;
+      btn.style.opacity = '1';
+    }
+    renderPanelPrecios();
+    renderAll();
+    toast(`✅ ${aplicados} producto${aplicados !== 1 ? 's' : ''} actualizado${aplicados !== 1 ? 's' : ''}`);
+  } catch(e){
+    if(btn){
+      btn.disabled = false;
+      btn.innerHTML = textoOriginal;
+      btn.style.opacity = '1';
+    }
+    toast('❌ Error al guardar. Intentá de nuevo.');
+  }
+}
+
+function aumentarPreciosMasivo(){
+  const filtroTipo = document.getElementById('precios-filtro-tipo')?.value || 'minimarket';
+  const filtroFam = document.getElementById('precios-filtro-familia')?.value || '';
+  const buscar = (document.getElementById('precios-buscar')?.value || '').toLowerCase().trim();
+  
+  // Calcular cuántos productos están filtrados ahora
+  let prods = productos.filter(p => {
+    if(filtroTipo === 'cigarrillos') return p.esCigarrillo;
+    if(filtroTipo === 'combustibles') return p.esCombustible;
+    if(filtroTipo === 'minimarket') return !p.esCigarrillo && !p.esCombustible;
+    return true;
+  });
+  if(filtroFam) prods = prods.filter(p => (p.familia || '') === filtroFam);
+  if(buscar){
+    prods = prods.filter(p => 
+      (p.nombre || '').toLowerCase().includes(buscar) ||
+      (p.barcode || '').toLowerCase().includes(buscar)
+    );
+  }
+  
+  if(prods.length === 0){
+    toast('⚠️ No hay productos visibles para aumentar');
+    return;
+  }
+  
+  const pctStr = prompt(`📈 Aumento masivo de precios\n\nVas a aumentar los precios de los ${prods.length} producto${prods.length !== 1 ? 's' : ''} actualmente visibles (según filtros).\n\nIngresá el porcentaje de aumento (ej: 15 para +15%):`);
+  if(!pctStr) return;
+  const pct = Number(pctStr.replace(',','.'));
+  if(isNaN(pct) || pct === 0){
+    toast('⚠️ Porcentaje inválido');
+    return;
+  }
+  
+  if(!confirm(`📈 ¿Aumentar ${pct}% el precio de venta de ${prods.length} producto${prods.length !== 1 ? 's' : ''}?\n\nEsto NO se guarda todavía. Después tocá "💾 Guardar todos los cambios" para confirmar.`)) return;
+  
+  const factor = 1 + (pct / 100);
+  prods.forEach(prod => {
+    if(!_preciosPendientes[prod.id]){
+      _preciosPendientes[prod.id] = {
+        costo: prod.costo || 0,
+        precio: prod.precio || 0,
+        precioLista2: prod.precioLista2 || 0
+      };
+    }
+    // Aumentar precio principal
+    _preciosPendientes[prod.id].precio = Math.round((prod.precio || 0) * factor);
+    // Aumentar precio lista 2 si tiene
+    if(prod.precioLista2){
+      _preciosPendientes[prod.id].precioLista2 = Math.round((prod.precioLista2 || 0) * factor);
+    }
+  });
+  
+  renderPanelPrecios();
+  toast(`📈 ${prods.length} precios ajustados +${pct}%. Acordate de guardar.`);
+}
+
+// Hook en showTab para que cuando entre a 'precios' se renderice
+const _showTabPrecios = showTab;
+showTab = function(name, btn){
+  _showTabPrecios(name, btn);
+  if(name === 'precios') renderPanelPrecios();
+};
+
+// Advertir si intenta salir con cambios sin guardar
+window.addEventListener('beforeunload', function(e){
+  if(Object.keys(_preciosPendientes).length > 0){
+    e.preventDefault();
+    e.returnValue = 'Tenés cambios de precios sin guardar. ¿Seguro que querés salir?';
+    return e.returnValue;
+  }
+});
 
 // ========================================================================
 // =================== MÓDULO MI TURNO (cajeros) =========================
