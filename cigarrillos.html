@@ -5443,7 +5443,144 @@ function obtenerPrecioSegunLista(prod, lista){
   return prod.precio || 0;
 }
 
-function iniciarScannerVenta(){ const inp=document.getElementById('venta-scan-input'); if(inp) inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); const code=this.value.trim(); if(!code)return; const p=productos.find(p=>p.barcode===code); if(!p){ toast("Código no encontrado"); this.value=''; return; } ventaSeleccionarProdId(Number(p.id)); agregarLineaVenta(); this.value=''; setTimeout(()=>this.focus(),50); } }); }
+function iniciarScannerVenta(){
+  const inp = document.getElementById('venta-scan-input');
+  if(!inp) return;
+  
+  // Mostrar resultados al escribir (búsqueda en tiempo real)
+  inp.addEventListener('input', function(){
+    venta_mostrarResultadosBusqueda(this.value);
+  });
+  
+  // Al apretar Enter: buscar match exacto, si no hay, autoseleccionar único resultado
+  inp.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      const code = this.value.trim();
+      if(!code) return;
+      
+      // 1) Match exacto por barcode (típico de lector USB)
+      let p = productos.find(p => (p.barcode || '').trim() === code);
+      
+      if(!p){
+        // 2) Buscar por coincidencia parcial
+        const q = code.toLowerCase();
+        const matches = productos.filter(p2 => {
+          if(p2.esCombustible) return false;
+          const n = (p2.nombre || '').toLowerCase();
+          const b = (p2.barcode || '').toLowerCase();
+          const m = (p2.marca || '').toLowerCase();
+          return n.includes(q) || b.includes(q) || m.includes(q);
+        });
+        
+        if(matches.length === 0){
+          toast("❌ Código no encontrado: " + code);
+          this.value = '';
+          venta_ocultarResultados();
+          return;
+        }
+        
+        if(matches.length === 1){
+          // Si hay un solo resultado, agregarlo automáticamente
+          p = matches[0];
+        } else {
+          // Si hay varios, mostrar la lista
+          venta_mostrarResultadosBusqueda(code);
+          toast(`🎯 ${matches.length} resultados — tocá uno para agregar`);
+          return;
+        }
+      }
+      
+      // Agregar al ticket
+      ventaSeleccionarProdId(Number(p.id));
+      agregarLineaVenta();
+      this.value = '';
+      venta_ocultarResultados();
+      setTimeout(() => this.focus(), 50);
+    }
+    
+    if(e.key === 'Escape'){
+      this.value = '';
+      venta_ocultarResultados();
+    }
+  });
+  
+  // Cerrar resultados al hacer click fuera
+  document.addEventListener('click', function(ev){
+    const inp = document.getElementById('venta-scan-input');
+    const cont = document.getElementById('venta-busqueda-resultados');
+    if(!inp || !cont) return;
+    if(ev.target !== inp && !cont.contains(ev.target)){
+      cont.style.display = 'none';
+    }
+  });
+}
+
+// Mostrar resultados de búsqueda en panel debajo del input
+function venta_mostrarResultadosBusqueda(query){
+  const q = (query || '').toLowerCase().trim();
+  let cont = document.getElementById('venta-busqueda-resultados');
+  
+  // Crear el contenedor si no existe (al lado del input)
+  if(!cont){
+    const inp = document.getElementById('venta-scan-input');
+    if(!inp) return;
+    cont = document.createElement('div');
+    cont.id = 'venta-busqueda-resultados';
+    cont.style.cssText = 'position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #27500a;border-radius:8px;max-height:320px;overflow-y:auto;z-index:1000;box-shadow:0 6px 18px rgba(0,0,0,0.2);display:none;';
+    // Hacer que el padre del input sea relative para posicionar
+    const padre = inp.parentElement;
+    if(padre){
+      padre.style.position = 'relative';
+      padre.appendChild(cont);
+    }
+  }
+  
+  if(!q || q.length < 2){
+    cont.style.display = 'none';
+    return;
+  }
+  
+  const matches = productos.filter(p => {
+    if(p.esCombustible) return false;
+    const n = (p.nombre || '').toLowerCase();
+    const b = (p.barcode || '').toLowerCase();
+    const m = (p.marca || '').toLowerCase();
+    return n.includes(q) || b.includes(q) || m.includes(q);
+  }).slice(0, 20);
+  
+  if(matches.length === 0){
+    cont.style.display = 'block';
+    cont.innerHTML = '<div style="padding:14px;color:#c0392b;font-size:0.9rem;text-align:center;font-weight:700;">❌ No se encontraron productos</div>';
+    return;
+  }
+  
+  cont.style.display = 'block';
+  cont.innerHTML = `
+    <div style="background:#27500a;color:#fff;padding:7px 12px;font-size:0.78rem;font-weight:700;letter-spacing:0.5px;">
+      🎯 ${matches.length} resultado${matches.length !== 1 ? 's' : ''} — Tocá para agregar
+    </div>
+    ${matches.map(p => {
+      const icono = p.esCigarrillo ? '🚬' : '🛒';
+      return `
+      <div onclick="ventaSeleccionarProdId(${p.id}); agregarLineaVenta(); document.getElementById('venta-scan-input').value=''; document.getElementById('venta-busqueda-resultados').style.display='none'; setTimeout(()=>document.getElementById('venta-scan-input').focus(),50);" 
+           style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #eee;cursor:pointer;"
+           onmouseover="this.style.background='#e8f5d8';" 
+           onmouseout="this.style.background='#fff';">
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.92rem;color:#1a1a2e;">${icono} ${p.nombre}</div>
+          <div style="font-size:0.72rem;color:#888;">${p.barcode ? '📊 '+p.barcode : ''} ${p.marca ? ' · '+p.marca : ''}</div>
+        </div>
+        <div style="font-weight:800;font-size:1rem;color:#27500a;">$${fmt(p.precio || 0)}</div>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function venta_ocultarResultados(){
+  const cont = document.getElementById('venta-busqueda-resultados');
+  if(cont) cont.style.display = 'none';
+}
 function activarEnterVenta(){ const nom=document.getElementById('venta-producto-nombre'); if(nom) nom.addEventListener('change',function(){ const p=obtenerProdPorTexto(this.value); ventaProductoActualId=p?Number(p.id):null; }); }
 
 function renderLog(){
