@@ -1998,7 +1998,6 @@ body.rol-operadora #tanques-grid {
   <button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button>
   <button class="tab" onclick="showTab('compra',this)">🛒 Compra</button>
   <button class="tab" onclick="showTab('precios',this)">💲 Precios</button>
-  <button class="tab" onclick="showTab('venta',this)">💰 Venta</button>
   <button class="tab" onclick="showTab('facturas',this)">🧾 Facturas</button>
   <button class="tab" onclick="showTab('movimientos',this)">📜 Movimientos</button>
   <button class="tab" onclick="showTab('contabilidad',this)">📊 Contabilidad</button>
@@ -2023,115 +2022,149 @@ body.rol-operadora #tanques-grid {
 
 <!-- PANEL SURTIDOR -->
 <div id="panel-surtidor" class="panel active">
-  <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
-    <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#1a1a2e,#3a2e5e);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
-      <span style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">⛽ SURTIDOR</span>
-      <span style="font-size:0.85rem;opacity:0.85;">Despacho rápido de combustible</span>
+
+  <!-- Cabecera tipo modal de venta -->
+  <div style="background:linear-gradient(135deg,#0a1a2e,#1e3a5e);color:#fff;padding:14px 22px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 2px 10px rgba(10,26,46,0.2);">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-size:1.5rem;">⛽</span>
+      <div>
+        <div style="font-size:1.15rem;font-weight:900;letter-spacing:1.2px;">VENTA SURTIDOR</div>
+        <div style="font-size:0.72rem;opacity:0.75;" id="vu-fecha-cab">—</div>
+      </div>
     </div>
-
-    <!-- Tanques (solo admin/operadora pueden ver el stock) -->
-    <div class="admin-only seccion-tanques" style="background:#0f0f22;border-radius:12px;padding:14px;margin-bottom:18px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-        <div style="color:#e8c84a;font-weight:800;font-size:0.95rem;letter-spacing:1px;">🛢️ STOCK DE TANQUES</div>
-        <button onclick="abrirNuevoCombustible()" style="padding:6px 14px;background:#27500a;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.82rem;">➕ Nuevo combustible</button>
+    <div style="display:flex;gap:18px;align-items:center;font-size:0.85rem;">
+      <div>
+        <span style="opacity:0.75;">Ventas hoy:</span>
+        <span id="desp-resumen-hoy" style="font-weight:800;color:#e8c84a;margin-left:6px;">—</span>
       </div>
-      <div id="tanques-grid" class="tanque-grid"></div>
-    </div>
-
-    <!-- Botones de surtidores -->
-    <div style="font-size:0.85rem;font-weight:800;color:#1a1a2e;margin-bottom:10px;letter-spacing:0.5px;">⚡ COMBUSTIBLES — Tocá para agregar al ticket</div>
-    <div id="surtidores-grid" class="surt-grid"></div>
-
-    <!-- BUSCADOR / ESCÁNER USB -->
-    <div style="background:#fff8e0;border:2px solid #f0c040;border-radius:12px;padding:12px;margin-top:14px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <div style="font-size:1.4rem;">📷</div>
-        <div style="flex:1;">
-          <div style="font-size:0.92rem;font-weight:800;color:#7a5a00;">ESCANEAR / BUSCAR PRODUCTO</div>
-          <div style="font-size:0.72rem;color:#888;">Pasá el lector USB o escribí parte del nombre</div>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <input type="text" id="vu-buscador" placeholder="🔍 Listo para escanear..." 
-               style="flex:1;padding:11px 14px;border:2px solid #f0c040;border-radius:8px;font-size:1rem;font-family:monospace;font-weight:700;background:#fff;"
-               oninput="vuBuscadorInput()" 
-               onkeydown="vuBuscadorKeydown(event)"
-               autocomplete="off">
-        <button onclick="vuProcesarBusqueda()" style="padding:11px 18px;background:#3a2e5e;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.9rem;">🔎 Buscar</button>
-      </div>
-      <!-- Cartel de debug del escáner -->
-      <div id="vu-debug" style="margin-top:6px;font-size:0.72rem;color:#888;padding:4px 8px;background:#fffdf5;border-radius:4px;display:none;">
-        🔧 Debug: <span id="vu-debug-text">esperando...</span>
-      </div>
-      <div id="vu-resultados" style="display:none;background:#fff;border:1px solid #ddd;border-radius:8px;max-height:280px;overflow-y:auto;margin-top:8px;"></div>
-    </div>
-
-    <!-- CIGARRILLOS FRECUENTES -->
-    <div style="background:#f5e8f0;border-radius:12px;padding:12px;margin-top:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-        <div style="font-size:0.88rem;font-weight:800;color:#6b1818;">🚬 CIGARRILLOS — Tocá para agregar al ticket</div>
-        <button onclick="vuMostrarTodosCigs()" style="padding:5px 12px;background:#6b1818;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:0.78rem;">📋 Ver todos</button>
-      </div>
-      <div id="vu-cigs-frecuentes" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
-    </div>
-
-    <!-- TICKET ACTUAL -->
-    <div id="vu-ticket-cont" style="background:linear-gradient(135deg,#0a3a1a,#1e7a3e);color:#fff;border-radius:14px;padding:16px;margin-top:16px;box-shadow:0 4px 14px rgba(30,122,62,0.3);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-        <div>
-          <div style="font-size:1.1rem;font-weight:800;letter-spacing:1px;">🛒 TICKET ACTUAL</div>
-          <div style="font-size:0.74rem;opacity:0.85;" id="vu-ticket-items-count">Sin productos cargados</div>
-        </div>
-        <button onclick="vuCancelarTicket()" id="vu-btn-cancelar-ticket" style="padding:6px 12px;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:6px;font-weight:700;cursor:pointer;font-size:0.78rem;display:none;">🗑️ Cancelar ticket</button>
-      </div>
-      
-      <div id="vu-ticket-items" style="background:rgba(0,0,0,0.2);border-radius:8px;padding:10px;min-height:70px;margin-bottom:10px;">
-        <div style="text-align:center;color:rgba(255,255,255,0.5);font-size:0.85rem;font-style:italic;padding:18px 0;">Tocá un combustible, escaneá un producto o tocá un cigarrillo para empezar</div>
-      </div>
-
-      <div style="background:rgba(0,0,0,0.35);border-radius:10px;padding:14px;margin-bottom:12px;text-align:center;">
-        <div style="font-size:0.78rem;opacity:0.85;font-weight:700;letter-spacing:1px;">TOTAL A COBRAR</div>
-        <div id="vu-ticket-total" style="font-size:2.4rem;font-weight:900;font-family:'Consolas',monospace;line-height:1;">$0</div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-        <div>
-          <label style="font-size:0.72rem;font-weight:700;opacity:0.9;display:block;margin-bottom:3px;">💳 Forma de pago</label>
-          <select id="vu-forma-pago" onchange="vuOnCambioFormaPago()" style="width:100%;padding:9px;border:none;border-radius:6px;font-weight:700;font-size:0.9rem;color:#1a1a2e;">
-            <option value="efectivo">💵 Efectivo</option>
-            <option value="transferencia">📱 Transferencia</option>
-            <option value="tarjeta">💳 Tarjeta</option>
-            <option value="cuenta_corriente">📋 Cuenta Corriente</option>
-          </select>
-        </div>
-        <div>
-          <label style="font-size:0.72rem;font-weight:700;opacity:0.9;display:block;margin-bottom:3px;">🚗 Patente (opcional)</label>
-          <input type="text" id="vu-patente" placeholder="AA123BB" style="width:100%;padding:9px;border:none;border-radius:6px;font-weight:700;font-size:0.9rem;color:#1a1a2e;text-transform:uppercase;">
-        </div>
-      </div>
-
-      <div id="vu-cliente-cont" style="display:none;margin-bottom:10px;">
-        <label style="font-size:0.72rem;font-weight:700;opacity:0.9;display:block;margin-bottom:3px;">👤 Cliente (Cuenta Corriente) *</label>
-        <select id="vu-cliente" style="width:100%;padding:9px;border:none;border-radius:6px;font-weight:700;font-size:0.9rem;color:#1a1a2e;">
-          <option value="">— Elegí cliente —</option>
-        </select>
-      </div>
-
-      <button onclick="vuConfirmarCobro()" id="vu-btn-cobrar" style="width:100%;padding:18px;background:#fff;color:#0a3a1a;border:none;border-radius:10px;font-size:1.2rem;font-weight:900;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,0.2);" disabled>
-        ✅ COBRAR Y FINALIZAR
-      </button>
-    </div>
-
-    <!-- Despachos recientes -->
-    <div style="background:#f5f5fa;border-radius:10px;padding:14px;margin-top:14px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-        <div style="font-size:0.95rem;font-weight:800;color:#1a1a2e;">📋 ÚLTIMAS VENTAS</div>
-        <div style="font-size:0.78rem;color:#666;" id="desp-resumen-hoy"></div>
-      </div>
-      <div id="despachos-list"></div>
     </div>
   </div>
+
+  <!-- Cuerpo del panel -->
+  <div style="background:#fff;border-radius:0 0 14px 14px;padding:18px;box-shadow:0 4px 18px rgba(0,0,0,0.08);margin-bottom:16px;">
+
+    <!-- Fila 1: Cliente / Lista / Forma de pago -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:#555;letter-spacing:0.5px;display:block;margin-bottom:4px;">👤 CLIENTE</label>
+        <select id="vu-cliente-sel" onchange="vuOnCambioCliente()" style="width:100%;padding:10px;border:1px solid #c8c8d8;border-radius:8px;font-weight:600;font-size:0.9rem;background:#f9f9fc;outline:none;">
+          <option value="">— Consumidor Final —</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:#555;letter-spacing:0.5px;display:block;margin-bottom:4px;">🏷️ LISTA DE PRECIOS</label>
+        <select id="vu-lista-precios" onchange="vuOnCambioLista()" style="width:100%;padding:10px;border:1px solid #c8c8d8;border-radius:8px;font-weight:600;font-size:0.9rem;background:#f9f9fc;outline:none;">
+          <option value="lista1">Lista 1 (Normal)</option>
+          <option value="lista2">Lista 2</option>
+          <option value="casa">Precio Casa</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:#555;letter-spacing:0.5px;display:block;margin-bottom:4px;">💳 FORMA DE PAGO</label>
+        <select id="vu-forma-pago" onchange="vuOnCambioFormaPago()" style="width:100%;padding:10px;border:1px solid #c8c8d8;border-radius:8px;font-weight:600;font-size:0.9rem;background:#f9f9fc;outline:none;">
+          <option value="efectivo">💵 Efectivo</option>
+          <option value="transferencia">📱 Transferencia</option>
+          <option value="tarjeta">💳 Tarjeta</option>
+          <option value="cuenta_corriente">📋 Cuenta Corriente</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Cliente CC (oculto por defecto) -->
+    <div id="vu-cliente-cont" style="display:none;margin-bottom:12px;">
+      <label style="font-size:0.7rem;font-weight:700;color:#c0392b;letter-spacing:0.5px;display:block;margin-bottom:4px;">⚠️ CLIENTE CTA. CTE. (obligatorio)</label>
+      <select id="vu-cliente" style="width:100%;padding:10px;border:2px solid #c0392b;border-radius:8px;font-weight:700;font-size:0.9rem;background:#fff;">
+        <option value="">— Elegí cliente —</option>
+      </select>
+    </div>
+
+    <!-- Fila 2: Código de barras + Agregar -->
+    <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:14px;align-items:end;">
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:#555;letter-spacing:0.5px;display:block;margin-bottom:4px;">🔍 CÓDIGO DE BARRAS / NOMBRE</label>
+        <input list="vu-productos-list" type="text" id="vu-buscador"
+               placeholder="Escanear o escribir nombre / código..."
+               style="width:100%;box-sizing:border-box;padding:11px 14px;border:2px solid #27500a;border-radius:8px;font-size:0.98rem;font-weight:700;background:#fff;outline:none;font-family:Consolas,monospace;"
+               autocomplete="off">
+        <datalist id="vu-productos-list"></datalist>
+      </div>
+      <button id="vu-btn-buscar" style="padding:11px 22px;background:#27500a;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:0.92rem;cursor:pointer;white-space:nowrap;letter-spacing:0.5px;height:42px;">➕ AGREGAR</button>
+    </div>
+
+    <!-- Tabla del ticket -->
+    <div style="border:1px solid #e0e0e8;border-radius:10px;overflow:hidden;margin-bottom:12px;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+        <thead>
+          <tr style="background:#1a1a2e;color:#fff;">
+            <th style="padding:9px 10px;text-align:left;font-weight:700;width:110px;">Código</th>
+            <th style="padding:9px 10px;text-align:center;font-weight:700;width:95px;">Cantidad</th>
+            <th style="padding:9px 10px;text-align:left;font-weight:700;">Detalle</th>
+            <th style="padding:9px 10px;text-align:right;font-weight:700;width:100px;">Precio</th>
+            <th style="padding:9px 10px;text-align:right;font-weight:700;width:110px;">Subtotal</th>
+            <th style="padding:9px 4px;width:36px;"></th>
+          </tr>
+        </thead>
+        <tbody id="vu-ticket-items"></tbody>
+      </table>
+      <div id="vu-ticket-vacio" style="text-align:center;color:#999;font-style:italic;padding:32px 16px;font-size:0.9rem;background:#fafafd;">— Aún no hay productos cargados —</div>
+    </div>
+
+    <!-- Combustibles compactos -->
+    <details style="background:#0f0f22;border-radius:10px;padding:0;margin-bottom:12px;overflow:hidden;">
+      <summary style="padding:10px 14px;cursor:pointer;color:#e8c84a;font-weight:800;font-size:0.85rem;letter-spacing:0.5px;display:flex;justify-content:space-between;align-items:center;">
+        <span>⛽ COMBUSTIBLES — Tocá un surtidor para despachar</span>
+      </summary>
+      <div style="padding:0 14px 12px 14px;">
+        <div id="surtidores-grid" class="surt-grid"></div>
+      </div>
+    </details>
+
+    <!-- Tanques (admin) -->
+    <details class="admin-only seccion-tanques" style="background:#0f0f22;border-radius:10px;padding:0;margin-bottom:12px;overflow:hidden;">
+      <summary style="padding:10px 14px;cursor:pointer;color:#e8c84a;font-weight:800;font-size:0.85rem;letter-spacing:0.5px;display:flex;justify-content:space-between;align-items:center;">
+        <span>🛢️ STOCK DE TANQUES</span>
+        <button onclick="event.preventDefault();event.stopPropagation();abrirNuevoCombustible()" style="padding:4px 10px;background:#27500a;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.74rem;">➕ Nuevo</button>
+      </summary>
+      <div style="padding:0 14px 12px 14px;">
+        <div id="tanques-grid" class="tanque-grid"></div>
+      </div>
+    </details>
+
+    <!-- Footer: Total + Botones -->
+    <div style="background:#1a1a2e;color:#fff;border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="vuCancelarTicket()" id="vu-btn-cancelar-ticket" style="padding:10px 16px;background:#888;color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer;font-size:0.88rem;">❌ Cancelar</button>
+        <input type="text" id="vu-patente" placeholder="🚗 Patente"
+               style="padding:10px 12px;border:none;border-radius:7px;font-weight:700;font-size:0.88rem;color:#1a1a2e;text-transform:uppercase;width:130px;">
+      </div>
+      <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+        <div style="text-align:right;">
+          <div style="font-size:0.7rem;opacity:0.75;letter-spacing:1px;font-weight:700;">TOTAL</div>
+          <div id="vu-ticket-total" style="font-size:1.85rem;font-weight:900;font-family:Consolas,monospace;color:#e8c84a;line-height:1;">$0</div>
+          <div id="vu-ticket-items-count" style="font-size:0.68rem;opacity:0.7;margin-top:2px;">Sin productos</div>
+        </div>
+        <button onclick="vuConfirmarCobro()" id="vu-btn-cobrar" style="padding:14px 28px;background:#27500a;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:900;letter-spacing:1px;cursor:pointer;box-shadow:0 2px 8px rgba(39,80,10,0.4);" disabled>
+          ✅ COBRAR
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Últimas ventas eliminado a pedido del usuario -->
+  <div id="despachos-list" style="display:none;"></div>
 </div>
+
+<style>
+  @media (max-width: 900px){
+    #panel-surtidor [style*="grid-template-columns:1fr 1fr 1fr"]{
+      grid-template-columns: 1fr !important;
+    }
+    #panel-surtidor [style*="grid-template-columns:1fr 1fr"]{
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
 
 <!-- MODAL DESPACHO -->
 <div class="modal-overlay" id="despacho-modal" style="z-index:2500;">
@@ -2581,7 +2614,7 @@ body.rol-operadora #tanques-grid {
   </div>
 </div>
 
-<div id="panel-venta" class="panel"></div>
+<!-- panel-venta eliminado: ahora todo se hace desde la pantalla Surtidor -->
 
 <!-- PANEL CONTABILIDAD -->
 <div id="panel-contabilidad" class="panel">
@@ -3702,6 +3735,10 @@ const KEY_AUTH = "MINIMARKET_AUTH_RECORDADO";
 const KEY_P='mm_prods_v1', KEY_S='mm_stock_v1', KEY_L='mm_log_v1', KEY_F='mm_facturas_v1', KEY_CLI='mm_clientes_v1', KEY_PROV='mm_proveedores_v1', KEY_CC='mm_cc_v1', KEY_DESC='mm_descuentos_v1', KEY_GAS='mm_gastos_v1', KEY_TUR='mm_turnos_v1';
 
 let productos=[], stock={}, log=[], facturas=[], clientes=[], proveedores=[], movimientosCC=[];
+// Exponer en window para que scripts separados puedan acceder
+window.getProductos = function(){ return productos; };
+window.getStock = function(){ return stock; };
+window.getFacturas = function(){ return facturas; };
 let descuentos=[], gastos=[], turnos=[], turnoActual=null;
 let ventaDescuentoAplicado = 0; // descuento activo en la venta actual (monto fijo)
 let scannerMode='salida', deleteTarget=null, nextId=100, nextCliId=1, nextProvId=1;
@@ -4544,6 +4581,13 @@ scannerInput.addEventListener('keydown',function(e){
 });
 document.addEventListener('keydown',function(e){
   if(document.activeElement===scannerInput)return;
+  // No interceptar si el modal de venta o compra está abierto (el input propio maneja el escáner)
+  const ventaModalAbierto = document.getElementById('venta-modal')?.classList.contains('open');
+  const compraModalAbierto = document.getElementById('compra-modal')?.classList.contains('open');
+  if(ventaModalAbierto || compraModalAbierto) return;
+  // No interceptar si el foco está en cualquier input/textarea
+  const tag = document.activeElement?.tagName;
+  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
   if(e.key==='Enter'){
     if(scanBuffer.length>2) processScanGlobal(scanBuffer.trim());
     scanBuffer='';
@@ -5451,72 +5495,59 @@ function obtenerPrecioSegunLista(prod, lista){
 function iniciarScannerVenta(){
   const inp = document.getElementById('venta-scan-input');
   if(!inp) return;
+  if(inp._scannerIniciado) return; // Guardia: evitar duplicar listeners
+  inp._scannerIniciado = true;
   
-  // Función reutilizable para procesar el valor escaneado
-  const procesarValor = () => {
-    const code = inp.value.trim();
-    if(!code) return;
-    
-    // 1) Match exacto por barcode
-    let p = productos.find(p => (p.barcode || '').trim() === code);
-    
-    if(!p){
-      // 2) Búsqueda parcial
-      const q = code.toLowerCase();
-      const matches = productos.filter(p2 => {
-        if(p2.esCombustible) return false;
-        const n = (p2.nombre || '').toLowerCase();
-        const b = (p2.barcode || '').toLowerCase();
-        const m = (p2.marca || '').toLowerCase();
-        return n.includes(q) || b.includes(q) || m.includes(q);
-      });
-      
-      if(matches.length === 0){
-        toast("❌ Código no encontrado: " + code);
-        inp.value = '';
-        venta_ocultarResultados();
-        return;
-      }
-      
-      if(matches.length === 1){
-        p = matches[0];
-      } else {
-        venta_mostrarResultadosBusqueda(code);
-        toast(`🎯 ${matches.length} resultados — tocá uno`);
-        return;
-      }
-    }
-    
-    // Agregar al ticket
-    ventaSeleccionarProdId(Number(p.id));
-    agregarLineaVenta();
-    inp.value = '';
-    venta_ocultarResultados();
-    setTimeout(() => inp.focus(), 50);
-  };
-  
-  // Búsqueda en tiempo real + auto-procesar al detener
-  let ventaFinEscaneoTimer = null;
-  
+  // Mostrar resultados al escribir (búsqueda en tiempo real)
   inp.addEventListener('input', function(){
     venta_mostrarResultadosBusqueda(this.value);
-    
-    // Auto-procesar si el usuario para de escribir 200ms y tiene 6+ caracteres
-    clearTimeout(ventaFinEscaneoTimer);
-    ventaFinEscaneoTimer = setTimeout(() => {
-      const valor = (inp.value || '').trim();
-      if(valor.length >= 6){
-        procesarValor();
-      }
-    }, 200);
   });
   
-  // Procesar al apretar Enter
+  // Al apretar Enter: buscar match exacto, si no hay, autoseleccionar único resultado
   inp.addEventListener('keydown', function(e){
     if(e.key === 'Enter'){
       e.preventDefault();
-      clearTimeout(ventaFinEscaneoTimer);
-      procesarValor();
+      const code = this.value.trim();
+      if(!code) return;
+      
+      // 1) Match exacto por barcode (típico de lector USB)
+      let p = productos.find(p => (p.barcode || '').trim() === code);
+      
+      if(!p){
+        // 2) Buscar por coincidencia parcial
+        const q = code.toLowerCase();
+        const matches = productos.filter(p2 => {
+          if(p2.esCombustible) return false;
+          const n = (p2.nombre || '').toLowerCase();
+          const b = (p2.barcode || '').toLowerCase();
+          const m = (p2.marca || '').toLowerCase();
+          return n.includes(q) || b.includes(q) || m.includes(q);
+        });
+        
+        if(matches.length === 0){
+          toast("❌ Código no encontrado: " + code);
+          this.value = '';
+          venta_ocultarResultados();
+          return;
+        }
+        
+        if(matches.length === 1){
+          // Si hay un solo resultado, agregarlo automáticamente
+          p = matches[0];
+        } else {
+          // Si hay varios, mostrar la lista
+          venta_mostrarResultadosBusqueda(code);
+          toast(`🎯 ${matches.length} resultados — tocá uno para agregar`);
+          return;
+        }
+      }
+      
+      // Agregar al ticket
+      ventaSeleccionarProdId(Number(p.id));
+      agregarLineaVenta();
+      this.value = '';
+      venta_ocultarResultados();
+      setTimeout(() => this.focus(), 50);
     }
     
     if(e.key === 'Escape'){
@@ -5765,7 +5796,7 @@ function showTab(name,btn){
   if(name==='movimientos') renderLog(); 
   if(name==='facturas') renderFacturas(); 
   if(name==='compra'){ actualizarDatalistCompra(); llenarSelectorProveedoresCompra(); setTimeout(()=>document.getElementById('compra-scan-input').focus(),100); }
-  if(name==='venta'){ abrirVentanaVenta(); }
+  // pestaña 'venta' eliminada — ahora todo se hace desde Surtidor
   if(name==='contabilidad'){ setRangoCont('mes'); renderContabilidad(); }
   if(name==='clientes'){ renderClientes(); }
   if(name==='proveedores'){ renderProveedores(); }
@@ -8377,11 +8408,22 @@ function abrirVentanaVenta(){
   actualizarDatalistVenta();
   actualizarNumVenta();
   llenarSelectorClientesVenta();
-  document.getElementById('venta-lista').value = 'lista1'; // siempre arranca en Lista 1
+  document.getElementById('venta-lista').value = 'lista1';
   setTimeout(()=>{
     const inp = document.getElementById('venta-scan-input');
     if(inp) inp.focus();
-  }, 100);
+  }, 150);
+  // Refocar el input del escaner si el usuario hace click en el modal (area no interactiva)
+  const modal = document.getElementById('venta-modal');
+  if(!modal._refocusListener){
+    modal._refocusListener = true;
+    modal.addEventListener('click', function(e){
+      const tag = e.target.tagName;
+      if(['INPUT','TEXTAREA','SELECT','BUTTON','OPTION'].includes(tag)) return;
+      const inp2 = document.getElementById('venta-scan-input');
+      if(inp2) inp2.focus();
+    });
+  }
 }
 
 function cerrarVentanaVenta(){
@@ -9010,6 +9052,78 @@ autenticar().then(()=>{ (async()=>{
   renderAll(); 
   initEventos(); 
   iniciarInterfazSegunDispositivo();
+
+  // Iniciar buscador del surtidor — datalist autocompletado nativo
+  (function(){
+    var inp = document.getElementById('vu-buscador');
+    var btn = document.getElementById('vu-btn-buscar');
+    if(!inp) return;
+
+    // Llenar el datalist con TODOS los productos (igual al modal de venta)
+    function llenarDatalist(){
+      var d = document.getElementById('vu-productos-list');
+      if(!d) return;
+      var prods = (typeof productos !== 'undefined' && productos) ? productos : (window.getProductos ? window.getProductos() : []);
+      d.innerHTML = prods.filter(function(p){ return !p.esCombustible; }).map(function(p){
+        return '<option value="' + (p.marca||'') + ' ' + (p.nombre||'') + ' (Cód: ' + (p.barcode||'') + ')">';
+      }).join('');
+    }
+    llenarDatalist();
+    // Actualizar cada vez que el panel surtidor se vuelve visible
+    var panelSurt = document.getElementById('panel-surtidor');
+    if(panelSurt){
+      var obs = new MutationObserver(llenarDatalist);
+      obs.observe(panelSurt, { attributes: true, attributeFilter: ['class','style'] });
+    }
+    // Y también periodicamente para captar cambios de stock
+    setInterval(llenarDatalist, 5000);
+    function buscar(){
+      var raw = inp.value.trim();
+      if(!raw) return;
+      var prods = (typeof productos !== 'undefined' && productos) ? productos : (window.getProductos ? window.getProductos() : []);
+
+      // 1) Si la selección viene del datalist: "Marca Nombre (Cód: 12345)"
+      var m = raw.match(/\(Cód:\s*([^)]*)\)\s*$/);
+      if(m){
+        var cod = m[1].trim();
+        var pSel = prods.find(function(p){ return String(p.barcode||'').trim() === cod; });
+        if(pSel){ vuAgregarProducto(pSel.id, 1); inp.value=''; inp.focus(); return; }
+      }
+
+      // 2) Match exacto por barcode (escáner USB)
+      var exacto = prods.find(function(p){ return String(p.barcode||'').trim() === raw && !p.esCombustible; });
+      if(exacto){ vuAgregarProducto(exacto.id, 1); inp.value=''; inp.focus(); return; }
+
+      // 3) Buscar coincidencia parcial
+      var q = raw.toLowerCase();
+      var lista = prods.filter(function(p){
+        if(p.esCombustible) return false;
+        return String(p.nombre||'').toLowerCase().indexOf(q)>-1 ||
+               String(p.marca||'').toLowerCase().indexOf(q)>-1 ||
+               String(p.barcode||'').toLowerCase().indexOf(q)>-1;
+      });
+
+      if(lista.length === 0){
+        alert('❌ No se encontró ningún producto con "' + raw + '"');
+        return;
+      }
+      if(lista.length === 1){
+        vuAgregarProducto(lista[0].id, 1); inp.value=''; inp.focus();
+        return;
+      }
+      // Si hay varios resultados, dejar que el datalist los muestre y avisar
+      alert('🎯 ' + lista.length + ' resultados — abrí la lista del input y elegí uno');
+      return;
+    }
+
+    // Cuando el usuario selecciona una opción del datalist o termina de escribir
+    inp.addEventListener('change', buscar);
+    inp.addEventListener('keydown', function(e){
+      if(e.key==='Enter'){ e.preventDefault(); buscar(); }
+      if(e.key==='Escape'){ inp.value=''; }
+    });
+    if(btn) btn.addEventListener('click', buscar);
+  })();
   
   // Inicializar rangos de gastos
   const hoy = new Date().toISOString().split('T')[0];
@@ -11181,16 +11295,99 @@ window.addEventListener('beforeunload', function(e){
 let vuTicket = []; // array de items: {tipo, prodId, nombre, cantidad, precioUnit, subtotal, esDespacho}
 let vuBuscadorTimer = null;
 let vuUltimoEscaneo = 0; // timestamp del último escaneo para detectar lectores USB
-let vuTeclasRapidas = 0; // contador de teclas rápidas consecutivas
-let vuFinEscaneoTimer = null; // timer para detectar fin de escaneo
 
 function vuInit(){
-  // Renderizar cigarrillos frecuentes
+  // Renderizar cigarrillos frecuentes (compatibilidad por si lo usa otro código)
   vuRenderCigsFrecuentes();
   // Renderizar el ticket vacío
   vuRenderTicket();
-  // Cargar clientes en el dropdown
+  // Cargar clientes en los dropdowns
   vuLlenarClientes();
+  vuLlenarSelectorClientesPrincipal();
+  // Actualizar fecha de cabecera
+  vuActualizarFechaCab();
+}
+
+// Llenar el selector principal de cliente (arriba del panel)
+function vuLlenarSelectorClientesPrincipal(){
+  const sel = document.getElementById('vu-cliente-sel');
+  if(!sel) return;
+  const valorActual = sel.value;
+  sel.innerHTML = '<option value="">— Consumidor Final —</option>' +
+    (clientes || []).map(c =>
+      `<option value="${c.id}">${c.nombre} ${c.apellido || ''} ${c.dni ? '(' + c.dni + ')' : ''}</option>`
+    ).join('');
+  if(valorActual) sel.value = valorActual;
+}
+
+function vuActualizarFechaCab(){
+  const el = document.getElementById('vu-fecha-cab');
+  if(!el) return;
+  const ahora = new Date();
+  const dia = String(ahora.getDate()).padStart(2,'0');
+  const mes = String(ahora.getMonth()+1).padStart(2,'0');
+  const anio = ahora.getFullYear();
+  const hh = String(ahora.getHours()).padStart(2,'0');
+  const mm = String(ahora.getMinutes()).padStart(2,'0');
+  el.textContent = `${dia}/${mes}/${anio} · ${hh}:${mm}`;
+}
+
+// Cambio de cliente principal - si elige uno, autoseleccionar Cta Cte como sugerencia (opcional)
+function vuOnCambioCliente(){
+  const sel = document.getElementById('vu-cliente-sel');
+  if(!sel) return;
+  const id = sel.value;
+  if(!id) return;
+  // Si elige cliente y la forma de pago es efectivo, sugerir CC pero no forzar
+  // Por defecto no cambiamos nada — el cajero decide.
+}
+
+// Cambio de lista de precios - recalcular precios del ticket
+function vuOnCambioLista(){
+  const lista = document.getElementById('vu-lista-precios')?.value || 'lista1';
+  if(vuTicket.length === 0) return;
+  // Recalcular precio unit de cada item según la lista seleccionada
+  vuTicket.forEach(item => {
+    if(item.esDespacho) return; // combustible no cambia
+    const prod = productos.find(p => Number(p.id) === Number(item.prodId));
+    if(!prod) return;
+    let nuevoPrecio = prod.precio || 0;
+    if(lista === 'lista2') nuevoPrecio = prod.precioLista2 || prod.precio || 0;
+    else if(lista === 'casa') nuevoPrecio = prod.precioCasa || prod.costo || 0;
+    item.precioUnit = nuevoPrecio;
+    item.subtotal = Math.round(item.cantidad * nuevoPrecio * 100) / 100;
+  });
+  vuRenderTicket();
+  toast('💲 Precios actualizados según ' + (lista === 'lista1' ? 'Lista 1' : lista === 'lista2' ? 'Lista 2' : 'Casa'));
+}
+
+// Buscar por el segundo input (nombre)
+function vuBuscarPorNombre(){
+  const inp = document.getElementById('vu-buscar-nombre');
+  if(!inp) return;
+  const raw = inp.value.trim();
+  if(!raw){ return; }
+
+  const q = raw.toLowerCase();
+  const lista = productos.filter(function(p){
+    if(p.esCombustible) return false;
+    return String(p.nombre||'').toLowerCase().indexOf(q) > -1 ||
+           String(p.marca||'').toLowerCase().indexOf(q) > -1 ||
+           String(p.barcode||'').toLowerCase().indexOf(q) > -1;
+  });
+
+  if(lista.length === 0){
+    alert('❌ No se encontró ningún producto con "' + raw + '"');
+    return;
+  }
+  if(lista.length === 1){
+    vuAgregarProducto(lista[0].id, 1);
+    inp.value = '';
+    inp.focus();
+    return;
+  }
+  // Si hay varios, copiar al input del datalist para que muestre opciones
+  alert('🎯 ' + lista.length + ' resultados — usá el campo "Código de barras" que tiene autocompletado, o escribí más letras');
 }
 
 function vuRenderCigsFrecuentes(){
@@ -11242,181 +11439,102 @@ function vuMostrarTodosCigs(){
   vuMostrarResultados(cigs);
 }
 
-function vuBuscadorInput(){
-  // Mostrar resultados INMEDIATAMENTE mientras se escribe
-  vuMostrarBusqueda();
-  
-  // ============================================================
-  // ESCÁNER USB ROBUSTO: cada vez que cambia el input,
-  // esperamos 200ms y si el texto se quedó quieto y tiene ≥6 chars
-  // → procesamos como escaneo
-  // ============================================================
-  clearTimeout(vuFinEscaneoTimer);
-  vuFinEscaneoTimer = setTimeout(() => {
+function vuBuscarEnVivo(query){
+  try{
     const inp = document.getElementById('vu-buscador');
-    if(!inp) return;
-    const valor = (inp.value || '').trim();
-    // Si tiene 6+ caracteres (códigos de barras suelen tener 8-13), procesar
-    if(valor.length >= 6){
-      vuProcesarBusqueda();
+    const cont = document.getElementById('vu-resultados');
+    if(!inp || !cont) return;
+    const raw = (query !== undefined ? String(query) : inp.value).trim();
+
+    if(raw.length < 1){ cont.style.display='none'; return; }
+    const q = raw.toLowerCase();
+
+    // Buscar en TODOS los productos sin ningun filtro extra
+    const todosSinCombustible = (productos||[]).filter(function(p){ return !p.esCombustible; });
+    const res = todosSinCombustible.filter(function(p){
+      const enNombre  = (p.nombre||'').toLowerCase().indexOf(q) > -1;
+      const enMarca   = (p.marca||'').toLowerCase().indexOf(q) > -1;
+      const enBarcode = (p.barcode||'').toLowerCase().indexOf(q) > -1;
+      return enNombre || enMarca || enBarcode;
+    });
+
+    console.log('[BUSCADOR] query="'+q+'" total='+todosSinCombustible.length+' res='+res.length);
+
+    if(res.length===0){
+      cont.style.display='block';
+      cont.innerHTML='<div style="padding:16px;color:#c0392b;font-size:0.95rem;text-align:center;font-weight:700;">❌ Sin resultados para "'+raw+'"</div>';
+      return;
     }
-  }, 200);
+
+    var html = '<div style="background:#27500a;color:#fff;padding:8px 14px;font-size:0.8rem;font-weight:700;">'+
+      '🎯 '+res.length+' resultado'+(res.length!==1?'s':'')+' — tocá para agregar</div>';
+    res.slice(0,60).forEach(function(p){
+      var precio = p.precio||0;
+      var precioStr = '$'+precio.toLocaleString('es-AR');
+      html += '<div onmousedown="vuSeleccionarDesdeBuscador('+p.id+')" '+
+        'style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #eee;cursor:pointer;" '+
+        'onmouseover="this.style.background=\'#e8f5d8\';" onmouseout="this.style.background=\'\';">'+
+        '<div>'+
+        '<div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;">'+(p.esCigarrillo?'🚬':'🛒')+' '+(p.marca?p.marca+' ':'')+p.nombre+'</div>'+
+        '<div style="font-size:0.72rem;color:#999;">'+(p.barcode?'📊 '+p.barcode:'Sin código')+'</div>'+
+        '</div>'+
+        '<div style="font-weight:900;font-size:1.05rem;color:#27500a;margin-left:12px;">'+precioStr+'</div>'+
+        '</div>';
+    });
+    cont.innerHTML = html;
+    cont.style.display = 'block';
+  }catch(err){
+    console.error('vuBuscarEnVivo error:',err);
+  }
+}
+
+
+function vuSeleccionarDesdeBuscador(prodId){
+  vuAgregarProducto(prodId, 1);
+  document.getElementById('vu-buscador').value = '';
+  document.getElementById('vu-resultados').style.display = 'none';
+  setTimeout(() => document.getElementById('vu-buscador')?.focus(), 80);
 }
 
 function vuBuscadorKeydown(e){
-  if(e.key === 'Enter'){
-    e.preventDefault();
-    vuProcesarBusqueda();
-  }
   if(e.key === 'Escape'){
     document.getElementById('vu-buscador').value = '';
     document.getElementById('vu-resultados').style.display = 'none';
+    return;
+  }
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    const raw = (document.getElementById('vu-buscador')?.value || '').trim();
+    if(!raw) return;
+    // match exacto por barcode
+    const exacto = productos.find(p => (p.barcode||'').trim() === raw);
+    if(exacto){ vuSeleccionarDesdeBuscador(exacto.id); return; }
+    // un solo resultado
+    const q = raw.toLowerCase();
+    const res = productos.filter(p => {
+      if(p.esCombustible) return false;
+      return (p.nombre||'').toLowerCase().includes(q) || (p.marca||'').toLowerCase().includes(q) || (p.barcode||'').toLowerCase().includes(q);
+    });
+    if(res.length === 1){ vuSeleccionarDesdeBuscador(res[0].id); return; }
+    vuBuscarEnVivo(raw);
   }
 }
 
-function vuProcesarBusqueda(){
-  const q = (document.getElementById('vu-buscador')?.value || '').trim();
-  
-  const dbgDiv = document.getElementById('vu-debug');
-  const dbgText = document.getElementById('vu-debug-text');
-  if(dbgDiv && dbgText){
-    dbgDiv.style.display = 'block';
-    dbgText.textContent = `Buscando "${q}" (${q.length} chars)`;
-  }
-  
-  if(!q) return;
-  
-  // Determinar si parece un código de barras (todo números, 6+ caracteres)
-  const pareceCodigo = /^\d{6,}$/.test(q);
-  
-  // PASO 1: Match exacto por barcode
-  let producto = productos.find(p => 
-    (p.barcode || '').trim() === q
-  );
-  
-  if(producto){
-    if(dbgText) dbgText.textContent = `✅ Match exacto: ${producto.nombre} → AGREGANDO`;
-    vuAgregarProducto(producto.id, 1);
-    document.getElementById('vu-buscador').value = '';
-    document.getElementById('vu-resultados').style.display = 'none';
-    setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
-    setTimeout(() => { if(dbgDiv) dbgDiv.style.display = 'none'; }, 3000);
-    return;
-  }
-  
-  // PASO 2: Búsqueda parcial (incluye match parcial de barcode)
-  const qLow = q.toLowerCase();
-  const resultados = productos.filter(p => {
-    if(p.esCombustible) return false;
-    const nombre = (p.nombre || '').toLowerCase();
-    const barcode = (p.barcode || '').toLowerCase();
-    const marca = (p.marca || '').toLowerCase();
-    return nombre.includes(qLow) || barcode.includes(qLow) || marca.includes(qLow);
-  });
-  
-  // Si parece código Y hay match parcial por barcode, priorizar ese
-  if(pareceCodigo){
-    const matchBarcodePartial = resultados.find(p => 
-      (p.barcode || '').toLowerCase().includes(qLow)
-    );
-    
-    if(matchBarcodePartial){
-      // Si parece código y hay UN producto cuyo barcode contiene esto, agregarlo directo
-      const matchesPorBarcode = resultados.filter(p => 
-        (p.barcode || '').toLowerCase().includes(qLow)
-      );
-      
-      if(matchesPorBarcode.length === 1){
-        if(dbgText) dbgText.textContent = `✅ Match por código: ${matchesPorBarcode[0].nombre} → AGREGANDO`;
-        vuAgregarProducto(matchesPorBarcode[0].id, 1);
-        document.getElementById('vu-buscador').value = '';
-        document.getElementById('vu-resultados').style.display = 'none';
-        setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
-        setTimeout(() => { if(dbgDiv) dbgDiv.style.display = 'none'; }, 3000);
-        return;
-      }
-    }
-    
-    // Si parece código pero NO encuentra match, mostrar mensaje claro
-    if(resultados.length === 0){
-      if(dbgText) dbgText.textContent = `❌ NO existe producto con código "${q}". Cargalo desde Cigarrillos.`;
-      vuMostrarResultados([]);
-      return;
-    }
-  }
-  
-  if(dbgText) dbgText.textContent = `Encontrados: ${resultados.length} producto(s) — TOCÁ uno abajo`;
-  
-  // Si hay UN solo resultado por texto, agregarlo
-  if(resultados.length === 1){
-    if(dbgText) dbgText.textContent = `✅ Único resultado: ${resultados[0].nombre} → AGREGANDO`;
-    vuAgregarProducto(resultados[0].id, 1);
-    document.getElementById('vu-buscador').value = '';
-    document.getElementById('vu-resultados').style.display = 'none';
-    setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
-    setTimeout(() => { if(dbgDiv) dbgDiv.style.display = 'none'; }, 3000);
-    return;
-  }
-  
-  // Mostrar resultados para que el usuario elija
-  vuMostrarResultados(resultados.slice(0, 30));
-}
-
-function vuMostrarBusqueda(){
-  const q = (document.getElementById('vu-buscador')?.value || '').toLowerCase().trim();
+// cerrar resultados al hacer click fuera
+document.addEventListener('click', function(ev){
+  const inp = document.getElementById('vu-buscador');
   const cont = document.getElementById('vu-resultados');
-  if(!cont) return;
-  
-  if(!q){
-    cont.style.display = 'none';
-    return;
-  }
-  
-  // Buscar productos que coincidan (excluyendo combustibles)
-  let resultados = productos.filter(p => {
-    if(p.esCombustible) return false;
-    const nombre = (p.nombre || '').toLowerCase();
-    const barcode = (p.barcode || '').toLowerCase();
-    const marca = (p.marca || '').toLowerCase();
-    return nombre.includes(q) || barcode.includes(q) || marca.includes(q);
-  });
-  
-  vuMostrarResultados(resultados.slice(0, 30));
-}
+  if(!inp || !cont) return;
+  if(ev.target !== inp && !cont.contains(ev.target)) cont.style.display = 'none';
+});
 
-function vuMostrarResultados(resultados){
-  const cont = document.getElementById('vu-resultados');
-  if(!cont) return;
-  
-  if(resultados.length === 0){
-    cont.style.display = 'block';
-    cont.style.border = '2px solid #c0392b';
-    cont.innerHTML = '<div style="padding:18px;color:#c0392b;font-size:0.95rem;text-align:center;font-weight:700;">❌ No se encontraron productos<br><span style="font-size:0.78rem;font-weight:400;color:#888;">Probá con otra palabra o cargá el producto desde Stock</span></div>';
-    return;
-  }
-  
-  cont.style.display = 'block';
-  cont.style.border = '2px solid #27500a';
-  cont.innerHTML = `
-    <div style="background:#27500a;color:#fff;padding:8px 14px;font-size:0.8rem;font-weight:700;letter-spacing:0.5px;">
-      🎯 ${resultados.length} resultado${resultados.length !== 1 ? 's' : ''} — Tocá para agregar al ticket
-    </div>
-    ${resultados.map(p => {
-      const icono = p.esCigarrillo ? '🚬' : '🛒';
-      return `
-      <div onclick="vuAgregarProducto(${p.id}, 1); document.getElementById('vu-resultados').style.display='none'; document.getElementById('vu-buscador').value=''; setTimeout(()=>document.getElementById('vu-buscador').focus(),100);" 
-           style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #eee;cursor:pointer;transition:background 0.15s;"
-           onmouseover="this.style.background='#e8f5d8';" 
-           onmouseout="this.style.background='#fff';">
-        <div style="flex:1;">
-          <div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;">${icono} ${p.nombre}</div>
-          <div style="font-size:0.72rem;color:#888;">${p.barcode ? '📊 '+p.barcode : ''} ${p.marca ? ' · '+p.marca : ''}</div>
-        </div>
-        <div style="font-weight:800;font-size:1.05rem;color:#27500a;">$${fmt(p.precio || 0)}</div>
-      </div>`;
-    }).join('')}
-  `;
-}
+// compatibilidad con llamadas viejas
+function vuBuscadorInput(){ vuBuscarEnVivo(); }
+function vuProcesarBusqueda(){ vuBuscadorKeydown({key:'Enter',preventDefault:()=>{}}); }
+function vuMostrarBusqueda(){ vuBuscarEnVivo(); }
+function vuMostrarResultados(){ }
+function vuDiagnosticar(){ vuBuscarEnVivo(); }
+
 
 function vuAgregarProducto(prodId, cantidad){
   const prod = productos.find(p => Number(p.id) === Number(prodId));
@@ -11484,47 +11602,64 @@ function vuQuitarItem(idx){
 
 function vuRenderTicket(){
   const cont = document.getElementById('vu-ticket-items');
+  const vacio = document.getElementById('vu-ticket-vacio');
   const lblCount = document.getElementById('vu-ticket-items-count');
   const totalEl = document.getElementById('vu-ticket-total');
   const btnCobrar = document.getElementById('vu-btn-cobrar');
   const btnCancel = document.getElementById('vu-btn-cancelar-ticket');
   if(!cont) return;
-  
+
   if(vuTicket.length === 0){
-    cont.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);font-size:0.85rem;font-style:italic;padding:18px 0;">Tocá un combustible, escaneá un producto o tocá un cigarrillo para empezar</div>';
-    if(lblCount) lblCount.textContent = 'Sin productos cargados';
+    cont.innerHTML = '';
+    if(vacio) vacio.style.display = 'block';
+    if(lblCount) lblCount.textContent = 'Sin productos';
     if(totalEl) totalEl.textContent = '$0';
     if(btnCobrar){ btnCobrar.disabled = true; btnCobrar.style.opacity = '0.5'; }
     if(btnCancel) btnCancel.style.display = 'none';
     return;
   }
-  
+
+  if(vacio) vacio.style.display = 'none';
+
   let total = 0;
   cont.innerHTML = vuTicket.map((item, idx) => {
     total += item.subtotal;
     const icono = item.esDespacho ? '⛽' : (item.tipo === 'cigarrillo' ? '🚬' : '🛒');
-    const cant = item.esDespacho 
-      ? `${fmt(item.cantidad)} L × $${fmt(item.precioUnit)}` 
-      : `${fmt(item.cantidad)} × $${fmt(item.precioUnit)}`;
+    const unidad = item.esDespacho ? 'L' : (item.tipo === 'peso' ? 'kg' : '');
+    // Obtener código del producto
+    const prod = productos.find(p => Number(p.id) === Number(item.prodId));
+    const codigo = prod && prod.barcode ? prod.barcode : '—';
+    const bgRow = idx % 2 === 0 ? '#fff' : '#fafafd';
     return `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 4px;border-bottom:1px solid rgba(255,255,255,0.15);">
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;font-size:0.92rem;">${icono} ${item.nombre}</div>
-        <div style="font-size:0.72rem;opacity:0.8;">${cant}</div>
-      </div>
-      <div style="font-weight:900;font-size:1rem;font-family:'Consolas',monospace;margin-right:8px;">$${fmt(Math.round(item.subtotal))}</div>
-      <button onclick="vuQuitarItem(${idx})" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:26px;height:26px;border-radius:5px;cursor:pointer;font-weight:700;">✗</button>
-    </div>`;
+    <tr style="background:${bgRow};border-bottom:1px solid #eee;">
+      <td style="padding:8px 10px;font-family:Consolas,monospace;font-size:0.78rem;color:#666;">${codigo}</td>
+      <td style="padding:8px 6px;text-align:center;">
+        <input type="text" inputmode="decimal"
+               value="${item.cantidad}"
+               onchange="vuCambiarCantidad(${idx}, this.value)"
+               onclick="this.select()"
+               style="width:75px;padding:6px;border:1px solid #c8c8d8;border-radius:5px;font-size:0.88rem;font-weight:700;text-align:center;font-family:Consolas,monospace;background:#f9f9fc;">
+        ${unidad ? `<div style="font-size:0.65rem;color:#888;margin-top:2px;">${unidad}</div>` : ''}
+      </td>
+      <td style="padding:8px 10px;">
+        <div style="font-weight:700;color:#1a1a2e;">${icono} ${item.nombre}</div>
+      </td>
+      <td style="padding:8px 10px;text-align:right;font-family:Consolas,monospace;color:#555;">$${fmt(item.precioUnit)}</td>
+      <td style="padding:8px 10px;text-align:right;font-weight:800;color:#27500a;font-family:Consolas,monospace;">$${fmt(Math.round(item.subtotal))}</td>
+      <td style="padding:8px 4px;text-align:center;">
+        <button onclick="vuQuitarItem(${idx})" style="background:#c0392b;color:#fff;border:none;width:26px;height:26px;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.85rem;">✕</button>
+      </td>
+    </tr>`;
   }).join('');
-  
+
   const cantItems = vuTicket.length;
   const cantDesp = vuTicket.filter(t => t.esDespacho).length;
   const cantOtros = cantItems - cantDesp;
   let resumen = `${cantItems} item${cantItems !== 1 ? 's' : ''}`;
-  if(cantDesp > 0) resumen += ` · ${cantDesp} combustible${cantDesp !== 1 ? 's' : ''}`;
-  if(cantOtros > 0) resumen += ` · ${cantOtros} producto${cantOtros !== 1 ? 's' : ''}`;
+  if(cantDesp > 0) resumen += ` · ${cantDesp} comb.`;
+  if(cantOtros > 0) resumen += ` · ${cantOtros} prod.`;
   if(lblCount) lblCount.textContent = resumen;
-  
+
   if(totalEl) totalEl.textContent = '$' + fmt(Math.round(total));
   if(btnCobrar){ btnCobrar.disabled = false; btnCobrar.style.opacity = '1'; }
   if(btnCancel) btnCancel.style.display = 'inline-block';
@@ -11536,6 +11671,26 @@ function vuCancelarTicket(){
   vuTicket = [];
   vuRenderTicket();
   toast('Ticket cancelado');
+}
+
+// Cambiar cantidad de una línea del ticket (acepta decimales con coma o punto)
+function vuCambiarCantidad(idx, valor){
+  if(idx < 0 || idx >= vuTicket.length) return;
+  // Aceptar coma o punto como decimal, quitar separadores de miles
+  var limpio = String(valor).trim().replace(/\s/g, '').replace(',', '.');
+  var num = parseFloat(limpio);
+  if(isNaN(num) || num <= 0){
+    if(confirm('Cantidad inválida. ¿Quitar este item del ticket?')){
+      vuTicket.splice(idx, 1);
+    }
+    vuRenderTicket();
+    return;
+  }
+  // Redondear a 3 decimales para evitar floats raros
+  num = Math.round(num * 1000) / 1000;
+  vuTicket[idx].cantidad = num;
+  vuTicket[idx].subtotal = Math.round(num * vuTicket[idx].precioUnit * 100) / 100;
+  vuRenderTicket();
 }
 
 function vuOnCambioFormaPago(){
@@ -11570,13 +11725,123 @@ async function vuConfirmarCobro(){
       return;
     }
     clienteId = Number(clienteId);
+  } else {
+    // Si NO es cuenta corriente, usar cliente del selector principal (opcional)
+    const selPpal = document.getElementById('vu-cliente-sel')?.value;
+    if(selPpal) clienteId = Number(selPpal);
   }
   
   const total = vuTicket.reduce((acc, it) => acc + it.subtotal, 0);
   const cantDesp = vuTicket.filter(t => t.esDespacho).length;
   
-  // Confirmar
-  if(!confirm(`💰 ¿Confirmar el cobro?\n\nTotal: $${fmt(Math.round(total))}\nItems: ${vuTicket.length}\nForma de pago: ${formaPago}\n\nSe va a registrar como una sola factura.`)) return;
+  // Si es efectivo, mostrar modal de vuelto antes de confirmar
+  if(formaPago === 'efectivo'){
+    mostrarModalVueltoSurtidor(total, function(montoEntregado, vuelto){
+      // Callback que continúa con la venta una vez confirmado el vuelto
+      finalizarCobroSurtidor(total, cantDesp, formaPago, patente, clienteId, montoEntregado, vuelto);
+    });
+    return;
+  }
+
+  // Otras formas de pago: confirmar normal
+  if(!confirm(`💰 ¿Confirmar el cobro?\n\nTotal: $${fmt(Math.round(total))}\nItems: ${vuTicket.length}\nForma de pago: ${formaPago}`)) return;
+  finalizarCobroSurtidor(total, cantDesp, formaPago, patente, clienteId, null, null);
+}
+
+// Modal de vuelto para pagos en efectivo
+function mostrarModalVueltoSurtidor(total, callback){
+  // Crear el modal si no existe
+  var modal = document.getElementById('vu-vuelto-modal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'vu-vuelto-modal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:6000;align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML = '<div style="background:#fff;width:min(420px,100%);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4);">'+
+      '<div style="background:linear-gradient(135deg,#27500a,#3a7515);color:#fff;padding:14px 20px;font-weight:800;font-size:1.1rem;letter-spacing:1px;">💵 PAGO EN EFECTIVO</div>'+
+      '<div style="padding:20px;">'+
+        '<div style="background:#f5f5fa;border-radius:10px;padding:14px;margin-bottom:14px;text-align:center;">'+
+          '<div style="font-size:0.75rem;color:#888;letter-spacing:1px;font-weight:700;">TOTAL A COBRAR</div>'+
+          '<div id="vv-total" style="font-size:2rem;font-weight:900;color:#27500a;font-family:Consolas,monospace;">$0</div>'+
+        '</div>'+
+        '<label style="font-size:0.85rem;font-weight:700;color:#333;display:block;margin-bottom:6px;">💰 Monto entregado por el cliente:</label>'+
+        '<input type="text" id="vv-entregado" inputmode="decimal" placeholder="0" '+
+          'style="width:100%;box-sizing:border-box;padding:14px 16px;border:2px solid #f0c040;border-radius:10px;font-size:1.4rem;font-weight:800;text-align:center;font-family:Consolas,monospace;outline:none;">'+
+        '<div id="vv-vuelto-box" style="display:none;margin-top:14px;background:linear-gradient(135deg,#e8f5d8,#c8e8a8);border:2px solid #27500a;border-radius:10px;padding:14px;text-align:center;">'+
+          '<div style="font-size:0.78rem;color:#27500a;letter-spacing:1px;font-weight:800;">💵 VUELTO</div>'+
+          '<div id="vv-vuelto" style="font-size:2.4rem;font-weight:900;color:#27500a;font-family:Consolas,monospace;line-height:1;">$0</div>'+
+        '</div>'+
+        '<div id="vv-falta-box" style="display:none;margin-top:14px;background:#fce8e8;border:2px solid #c0392b;border-radius:10px;padding:14px;text-align:center;">'+
+          '<div style="font-size:0.78rem;color:#c0392b;letter-spacing:1px;font-weight:800;">⚠️ FALTA</div>'+
+          '<div id="vv-falta" style="font-size:1.6rem;font-weight:900;color:#c0392b;font-family:Consolas,monospace;">$0</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px;margin-top:18px;">'+
+          '<button id="vv-btn-cancelar" style="flex:1;padding:12px;background:#888;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">❌ Cancelar</button>'+
+          '<button id="vv-btn-confirmar" style="flex:2;padding:12px;background:#27500a;color:#fff;border:none;border-radius:8px;font-weight:900;cursor:pointer;font-size:1.05rem;">✅ CONFIRMAR VENTA</button>'+
+        '</div>'+
+        '<div style="margin-top:10px;text-align:center;">'+
+          '<button id="vv-btn-justo" style="padding:8px 14px;background:#fff;color:#27500a;border:2px solid #27500a;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85rem;">💵 Pago justo (sin vuelto)</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+    document.body.appendChild(modal);
+  }
+
+  document.getElementById('vv-total').textContent = '$' + fmt(Math.round(total));
+  var inpEntr = document.getElementById('vv-entregado');
+  inpEntr.value = '';
+  document.getElementById('vv-vuelto-box').style.display = 'none';
+  document.getElementById('vv-falta-box').style.display = 'none';
+
+  function calcular(){
+    var entr = parseFloat(String(inpEntr.value).replace(/\./g,'').replace(',','.')) || 0;
+    var diff = entr - total;
+    if(entr <= 0){
+      document.getElementById('vv-vuelto-box').style.display = 'none';
+      document.getElementById('vv-falta-box').style.display = 'none';
+    } else if(diff >= 0){
+      document.getElementById('vv-vuelto').textContent = '$' + fmt(Math.round(diff));
+      document.getElementById('vv-vuelto-box').style.display = 'block';
+      document.getElementById('vv-falta-box').style.display = 'none';
+    } else {
+      document.getElementById('vv-falta').textContent = '$' + fmt(Math.round(Math.abs(diff)));
+      document.getElementById('vv-falta-box').style.display = 'block';
+      document.getElementById('vv-vuelto-box').style.display = 'none';
+    }
+  }
+
+  inpEntr.oninput = calcular;
+  inpEntr.onkeydown = function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); document.getElementById('vv-btn-confirmar').click(); }
+    if(e.key === 'Escape'){ document.getElementById('vv-btn-cancelar').click(); }
+  };
+
+  document.getElementById('vv-btn-justo').onclick = function(){
+    inpEntr.value = fmt(Math.round(total)).replace(/\./g,'');
+    calcular();
+    inpEntr.focus();
+  };
+
+  document.getElementById('vv-btn-cancelar').onclick = function(){
+    modal.style.display = 'none';
+  };
+
+  document.getElementById('vv-btn-confirmar').onclick = function(){
+    var entr = parseFloat(String(inpEntr.value).replace(/\./g,'').replace(',','.')) || 0;
+    if(entr <= 0){ alert('⚠️ Ingresá el monto entregado por el cliente'); inpEntr.focus(); return; }
+    if(entr < total){
+      if(!confirm('⚠️ El monto entregado es MENOR al total. ¿Confirmar igual?')) return;
+    }
+    var vuelto = entr - total;
+    modal.style.display = 'none';
+    callback(entr, vuelto);
+  };
+
+  modal.style.display = 'flex';
+  setTimeout(function(){ inpEntr.focus(); }, 100);
+}
+
+// Función que finaliza el cobro (separada del vuConfirmarCobro original)
+async function finalizarCobroSurtidor(total, cantDesp, formaPago, patente, clienteId, montoEntregado, vuelto){
   
   // Crear UNA SOLA factura con todos los items
   const fid = Date.now();
@@ -11605,7 +11870,9 @@ async function vuConfirmarCobro(){
     esDespacho: cantDesp > 0, // si hay combustible, marcar como despacho
     patente: patente || null,
     empleado: null,
-    pico: null
+    pico: null,
+    montoEntregado: montoEntregado || null,
+    vuelto: vuelto || null
   };
   
   facturas.push(factura);
@@ -11644,17 +11911,74 @@ async function vuConfirmarCobro(){
     document.getElementById('vu-buscador').value = '';
     document.getElementById('vu-resultados').style.display = 'none';
     if(document.getElementById('vu-cliente')) document.getElementById('vu-cliente').value = '';
+    if(document.getElementById('vu-cliente-sel')) document.getElementById('vu-cliente-sel').value = '';
+    if(document.getElementById('vu-lista-precios')) document.getElementById('vu-lista-precios').value = 'lista1';
     
     vuRenderTicket();
     renderAll();
     
     toast(`✅ Cobrado $${fmt(Math.round(total))} (${lineas.length} items)`);
+
+    // Si fue efectivo con vuelto, mostrar pantalla de vuelto al final
+    if(formaPago === 'efectivo' && montoEntregado !== null){
+      mostrarPantallaVueltoFinal(total, montoEntregado, vuelto);
+    }
     
     // Foco al buscador para empezar el próximo ticket
     setTimeout(() => document.getElementById('vu-buscador')?.focus(), 200);
   } catch(e){
     toast('❌ Error guardando. Reintentá.');
   }
+}
+
+// Pantalla final con el vuelto grande tras confirmar venta en efectivo
+function mostrarPantallaVueltoFinal(total, entregado, vuelto){
+  var modal = document.getElementById('vu-vuelto-final-modal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'vu-vuelto-final-modal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:6500;align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML = '<div style="background:#fff;width:min(500px,100%);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);">'+
+      '<div style="background:linear-gradient(135deg,#0a3a1a,#1e7a3e);color:#fff;padding:18px;text-align:center;">'+
+        '<div style="font-size:0.78rem;letter-spacing:2px;opacity:0.85;font-weight:700;">✅ VENTA REGISTRADA</div>'+
+        '<div style="font-size:1.4rem;font-weight:900;margin-top:4px;">Pago en efectivo</div>'+
+      '</div>'+
+      '<div style="padding:24px;">'+
+        '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:0.95rem;">'+
+          '<span style="color:#666;">Total cobrado:</span>'+
+          '<span id="vvf-total" style="font-weight:700;font-family:Consolas,monospace;">$0</span>'+
+        '</div>'+
+        '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:0.95rem;">'+
+          '<span style="color:#666;">Recibido del cliente:</span>'+
+          '<span id="vvf-entregado" style="font-weight:700;font-family:Consolas,monospace;">$0</span>'+
+        '</div>'+
+        '<div style="background:linear-gradient(135deg,#fff8e0,#ffe89e);border:3px solid #e8c84a;border-radius:12px;padding:20px;margin-top:18px;text-align:center;">'+
+          '<div style="font-size:0.85rem;color:#7a5a00;letter-spacing:2px;font-weight:800;margin-bottom:6px;">💵 VUELTO PARA EL CLIENTE</div>'+
+          '<div id="vvf-vuelto" style="font-size:3.4rem;font-weight:900;color:#7a5a00;font-family:Consolas,monospace;line-height:1;">$0</div>'+
+        '</div>'+
+        '<button id="vvf-btn-cerrar" style="width:100%;padding:14px;background:#27500a;color:#fff;border:none;border-radius:10px;font-size:1.1rem;font-weight:900;cursor:pointer;margin-top:18px;letter-spacing:1px;">✓ LISTO</button>'+
+      '</div>'+
+    '</div>';
+    document.body.appendChild(modal);
+  }
+  document.getElementById('vvf-total').textContent = '$' + fmt(Math.round(total));
+  document.getElementById('vvf-entregado').textContent = '$' + fmt(Math.round(entregado));
+  document.getElementById('vvf-vuelto').textContent = '$' + fmt(Math.round(vuelto));
+
+  var cerrarFn = function(){
+    modal.style.display = 'none';
+    document.removeEventListener('keydown', cerrarKey);
+  };
+  var cerrarKey = function(e){
+    if(e.key === 'Enter' || e.key === 'Escape' || e.key === ' '){
+      e.preventDefault();
+      cerrarFn();
+    }
+  };
+  document.getElementById('vvf-btn-cerrar').onclick = cerrarFn;
+  document.addEventListener('keydown', cerrarKey);
+  modal.style.display = 'flex';
+  setTimeout(function(){ document.getElementById('vvf-btn-cerrar').focus(); }, 100);
 }
 
 // Re-renderizar cuando se entra al panel surtidor
@@ -12675,5 +12999,8 @@ renderAll = function(){
 // ========================================================================
 
 </script>
+
+
+
 </body>
 </html>
