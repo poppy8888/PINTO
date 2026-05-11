@@ -2055,8 +2055,13 @@ body.rol-operadora #tanques-grid {
         <input type="text" id="vu-buscador" placeholder="🔍 Listo para escanear..." 
                style="flex:1;padding:11px 14px;border:2px solid #f0c040;border-radius:8px;font-size:1rem;font-family:monospace;font-weight:700;background:#fff;"
                oninput="vuBuscadorInput()" 
-               onkeydown="vuBuscadorKeydown(event)">
-        <button onclick="vuMostrarBusqueda()" style="padding:11px 18px;background:#3a2e5e;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.9rem;">🔎 Buscar</button>
+               onkeydown="vuBuscadorKeydown(event)"
+               autocomplete="off">
+        <button onclick="vuProcesarBusqueda()" style="padding:11px 18px;background:#3a2e5e;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.9rem;">🔎 Buscar</button>
+      </div>
+      <!-- Cartel de debug del escáner -->
+      <div id="vu-debug" style="margin-top:6px;font-size:0.72rem;color:#888;padding:4px 8px;background:#fffdf5;border-radius:4px;display:none;">
+        🔧 Debug: <span id="vu-debug-text">esperando...</span>
       </div>
       <div id="vu-resultados" style="display:none;background:#fff;border:1px solid #ddd;border-radius:8px;max-height:280px;overflow-y:auto;margin-top:8px;"></div>
     </div>
@@ -5447,11 +5452,6 @@ function iniciarScannerVenta(){
   const inp = document.getElementById('venta-scan-input');
   if(!inp) return;
   
-  // Variables para detectar escáner USB sin Enter
-  let ventaUltimaTecla = 0;
-  let ventaTeclasRapidas = 0;
-  let ventaFinEscaneoTimer = null;
-  
   // Función reutilizable para procesar el valor escaneado
   const procesarValor = () => {
     const code = inp.value.trim();
@@ -5495,31 +5495,20 @@ function iniciarScannerVenta(){
     setTimeout(() => inp.focus(), 50);
   };
   
-  // Búsqueda en tiempo real + detección automática de escáner USB
+  // Búsqueda en tiempo real + auto-procesar al detener
+  let ventaFinEscaneoTimer = null;
+  
   inp.addEventListener('input', function(){
     venta_mostrarResultadosBusqueda(this.value);
     
-    // Detectar escáner USB por velocidad de tipeo
-    const ahora = Date.now();
-    const delta = ahora - ventaUltimaTecla;
-    ventaUltimaTecla = ahora;
-    
-    if(delta < 50){
-      ventaTeclasRapidas++;
-    } else if(delta > 200){
-      ventaTeclasRapidas = 0;
-    }
-    
+    // Auto-procesar si el usuario para de escribir 200ms y tiene 6+ caracteres
     clearTimeout(ventaFinEscaneoTimer);
-    if(ventaTeclasRapidas >= 4){
-      ventaFinEscaneoTimer = setTimeout(() => {
-        const valor = inp.value.trim();
-        if(valor.length >= 4){
-          procesarValor();
-        }
-        ventaTeclasRapidas = 0;
-      }, 150);
-    }
+    ventaFinEscaneoTimer = setTimeout(() => {
+      const valor = (inp.value || '').trim();
+      if(valor.length >= 6){
+        procesarValor();
+      }
+    }, 200);
   });
   
   // Procesar al apretar Enter
@@ -5527,7 +5516,6 @@ function iniciarScannerVenta(){
     if(e.key === 'Enter'){
       e.preventDefault();
       clearTimeout(ventaFinEscaneoTimer);
-      ventaTeclasRapidas = 0;
       procesarValor();
     }
     
@@ -11259,35 +11247,20 @@ function vuBuscadorInput(){
   vuMostrarBusqueda();
   
   // ============================================================
-  // DETECCIÓN DE ESCÁNER USB SIN ENTER
-  // Los lectores USB escriben muy rápido (5-30ms entre teclas)
-  // Si detectamos varias teclas seguidas y después se queda quieto
-  // → es un escáner que terminó. Procesamos automáticamente.
+  // ESCÁNER USB ROBUSTO: cada vez que cambia el input,
+  // esperamos 200ms y si el texto se quedó quieto y tiene ≥6 chars
+  // → procesamos como escaneo
   // ============================================================
-  const ahora = Date.now();
-  const delta = ahora - vuUltimoEscaneo;
-  vuUltimoEscaneo = ahora;
-  
-  if(delta < 50){
-    // Tecla muy rápida = probablemente escáner
-    vuTeclasRapidas++;
-  } else if(delta > 200){
-    // Tecla lenta = usuario humano, reiniciar contador
-    vuTeclasRapidas = 0;
-  }
-  
-  // Si llegaron al menos 4 teclas rápidas seguidas y se queda quieto 150ms → es un escaneo
   clearTimeout(vuFinEscaneoTimer);
-  if(vuTeclasRapidas >= 4){
-    vuFinEscaneoTimer = setTimeout(() => {
-      // Procesar como si hubiera apretado Enter
-      const valorActual = document.getElementById('vu-buscador')?.value || '';
-      if(valorActual.trim().length >= 4){
-        vuProcesarBusqueda();
-      }
-      vuTeclasRapidas = 0;
-    }, 150);
-  }
+  vuFinEscaneoTimer = setTimeout(() => {
+    const inp = document.getElementById('vu-buscador');
+    if(!inp) return;
+    const valor = (inp.value || '').trim();
+    // Si tiene 6+ caracteres (códigos de barras suelen tener 8-13), procesar
+    if(valor.length >= 6){
+      vuProcesarBusqueda();
+    }
+  }, 200);
 }
 
 function vuBuscadorKeydown(e){
@@ -11302,8 +11275,17 @@ function vuBuscadorKeydown(e){
 }
 
 function vuProcesarBusqueda(){
-  // Cuando aprietan Enter, intentar match exacto por código de barras
+  // Cuando aprietan Enter o se detecta fin de escaneo
   const q = (document.getElementById('vu-buscador')?.value || '').trim();
+  
+  // Mostrar debug
+  const dbgDiv = document.getElementById('vu-debug');
+  const dbgText = document.getElementById('vu-debug-text');
+  if(dbgDiv && dbgText){
+    dbgDiv.style.display = 'block';
+    dbgText.textContent = `Buscando "${q}" (${q.length} chars)`;
+  }
+  
   if(!q) return;
   
   // Match exacto por barcode (típico de escáner USB)
@@ -11312,14 +11294,16 @@ function vuProcesarBusqueda(){
   );
   
   if(exacto){
+    if(dbgText) dbgText.textContent = `✅ Match exacto: ${exacto.nombre}`;
     vuAgregarProducto(exacto.id, 1);
     document.getElementById('vu-buscador').value = '';
     document.getElementById('vu-resultados').style.display = 'none';
     setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
+    setTimeout(() => { if(dbgDiv) dbgDiv.style.display = 'none'; }, 2000);
     return;
   }
   
-  // Si hay UN solo resultado en la búsqueda, agregarlo automáticamente
+  // Si hay UN solo resultado en la búsqueda parcial, agregarlo automáticamente
   const qLow = q.toLowerCase();
   const resultados = productos.filter(p => {
     if(p.esCombustible) return false;
@@ -11329,15 +11313,18 @@ function vuProcesarBusqueda(){
     return nombre.includes(qLow) || barcode.includes(qLow) || marca.includes(qLow);
   });
   
+  if(dbgText) dbgText.textContent = `Encontrados: ${resultados.length} producto(s) que contienen "${q}"`;
+  
   if(resultados.length === 1){
     vuAgregarProducto(resultados[0].id, 1);
     document.getElementById('vu-buscador').value = '';
     document.getElementById('vu-resultados').style.display = 'none';
     setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
+    setTimeout(() => { if(dbgDiv) dbgDiv.style.display = 'none'; }, 2000);
     return;
   }
   
-  // Si hay varios, mostrarlos
+  // Si hay varios o ninguno, mostrarlos
   vuMostrarResultados(resultados.slice(0, 30));
 }
 
