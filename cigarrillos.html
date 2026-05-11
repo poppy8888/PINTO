@@ -10897,6 +10897,61 @@ function renderMiTurnoEnCurso(){
       </div>
     </div>
     
+    ${(() => {
+      // ===== MERCADERÍA VENDIDA EN VIVO =====
+      const ventasNoCombust = datos.facturasTurno.filter(f => !f.esDespacho);
+      if(ventasNoCombust.length === 0) return '';
+      
+      const resumenPorProd = {};
+      let totalMerc = 0;
+      ventasNoCombust.forEach(f => {
+        (f.lineas||[]).forEach(l => {
+          const prod = productos.find(p => Number(p.id) === Number(l.prodId));
+          const nomb = prod ? prod.nombre : '?';
+          const cant = l.cantidad || 0;
+          const subtotal = l.subtotal || (cant * (l.precioVenta||0));
+          totalMerc += subtotal;
+          if(!resumenPorProd[l.prodId]){
+            resumenPorProd[l.prodId] = { nombre: nomb, cantidad: 0, total: 0, esCigarrillo: prod ? prod.esCigarrillo : false };
+          }
+          resumenPorProd[l.prodId].cantidad += cant;
+          resumenPorProd[l.prodId].total += subtotal;
+        });
+      });
+      const lista = Object.values(resumenPorProd).sort((a,b) => b.total - a.total);
+      
+      return `
+      <div class="mt-card">
+        <div class="mt-card-titulo">🛒 Mercadería vendida en este turno (${ventasNoCombust.length})</div>
+        <div style="max-height:240px;overflow-y:auto;border:1px solid #eee;border-radius:6px;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+            <thead>
+              <tr style="background:#27500a;color:#fff;position:sticky;top:0;">
+                <th style="padding:7px 10px;text-align:left;">Producto</th>
+                <th style="padding:7px 10px;text-align:right;">Cant.</th>
+                <th style="padding:7px 10px;text-align:right;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${lista.map((item,i) => {
+                const icono = item.esCigarrillo ? '🚬' : '🛒';
+                const bg = i % 2 === 0 ? '#fafafa' : '#fff';
+                return `<tr style="background:${bg};">
+                  <td style="padding:6px 10px;border-bottom:1px solid #eee;">${icono} ${item.nombre}</td>
+                  <td style="padding:6px 10px;text-align:right;border-bottom:1px solid #eee;">${fmtMiles(item.cantidad)}</td>
+                  <td style="padding:6px 10px;text-align:right;border-bottom:1px solid #eee;font-weight:700;">$${fmtMiles(Math.round(item.total))}</td>
+                </tr>`;
+              }).join('')}
+              <tr style="background:#1a1a2e;color:#fff;font-weight:800;">
+                <td style="padding:8px 10px;" colspan="2">SUBTOTAL MERCADERÍA</td>
+                <td style="padding:8px 10px;text-align:right;">$${fmtMiles(Math.round(totalMerc))}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    })()}
+    
     <button class="mt-btn-cerrar" onclick="prepararCierreTurno()">🔴 CERRAR TURNO Y RENDIR</button>
   `;
 }
@@ -11148,6 +11203,61 @@ function mostrarResumenTurnoCerrado(turno){
       </div>
     </div>
     
+    ${(() => {
+      // ===== DETALLE DE MERCADERÍA VENDIDA EN PANTALLA =====
+      const ventasNoCombust = facturasTurno.filter(f => !f.esDespacho);
+      if(ventasNoCombust.length === 0) return '';
+      
+      const resumenPorProd = {};
+      let totalMerc = 0;
+      ventasNoCombust.forEach(f => {
+        (f.lineas||[]).forEach(l => {
+          const prod = productos.find(p => Number(p.id) === Number(l.prodId));
+          const nomb = prod ? prod.nombre : '?';
+          const cant = l.cantidad || 0;
+          const subtotal = l.subtotal || (cant * (l.precioVenta||0));
+          totalMerc += subtotal;
+          if(!resumenPorProd[l.prodId]){
+            resumenPorProd[l.prodId] = { nombre: nomb, cantidad: 0, total: 0, esCigarrillo: prod ? prod.esCigarrillo : false };
+          }
+          resumenPorProd[l.prodId].cantidad += cant;
+          resumenPorProd[l.prodId].total += subtotal;
+        });
+      });
+      const lista = Object.values(resumenPorProd).sort((a,b) => b.total - a.total);
+      
+      return `
+      <div class="mt-card" style="margin-top:14px;">
+        <div class="mt-card-titulo">🛒 Mercadería vendida (${ventasNoCombust.length} operación${ventasNoCombust.length !== 1 ? 'es' : ''})</div>
+        <div style="max-height:280px;overflow-y:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+            <thead>
+              <tr style="background:#27500a;color:#fff;">
+                <th style="padding:6px 8px;text-align:left;">Producto</th>
+                <th style="padding:6px 8px;text-align:right;">Cantidad</th>
+                <th style="padding:6px 8px;text-align:right;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${lista.map((item,i) => {
+                const icono = item.esCigarrillo ? '🚬' : '🛒';
+                const bg = i % 2 === 0 ? '#fafafa' : '#fff';
+                return `<tr style="background:${bg};">
+                  <td style="padding:6px 8px;border-bottom:1px solid #eee;">${icono} ${item.nombre}</td>
+                  <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #eee;">${fmtMiles(item.cantidad)} ${item.esCigarrillo ? 'paq.' : 'u.'}</td>
+                  <td style="padding:6px 8px;text-align:right;border-bottom:1px solid #eee;font-weight:700;">$${fmtMiles(Math.round(item.total))}</td>
+                </tr>`;
+              }).join('')}
+              <tr style="background:#1a1a2e;color:#fff;font-weight:800;">
+                <td style="padding:8px;" colspan="2">SUBTOTAL MERCADERÍA</td>
+                <td style="padding:8px;text-align:right;">$${fmtMiles(Math.round(totalMerc))}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    })()}
+    
     <div style="text-align:center;margin-top:20px;">
       <button onclick="renderPanelMiTurno()" style="padding:12px 24px;background:#1e7a3e;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;">🟢 Iniciar nuevo turno</button>
     </div>
@@ -11292,6 +11402,104 @@ function imprimirResumenTurno(turno){
         <tr style="background:#e0e0e0;font-weight:900;"><th>TOTAL</th><td class="num">$${fmtMiles(totalGen)}</td></tr>
       </table>
     </div>
+    
+    ${(() => {
+      // ===== DETALLE DE DESPACHOS DE COMBUSTIBLE =====
+      const despachos = facturasTurno.filter(f => f.esDespacho);
+      if(despachos.length === 0) return '';
+      
+      return `
+      <div class="imp-seccion">
+        <div class="imp-seccion-titulo">⛽ DETALLE DE DESPACHOS (${despachos.length})</div>
+        <table class="imp-tabla">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Combustible</th>
+              <th>Litros</th>
+              <th>P. unitario</th>
+              <th>Forma pago</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${despachos.map(f => {
+              const linea = (f.lineas && f.lineas[0]) || {};
+              const prod = productos.find(p => Number(p.id) === Number(linea.prodId));
+              const nomb = prod ? prod.nombre : '?';
+              const lts = linea.cantidad || 0;
+              const punit = linea.precioVenta || 0;
+              const hora = (typeof f.fecha === 'string' ? (f.fecha.split(',')[1] || f.fecha.split(' ')[1] || '').trim() : '');
+              const pago = ({efectivo:'💵 Efectivo', transferencia:'🏦 Transf.', tarjeta:'💳 Tarjeta', cuenta_corriente:'📋 Cta.Cte.'})[f.formaPago] || (f.formaPago||'-');
+              return `<tr>
+                <td>${hora}</td>
+                <td>${nomb}</td>
+                <td class="num">${fmtMiles(lts)} L</td>
+                <td class="num">$${fmtMiles(punit)}</td>
+                <td style="font-size:0.78rem;">${pago}</td>
+                <td class="num"><strong>$${fmtMiles(f.total)}</strong></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    })()}
+    
+    ${(() => {
+      // ===== DETALLE DE VENTAS DE MERCADERÍA (cigarrillos, productos del minimarket) =====
+      const ventasNoCombust = facturasTurno.filter(f => !f.esDespacho);
+      if(ventasNoCombust.length === 0) return '';
+      
+      // Resumir por producto vendido
+      const resumenPorProd = {}; // prodId -> {nombre, cantidad, total}
+      let totalMercaderia = 0;
+      
+      ventasNoCombust.forEach(f => {
+        (f.lineas||[]).forEach(l => {
+          const prod = productos.find(p => Number(p.id) === Number(l.prodId));
+          const nomb = prod ? prod.nombre : '?';
+          const cant = l.cantidad || 0;
+          const subtotal = l.subtotal || (cant * (l.precioVenta||0));
+          totalMercaderia += subtotal;
+          if(!resumenPorProd[l.prodId]){
+            resumenPorProd[l.prodId] = { nombre: nomb, cantidad: 0, total: 0, esCigarrillo: prod ? prod.esCigarrillo : false };
+          }
+          resumenPorProd[l.prodId].cantidad += cant;
+          resumenPorProd[l.prodId].total += subtotal;
+        });
+      });
+      
+      // Ordenar: primero los que más se vendieron en plata
+      const lista = Object.values(resumenPorProd).sort((a,b) => b.total - a.total);
+      
+      return `
+      <div class="imp-seccion">
+        <div class="imp-seccion-titulo">🛒 MERCADERÍA VENDIDA (${ventasNoCombust.length} operación${ventasNoCombust.length !== 1 ? 'es' : ''})</div>
+        <table class="imp-tabla">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lista.map(item => {
+              const icono = item.esCigarrillo ? '🚬' : '🛒';
+              return `<tr>
+                <td>${icono} ${item.nombre}</td>
+                <td class="num">${fmtMiles(item.cantidad)} ${item.esCigarrillo ? 'paq.' : 'u.'}</td>
+                <td class="num"><strong>$${fmtMiles(Math.round(item.total))}</strong></td>
+              </tr>`;
+            }).join('')}
+            <tr style="background:#e0e0e0;font-weight:900;">
+              <th colspan="2">SUBTOTAL MERCADERÍA</th>
+              <td class="num">$${fmtMiles(Math.round(totalMercaderia))}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>`;
+    })()}
     
     <div class="imp-seccion">
       <div class="imp-seccion-titulo">CIERRE DE CAJA</div>
