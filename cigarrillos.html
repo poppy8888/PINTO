@@ -11275,10 +11275,8 @@ function vuBuscadorKeydown(e){
 }
 
 function vuProcesarBusqueda(){
-  // Cuando aprietan Enter o se detecta fin de escaneo
   const q = (document.getElementById('vu-buscador')?.value || '').trim();
   
-  // Mostrar debug
   const dbgDiv = document.getElementById('vu-debug');
   const dbgText = document.getElementById('vu-debug-text');
   if(dbgDiv && dbgText){
@@ -11288,22 +11286,25 @@ function vuProcesarBusqueda(){
   
   if(!q) return;
   
-  // Match exacto por barcode (típico de escáner USB)
-  const exacto = productos.find(p => 
+  // Determinar si parece un código de barras (todo números, 6+ caracteres)
+  const pareceCodigo = /^\d{6,}$/.test(q);
+  
+  // PASO 1: Match exacto por barcode
+  let producto = productos.find(p => 
     (p.barcode || '').trim() === q
   );
   
-  if(exacto){
-    if(dbgText) dbgText.textContent = `✅ Match exacto: ${exacto.nombre}`;
-    vuAgregarProducto(exacto.id, 1);
+  if(producto){
+    if(dbgText) dbgText.textContent = `✅ Match exacto: ${producto.nombre} → AGREGANDO`;
+    vuAgregarProducto(producto.id, 1);
     document.getElementById('vu-buscador').value = '';
     document.getElementById('vu-resultados').style.display = 'none';
     setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
-    setTimeout(() => { if(dbgDiv) dbgDiv.style.display = 'none'; }, 2000);
+    setTimeout(() => { if(dbgDiv) dbgDiv.style.display = 'none'; }, 3000);
     return;
   }
   
-  // Si hay UN solo resultado en la búsqueda parcial, agregarlo automáticamente
+  // PASO 2: Búsqueda parcial (incluye match parcial de barcode)
   const qLow = q.toLowerCase();
   const resultados = productos.filter(p => {
     if(p.esCombustible) return false;
@@ -11313,18 +11314,51 @@ function vuProcesarBusqueda(){
     return nombre.includes(qLow) || barcode.includes(qLow) || marca.includes(qLow);
   });
   
-  if(dbgText) dbgText.textContent = `Encontrados: ${resultados.length} producto(s) que contienen "${q}"`;
+  // Si parece código Y hay match parcial por barcode, priorizar ese
+  if(pareceCodigo){
+    const matchBarcodePartial = resultados.find(p => 
+      (p.barcode || '').toLowerCase().includes(qLow)
+    );
+    
+    if(matchBarcodePartial){
+      // Si parece código y hay UN producto cuyo barcode contiene esto, agregarlo directo
+      const matchesPorBarcode = resultados.filter(p => 
+        (p.barcode || '').toLowerCase().includes(qLow)
+      );
+      
+      if(matchesPorBarcode.length === 1){
+        if(dbgText) dbgText.textContent = `✅ Match por código: ${matchesPorBarcode[0].nombre} → AGREGANDO`;
+        vuAgregarProducto(matchesPorBarcode[0].id, 1);
+        document.getElementById('vu-buscador').value = '';
+        document.getElementById('vu-resultados').style.display = 'none';
+        setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
+        setTimeout(() => { if(dbgDiv) dbgDiv.style.display = 'none'; }, 3000);
+        return;
+      }
+    }
+    
+    // Si parece código pero NO encuentra match, mostrar mensaje claro
+    if(resultados.length === 0){
+      if(dbgText) dbgText.textContent = `❌ NO existe producto con código "${q}". Cargalo desde Cigarrillos.`;
+      vuMostrarResultados([]);
+      return;
+    }
+  }
   
+  if(dbgText) dbgText.textContent = `Encontrados: ${resultados.length} producto(s) — TOCÁ uno abajo`;
+  
+  // Si hay UN solo resultado por texto, agregarlo
   if(resultados.length === 1){
+    if(dbgText) dbgText.textContent = `✅ Único resultado: ${resultados[0].nombre} → AGREGANDO`;
     vuAgregarProducto(resultados[0].id, 1);
     document.getElementById('vu-buscador').value = '';
     document.getElementById('vu-resultados').style.display = 'none';
     setTimeout(() => document.getElementById('vu-buscador')?.focus(), 100);
-    setTimeout(() => { if(dbgDiv) dbgDiv.style.display = 'none'; }, 2000);
+    setTimeout(() => { if(dbgDiv) dbgDiv.style.display = 'none'; }, 3000);
     return;
   }
   
-  // Si hay varios o ninguno, mostrarlos
+  // Mostrar resultados para que el usuario elija
   vuMostrarResultados(resultados.slice(0, 30));
 }
 
