@@ -3941,7 +3941,37 @@ async function loadAll(){
     }
     toast('📀 Datos locales');
   }
-  productos.forEach(p=>{if(stock[p.id]===undefined)stock[p.id]=0;if(!p.costo)p.costo=0;if(!p.barcode)p.barcode='';if(!p.tipo)p.tipo='unidad';});
+  productos.forEach(p=>{
+    if(stock[p.id]===undefined)stock[p.id]=0;
+    if(!p.barcode)p.barcode='';
+    if(!p.tipo)p.tipo='unidad';
+    // ===== NORMALIZAR números: convertir strings con coma decimal (formato AR) a número real =====
+    // Esto arregla cuando los datos vienen del Excel con coma como decimal (ej: "5604,1" → 5604.1)
+    const camposNumericos = ['costo','precio','precioLista2','precioCasa','stockMin','stockIdeal'];
+    camposNumericos.forEach(campo => {
+      if(p[campo] === undefined || p[campo] === null || p[campo] === ''){
+        p[campo] = 0;
+        return;
+      }
+      if(typeof p[campo] === 'number'){
+        // ya es número, OK
+        return;
+      }
+      // Es string: convertir coma a punto y parsear
+      const str = String(p[campo]).trim().replace(/\./g, '').replace(',', '.');
+      const num = parseFloat(str);
+      p[campo] = isNaN(num) ? 0 : (Math.round(num * 100) / 100);
+    });
+  });
+  // También normalizar valores de stock que puedan haber venido como string con coma
+  Object.keys(stock).forEach(id => {
+    const v = stock[id];
+    if(typeof v === 'string'){
+      const str = v.trim().replace(/\./g, '').replace(',', '.');
+      const num = parseFloat(str);
+      stock[id] = isNaN(num) ? 0 : (Math.round(num * 1000) / 1000);
+    }
+  });
   nextId=Math.max(...productos.map(p=>p.id),99)+1;
   if(!facturas)facturas=[];
   if(!clientes)clientes=[];
