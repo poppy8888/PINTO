@@ -970,6 +970,39 @@ body.rol-operadora .admin-only {
 }
 
 /* ============================================================ */
+/* OPERADORA (chica de compras): no debe ver stock ni stock     */
+/* de tanques. Solo carga productos, precios y compras.         */
+/* ============================================================ */
+
+/* Ocultar panel-stock completamente para operadora */
+body.rol-operadora #panel-stock {
+  display: none !important;
+}
+
+/* Ocultar el botón de pestaña Stock por si quedó visible */
+body.rol-operadora .tab[onclick*="'stock'"] {
+  display: none !important;
+}
+
+/* Ocultar columnas de stock en cualquier tabla */
+body.rol-operadora .col-stock,
+body.rol-operadora .columna-stock,
+body.rol-operadora .stock-info,
+body.rol-operadora .stock-disponible,
+body.rol-operadora .badge-stock,
+body.rol-operadora [data-rol="admin"] {
+  display: none !important;
+}
+
+/* Ocultar tanques en surtidor (stock de combustibles) — por si entra */
+body.rol-operadora #tanques-grid,
+body.rol-operadora .tanque-grid,
+body.rol-operadora .tanque-card,
+body.rol-operadora .seccion-tanques {
+  display: none !important;
+}
+
+/* ============================================================ */
 /* CAJERO: ocultar TODO lo que tenga que ver con stock          */
 /* ============================================================ */
 
@@ -2461,6 +2494,15 @@ body.rol-operadora #tanques-grid {
       <div class="field-group"><div class="field-label">Marca</div><input type="text" id="new-marca" class="field-input" placeholder="Ej: Frutas"/></div>
       <div class="field-group"><div class="field-label">Nombre</div><input type="text" id="new-nombre" class="field-input" placeholder="Ej: Manzana"/></div>
       <div class="field-group"><div class="field-label">Código barras</div><input type="text" id="new-barcode" class="field-input" placeholder="Código para escáner"/></div>
+      <div class="field-group">
+        <div class="field-label">📦 Familia / Categoría</div>
+        <div style="display:flex;gap:6px;">
+          <select id="new-familia" class="field-input" style="flex:1;">
+            <option value="">— Sin familia —</option>
+          </select>
+          <button type="button" onclick="newCrearFamiliaRapida()" title="Crear familia nueva" style="padding:0 12px;background:#27500a;color:#fff;border:none;border-radius:6px;font-weight:800;cursor:pointer;font-size:1.05rem;white-space:nowrap;">+ Nueva</button>
+        </div>
+      </div>
       <div class="field-group"><div class="field-label">Tipo de venta</div><select id="new-tipo" class="field-input"><option value="unidad">Unidad (precio por pieza)</option><option value="peso">Peso (precio por kg)</option><option value="litro">Líquido (precio por litro)</option></select></div>
       <div class="field-group"><div class="field-label">Stock inicial</div><input type="text" id="new-stock" class="field-input" value="0"/></div>
       <div class="field-group"><div class="field-label">💲 Precio costo ($)</div><input type="text" id="new-costo" class="field-input" placeholder="Ej: 800" oninput="calcPrecioVenta(); newActualizarListas();" style="background:#eaf3ff;font-weight:600;"/></div>
@@ -3631,7 +3673,7 @@ const ROLES_INFO = {
 // Pestañas que ve cada rol (las que NO están acá quedan ocultas)
 const PESTANAS_PERMITIDAS = {
   admin:     "TODAS",  // ve todo
-  operadora: ["compra","proveedores","precios"],  // compras, proveedores y precios. NO stock.
+  operadora: ["compra","proveedores","precios","acciones","etiquetas"],  // compras, proveedores, precios, acciones (alta de productos) y etiquetas
   cajero1:   ["surtidor","venta","cigarrillos","cuentas","miturno"],
   cajero2:   ["surtidor","venta","cigarrillos","cuentas","miturno"]
 };
@@ -4563,6 +4605,7 @@ function guardarEdicionProducto(id){
 
 function agregarProducto(){
   const marca=document.getElementById('new-marca').value.trim(), nombre=document.getElementById('new-nombre').value.trim(), precio=parseNumero(document.getElementById('new-precio').value)||0, costo=parseNumero(document.getElementById('new-costo').value)||0, barcode=document.getElementById('new-barcode').value.trim(), stockInicial=parseNumero(document.getElementById('new-stock').value)||0, tipo=document.getElementById('new-tipo').value;
+  const familia = (document.getElementById('new-familia')?.value || '').trim();
   if(!marca||!nombre||isNaN(precio)||precio<=0){toast('Completá marca, nombre y precio válido');return;}
   if(barcode&&productos.some(p=>p.barcode===barcode)){toast('❌ Código ya existe');return;}
   if(isNaN(stockInicial)) stockInicial=0;
@@ -4570,12 +4613,13 @@ function agregarProducto(){
   if(isNaN(costo)) costo=0;
   const precioL2 = parseNumero(document.getElementById('new-precio-l2').value) || precio;
   const precioCasa = parseNumero(document.getElementById('new-precio-casa').value) || costo;
-  const prod={id:nextId++,nombre,marca,precio,costo,precioCasa,precioLista2:precioL2,barcode,tipo,stockMin:0,stockIdeal:0,proveedorId:null,notas:''};
+  const prod={id:nextId++,nombre,marca,precio,costo,precioCasa,precioLista2:precioL2,barcode,tipo,familia,stockMin:0,stockIdeal:0,proveedorId:null,notas:''};
   productos.push(prod); stock[prod.id]=stockFinal;
   saveAll();renderAll();
   document.getElementById('new-marca').value='';document.getElementById('new-nombre').value='';document.getElementById('new-precio').value='';document.getElementById('new-costo').value='';document.getElementById('new-utilidad').value='';document.getElementById('new-barcode').value='';document.getElementById('new-stock').value='0';document.getElementById('price-preview').style.display='none';
   document.getElementById('new-utilidad-l2').value='';document.getElementById('new-precio-l2').value='';document.getElementById('new-precio-casa').value='';
-  toast(`✅ ${marca} ${nombre} (${tipo==='unidad'?'unidad':'kg'}) agregado`);
+  if(document.getElementById('new-familia')) document.getElementById('new-familia').value = '';
+  toast(`✅ ${marca} ${nombre}${familia ? ' ('+familia+')' : ''} agregado`);
 }
 
 function pedirEliminar(id){deleteTarget=id;const prod=productos.find(p=>Number(p.id)===Number(id));document.getElementById('modal-del-text').textContent=`Eliminar "${prod.marca} — ${prod.nombre}"`;document.getElementById('modal-del').classList.add('open');}
@@ -13570,6 +13614,60 @@ try {
 } catch(e){}
 
 // ===== Atajos de Compra hacia Etiquetas =====
+function newRellenarFamilias(){
+  const sel = document.getElementById('new-familia');
+  if(!sel) return;
+  // Reunir todas las familias: las que ya están asignadas a productos + las creadas manualmente
+  const conjunto = new Set();
+  (productos || []).forEach(p => {
+    if(p.familia && String(p.familia).trim()) conjunto.add(String(p.familia).trim());
+  });
+  (window.familiasExtra || []).forEach(f => {
+    if(f && String(f).trim()) conjunto.add(String(f).trim());
+  });
+  const lista = Array.from(conjunto).sort();
+  const valorActual = sel.value;
+  sel.innerHTML = '<option value="">— Sin familia —</option>' +
+    lista.map(f => '<option value="' + f.replace(/"/g,'&quot;') + '">' + f + '</option>').join('');
+  if(valorActual && conjunto.has(valorActual)) sel.value = valorActual;
+}
+
+function newCrearFamiliaRapida(){
+  const nombre = prompt('Nombre de la nueva familia\n(ej: Golosinas, Bebidas, Limpieza, Almacén...)');
+  if(!nombre) return;
+  const limpio = String(nombre).trim();
+  if(!limpio){ toast('⚠️ Nombre vacío'); return; }
+  // Verificar si ya existe
+  const yaExiste = (productos||[]).some(p => (p.familia||'').toLowerCase() === limpio.toLowerCase())
+                || (window.familiasExtra||[]).some(f => f.toLowerCase() === limpio.toLowerCase());
+  if(yaExiste){
+    toast('La familia "' + limpio + '" ya existe — la selecciono');
+  } else {
+    if(!window.familiasExtra) window.familiasExtra = [];
+    window.familiasExtra.push(limpio);
+    try { localStorage.setItem('familiasExtra', JSON.stringify(window.familiasExtra)); } catch(e){}
+    toast('✅ Familia "' + limpio + '" creada');
+  }
+  newRellenarFamilias();
+  const sel = document.getElementById('new-familia');
+  if(sel) sel.value = limpio;
+}
+
+// Hook: cuando se entra a Acciones, refrescar el desplegable de familias
+(function(){
+  if(typeof showTab !== 'function') return;
+  const _origST = showTab;
+  showTab = function(name, btn){
+    _origST(name, btn);
+    if(name === 'acciones'){
+      setTimeout(newRellenarFamilias, 80);
+    }
+  };
+})();
+
+// También llenarlo al cargar la página
+setTimeout(newRellenarFamilias, 800);
+
 function irAEtiquetas(){
   const btns = document.querySelectorAll('.tab, .menu-tab-btn, button');
   for(const b of btns){
