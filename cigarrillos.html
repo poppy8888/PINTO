@@ -1365,6 +1365,7 @@ body.rol-operadora #tanques-grid {
   <div style="display:flex;align-items:center;gap:10px">
     <div class="header-date" id="hdate"></div>
     <button onclick="exportarBackup()" style="padding:10px 18px;border-radius:6px;border:1px solid #d4a020;background:#e8c84a;color:#1a1a2e;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">💾 Backup</button>
+    <button onclick="GDrive.iniciarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #1f5f9e;background:#3b82f6;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Conectar a Google Drive para subir fotos de cigarrillos">☁️ Conectar Drive</button>
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #888;background:#f0f0f0;color:#333;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #1f5005;background:#2a6e2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/></label>
     <button onclick="limpiarMercaderia()" style="padding:10px 18px;border-radius:6px;border:1px solid #b56b00;background:#d68910;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Borrar productos del minimarket (mantiene combustibles, clientes y proveedores)">🧹 Limpiar mercadería</button>
@@ -10554,8 +10555,8 @@ function onCigFotoSeleccionada(event){
   reader.onload = function(e){
     const img = new Image();
     img.onload = function(){
-      // Redimensionar a max 240x240 manteniendo proporción
-      const MAX = 240;
+      // Redimensionar a max 480x480 manteniendo proporción (más calidad ya que va a Drive)
+      const MAX = 480;
       let w = img.width, h = img.height;
       if(w > h){
         if(w > MAX){ h = h * (MAX / w); w = MAX; }
@@ -10566,12 +10567,35 @@ function onCigFotoSeleccionada(event){
       canvas.width = w; canvas.height = h;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      // JPEG calidad 0.7 ≈ 10-25 KB
-      cigFotoTemp = canvas.toDataURL('image/jpeg', 0.7);
+      // JPEG calidad 0.85 (mejor calidad para Drive)
+      const dataURL = canvas.toDataURL('image/jpeg', 0.85);
+
+      // Mostrar preview localmente mientras se sube
+      cigFotoTemp = dataURL;
       const prev = document.getElementById('cig-foto-preview');
-      prev.style.backgroundImage = `url(${cigFotoTemp})`;
+      prev.style.backgroundImage = `url(${dataURL})`;
       prev.textContent = '';
       document.getElementById('cig-foto-quitar').style.display = 'block';
+
+      // Subir a Google Drive en segundo plano
+      if(typeof GDrive !== 'undefined' && GDrive.subirImagen){
+        toast('☁️ Subiendo foto a Google Drive...');
+        GDrive.subirImagen(dataURL, 'cigarrillo_' + Date.now() + '.jpg')
+          .then(function(linkPublico){
+            // Reemplazar el base64 por el link público una vez subido
+            cigFotoTemp = linkPublico;
+            prev.style.backgroundImage = `url(${linkPublico})`;
+            toast('✅ Foto guardada en Google Drive');
+          })
+          .catch(function(err){
+            console.error('Error Drive:', err);
+            toast('⚠️ No se pudo subir a Drive — se guardó local');
+            // cigFotoTemp queda como base64 (fallback)
+          });
+      } else {
+        // Sin Drive disponible: queda como base64 (modo viejo)
+        console.warn('GDrive no disponible — guardando como base64');
+      }
     };
     img.src = e.target.result;
   };
@@ -13000,7 +13024,169 @@ renderAll = function(){
 
 </script>
 
+<!-- ===================== GOOGLE DRIVE INTEGRACIÓN ===================== -->
+<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
+<script>
+window.GDrive = (function(){
+  const API_KEY = 'AIzaSyCkndCs0MJh65qx6XTfKoTLMsC84nMu6BU';
+  const CLIENT_ID = '260545854260-3g8j3h8i5a148d02fsrhivdrlq04h619.apps.googleusercontent.com';
+  const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+  const CARPETA_NOMBRE = 'EstacionDonRamon_Cigarrillos';
 
+  let tokenClient = null;
+  let accessToken = null;
+  let carpetaId = null;
+  let gapiInited = false;
+  let gisInited = false;
+
+  // Inicializar la API de Google
+  function gapiLoaded(){
+    gapi.load('client', function(){
+      gapi.client.init({
+        apiKey: API_KEY,
+        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
+      }).then(function(){
+        gapiInited = true;
+        console.log('✅ Google API cargada');
+      }).catch(function(err){
+        console.error('Error gapi init:', err);
+      });
+    });
+  }
+
+  function gisLoaded(){
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: function(){} // se sobreescribe al pedir token
+    });
+    gisInited = true;
+    console.log('✅ Google Identity cargada');
+  }
+
+  // Esperar a que ambas APIs estén listas
+  function esperarListo(){
+    return new Promise(function(resolve){
+      function check(){
+        if(gapiInited && gisInited){ resolve(); return; }
+        setTimeout(check, 200);
+      }
+      check();
+    });
+  }
+
+  // Pedir autorización (solo la primera vez)
+  function autorizar(){
+    return new Promise(function(resolve, reject){
+      if(accessToken){ resolve(accessToken); return; }
+      esperarListo().then(function(){
+        tokenClient.callback = function(resp){
+          if(resp.error){ reject(resp); return; }
+          accessToken = resp.access_token;
+          gapi.client.setToken({access_token: accessToken});
+          resolve(accessToken);
+        };
+        tokenClient.requestAccessToken({prompt: accessToken ? '' : 'consent'});
+      });
+    });
+  }
+
+  // Buscar o crear la carpeta de cigarrillos
+  function obtenerCarpeta(){
+    return new Promise(function(resolve, reject){
+      if(carpetaId){ resolve(carpetaId); return; }
+      gapi.client.drive.files.list({
+        q: "name='" + CARPETA_NOMBRE + "' and mimeType='application/vnd.google-apps.folder' and trashed=false",
+        fields: 'files(id, name)'
+      }).then(function(resp){
+        const files = resp.result.files;
+        if(files && files.length > 0){
+          carpetaId = files[0].id;
+          resolve(carpetaId);
+        } else {
+          // Crear carpeta nueva
+          gapi.client.drive.files.create({
+            resource: { name: CARPETA_NOMBRE, mimeType: 'application/vnd.google-apps.folder' },
+            fields: 'id'
+          }).then(function(r){
+            carpetaId = r.result.id;
+            resolve(carpetaId);
+          }).catch(reject);
+        }
+      }).catch(reject);
+    });
+  }
+
+  // Convertir dataURL base64 a Blob para subir
+  function dataURLaBlob(dataURL){
+    const parts = dataURL.split(',');
+    const mime = parts[0].match(/:(.*?);/)[1];
+    const binary = atob(parts[1]);
+    const len = binary.length;
+    const arr = new Uint8Array(len);
+    for(let i = 0; i < len; i++) arr[i] = binary.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+
+  // Subir imagen y hacerla pública
+  function subirImagen(dataURL, nombreArchivo){
+    return autorizar().then(function(){
+      return obtenerCarpeta();
+    }).then(function(folderId){
+      const blob = dataURLaBlob(dataURL);
+      const metadata = {
+        name: nombreArchivo,
+        parents: [folderId]
+      };
+      const formData = new FormData();
+      formData.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+      formData.append('file', blob);
+
+      return fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + accessToken },
+        body: formData
+      }).then(function(r){ return r.json(); });
+    }).then(function(file){
+      if(!file.id) throw new Error('No se pudo subir');
+      // Hacerlo público (cualquiera con el link puede ver)
+      return gapi.client.drive.permissions.create({
+        fileId: file.id,
+        resource: { role: 'reader', type: 'anyone' }
+      }).then(function(){
+        // Devolver link directo de visualización
+        return 'https://drive.google.com/uc?export=view&id=' + file.id;
+      });
+    });
+  }
+
+  // Botón para iniciar sesión manualmente
+  function iniciarSesion(){
+    return autorizar().then(function(){
+      toast('✅ Conectado a Google Drive');
+    }).catch(function(err){
+      console.error(err);
+      toast('❌ Error al conectar con Google Drive');
+    });
+  }
+
+  // Esperar a que carguen los scripts y inicializar
+  function init(){
+    if(typeof gapi !== 'undefined') gapiLoaded();
+    else setTimeout(init, 300);
+    if(typeof google !== 'undefined' && google.accounts) gisLoaded();
+    else setTimeout(function(){ if(typeof google !== 'undefined' && google.accounts) gisLoaded(); }, 600);
+  }
+  setTimeout(init, 500);
+
+  return {
+    subirImagen: subirImagen,
+    iniciarSesion: iniciarSesion,
+    estaConectado: function(){ return !!accessToken; }
+  };
+})();
+</script>
 
 </body>
 </html>
