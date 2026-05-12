@@ -4814,6 +4814,9 @@ function confirmarCompra(){
     return;
   }
   
+  // Guardar copia de las líneas ANTES de limpiar (para imprimir)
+  const lineasParaImprimir = compraLineas.map(l => ({...l}));
+  
   for(const l of compraLineas){
     const prod=productos.find(p=>Number(p.id)===Number(l.prodId)); if(!prod)continue;
     const antes=stock[Number(prod.id)]||0;
@@ -4841,11 +4844,12 @@ function confirmarCompra(){
     addLog('compra',prod,antes,stock[Number(prod.id)],l.cantidad,fid);
   }
   
-  facturas.push({
+  const factura = {
     id:fid, fecha:nowStr(), total:total, lineas:lineas, tipo:'compra', anulada:false,
     proveedorId: proveedorId ? Number(proveedorId) : null,
     formaPago: formaPago
-  });
+  };
+  facturas.push(factura);
   
   // Si es cuenta corriente, registrar movimiento
   if(formaPago === 'cuenta_corriente' && proveedorId){
@@ -4861,12 +4865,145 @@ function confirmarCompra(){
     });
   }
   
+  // Datos del proveedor para imprimir
+  const provObj = proveedorId ? (proveedores || []).find(p => Number(p.id) === Number(proveedorId)) : null;
+  const provNombre = provObj ? (provObj.nombre || '') : '— Sin proveedor —';
+  const formaPagoLabel = ({efectivo:'💵 Efectivo', transferencia:'📱 Transferencia', cuenta_corriente:'📋 Cuenta Corriente'})[formaPago] || formaPago;
+
   saveAll(); renderAll(); toast(`✅ Compra #${fid} $${fmt(total)} (${formaPago})`);
-  compraLineas=[]; renderCompraTabla();
-  document.getElementById('compra-monto-real').value='';
-  document.getElementById('compra-proveedor').value='';
-  document.getElementById('compra-pago').value='efectivo';
-  compraProductoActualId=null; document.getElementById('compra-producto-nombre').value='';
+
+  // LIMPIAR todo
+  compraLineas = [];
+  renderCompraTabla();
+  const inpMonto = document.getElementById('compra-monto-real'); if(inpMonto) inpMonto.value='';
+  const inpProv = document.getElementById('compra-proveedor'); if(inpProv) inpProv.value='';
+  const inpPago = document.getElementById('compra-pago'); if(inpPago) inpPago.value='efectivo';
+  compraProductoActualId=null;
+  const inpProd = document.getElementById('compra-producto-nombre'); if(inpProd) inpProd.value='';
+  const ind = document.getElementById('compra-match-indicator'); if(ind) ind.innerHTML='';
+
+  // Volver el foco al escáner para la siguiente compra
+  setTimeout(() => {
+    const inp = document.getElementById('compra-scan-input');
+    if(inp){ inp.value=''; inp.focus(); }
+  }, 100);
+
+  // Preguntar si quiere imprimir el comprobante
+  setTimeout(() => {
+    if(confirm('✅ Compra registrada correctamente.\n\n¿Querés imprimir el comprobante?')){
+      imprimirComprobanteCompra(factura, provNombre, formaPagoLabel, lineasParaImprimir);
+    }
+  }, 150);
+}
+
+// ============= IMPRIMIR COMPROBANTE DE COMPRA =============
+function imprimirComprobanteCompra(factura, provNombre, formaPagoLabel, lineas){
+  const fecha = factura.fecha || nowStr();
+  const total = factura.total || 0;
+  const numero = factura.id || '';
+
+  const filas = (lineas || []).map(l => {
+    const prod = productos.find(p => Number(p.id) === Number(l.prodId));
+    const nombre = prod ? ((prod.marca?prod.marca+' ':'') + (prod.nombre||'')) : 'Producto';
+    const codigo = prod ? (prod.barcode || '—') : '—';
+    const cant = l.cantidad || 0;
+    const costo = l.precioCosto || 0;
+    const subtotal = l.subtotal || (cant * costo);
+    return `<tr>
+      <td style="padding:6px 8px;border-bottom:1px solid #eee;font-family:Consolas,monospace;font-size:0.78rem;color:#555;">${codigo}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #eee;">${nombre}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;">${cant}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-family:Consolas,monospace;">$${fmt(costo)}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;font-weight:700;font-family:Consolas,monospace;">$${fmt(Math.round(subtotal))}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Comprobante de Compra #${numero}</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; color: #1a1a2e; max-width: 800px; margin: 0 auto; }
+  .header { background: linear-gradient(135deg,#27500a,#3a7515); color: #fff; padding: 18px 22px; border-radius: 10px 10px 0 0; margin-bottom: 0; }
+  .header h1 { margin: 0 0 4px 0; font-size: 1.4rem; letter-spacing: 1px; }
+  .header .sub { font-size: 0.85rem; opacity: 0.9; }
+  .info-box { background: #f5f5fa; border-left: 4px solid #27500a; padding: 14px 18px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-box div { font-size: 0.92rem; }
+  .info-box strong { display: block; font-size: 0.72rem; color: #666; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin-bottom: 14px; }
+  thead tr { background: #1a1a2e; color: #fff; }
+  thead th { padding: 10px 8px; text-align: left; font-size: 0.82rem; letter-spacing: 0.5px; }
+  thead th.num { text-align: right; }
+  .total-box { background: #1a1a2e; color: #fff; padding: 14px 22px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .total-box .label { font-size: 0.85rem; letter-spacing: 1px; opacity: 0.85; font-weight: 700; }
+  .total-box .total { font-size: 1.8rem; font-weight: 900; font-family: Consolas, monospace; color: #e8c84a; }
+  .firmas { margin-top: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .firma-box { border-top: 1px solid #888; padding-top: 6px; text-align: center; font-size: 0.78rem; color: #666; }
+  @media print {
+    body { padding: 8px; }
+    .no-print { display: none; }
+  }
+  .btn-imp { padding: 12px 24px; background: #27500a; color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; margin: 0 8px; }
+  .btn-cerrar { padding: 12px 24px; background: #888; color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; margin: 0 8px; }
+</style>
+</head>
+<body>
+  <div class="no-print" style="text-align:center;margin-bottom:14px;">
+    <button class="btn-imp" onclick="window.print()">🖨️ IMPRIMIR</button>
+    <button class="btn-cerrar" onclick="window.close()">✕ CERRAR</button>
+  </div>
+
+  <div class="header">
+    <h1>🧾 COMPROBANTE DE COMPRA</h1>
+    <div class="sub">Estación Don Ramón · Sistema de gestión</div>
+  </div>
+
+  <div class="info-box">
+    <div><strong>Número</strong>#${numero}</div>
+    <div><strong>Fecha</strong>${fecha}</div>
+    <div><strong>Proveedor</strong>${provNombre}</div>
+    <div><strong>Forma de pago</strong>${formaPagoLabel}</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:120px;">Código</th>
+        <th>Producto</th>
+        <th class="num" style="width:80px;">Cantidad</th>
+        <th class="num" style="width:110px;">Costo c/u</th>
+        <th class="num" style="width:120px;">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${filas}
+    </tbody>
+  </table>
+
+  <div class="total-box">
+    <div class="label">TOTAL DE LA COMPRA</div>
+    <div class="total">$${fmt(Math.round(total))}</div>
+  </div>
+
+  <div class="firmas">
+    <div class="firma-box">Firma de quien recibe la mercadería</div>
+    <div class="firma-box">Firma del proveedor / entrega</div>
+  </div>
+
+  <` + `script>setTimeout(function(){ window.print(); }, 400);<` + `/script>
+<` + `/body>
+<` + `/html>`;
+
+  const ventana = window.open('', '_blank', 'width=900,height=700');
+  if(!ventana){
+    alert('⚠️ El navegador bloqueó la ventana de impresión.\nPermitir pop-ups para este sitio y volver a intentar.');
+    return;
+  }
+  ventana.document.open();
+  ventana.document.write(html);
+  ventana.document.close();
 }
 function iniciarScannerCompra(){
   const inp = document.getElementById('compra-scan-input');
@@ -12006,35 +12143,55 @@ async function finalizarCobroSurtidor(total, cantDesp, formaPago, patente, clien
   toast('🔄 Guardando...');
   try {
     await saveAll();
-    
-    // Limpiar ticket
+
+    // Guardar info del ticket recién cobrado ANTES de limpiar (para impresión)
+    const ticketReciente = {
+      numero: fid,
+      fecha: nowStr(),
+      lineas: lineas.slice(),
+      total: total,
+      formaPago: formaPago,
+      patente: patente,
+      montoEntregado: montoEntregado,
+      vuelto: vuelto,
+      esDespacho: cantDesp > 0
+    };
+
+    // Limpiar ticket SIEMPRE (no esperar si falla algo)
     vuTicket = [];
-    document.getElementById('vu-patente').value = '';
-    document.getElementById('vu-buscador').value = '';
-    document.getElementById('vu-resultados').style.display = 'none';
+    if(document.getElementById('vu-patente')) document.getElementById('vu-patente').value = '';
+    if(document.getElementById('vu-buscador')) document.getElementById('vu-buscador').value = '';
+    if(document.getElementById('vu-resultados')) document.getElementById('vu-resultados').style.display = 'none';
     if(document.getElementById('vu-cliente')) document.getElementById('vu-cliente').value = '';
     if(document.getElementById('vu-cliente-sel')) document.getElementById('vu-cliente-sel').value = '';
     if(document.getElementById('vu-lista-precios')) document.getElementById('vu-lista-precios').value = 'lista1';
-    
+
     vuRenderTicket();
     renderAll();
-    
+
     toast(`✅ Cobrado $${fmt(Math.round(total))} (${lineas.length} items)`);
 
     // Si fue efectivo con vuelto, mostrar pantalla de vuelto al final
     if(formaPago === 'efectivo' && montoEntregado !== null){
-      mostrarPantallaVueltoFinal(total, montoEntregado, vuelto);
+      mostrarPantallaVueltoFinal(total, montoEntregado, vuelto, ticketReciente);
+    } else {
+      // Sin vuelto: mostrar opción de imprimir directamente
+      mostrarOpcionImprimirTicket(ticketReciente);
     }
-    
+
     // Foco al buscador para empezar el próximo ticket
     setTimeout(() => document.getElementById('vu-buscador')?.focus(), 200);
   } catch(e){
-    toast('❌ Error guardando. Reintentá.');
+    console.error(e);
+    // Limpiar igual aunque falle, así no queda el ticket pegado
+    vuTicket = [];
+    vuRenderTicket();
+    toast('⚠️ Hubo un problema al guardar, pero el ticket se limpió.');
   }
 }
 
 // Pantalla final con el vuelto grande tras confirmar venta en efectivo
-function mostrarPantallaVueltoFinal(total, entregado, vuelto){
+function mostrarPantallaVueltoFinal(total, entregado, vuelto, ticketReciente){
   var modal = document.getElementById('vu-vuelto-final-modal');
   if(!modal){
     modal = document.createElement('div');
@@ -12058,7 +12215,10 @@ function mostrarPantallaVueltoFinal(total, entregado, vuelto){
           '<div style="font-size:0.85rem;color:#7a5a00;letter-spacing:2px;font-weight:800;margin-bottom:6px;">💵 VUELTO PARA EL CLIENTE</div>'+
           '<div id="vvf-vuelto" style="font-size:3.4rem;font-weight:900;color:#7a5a00;font-family:Consolas,monospace;line-height:1;">$0</div>'+
         '</div>'+
-        '<button id="vvf-btn-cerrar" style="width:100%;padding:14px;background:#27500a;color:#fff;border:none;border-radius:10px;font-size:1.1rem;font-weight:900;cursor:pointer;margin-top:18px;letter-spacing:1px;">✓ LISTO</button>'+
+        '<div style="display:flex;gap:8px;margin-top:18px;">'+
+          '<button id="vvf-btn-imprimir" style="flex:1;padding:14px;background:#3b82f6;color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:800;cursor:pointer;">🖨️ IMPRIMIR TICKET</button>'+
+          '<button id="vvf-btn-cerrar" style="flex:1;padding:14px;background:#27500a;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:900;cursor:pointer;letter-spacing:0.5px;">✓ LISTO</button>'+
+        '</div>'+
       '</div>'+
     '</div>';
     document.body.appendChild(modal);
@@ -12078,9 +12238,126 @@ function mostrarPantallaVueltoFinal(total, entregado, vuelto){
     }
   };
   document.getElementById('vvf-btn-cerrar').onclick = cerrarFn;
+  // Botón imprimir
+  var btnImp = document.getElementById('vvf-btn-imprimir');
+  if(btnImp) btnImp.onclick = function(){
+    imprimirTicketSurtidor(ticketReciente);
+  };
   document.addEventListener('keydown', cerrarKey);
   modal.style.display = 'flex';
   setTimeout(function(){ document.getElementById('vvf-btn-cerrar').focus(); }, 100);
+}
+
+// Pequeño modal para preguntar si quiere imprimir el ticket (cuando NO es efectivo)
+function mostrarOpcionImprimirTicket(ticketReciente){
+  var modal = document.getElementById('vu-imprimir-modal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'vu-imprimir-modal';
+    modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:6500;align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML = '<div style="background:#fff;width:min(420px,100%);border-radius:14px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,0.45);">'+
+      '<div style="background:linear-gradient(135deg,#27500a,#3a7515);color:#fff;padding:16px 22px;text-align:center;">'+
+        '<div style="font-size:1.1rem;font-weight:900;letter-spacing:0.8px;">✅ VENTA REGISTRADA</div>'+
+      '</div>'+
+      '<div style="padding:22px;text-align:center;">'+
+        '<div style="font-size:0.85rem;color:#666;letter-spacing:1px;font-weight:700;">TOTAL COBRADO</div>'+
+        '<div id="vim-total" style="font-size:2.4rem;font-weight:900;color:#27500a;font-family:Consolas,monospace;margin:4px 0 18px 0;">$0</div>'+
+        '<div style="display:flex;gap:8px;">'+
+          '<button id="vim-btn-imprimir" style="flex:1;padding:13px;background:#3b82f6;color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:800;cursor:pointer;">🖨️ IMPRIMIR</button>'+
+          '<button id="vim-btn-cerrar" style="flex:1;padding:13px;background:#888;color:#fff;border:none;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;">✓ LISTO</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+    document.body.appendChild(modal);
+  }
+  document.getElementById('vim-total').textContent = '$' + fmt(Math.round(ticketReciente.total));
+
+  var cerrarFn = function(){
+    modal.style.display = 'none';
+    document.removeEventListener('keydown', cerrarKey);
+  };
+  var cerrarKey = function(e){
+    if(e.key === 'Enter' || e.key === 'Escape' || e.key === ' '){
+      e.preventDefault();
+      cerrarFn();
+    }
+  };
+  document.getElementById('vim-btn-cerrar').onclick = cerrarFn;
+  document.getElementById('vim-btn-imprimir').onclick = function(){
+    imprimirTicketSurtidor(ticketReciente);
+  };
+  document.addEventListener('keydown', cerrarKey);
+  modal.style.display = 'flex';
+  setTimeout(function(){ document.getElementById('vim-btn-cerrar').focus(); }, 100);
+}
+
+// Imprimir ticket de la venta (formato simple, sirve para impresora térmica o A4)
+function imprimirTicketSurtidor(ticket){
+  if(!ticket) return;
+  var fechaTxt = ticket.fecha || nowStr();
+  var formaPagoTxt = ({
+    efectivo: 'EFECTIVO',
+    transferencia: 'TRANSFERENCIA',
+    tarjeta: 'TARJETA',
+    cuenta_corriente: 'CUENTA CORRIENTE'
+  })[ticket.formaPago] || ticket.formaPago || '-';
+
+  var htmlLineas = (ticket.lineas || []).map(function(l){
+    var prod = productos.find(function(p){ return Number(p.id) === Number(l.prodId); });
+    var nombre = prod ? ((prod.marca ? prod.marca + ' ' : '') + prod.nombre) : (l.nombre || '?');
+    var cant = l.cantidad || 1;
+    var pu = l.precioUnit || l.precioVenta || 0;
+    var sub = l.subtotal || (cant * pu);
+    return '<tr>' +
+      '<td style="padding:4px 6px;">' + nombre + '</td>' +
+      '<td style="padding:4px 6px;text-align:right;">' + cant + '</td>' +
+      '<td style="padding:4px 6px;text-align:right;">$' + fmt(Math.round(pu)) + '</td>' +
+      '<td style="padding:4px 6px;text-align:right;font-weight:700;">$' + fmt(Math.round(sub)) + '</td>' +
+      '</tr>';
+  }).join('');
+
+  var html =
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ticket #' + (ticket.numero||'-') + '</title>' +
+    '<style>' +
+    '  body{font-family:Consolas,Courier,monospace;font-size:12px;color:#000;padding:20px;max-width:380px;margin:0 auto;}' +
+    '  .header{text-align:center;border-bottom:2px dashed #000;padding-bottom:8px;margin-bottom:10px;}' +
+    '  .header .nom{font-size:18px;font-weight:900;letter-spacing:1px;}' +
+    '  .header .sub{font-size:11px;}' +
+    '  .info{margin-bottom:10px;font-size:11px;}' +
+    '  table{width:100%;border-collapse:collapse;margin-bottom:8px;}' +
+    '  thead th{border-bottom:1px solid #000;font-size:11px;text-align:left;padding:4px 6px;}' +
+    '  tr td{font-size:11px;}' +
+    '  .total{border-top:2px dashed #000;padding-top:10px;margin-top:6px;text-align:right;font-size:16px;font-weight:900;}' +
+    '  .vuelto{font-size:13px;text-align:right;margin-top:6px;color:#7a5a00;}' +
+    '  .footer{text-align:center;border-top:2px dashed #000;padding-top:10px;margin-top:14px;font-size:10px;}' +
+    '  @media print { body{padding:0;} button{display:none;} }' +
+    '</style></head><body>' +
+    '<div class="header">' +
+    '  <div class="nom">⛽ ESTACIÓN DON RAMÓN</div>' +
+    '  <div class="sub">Comprobante interno de venta</div>' +
+    '</div>' +
+    '<div class="info">' +
+    '  <div><b>Ticket Nº:</b> ' + (ticket.numero || '-') + '</div>' +
+    '  <div><b>Fecha:</b> ' + fechaTxt + '</div>' +
+    '  <div><b>Forma de pago:</b> ' + formaPagoTxt + '</div>' +
+    (ticket.patente ? '  <div><b>Patente:</b> ' + ticket.patente + '</div>' : '') +
+    '</div>' +
+    '<table>' +
+    '  <thead><tr><th>Producto</th><th style="text-align:right;">Cant.</th><th style="text-align:right;">P.U.</th><th style="text-align:right;">Sub.</th></tr></thead>' +
+    '  <tbody>' + htmlLineas + '</tbody>' +
+    '</table>' +
+    '<div class="total">TOTAL: $' + fmt(Math.round(ticket.total)) + '</div>' +
+    (ticket.montoEntregado ? '<div class="vuelto">Entregado: $' + fmt(Math.round(ticket.montoEntregado)) + ' &nbsp; Vuelto: $' + fmt(Math.round(ticket.vuelto || 0)) + '</div>' : '') +
+    '<div class="footer">¡Gracias por su visita!<br>www.don-ramon.com.ar</div>' +
+    '<div style="text-align:center;margin-top:20px;"><button onclick="window.print()" style="padding:10px 28px;background:#27500a;color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:14px;">🖨️ Imprimir</button> <button onclick="window.close()" style="padding:10px 22px;background:#888;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;margin-left:6px;">Cerrar</button></div>' +
+    '<script>setTimeout(function(){window.print();},400);<\/script>' +
+    '</body></html>';
+
+  var w = window.open('', '_blank', 'width=480,height=720');
+  if(!w){ toast('⚠️ El navegador bloqueó la ventana de impresión. Permití pop-ups.'); return; }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
 }
 
 // Re-renderizar cuando se entra al panel surtidor
