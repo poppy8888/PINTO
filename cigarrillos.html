@@ -1206,10 +1206,12 @@ body.rol-operadora #tanques-grid {
 /* ============= MENÚ DESPLEGABLE "MÁS" ============= */
 .dropdown-mas{position:relative;display:inline-block;}
 .dropdown-menu-mas{
-  position:absolute;top:calc(100% + 4px);right:0;
+  position:fixed !important;
   background:#fff;border:1px solid #c8c8d0;border-radius:8px;
-  box-shadow:0 8px 24px rgba(0,0,0,0.18);
-  min-width:240px;z-index:99999;padding:6px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.25);
+  min-width:240px;
+  z-index:2147483647 !important;
+  padding:6px;
   animation:dropdownFadeIn 0.15s ease;
 }
 /* Asegurar que los paneles no tapen el dropdown */
@@ -2616,9 +2618,6 @@ body.rol-operadora #tanques-grid {
     </button>
     <button onclick="abrirGestorFamilias()" style="padding:14px 18px;background:linear-gradient(135deg,#3b82f6,#1f5f9e);color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.92rem;box-shadow:0 3px 8px rgba(31,95,158,0.3);letter-spacing:0.5px;">
       📦 FAMILIAS
-    </button>
-    <button onclick="irAEtiquetas()" style="padding:14px 18px;background:linear-gradient(135deg,#6b1818,#9e2828);color:#fff;border:none;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.92rem;box-shadow:0 3px 8px rgba(107,24,24,0.3);letter-spacing:0.5px;">
-      🏷️ IMPRIMIR ETIQUETAS
     </button>
   </div>
 
@@ -7332,7 +7331,7 @@ function renderEtListaSeleccion(){
 
   let html = '<table style="width:100%;border-collapse:collapse;font-size:0.82rem;">';
   html += '<thead style="background:#e8e8ec;position:sticky;top:0;">';
-  html += '<tr><th style="padding:6px;width:30px;"></th><th style="padding:6px;text-align:left;">Producto</th><th style="padding:6px;text-align:left;">Familia</th><th style="padding:6px;text-align:right;">Precio</th><th style="padding:6px;text-align:right;">Stock</th></tr>';
+  html += '<tr><th style="padding:6px;width:30px;"></th><th style="padding:6px;text-align:left;">Producto</th><th style="padding:6px;text-align:left;">Familia</th><th style="padding:6px;text-align:right;">Precio</th><th class="col-stock" style="padding:6px;text-align:right;">Stock</th></tr>';
   html += '</thead><tbody>';
   
   lista.forEach((p, i) => {
@@ -7349,7 +7348,7 @@ function renderEtListaSeleccion(){
       <td style="padding:5px;"><strong>${p.marca||''}</strong> ${p.nombre||''}<div style="font-size:0.7rem;color:#888;font-family:monospace;">${p.barcode || ''}</div></td>
       <td style="padding:5px;color:#666;font-size:0.78rem;">${p.familia || p.marca || ''}</td>
       <td style="padding:5px;text-align:right;font-weight:700;font-family:monospace;">$${fmt(p.precio||0)}</td>
-      <td style="padding:5px;text-align:right;font-family:monospace;color:${stockColor};font-weight:${bajoStock?'700':'400'};">${fmt(stockActual)}</td>
+      <td class="col-stock" style="padding:5px;text-align:right;font-family:monospace;color:${stockColor};font-weight:${bajoStock?'700':'400'};">${fmt(stockActual)}</td>
     </tr>`;
   });
   html += '</tbody></table>';
@@ -9088,6 +9087,8 @@ function aplicarRestriccionesPorRol(){
       document.querySelectorAll('.tab').forEach(tab => { tab.style.display = ''; });
       const btnMas = document.getElementById('btn-mas');
       if(btnMas) btnMas.parentElement.style.display = '';
+      // Mostrar todos los items del menú Más también
+      document.querySelectorAll('.dropdown-menu-mas .dropdown-item').forEach(item => { item.style.display = ''; });
     } else {
       document.querySelectorAll('.tab').forEach(tab => {
         const onclickAttr = tab.getAttribute('onclick') || '';
@@ -9098,11 +9099,32 @@ function aplicarRestriccionesPorRol(){
           else { tab.style.display = 'none'; }
         }
       });
+
+      // Revisar los items del menú "Más" (Etiquetas, Estadísticas, etc.)
+      // Si alguno está permitido para este rol, mostrar el botón "Más"
+      let hayItemsPermitidosEnMas = false;
+      document.querySelectorAll('.dropdown-menu-mas .dropdown-item').forEach(item => {
+        const onclickAttr = item.getAttribute('onclick') || '';
+        const match = onclickAttr.match(/showTabFromMenu\('(\w+)'/);
+        if(match){
+          const nombreTab = match[1];
+          if(permitidas.includes(nombreTab)){
+            item.style.display = '';
+            hayItemsPermitidosEnMas = true;
+          } else {
+            item.style.display = 'none';
+          }
+        }
+      });
+
       const btnMas = document.getElementById('btn-mas');
-      if(btnMas) btnMas.parentElement.style.display = 'none';
+      if(btnMas){
+        // Mostrar el botón "Más" solo si hay items dentro de él que el rol pueda usar
+        btnMas.parentElement.style.display = hayItemsPermitidosEnMas ? '' : 'none';
+      }
       const masMenu = document.getElementById('mas-menu');
       if(masMenu) masMenu.style.display = 'none';
-      
+
       const panelActivo = document.querySelector('.panel.active');
       if(panelActivo){
         const idActivo = panelActivo.id.replace('panel-', '');
@@ -10880,8 +10902,23 @@ async function activarUsuario(rol){
 function toggleMasMenu(e){
   if(e) e.stopPropagation();
   const m = document.getElementById('mas-menu');
-  if(!m) return;
-  m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+  const btn = document.getElementById('btn-mas');
+  if(!m || !btn) return;
+  if(m.style.display === 'block'){
+    m.style.display = 'none';
+    return;
+  }
+  // Posicionar el menú JUSTO debajo del botón, relativo a la ventana (position:fixed)
+  const rect = btn.getBoundingClientRect();
+  m.style.display = 'block';
+  const menuWidth = 240;
+  let leftPx = rect.right - menuWidth; // alineado a la derecha del botón
+  if(leftPx < 8) leftPx = 8;
+  if(leftPx + menuWidth > window.innerWidth - 8){
+    leftPx = window.innerWidth - menuWidth - 8;
+  }
+  m.style.left = leftPx + 'px';
+  m.style.top = (rect.bottom + 4) + 'px';
 }
 
 function cerrarMasMenu(){
