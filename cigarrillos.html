@@ -1239,6 +1239,8 @@ body.rol-operadora #tanques-grid {
 </style>
 <!-- Librería para generar códigos de barras EAN/CODE128 -->
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<!-- Librería SheetJS para exportar a Excel -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -1398,6 +1400,7 @@ body.rol-operadora #tanques-grid {
   <div style="display:flex;align-items:center;gap:10px">
     <div class="header-date" id="hdate"></div>
     <button onclick="exportarBackup()" style="padding:10px 18px;border-radius:6px;border:1px solid #d4a020;background:#e8c84a;color:#1a1a2e;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">💾 Backup</button>
+    <button onclick="exportarAExcel()" style="padding:10px 18px;border-radius:6px;border:1px solid #1f7c3e;background:#27ae60;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Exportar todo a un archivo Excel">📊 Excel</button>
     <button onclick="GDrive.iniciarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #1f5f9e;background:#3b82f6;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Conectar a Google Drive para subir fotos de cigarrillos">☁️ Conectar Drive</button>
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #888;background:#f0f0f0;color:#333;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #1f5005;background:#2a6e2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/></label>
@@ -8691,6 +8694,194 @@ document.addEventListener('keydown', function(e){
   }
 });
 function exportarBackup(){ const data={productos,stock,log,facturas,clientes,proveedores,movimientosCC,fecha:new Date().toISOString()}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`backup_minimarket_${new Date().toLocaleDateString('es-AR').replace(/\//g,'-')}.json`; a.click(); URL.revokeObjectURL(blob); toast('Backup guardado'); }
+
+// ============================================================
+// =================== EXPORTAR A EXCEL =======================
+// ============================================================
+function exportarAExcel(){
+  if(typeof XLSX === 'undefined'){
+    toast('⚠️ Cargando librería... esperá 2 seg e intentá de nuevo');
+    return;
+  }
+  try {
+    const wb = XLSX.utils.book_new();
+
+    // ===== HOJA 1: PRODUCTOS =====
+    const hojaProductos = (productos || []).map(p => ({
+      'Código': p.barcode || '',
+      'Marca': p.marca || '',
+      'Nombre': p.nombre || '',
+      'Familia': p.familia || '',
+      'Tipo': p.tipo || 'unidad',
+      'Costo': Number(p.costo || 0),
+      'Precio Venta': Number(p.precio || 0),
+      'Precio Lista 2': Number(p.precioLista2 || 0),
+      'Precio Casa': Number(p.precioCasa || 0),
+      'Stock': Number(stock[p.id] || 0),
+      'Stock Mínimo': Number(p.stockMin || 0),
+      'Stock Ideal': Number(p.stockIdeal || 0),
+      'Utilidad %': (p.costo > 0) ? Math.round(((p.precio - p.costo) / p.costo) * 100) : 0,
+      'ID': p.id
+    }));
+    if(hojaProductos.length === 0) hojaProductos.push({'Aviso':'Sin productos cargados'});
+    const wsProductos = XLSX.utils.json_to_sheet(hojaProductos);
+    XLSX.utils.book_append_sheet(wb, wsProductos, 'Productos');
+
+    // ===== HOJA 2: STOCK =====
+    const hojaStock = (productos || []).map(p => ({
+      'Código': p.barcode || '',
+      'Producto': ((p.marca||'') + ' ' + (p.nombre||'')).trim(),
+      'Familia': p.familia || '',
+      'Stock Actual': Number(stock[p.id] || 0),
+      'Stock Mínimo': Number(p.stockMin || 0),
+      'Estado': (Number(stock[p.id]||0) <= Number(p.stockMin||0)) ? '⚠️ BAJO' : '✅ OK',
+      'Valor Stock': Number(stock[p.id]||0) * Number(p.costo||0)
+    }));
+    if(hojaStock.length === 0) hojaStock.push({'Aviso':'Sin productos'});
+    const wsStock = XLSX.utils.json_to_sheet(hojaStock);
+    XLSX.utils.book_append_sheet(wb, wsStock, 'Stock');
+
+    // ===== HOJA 3: CLIENTES =====
+    const hojaClientes = (clientes || []).map(c => {
+      // Calcular saldo de cuenta corriente
+      const movs = (movimientosCC || []).filter(m => m.tipo === 'cliente' && Number(m.entidadId) === Number(c.id));
+      const saldo = movs.reduce((acc, m) => acc + (Number(m.debe||0) - Number(m.haber||0)), 0);
+      return {
+        'ID': c.id,
+        'Nombre': c.nombre || '',
+        'Apellido': c.apellido || '',
+        'Teléfono': c.telefono || '',
+        'Dirección': c.direccion || '',
+        'Lista Precio': c.listaPrecio || 'lista1',
+        'Saldo CC': saldo
+      };
+    });
+    if(hojaClientes.length === 0) hojaClientes.push({'Aviso':'Sin clientes cargados'});
+    const wsClientes = XLSX.utils.json_to_sheet(hojaClientes);
+    XLSX.utils.book_append_sheet(wb, wsClientes, 'Clientes');
+
+    // ===== HOJA 4: PROVEEDORES =====
+    const hojaProveedores = (proveedores || []).map(p => {
+      const movs = (movimientosCC || []).filter(m => m.tipo === 'proveedor' && Number(m.entidadId) === Number(p.id));
+      const saldo = movs.reduce((acc, m) => acc + (Number(m.debe||0) - Number(m.haber||0)), 0);
+      return {
+        'ID': p.id,
+        'Nombre': p.nombre || '',
+        'Teléfono': p.telefono || '',
+        'Email': p.email || '',
+        'Dirección': p.direccion || '',
+        'CUIT': p.cuit || '',
+        'Notas': p.notas || '',
+        'Saldo CC': saldo
+      };
+    });
+    if(hojaProveedores.length === 0) hojaProveedores.push({'Aviso':'Sin proveedores cargados'});
+    const wsProveedores = XLSX.utils.json_to_sheet(hojaProveedores);
+    XLSX.utils.book_append_sheet(wb, wsProveedores, 'Proveedores');
+
+    // ===== HOJA 5: FACTURAS (últimas 500) =====
+    const facturasOrdenadas = [...(facturas || [])]
+      .sort((a,b) => (b.id||0) - (a.id||0))
+      .slice(0, 500);
+    const hojaFacturas = facturasOrdenadas.map(f => {
+      const cliente = f.clienteId ? (clientes||[]).find(c => Number(c.id) === Number(f.clienteId)) : null;
+      const prov = f.proveedorId ? (proveedores||[]).find(p => Number(p.id) === Number(f.proveedorId)) : null;
+      const nLineas = (f.lineas || []).length;
+      return {
+        'N° Factura': f.id,
+        'Fecha': f.fecha || '',
+        'Tipo': f.tipo === 'compra' ? '🛒 COMPRA' : (f.esDespacho ? '⛽ COMBUSTIBLE' : '💰 VENTA'),
+        'Cliente': cliente ? ((cliente.nombre||'') + ' ' + (cliente.apellido||'')).trim() : '',
+        'Proveedor': prov ? prov.nombre : '',
+        'Forma Pago': f.formaPago || f.pago || '',
+        'Items': nLineas,
+        'Total': Number(f.total || 0),
+        'Anulada': f.anulada ? 'SÍ' : 'NO'
+      };
+    });
+    if(hojaFacturas.length === 0) hojaFacturas.push({'Aviso':'Sin facturas registradas'});
+    const wsFacturas = XLSX.utils.json_to_sheet(hojaFacturas);
+    XLSX.utils.book_append_sheet(wb, wsFacturas, 'Facturas');
+
+    // ===== HOJA 6: MOVIMIENTOS CC =====
+    const hojaMovs = (movimientosCC || []).map(m => {
+      let entidad = '';
+      if(m.tipo === 'cliente'){
+        const c = (clientes||[]).find(x => Number(x.id) === Number(m.entidadId));
+        entidad = c ? ((c.nombre||'')+' '+(c.apellido||'')).trim() : 'Cliente #'+m.entidadId;
+      } else if(m.tipo === 'proveedor'){
+        const p = (proveedores||[]).find(x => Number(x.id) === Number(m.entidadId));
+        entidad = p ? p.nombre : 'Proveedor #'+m.entidadId;
+      }
+      return {
+        'Fecha': m.fecha || '',
+        'Tipo': m.tipo === 'cliente' ? '👤 Cliente' : '🚚 Proveedor',
+        'Entidad': entidad,
+        'Concepto': m.concepto || '',
+        'Debe': Number(m.debe || 0),
+        'Haber': Number(m.haber || 0),
+        'N° Factura': m.facturaId || ''
+      };
+    });
+    if(hojaMovs.length === 0) hojaMovs.push({'Aviso':'Sin movimientos'});
+    const wsMovs = XLSX.utils.json_to_sheet(hojaMovs);
+    XLSX.utils.book_append_sheet(wb, wsMovs, 'Movimientos CC');
+
+    // ===== HOJA 7: RESUMEN =====
+    const totalProductos = (productos||[]).length;
+    const valorStock = (productos||[]).reduce((a,p) => a + (Number(stock[p.id]||0) * Number(p.costo||0)), 0);
+    const valorVenta = (productos||[]).reduce((a,p) => a + (Number(stock[p.id]||0) * Number(p.precio||0)), 0);
+    const utilidad = valorVenta - valorStock;
+    const stockBajo = (productos||[]).filter(p => Number(stock[p.id]||0) <= Number(p.stockMin||0) && p.stockMin > 0).length;
+    const totalVentas = (facturas||[]).filter(f => f.tipo !== 'compra' && !f.anulada).reduce((a,f) => a + Number(f.total||0), 0);
+    const totalCompras = (facturas||[]).filter(f => f.tipo === 'compra' && !f.anulada).reduce((a,f) => a + Number(f.total||0), 0);
+
+    const hojaResumen = [
+      { 'Concepto': '📅 Fecha del reporte', 'Valor': new Date().toLocaleString('es-AR') },
+      { 'Concepto': '', 'Valor': '' },
+      { 'Concepto': '📦 Total de productos', 'Valor': totalProductos },
+      { 'Concepto': '👥 Total de clientes', 'Valor': (clientes||[]).length },
+      { 'Concepto': '🚚 Total de proveedores', 'Valor': (proveedores||[]).length },
+      { 'Concepto': '', 'Valor': '' },
+      { 'Concepto': '💰 Valor del stock (a costo)', 'Valor': Math.round(valorStock) },
+      { 'Concepto': '💵 Valor del stock (a precio venta)', 'Valor': Math.round(valorVenta) },
+      { 'Concepto': '📈 Utilidad bruta potencial', 'Valor': Math.round(utilidad) },
+      { 'Concepto': '', 'Valor': '' },
+      { 'Concepto': '⚠️ Productos con stock bajo', 'Valor': stockBajo },
+      { 'Concepto': '', 'Valor': '' },
+      { 'Concepto': '🧾 Total facturas registradas', 'Valor': (facturas||[]).length },
+      { 'Concepto': '💵 Total ventas (acumulado histórico)', 'Valor': Math.round(totalVentas) },
+      { 'Concepto': '🛒 Total compras (acumulado histórico)', 'Valor': Math.round(totalCompras) }
+    ];
+    const wsResumen = XLSX.utils.json_to_sheet(hojaResumen);
+    XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen');
+
+    // ===== AJUSTAR ANCHO DE COLUMNAS (visual) =====
+    [wsProductos, wsStock, wsClientes, wsProveedores, wsFacturas, wsMovs, wsResumen].forEach(ws => {
+      const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+      const cols = [];
+      for(let C = range.s.c; C <= range.e.c; C++){
+        cols.push({ wch: 18 }); // ancho por defecto
+      }
+      ws['!cols'] = cols;
+    });
+
+    // ===== GENERAR ARCHIVO Y DESCARGAR =====
+    const fecha = new Date().toLocaleDateString('es-AR').replace(/\//g,'-');
+    const hora = new Date().toLocaleTimeString('es-AR').slice(0,5).replace(':','-');
+    const nombre = `ESTACION_DON_RAMON_${fecha}_${hora}.xlsx`;
+    XLSX.writeFile(wb, nombre);
+
+    toast(`✅ Excel generado: ${nombre}`);
+  } catch(err){
+    console.error('Error exportando a Excel:', err);
+    toast('❌ Error al generar Excel: ' + err.message);
+  }
+}
+// ============================================================
+// =============== FIN EXPORTAR A EXCEL =======================
+// ============================================================
+
 function importarBackup(e){ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=function(ev){ try{ const data=JSON.parse(ev.target.result); if(!data.productos||!data.stock){toast('Archivo inválido');return;} if(!confirm(`Restaurar backup? Se perderán datos actuales.`)) return; productos=data.productos; stock=data.stock; log=data.log||[]; facturas=data.facturas||[]; clientes=data.clientes||[]; proveedores=data.proveedores||[]; movimientosCC=data.movimientosCC||[]; nextId=Math.max(...productos.map(p=>p.id),99)+1; nextCliId = clientes.length ? Math.max(...clientes.map(c=>c.id),0)+1 : 1; nextProvId = proveedores.length ? Math.max(...proveedores.map(p=>p.id),0)+1 : 1; saveAll();renderAll(); toast(`Backup restaurado: ${productos.length} productos, ${clientes.length} clientes`); }catch(err){toast('Error al leer archivo')} }; reader.readAsText(file); e.target.value=''; }
 function renderAll(){ renderStock(); renderStats(); renderTotal(); renderFacturas(); renderLog(); actualizarDatalistCompra(); actualizarDatalistVenta(); }
 function initEventos(){
