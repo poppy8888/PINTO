@@ -1242,6 +1242,190 @@ body.rol-operadora #tanques-grid {
 @media (max-width:768px){
   .dropdown-menu-mas{right:auto;left:0;min-width:200px;}
 }
+
+/* ============================================================ */
+/* ============== DASHBOARD MÓVIL ESTILO VENTARIO ============= */
+/* ============================================================ */
+
+/* Por defecto oculto en PC */
+#mobile-dash { display: none; }
+#mobile-bottom-nav { display: none; }
+
+/* SOLO en celulares chicos: activar vista móvil */
+@media (max-width: 600px) {
+  /* Mostrar dashboard mobile */
+  #mobile-dash { display: block !important; }
+  #mobile-bottom-nav { display: flex !important; }
+
+  /* Ocultar header, tabs y paneles cuando estamos en dashboard mobile */
+  body.dashmobile-activo .header,
+  body.dashmobile-activo .tabs,
+  body.dashmobile-activo .panel,
+  body.dashmobile-activo #clave-overlay { display: none !important; }
+
+  body.dashmobile-activo #mobile-dash { display: block !important; }
+
+  /* Cuando se quiere usar el sistema normal, ocultar el dashboard mobile */
+  body.dashmobile-cerrado #mobile-dash { display: none !important; }
+
+  /* Espaciado extra abajo para no tapar contenido con la barra inferior */
+  body { padding-bottom: 70px; }
+
+  /* Header normal: hacer más compacto en móvil */
+  .header { padding: 10px 14px !important; }
+  .header h1 { font-size: 1.1rem !important; }
+  .header-sub { font-size: 0.7rem !important; }
+
+  /* Botones de la cabecera: que entren en celular */
+  .header button {
+    padding: 6px 10px !important;
+    font-size: 0.72rem !important;
+  }
+
+  /* Tabs: scroll horizontal */
+  .tabs {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+  }
+  .tab {
+    flex-shrink: 0 !important;
+    min-width: auto !important;
+    padding: 11px 14px !important;
+    font-size: 0.85rem !important;
+  }
+}
+
+/* ESTILOS DEL DASHBOARD MÓVIL */
+#mobile-dash {
+  position: fixed;
+  inset: 0;
+  background: #f5f6fa;
+  z-index: 100;
+  overflow-y: auto;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+.md-header {
+  background: linear-gradient(135deg, #1f7c3e, #27ae60);
+  color: #fff;
+  padding: 20px 18px 30px;
+  border-radius: 0 0 28px 28px;
+  position: relative;
+}
+.md-h-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+.md-h-nombre { font-size: 1.7rem; font-weight: 800; line-height: 1.1; }
+.md-h-rol { font-size: 0.82rem; opacity: 0.85; margin-top: 2px; }
+.md-h-iconos { display: flex; gap: 8px; }
+.md-h-btn {
+  background: rgba(255,255,255,0.18);
+  border: none;
+  color: #fff;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.md-h-ventas-lbl { font-size: 0.85rem; opacity: 0.9; }
+.md-h-ventas-num { font-size: 2.4rem; font-weight: 900; letter-spacing: -1px; line-height: 1.1; font-family: Consolas, monospace; }
+.md-h-pos {
+  background: rgba(255,255,255,0.15);
+  padding: 11px 16px;
+  border-radius: 10px;
+  margin-top: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 0.92rem;
+}
+.md-h-pos b { font-weight: 800; }
+
+.md-card {
+  background: #fff;
+  margin: 14px;
+  padding: 18px 16px;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.md-card-titulo {
+  font-size: 0.72rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.md-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 8px;
+}
+.md-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 6px 0;
+}
+.md-grid-icono {
+  width: 58px; height: 58px;
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+}
+.md-grid-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  line-height: 1.2;
+}
+
+#mobile-bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #fff;
+  border-top: 1px solid #e0e0e8;
+  padding: 8px 0;
+  display: none;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 200;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+}
+.mbn-item {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
+  font-size: 0.7rem;
+  color: #777;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 10px;
+  background: none;
+  border: none;
+}
+.mbn-item.activo { color: #27ae60; }
+.mbn-item .mbn-circle {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+}
+.mbn-item.activo .mbn-circle {
+  background: #e3f5e9;
+}
+.mbn-item.mbn-vender .mbn-circle {
+  background: #27ae60;
+  color: #fff;
+  width: 52px; height: 52px;
+  box-shadow: 0 4px 12px rgba(39,174,96,0.4);
+  font-size: 1.4rem;
+}
 </style>
 <!-- Librería para generar códigos de barras EAN/CODE128 -->
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -1249,6 +1433,185 @@ body.rol-operadora #tanques-grid {
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
+
+<!-- ====================== DASHBOARD MÓVIL ====================== -->
+<div id="mobile-dash">
+  <div class="md-header">
+    <div class="md-h-top">
+      <div>
+        <div class="md-h-nombre" id="md-nombre">Reins</div>
+        <div class="md-h-rol" id="md-rol">Administrador</div>
+      </div>
+      <div class="md-h-iconos">
+        <button class="md-h-btn" onclick="mdLogout()" title="Cerrar sesión">↪</button>
+      </div>
+    </div>
+    <div class="md-h-ventas-lbl">Ventas de hoy</div>
+    <div class="md-h-ventas-num" id="md-ventas-hoy">$0</div>
+    <div class="md-h-pos">
+      <span>🛒 POS <b id="md-pos">$0</b></span>
+      <button class="md-h-btn" onclick="mdActualizar()" title="Actualizar">⟲</button>
+    </div>
+  </div>
+
+  <div class="md-card">
+    <div class="md-card-titulo">ACCESOS RÁPIDOS</div>
+    <div class="md-grid">
+      <div class="md-grid-item" onclick="mdAbrir('dashboard')">
+        <div class="md-grid-icono" style="background:#e3f5e9;color:#27ae60;">📊</div>
+        <div class="md-grid-label">Dashboard</div>
+      </div>
+      <div class="md-grid-item" onclick="mdAbrir('stock')">
+        <div class="md-grid-icono" style="background:#e6f0ff;color:#3b82f6;">📦</div>
+        <div class="md-grid-label">Stock</div>
+      </div>
+      <div class="md-grid-item" onclick="mdAbrir('facturas')">
+        <div class="md-grid-icono" style="background:#f3e8ff;color:#8e44ad;">🧾</div>
+        <div class="md-grid-label">Historial</div>
+      </div>
+      <div class="md-grid-item" onclick="mdAbrir('cigarrillos')">
+        <div class="md-grid-icono" style="background:#fff3e0;color:#ff6f00;">🚬</div>
+        <div class="md-grid-label">Cigarrillos</div>
+      </div>
+      <div class="md-grid-item" onclick="mdAbrir('compra')">
+        <div class="md-grid-icono" style="background:#e8f5e9;color:#1f7c3e;">🛍️</div>
+        <div class="md-grid-label">Compras</div>
+      </div>
+      <div class="md-grid-item" onclick="mdAbrir('clientes')">
+        <div class="md-grid-icono" style="background:#fce4ec;color:#c0392b;">👥</div>
+        <div class="md-grid-label">Clientes</div>
+      </div>
+      <div class="md-grid-item" onclick="mdAbrir('proveedores')">
+        <div class="md-grid-icono" style="background:#e0f2f1;color:#00838f;">🚚</div>
+        <div class="md-grid-label">Proveedores</div>
+      </div>
+      <div class="md-grid-item" onclick="mdAbrir('cuentas')">
+        <div class="md-grid-icono" style="background:#fff8e1;color:#d4a020;">💳</div>
+        <div class="md-grid-label">Cuentas</div>
+      </div>
+      <div class="md-grid-item" onclick="mdAbrir('miturno')">
+        <div class="md-grid-icono" style="background:#f5f5fa;color:#1a1a2e;">⚙️</div>
+        <div class="md-grid-label">Mi Turno</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BARRA INFERIOR DE NAVEGACIÓN MÓVIL -->
+<nav id="mobile-bottom-nav">
+  <button class="mbn-item activo" onclick="mdInicio()">
+    <div class="mbn-circle">🏠</div>
+    <span>Inicio</span>
+  </button>
+  <button class="mbn-item mbn-vender" onclick="mdAbrir('surtidor')">
+    <div class="mbn-circle">🛒</div>
+    <span>Vender</span>
+  </button>
+  <button class="mbn-item" onclick="mdAbrir('dashboard')">
+    <div class="mbn-circle">📊</div>
+    <span>Dashboard</span>
+  </button>
+  <button class="mbn-item" onclick="mdAbrirMenu()">
+    <div class="mbn-circle">☰</div>
+    <span>Menú</span>
+  </button>
+</nav>
+
+<script>
+// Lógica del dashboard móvil
+function mdEsMobile(){ return window.innerWidth <= 600; }
+
+function mdInicio(){
+  if(!mdEsMobile()) return;
+  document.body.classList.remove('dashmobile-cerrado');
+  document.body.classList.add('dashmobile-activo');
+  document.querySelectorAll('.mbn-item').forEach(b => b.classList.remove('activo'));
+  const btn = document.querySelector('.mbn-item:first-child');
+  if(btn) btn.classList.add('activo');
+  mdActualizar();
+}
+
+function mdAbrir(tab){
+  document.body.classList.remove('dashmobile-activo');
+  document.body.classList.add('dashmobile-cerrado');
+  if(typeof showTab === 'function'){
+    const btn = document.querySelector(`.tab[onclick*="showTab('${tab}'"]`);
+    if(btn) showTab(tab, btn);
+    else showTab(tab);
+  }
+  // Marcar el icono activo
+  document.querySelectorAll('.mbn-item').forEach(b => b.classList.remove('activo'));
+  if(tab === 'surtidor'){
+    const v = document.querySelector('.mbn-vender'); if(v) v.classList.add('activo');
+  } else if(tab === 'dashboard'){
+    const items = document.querySelectorAll('.mbn-item');
+    if(items[2]) items[2].classList.add('activo');
+  }
+}
+
+function mdAbrirMenu(){
+  mdAbrir('surtidor');
+  // Abrir el menú "Más" automáticamente
+  setTimeout(() => {
+    if(typeof toggleMasMenu === 'function') toggleMasMenu();
+  }, 200);
+}
+
+function mdLogout(){
+  if(typeof cerrarSesion === 'function') cerrarSesion();
+  else location.reload();
+}
+
+function mdActualizar(){
+  if(typeof productos === 'undefined') return;
+  const ahora = new Date();
+  const hoyStr = ahora.toLocaleDateString('es-AR');
+  const facturasHoy = (facturas||[]).filter(f => {
+    if(f.anulada) return false;
+    const fStr = String(f.fecha||'').split(',')[0].trim();
+    return fStr === hoyStr;
+  });
+  const totalHoy = facturasHoy.filter(f => f.tipo !== 'compra').reduce((a,f) => a + Number(f.total||0), 0);
+  const totalPos = facturasHoy.filter(f => !f.esDespacho && f.tipo !== 'compra').reduce((a,f) => a + Number(f.total||0), 0);
+
+  const elV = document.getElementById('md-ventas-hoy');
+  if(elV) elV.textContent = '$' + (typeof fmt === 'function' ? fmt(Math.round(totalHoy)) : Math.round(totalHoy));
+  const elP = document.getElementById('md-pos');
+  if(elP) elP.textContent = '$' + (typeof fmt === 'function' ? fmt(Math.round(totalPos)) : Math.round(totalPos));
+
+  // Rol y nombre
+  const elN = document.getElementById('md-nombre');
+  const elR = document.getElementById('md-rol');
+  if(typeof _rolActual !== 'undefined' && _rolActual && ROLES_INFO){
+    const info = ROLES_INFO[_rolActual];
+    if(info){
+      if(elN) elN.textContent = info.nombre;
+      if(elR) elR.textContent = _rolActual === 'admin' ? 'Administrador' : (_rolActual === 'operadora' ? 'Operadora' : 'Cajero');
+    }
+  }
+}
+
+// Activar dashboard mobile cuando se inicia sesión en celular
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if(mdEsMobile()){
+      // Esperar a que se inicie sesión
+      const intervalo = setInterval(() => {
+        if(typeof _rolActual !== 'undefined' && _rolActual){
+          mdInicio();
+          clearInterval(intervalo);
+        }
+      }, 500);
+      setTimeout(() => clearInterval(intervalo), 30000);
+    }
+  }, 1000);
+});
+
+// Auto actualizar cada 30s si estamos en el dashboard mobile
+setInterval(() => {
+  if(document.body.classList.contains('dashmobile-activo')) mdActualizar();
+}, 30000);
+</script>
 
 <div id="clave-overlay">
   <div class="clave-card">
@@ -5511,11 +5874,19 @@ async function confirmarVenta(){
 // ========== MÓDULO TICKET DE VENTA ==========================
 // ============================================================
 
-// Formato de ticket actual (58, 80 o 'a4')
+// Formato de ticket actual (58, 80 o 'a4') — se lee de localStorage si existe
 let _ticketFormato = 80;
+try {
+  const guardado = localStorage.getItem('ticketFormato');
+  if(guardado === '58' || guardado === '80' || guardado === 'a4'){
+    _ticketFormato = guardado === 'a4' ? 'a4' : Number(guardado);
+  }
+} catch(e){}
 
 function cambiarFormatoTicket(formato){
   _ticketFormato = formato;
+  // Guardar la preferencia para próximas ventas
+  try { localStorage.setItem('ticketFormato', String(formato)); } catch(e){}
   // Actualizar estilos de botones
   ['58','80','a4'].forEach(f => {
     const btn = document.getElementById('ticket-btn-' + f);
@@ -5526,17 +5897,33 @@ function cambiarFormatoTicket(formato){
       btn.style.background = '#fff'; btn.style.color = '#000'; btn.style.borderColor = '#aaa';
     }
   });
-  // Re-renderizar preview con nuevo ancho
-  if(_ticketFacturaActual){
+  // Re-renderizar preview con nuevo ancho (solo si hay factura abierta)
+  if(typeof _ticketFacturaActual !== 'undefined' && _ticketFacturaActual){
     const texto = generarTicketTexto(_ticketFacturaActual, _ticketLineasActual);
     const prev = document.getElementById('ticket-preview');
-    prev.textContent = texto;
-    // Ajustar ancho visual del preview según formato
-    if(formato == 58){ prev.style.maxWidth = '220px'; prev.style.fontSize = '10px'; }
-    else if(formato == 80){ prev.style.maxWidth = '300px'; prev.style.fontSize = '11px'; }
-    else { prev.style.maxWidth = '600px'; prev.style.fontSize = '13px'; }
+    if(prev){
+      prev.textContent = texto;
+      // Ajustar ancho visual del preview según formato
+      if(formato == 58){ prev.style.maxWidth = '220px'; prev.style.fontSize = '10px'; }
+      else if(formato == 80){ prev.style.maxWidth = '300px'; prev.style.fontSize = '11px'; }
+      else { prev.style.maxWidth = '600px'; prev.style.fontSize = '13px'; }
+    }
   }
 }
+
+// Al cargar el sistema, marcar el botón del formato guardado (sin tocar preview)
+setTimeout(() => {
+  // Solo actualizar visualmente los botones, sin disparar la re-renderización del preview
+  ['58','80','a4'].forEach(f => {
+    const btn = document.getElementById('ticket-btn-' + f);
+    if(!btn) return;
+    if(String(_ticketFormato) === f){
+      btn.style.background = '#1a1a2e'; btn.style.color = '#fff'; btn.style.borderColor = '#1a1a2e';
+    } else {
+      btn.style.background = '#fff'; btn.style.color = '#000'; btn.style.borderColor = '#aaa';
+    }
+  });
+}, 800);
 
 function generarTicketTexto(factura, lineas){
   // Ancho según formato
