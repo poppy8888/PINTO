@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⛽ Estación Don Ramón</title>
+<title>⛽ Estación Don Ramón - PRUEBA NUBE</title>
 <style>
 /* ========== CLAVE OVERLAY ========== */
 #clave-overlay {
@@ -1392,7 +1392,7 @@ body.rol-operadora #tanques-grid {
     </div>
     <div>
       <div class="header-title">⛽ Estación Don Ramón</div>
-      <div class="header-sub">Sistema de gestión · Surtidor + Minimarket</div>
+      <div class="header-sub">☁️ Sistema en la NUBE (prueba) · Surtidor + Minimarket</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -14129,6 +14129,205 @@ function volverACompras(){
   };
 })();
 </script>
+
+<!-- ============================================================ -->
+<!-- ====================== FIREBASE SYNC ======================== -->
+<!-- ============================================================ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, enableIndexedDbPersistence }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBfIyFUkg3Ys8Z66AAaqmn42CQ1B9i9eug",
+  authDomain: "estacion-don-ramon-bb3be.firebaseapp.com",
+  projectId: "estacion-don-ramon-bb3be",
+  storageBucket: "estacion-don-ramon-bb3be.firebasestorage.app",
+  messagingSenderId: "481874293546",
+  appId: "1:481874293546:web:0bbe18f6f44b758f272453",
+  measurementId: "G-K6C5JF0YYV"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// Habilitar persistencia offline: si se cae internet, sigue funcionando
+enableIndexedDbPersistence(db).catch(err => {
+  console.warn('Firebase offline persistence:', err.code);
+});
+
+// Documento principal donde guardamos todo
+const docRef = doc(db, "estacion", "datos_principales");
+
+// Bandera para saber si lo último vino de la nube (para no rebotar)
+let _aplicandoCambioRemoto = false;
+// Bandera para saber si ya hicimos la carga inicial
+let _firstSyncDone = false;
+// Timestamp del último cambio nuestro (para evitar pisarnos a nosotros mismos)
+let _ultimoCambioLocal = 0;
+// Identificador único de esta sesión (para saber si el cambio es nuestro o de otro)
+const _sesionId = 'sess_' + Math.random().toString(36).slice(2,10) + '_' + Date.now();
+
+// ====== Indicador visual de estado de sincronización ======
+function fbCrearIndicador(){
+  if(document.getElementById('fb-indicador')) return;
+  const div = document.createElement('div');
+  div.id = 'fb-indicador';
+  div.style.cssText = 'position:fixed;bottom:14px;right:14px;background:#1a1a2e;color:#fff;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;font-family:Segoe UI,Arial,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;gap:7px;';
+  div.innerHTML = '<span id="fb-ico">⏳</span><span id="fb-txt">Conectando a la nube...</span>';
+  document.body.appendChild(div);
+}
+function fbEstado(ico, texto, color){
+  const indicador = document.getElementById('fb-indicador');
+  if(!indicador) return;
+  if(color) indicador.style.background = color;
+  document.getElementById('fb-ico').textContent = ico;
+  document.getElementById('fb-txt').textContent = texto;
+}
+fbCrearIndicador();
+
+// ====== SUBIR los datos del sistema a Firebase ======
+async function fbSubir(){
+  if(_aplicandoCambioRemoto) return; // no rebotar
+  try {
+    const datos = {
+      productos: (typeof productos !== 'undefined' ? productos : []),
+      stock: (typeof stock !== 'undefined' ? stock : {}),
+      clientes: (typeof clientes !== 'undefined' ? clientes : []),
+      proveedores: (typeof proveedores !== 'undefined' ? proveedores : []),
+      facturas: (typeof facturas !== 'undefined' ? facturas : []),
+      movimientosCC: (typeof movimientosCC !== 'undefined' ? movimientosCC : []),
+      log: (typeof log !== 'undefined' ? log.slice(-500) : []),
+      gastos: (typeof gastos !== 'undefined' ? gastos : []),
+      turnos: (typeof turnos !== 'undefined' ? turnos : []),
+      familiasExtra: window.familiasExtra || [],
+      nextId: (typeof nextId !== 'undefined' ? nextId : 100),
+      nextCliId: (typeof nextCliId !== 'undefined' ? nextCliId : 1),
+      nextProvId: (typeof nextProvId !== 'undefined' ? nextProvId : 1),
+      _meta: {
+        sesion: _sesionId,
+        timestamp: Date.now(),
+        fecha: new Date().toISOString()
+      }
+    };
+    _ultimoCambioLocal = datos._meta.timestamp;
+    await setDoc(docRef, datos);
+    fbEstado('✅', 'Sincronizado', '#27500a');
+  } catch (err) {
+    console.error('Firebase subir:', err);
+    fbEstado('⚠️', 'Sin internet — datos locales', '#c0392b');
+  }
+}
+
+// ====== BAJAR los datos de Firebase al sistema ======
+function fbAplicarDatosRemotos(datos){
+  if(!datos) return;
+  _aplicandoCambioRemoto = true;
+  try {
+    if(datos.productos) productos = datos.productos;
+    if(datos.stock) stock = datos.stock;
+    if(datos.clientes) clientes = datos.clientes;
+    if(datos.proveedores) proveedores = datos.proveedores;
+    if(datos.facturas) facturas = datos.facturas;
+    if(datos.movimientosCC) movimientosCC = datos.movimientosCC;
+    if(datos.log) log = datos.log;
+    if(datos.gastos && typeof gastos !== 'undefined') gastos = datos.gastos;
+    if(datos.turnos && typeof turnos !== 'undefined') turnos = datos.turnos;
+    if(datos.familiasExtra) window.familiasExtra = datos.familiasExtra;
+    if(datos.nextId) nextId = datos.nextId;
+    if(datos.nextCliId) nextCliId = datos.nextCliId;
+    if(datos.nextProvId) nextProvId = datos.nextProvId;
+
+    // Guardar en localStorage también para tener backup local
+    if(typeof saveAll === 'function'){
+      // Pero sin disparar fbSubir otra vez
+      try { localStorage.setItem('productos', JSON.stringify(productos)); } catch(e){}
+      try { localStorage.setItem('stock', JSON.stringify(stock)); } catch(e){}
+      try { localStorage.setItem('clientes', JSON.stringify(clientes)); } catch(e){}
+      try { localStorage.setItem('proveedores', JSON.stringify(proveedores)); } catch(e){}
+      try { localStorage.setItem('facturas', JSON.stringify(facturas)); } catch(e){}
+      try { localStorage.setItem('movimientosCC', JSON.stringify(movimientosCC)); } catch(e){}
+      try { localStorage.setItem('log', JSON.stringify(log)); } catch(e){}
+      try { localStorage.setItem('nextId', String(nextId)); } catch(e){}
+    }
+    if(typeof renderAll === 'function') renderAll();
+  } finally {
+    _aplicandoCambioRemoto = false;
+  }
+}
+
+// ====== ESCUCHAR cambios en tiempo real ======
+onSnapshot(docRef, (snapshot) => {
+  if(!snapshot.exists()){
+    // Primera vez: subir los datos locales que ya tenemos
+    if(!_firstSyncDone){
+      _firstSyncDone = true;
+      fbEstado('☁️', 'Primer envío...', '#3b82f6');
+      fbSubir();
+    }
+    return;
+  }
+  const datos = snapshot.data();
+  // Si el cambio es nuestro mismo, ignorar
+  if(datos._meta && datos._meta.sesion === _sesionId){
+    _firstSyncDone = true;
+    fbEstado('✅', 'Sincronizado', '#27500a');
+    return;
+  }
+  // Si el cambio es de otro dispositivo, aplicarlo
+  fbEstado('⬇️', 'Recibiendo cambios...', '#3b82f6');
+  fbAplicarDatosRemotos(datos);
+  _firstSyncDone = true;
+  setTimeout(() => fbEstado('✅', 'Sincronizado', '#27500a'), 800);
+}, (err) => {
+  console.error('Firebase onSnapshot:', err);
+  fbEstado('⚠️', 'Error de conexión', '#c0392b');
+});
+
+// ====== INTERCEPTAR saveAll para que también suba a Firebase ======
+window._fbDebounce = null;
+function fbSubirConDebounce(){
+  if(_aplicandoCambioRemoto) return;
+  clearTimeout(window._fbDebounce);
+  window._fbDebounce = setTimeout(() => {
+    fbSubir();
+  }, 800); // espera 800ms para no subir 50 veces seguidas
+}
+
+// Hook a saveAll: cada vez que se guarda local, también subimos a la nube
+(function(){
+  const intentar = () => {
+    if(typeof saveAll === 'function'){
+      const _origSaveAll = saveAll;
+      window.saveAll = function(){
+        _origSaveAll.apply(this, arguments);
+        fbSubirConDebounce();
+      };
+      console.log('✅ Firebase hooked into saveAll');
+      return true;
+    }
+    return false;
+  };
+  if(!intentar()){
+    // Si no estaba listo, reintentar
+    const intervalo = setInterval(() => {
+      if(intentar()){ clearInterval(intervalo); }
+    }, 300);
+    setTimeout(() => clearInterval(intervalo), 10000);
+  }
+})();
+
+// Exponer para debug
+window.FB = {
+  subir: fbSubir,
+  forzarBajar: async () => {
+    const snap = await getDoc(docRef);
+    if(snap.exists()) fbAplicarDatosRemotos(snap.data());
+  },
+  estado: fbEstado
+};
+</script>
+<!-- ====================== /FIREBASE SYNC ======================== -->
 
 </body>
 </html>
