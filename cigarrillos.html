@@ -4632,11 +4632,11 @@ function renderStock(){
           <input type="text" id="stock-${p.id}" class="item-edit-stock" value="${q}" style="width:80px;">
           <div style="display:flex;flex-direction:column;gap:2px;">
             <span style="font-size:0.62rem;color:#555;font-weight:600;text-align:center;">💲 COSTO</span>
-            <input type="text" id="costo-${p.id}" class="item-edit-costo" value="${costoNum}" placeholder="Costo" title="Precio de costo" style="width:90px;background:#eaf3ff;" data-margen-l2="${margenL2.toFixed(6)}">
+            <input type="text" id="costo-${p.id}" class="item-edit-costo" value="${costoNum}" placeholder="Costo" title="Para editar el costo, tocá ✏️ Detalle" style="width:90px;background:#eaf3ff;" data-margen-l2="${margenL2.toFixed(6)}" readonly>
           </div>
           <div style="display:flex;flex-direction:column;gap:2px;">
             <span style="font-size:0.62rem;color:#555;font-weight:600;text-align:center;">🏷️ VENTA</span>
-            <input type="text" id="price-${p.id}" class="item-edit-price" value="${precioNum}" placeholder="Venta" title="Precio de venta" style="width:90px;">
+            <input type="text" id="price-${p.id}" class="item-edit-price" value="${precioNum}" placeholder="Venta" title="Para editar el precio, tocá ✏️ Detalle" style="width:90px;background:#fff8e0;" readonly>
           </div>
           <div style="display:flex;flex-direction:column;gap:2px;">
             <span style="font-size:0.62rem;color:#27500a;font-weight:600;text-align:center;">📋 LISTA 2</span>
@@ -4663,25 +4663,13 @@ function renderStock(){
   if(filtered.length===0) html='<div class="empty">No se encontraron productos en esta categoría</div>';
   document.getElementById('stock-list').innerHTML=html;
   filtered.forEach(p=>{
-    document.getElementById(`stock-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
-    document.getElementById(`price-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
-    document.getElementById(`barcode-${p.id}`).onchange=()=>guardarEdicionProducto(p.id);
-
-    // Listener en tiempo real para el campo costo
-    const costoInp = document.getElementById(`costo-${p.id}`);
-    const lista2Inp = document.getElementById(`lista2-${p.id}`);
-    const casaInp   = document.getElementById(`casa-${p.id}`);
-
-    costoInp.oninput = () => {
-      const nuevoCosto = parseNumero(costoInp.value);
-      if(isNaN(nuevoCosto) || nuevoCosto < 0) return;
-      // Casa = siempre igual al costo (con decimales)
-      casaInp.value = Math.round(nuevoCosto * 100) / 100;
-      // Lista2 = mantiene el mismo margen de utilidad original (con decimales)
-      const margenL2 = parseFloat(costoInp.getAttribute('data-margen-l2')) || 0;
-      lista2Inp.value = Math.round(nuevoCosto * (1 + margenL2) * 100) / 100;
-    };
-    costoInp.onchange = ()=>guardarEdicionProducto(p.id);
+    // Solo stock y barcode siguen editables desde la tabla
+    const stkEl = document.getElementById(`stock-${p.id}`);
+    if(stkEl) stkEl.onchange = ()=>guardarEdicionProducto(p.id);
+    const bcEl = document.getElementById(`barcode-${p.id}`);
+    if(bcEl) bcEl.onchange = ()=>guardarEdicionProducto(p.id);
+    // Costo, Precio, Lista 2 y Casa son readonly - se editan SOLO desde ✏️ Detalle
+    // (esto evita que se borren los decimales por accidente)
   });
 }
 
