@@ -4086,6 +4086,47 @@ function parseNumero(valor) {
   return isNaN(num) ? NaN : Math.round(num * 100) / 100;
 }
 
+// ============================================================
+// FIX DECIMALES: Normalizar campos numéricos en productos/stock
+// (resuelve el bug de los decimales con coma argentina que al cargar
+// venían como string "15,5" y JavaScript los interpretaba como NaN→0)
+// ============================================================
+function normalizarNumerosProductos(){
+  try {
+    // Normalizar campos numéricos de cada producto
+    if(Array.isArray(productos)){
+      productos.forEach(p => {
+        const camposNumericos = ['costo','precio','precioLista2','precioCasa','stockMin','stockIdeal'];
+        camposNumericos.forEach(campo => {
+          if(p[campo] !== undefined && p[campo] !== null && p[campo] !== ''){
+            // Si es string con coma, convertir; si ya es número, dejarlo
+            if(typeof p[campo] === 'string'){
+              const n = parseNumero(p[campo]);
+              p[campo] = isNaN(n) ? 0 : n;
+            } else if(typeof p[campo] === 'number' && !isFinite(p[campo])){
+              p[campo] = 0;
+            }
+          }
+        });
+      });
+    }
+    // Normalizar valores de stock (a veces vienen como string)
+    if(stock && typeof stock === 'object'){
+      Object.keys(stock).forEach(k => {
+        const v = stock[k];
+        if(typeof v === 'string'){
+          const n = parseNumero(v);
+          stock[k] = isNaN(n) ? 0 : n;
+        } else if(typeof v === 'number' && !isFinite(v)){
+          stock[k] = 0;
+        }
+      });
+    }
+  } catch(e){
+    console.error('Error normalizando números:', e);
+  }
+}
+
 function fmt(n) {
   if (isNaN(n) || n === undefined || n === null) return '0';
   let valor = Math.round(n * 100) / 100;
@@ -4356,6 +4397,8 @@ async function loadAll(){
         clientes=data.clientes||[]; proveedores=data.proveedores||[]; movimientosCC=data.movimientosCC||[];
         descuentos=data.descuentos||[]; gastos=data.gastos||[]; turnos=data.turnos||[];
         loadedFromCloud=true;
+        // ==== NORMALIZAR NÚMEROS (fix decimales con coma argentina) ====
+        normalizarNumerosProductos();
         toast('📡 Datos desde la nube');
       }
     }catch(e){}
@@ -4387,6 +4430,9 @@ async function loadAll(){
     try{const dc=localStorage.getItem(KEY_DESC);if(dc)descuentos=JSON.parse(dc)}catch(e){}
     try{const gs=localStorage.getItem(KEY_GAS);if(gs)gastos=JSON.parse(gs)}catch(e){}
     try{const tr=localStorage.getItem(KEY_TUR);if(tr)turnos=JSON.parse(tr)}catch(e){}
+
+    // ==== NORMALIZAR NÚMEROS (fix decimales con coma argentina) ====
+    normalizarNumerosProductos();
     if(!productos.length){
       productos=[
         {id:1,nombre:'Coca-Cola 500ml',marca:'Bebidas',precio:1500,costo:900,barcode:'',tipo:'unidad'},
@@ -15275,6 +15321,11 @@ function fbAplicarDatosRemotos(datos){
     if(datos.nextId) nextId = datos.nextId;
     if(datos.nextCliId) nextCliId = datos.nextCliId;
     if(datos.nextProvId) nextProvId = datos.nextProvId;
+
+    // ==== NORMALIZAR NÚMEROS (fix decimales con coma argentina) ====
+    if(typeof normalizarNumerosProductos === 'function'){
+      normalizarNumerosProductos();
+    }
 
     // Guardar en localStorage también para tener backup local
     if(typeof saveAll === 'function'){
