@@ -4703,20 +4703,20 @@ function renderStock(){
           <input type="text" id="barcode-${p.id}" class="item-edit-barcode" value="${p.barcode||''}" placeholder="Código" style="width:110px;">
           <input type="text" id="stock-${p.id}" class="item-edit-stock" value="${q}" style="width:80px;">
           <div style="display:flex;flex-direction:column;gap:2px;">
-            <span style="font-size:0.62rem;color:#555;font-weight:600;text-align:center;">💲 COSTO</span>
-            <input type="text" id="costo-${p.id}" class="item-edit-costo" value="${costoNum}" placeholder="Costo" title="Para editar el costo, tocá ✏️ Detalle" style="width:90px;background:#eaf3ff;" data-margen-l2="${margenL2.toFixed(6)}" readonly>
+            <span style="font-size:0.62rem;color:#555;font-weight:600;text-align:center;">💲 COSTO ✏️</span>
+            <input type="text" id="costo-${p.id}" class="item-edit-costo" value="${costoNum}" placeholder="Costo" title="Costo — editable acá. Al cambiarlo se recalculan Lista 2 y Casa." style="width:90px;background:#eaf3ff;" data-margen-l2="${margenL2.toFixed(6)}">
           </div>
           <div style="display:flex;flex-direction:column;gap:2px;">
-            <span style="font-size:0.62rem;color:#555;font-weight:600;text-align:center;">🏷️ VENTA</span>
-            <input type="text" id="price-${p.id}" class="item-edit-price" value="${precioNum}" placeholder="Venta" title="Para editar el precio, tocá ✏️ Detalle" style="width:90px;background:#fff8e0;" readonly>
+            <span style="font-size:0.62rem;color:#555;font-weight:600;text-align:center;">🏷️ VENTA ✏️</span>
+            <input type="text" id="price-${p.id}" class="item-edit-price" value="${precioNum}" placeholder="Venta" title="Precio de venta — editable acá." style="width:90px;background:#fff8e0;">
           </div>
           <div style="display:flex;flex-direction:column;gap:2px;">
-            <span style="font-size:0.62rem;color:#27500a;font-weight:600;text-align:center;">📋 LISTA 2</span>
-            <input type="text" id="lista2-${p.id}" class="item-edit-price" value="${precioL2actual}" placeholder="Lista 2" title="Precio Lista 2 (se recalcula con el costo)" style="width:90px;background:#f0f8e8;" readonly>
+            <span style="font-size:0.62rem;color:#27500a;font-weight:600;text-align:center;">📋 LISTA 2 ✏️</span>
+            <input type="text" id="lista2-${p.id}" class="item-edit-price" value="${precioL2actual}" placeholder="Lista 2" title="Precio Lista 2 — editable acá." style="width:90px;background:#f0f8e8;">
           </div>
           <div style="display:flex;flex-direction:column;gap:2px;">
-            <span style="font-size:0.62rem;color:#791f1f;font-weight:600;text-align:center;">🏠 CASA</span>
-            <input type="text" id="casa-${p.id}" class="item-edit-price" value="${precioCasaActual}" placeholder="Casa" title="Precio consumo casa (igual al costo)" style="width:90px;background:#fdf0f0;" readonly>
+            <span style="font-size:0.62rem;color:#791f1f;font-weight:600;text-align:center;">🏠 CASA ✏️</span>
+            <input type="text" id="casa-${p.id}" class="item-edit-price" value="${precioCasaActual}" placeholder="Casa" title="Precio consumo casa — editable acá." style="width:90px;background:#fdf0f0;">
           </div>
           <select id="tipo-${p.id}" class="item-edit-tipo" onchange="cambiarTipoProducto(${p.id}, this.value)">
             <option value="unidad" ${p.tipo==='unidad'?'selected':''}>Unidad</option>
@@ -4735,13 +4735,13 @@ function renderStock(){
   if(filtered.length===0) html='<div class="empty">No se encontraron productos en esta categoría</div>';
   document.getElementById('stock-list').innerHTML=html;
   filtered.forEach(p=>{
-    // Solo stock y barcode siguen editables desde la tabla
-    const stkEl = document.getElementById(`stock-${p.id}`);
-    if(stkEl) stkEl.onchange = ()=>guardarEdicionProducto(p.id);
-    const bcEl = document.getElementById(`barcode-${p.id}`);
-    if(bcEl) bcEl.onchange = ()=>guardarEdicionProducto(p.id);
-    // Costo, Precio, Lista 2 y Casa son readonly - se editan SOLO desde ✏️ Detalle
-    // (esto evita que se borren los decimales por accidente)
+    // Todos los campos quedan editables desde la tabla.
+    // guardarEdicionProducto tiene PROTECCIÓN: si un precio queda vacío,
+    // en 0 o inválido, NO lo guarda y deja el valor anterior.
+    ['stock','barcode','costo','price','lista2','casa'].forEach(campo=>{
+      const el = document.getElementById(`${campo}-${p.id}`);
+      if(el) el.onchange = ()=>guardarEdicionProducto(p.id);
+    });
   });
 }
 
@@ -5204,21 +5204,39 @@ function guardarEdicionProducto(id){
   const prod=productos.find(p=>Number(p.id)===Number(id));
   if(!prod)return;
 
-  // ==== LEER VALORES CON PROTECCIÓN ====
-  const stockEl = document.getElementById(`stock-${id}`);
-  const priceEl = document.getElementById(`price-${id}`);
-  const costoEl = document.getElementById(`costo-${id}`);
+  // ==== LEER LAS CASILLAS ====
+  const stockEl   = document.getElementById(`stock-${id}`);
+  const priceEl   = document.getElementById(`price-${id}`);
+  const costoEl   = document.getElementById(`costo-${id}`);
+  const lista2El  = document.getElementById(`lista2-${id}`);
+  const casaEl    = document.getElementById(`casa-${id}`);
   const barcodeEl = document.getElementById(`barcode-${id}`);
 
-  const stockTxt = stockEl ? stockEl.value.trim() : '';
-  const precioTxt = priceEl ? priceEl.value.trim() : '';
-  const costoTxt = costoEl ? costoEl.value.trim() : '';
+  const stockTxt  = stockEl   ? stockEl.value.trim()   : '';
+  const precioTxt = priceEl   ? priceEl.value.trim()   : '';
+  const costoTxt  = costoEl   ? costoEl.value.trim()   : '';
+  const lista2Txt = lista2El  ? lista2El.value.trim()  : '';
+  const casaTxt   = casaEl    ? casaEl.value.trim()    : '';
 
-  let nuevoStock = stockTxt === '' ? NaN : parseNumero(stockTxt);
-  const nuevoPrecio = precioTxt === '' ? NaN : parseNumero(precioTxt);
-  const nuevoCosto = costoTxt === '' ? NaN : parseNumero(costoTxt);
+  let nuevoStock     = stockTxt  === '' ? NaN : parseNumero(stockTxt);
+  const nuevoPrecio  = precioTxt === '' ? NaN : parseNumero(precioTxt);
+  const nuevoCosto   = costoTxt  === '' ? NaN : parseNumero(costoTxt);
+  const nuevoLista2  = lista2Txt === '' ? NaN : parseNumero(lista2Txt);
+  const nuevoCasa    = casaTxt   === '' ? NaN : parseNumero(casaTxt);
   const nuevoBarcode = barcodeEl ? barcodeEl.value.trim() : '';
+
+  // ==== FOTO de los valores ORIGINALES (antes de tocar nada) ====
+  // Es clave comparar contra esta foto y NO contra prod.* porque editar el
+  // Costo modifica Lista 2 y Casa en cascada; si comparáramos contra el valor
+  // ya cambiado, revertiríamos esa cascada por error.
+  const precioOrig = Number(prod.precio)       || 0;
+  const costoOrig  = Number(prod.costo)        || 0;
+  const lista2Orig = Number(prod.precioLista2) || 0;
+  const casaOrig   = Number(prod.precioCasa)   || 0;
+
   let cambios=false;
+
+  // ---- STOCK ----
   if(prod.tipo === 'unidad') nuevoStock = Math.round(nuevoStock);
   else nuevoStock = Math.round(nuevoStock * 1000) / 1000;
   if(!isNaN(nuevoStock) && Math.abs(nuevoStock - (stock[id]||0)) > 0.001){
@@ -5227,36 +5245,57 @@ function guardarEdicionProducto(id){
     addLog('ajuste',prod,antes,nuevoStock,Math.abs(nuevoStock-antes));
     cambios=true;
   }
-  // PROTECCIÓN: NO sobreescribir precio si está vacío o NaN o si bajaría a 0 cuando antes era >0
-  if(!isNaN(nuevoPrecio) && nuevoPrecio > 0 && Math.abs(nuevoPrecio - prod.precio) > 0.001){
-    prod.precio=nuevoPrecio;
-    cambios=true;
-  }
-  // PROTECCIÓN: NO sobreescribir costo si está vacío o NaN o si bajaría a 0 cuando antes era >0
-  if(!isNaN(nuevoCosto) && nuevoCosto > 0 && Math.abs(nuevoCosto - (prod.costo||0)) > 0.001){
-    const costoAnterior = prod.costo || 0;
+
+  // ---- COSTO ----  PROTECCIÓN: no se guarda si quedó vacío, en 0 o inválido.
+  // Al cambiar el costo se recalculan Casa (= costo) y Lista 2 (mismo margen).
+  if(!isNaN(nuevoCosto) && nuevoCosto > 0 && Math.abs(nuevoCosto - costoOrig) > 0.001){
     prod.costo = nuevoCosto;
-    // Actualizar precioCasa: siempre igual al costo (precio para consumo de casa)
     prod.precioCasa = nuevoCosto;
-    // Recalcular precioLista2 manteniendo el mismo margen de utilidad que tenía (con decimales)
-    if(costoAnterior > 0 && prod.precioLista2 > 0){
-      const margenL2 = (prod.precioLista2 - costoAnterior) / costoAnterior;
+    if(costoOrig > 0 && lista2Orig > 0){
+      const margenL2 = (lista2Orig - costoOrig) / costoOrig;
       prod.precioLista2 = Math.round(nuevoCosto * (1 + margenL2) * 100) / 100;
     } else {
-      prod.precioLista2 = prod.precioLista2 || prod.precio || 0;
+      prod.precioLista2 = lista2Orig || precioOrig || 0;
     }
     cambios=true;
   }
+
+  // ---- VENTA ----  PROTECCIÓN: no se guarda si quedó vacío, en 0 o inválido.
+  if(!isNaN(nuevoPrecio) && nuevoPrecio > 0 && Math.abs(nuevoPrecio - precioOrig) > 0.001){
+    prod.precio = nuevoPrecio;
+    cambios=true;
+  }
+
+  // ---- LISTA 2 ----  PROTECCIÓN: no se guarda si quedó vacío, en 0 o inválido.
+  // Va DESPUÉS del costo a propósito: si el usuario escribió un Lista 2 a mano,
+  // ese valor explícito gana sobre el recálculo automático que hizo el costo.
+  if(!isNaN(nuevoLista2) && nuevoLista2 > 0 && Math.abs(nuevoLista2 - lista2Orig) > 0.001){
+    prod.precioLista2 = nuevoLista2;
+    cambios=true;
+  }
+
+  // ---- CASA ----  PROTECCIÓN: no se guarda si quedó vacío, en 0 o inválido.
+  // Igual que Lista 2: un valor escrito a mano gana sobre el automático.
+  if(!isNaN(nuevoCasa) && nuevoCasa > 0 && Math.abs(nuevoCasa - casaOrig) > 0.001){
+    prod.precioCasa = nuevoCasa;
+    cambios=true;
+  }
+
+  // ---- CÓDIGO DE BARRAS ----
   if(nuevoBarcode!==prod.barcode){
     if(nuevoBarcode!==""&&productos.some(p=>p.id!==id&&p.barcode===nuevoBarcode)) toast("❌ Código ya usado");
     else { prod.barcode=nuevoBarcode; cambios=true; }
   }
+
   if(cambios){ saveAll(); renderStats(); renderTotal(); renderStock(); toast(`Actualizado ${prod.marca} ${prod.nombre}`); }
   else {
-    // Restaurar inputs si no hubo cambios reales
-    if(stockEl) stockEl.value = stock[id]||0;
-    if(priceEl) priceEl.value = Number(prod.precio)||0;
-    if(costoEl) costoEl.value = Number(prod.costo)||0;
+    // Restaurar las casillas si no hubo cambios reales
+    // (o si se IGNORÓ un valor inválido: la casilla vuelve al valor bueno).
+    if(stockEl)   stockEl.value   = stock[id]||0;
+    if(priceEl)   priceEl.value   = Number(prod.precio)||0;
+    if(costoEl)   costoEl.value   = Number(prod.costo)||0;
+    if(lista2El)  lista2El.value  = Number(prod.precioLista2)||0;
+    if(casaEl)    casaEl.value    = Number(prod.precioCasa)||0;
     if(barcodeEl) barcodeEl.value = prod.barcode||'';
   }
 }
