@@ -4089,9 +4089,6 @@ function parseNumero(valor) {
 
 // ============================================================
 // FIX DECIMALES: Normalizar campos numéricos en productos/stock
-// (resuelve el bug de los decimales con coma argentina que al cargar
-// venían como string "15,5" y JavaScript los interpretaba como NaN→0)
-// ============================================================
 function normalizarNumerosProductos(){
   try {
     // Normalizar campos numéricos de cada producto
@@ -15453,6 +15450,36 @@ function fbAplicarDatosRemotos(datos){
       const muestra2 = productos.slice(-3);
       muestra2.forEach(p => {
         console.log(`🟢 DESPUÉS - ${p.marca||''} ${p.nombre||''} → costo:`, p.costo, typeof p.costo, '| precio:', p.precio, typeof p.precio);
+      });
+
+      // ==== TRAMPERO: detectar quién borra el costo ====
+      productos.forEach(p => {
+        if(p.__trapped) return;
+        let _costo = p.costo;
+        let _precio = p.precio;
+        Object.defineProperty(p, 'costo', {
+          get(){ return _costo; },
+          set(v){
+            if(_costo > 0 && (v === 0 || v === null || v === undefined || isNaN(v))){
+              console.warn('🚨🚨🚨 ALGUIEN BORRÓ COSTO de', p.nombre, 'de', _costo, '→', v);
+              console.trace('Stack de quién lo hizo:');
+            }
+            _costo = v;
+          },
+          configurable: true
+        });
+        Object.defineProperty(p, 'precio', {
+          get(){ return _precio; },
+          set(v){
+            if(_precio > 0 && (v === 0 || v === null || v === undefined || isNaN(v))){
+              console.warn('🚨🚨🚨 ALGUIEN BORRÓ PRECIO de', p.nombre, 'de', _precio, '→', v);
+              console.trace('Stack de quién lo hizo:');
+            }
+            _precio = v;
+          },
+          configurable: true
+        });
+        p.__trapped = true;
       });
     }
 
