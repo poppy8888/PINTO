@@ -4574,23 +4574,28 @@ function renderStock(){
     html+=`<div class="brand-group"><div class="brand-header"><span class="brand-pill">${marca}</span><span class="brand-count">${fmtUnidad(tot, items[0]?.tipo)}</span></div>`;
     items.forEach(p=>{
       const q=stock[p.id]||0;
-      const util = (p.costo>0 && p.precio>0) ? (((p.precio-p.costo)/p.costo)*100).toFixed(1) : '0';
-      const margenL2 = (p.costo>0 && p.precioLista2>0) ? ((p.precioLista2-p.costo)/p.costo) : 0;
-      const precioL2actual = p.precioLista2 || p.precio || 0;
-      const precioCasaActual = p.precioCasa || p.costo || 0;
+      // Forzar numéricos (defensa contra strings o valores raros)
+      const costoNum = Number(p.costo) || 0;
+      const precioNum = Number(p.precio) || 0;
+      const precioL2Num = Number(p.precioLista2) || 0;
+      const precioCasaNum = Number(p.precioCasa) || 0;
+      const util = (costoNum>0 && precioNum>0) ? (((precioNum-costoNum)/costoNum)*100).toFixed(1) : '0';
+      const margenL2 = (costoNum>0 && precioL2Num>0) ? ((precioL2Num-costoNum)/costoNum) : 0;
+      const precioL2actual = precioL2Num || precioNum || 0;
+      const precioCasaActual = precioCasaNum || costoNum || 0;
       html+=`<div class="item-row" data-id="${p.id}">
         <span class="item-barcode">${p.barcode||'sin código'}</span>
         <div class="item-name"><strong>${p.marca}</strong> ${p.nombre}</div>
         <div class="item-edit-group" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-          <input type="text" id="barcode-${p.id}" class="item-edit-barcode" value="${p.barcode}" placeholder="Código" style="width:110px;">
+          <input type="text" id="barcode-${p.id}" class="item-edit-barcode" value="${p.barcode||''}" placeholder="Código" style="width:110px;">
           <input type="text" id="stock-${p.id}" class="item-edit-stock" value="${q}" style="width:80px;">
           <div style="display:flex;flex-direction:column;gap:2px;">
             <span style="font-size:0.62rem;color:#555;font-weight:600;text-align:center;">💲 COSTO</span>
-            <input type="text" id="costo-${p.id}" class="item-edit-costo" value="${p.costo||0}" placeholder="Costo" title="Precio de costo" style="width:90px;background:#eaf3ff;" data-margen-l2="${margenL2.toFixed(6)}">
+            <input type="text" id="costo-${p.id}" class="item-edit-costo" value="${costoNum}" placeholder="Costo" title="Precio de costo" style="width:90px;background:#eaf3ff;" data-margen-l2="${margenL2.toFixed(6)}">
           </div>
           <div style="display:flex;flex-direction:column;gap:2px;">
             <span style="font-size:0.62rem;color:#555;font-weight:600;text-align:center;">🏷️ VENTA</span>
-            <input type="text" id="price-${p.id}" class="item-edit-price" value="${p.precio}" placeholder="Venta" title="Precio de venta" style="width:90px;">
+            <input type="text" id="price-${p.id}" class="item-edit-price" value="${precioNum}" placeholder="Venta" title="Precio de venta" style="width:90px;">
           </div>
           <div style="display:flex;flex-direction:column;gap:2px;">
             <span style="font-size:0.62rem;color:#27500a;font-weight:600;text-align:center;">📋 LISTA 2</span>
@@ -4629,11 +4634,11 @@ function renderStock(){
     costoInp.oninput = () => {
       const nuevoCosto = parseNumero(costoInp.value);
       if(isNaN(nuevoCosto) || nuevoCosto < 0) return;
-      // Casa = siempre igual al costo
-      casaInp.value = Math.round(nuevoCosto);
-      // Lista2 = mantiene el mismo margen de utilidad original
+      // Casa = siempre igual al costo (con decimales)
+      casaInp.value = Math.round(nuevoCosto * 100) / 100;
+      // Lista2 = mantiene el mismo margen de utilidad original (con decimales)
       const margenL2 = parseFloat(costoInp.getAttribute('data-margen-l2')) || 0;
-      lista2Inp.value = Math.round(nuevoCosto * (1 + margenL2));
+      lista2Inp.value = Math.round(nuevoCosto * (1 + margenL2) * 100) / 100;
     };
     costoInp.onchange = ()=>guardarEdicionProducto(p.id);
   });
@@ -5119,10 +5124,10 @@ function guardarEdicionProducto(id){
     prod.costo = nuevoCosto;
     // Actualizar precioCasa: siempre igual al costo (precio para consumo de casa)
     prod.precioCasa = nuevoCosto;
-    // Recalcular precioLista2 manteniendo el mismo margen de utilidad que tenía
+    // Recalcular precioLista2 manteniendo el mismo margen de utilidad que tenía (con decimales)
     if(costoAnterior > 0 && prod.precioLista2 > 0){
       const margenL2 = (prod.precioLista2 - costoAnterior) / costoAnterior;
-      prod.precioLista2 = Math.round(nuevoCosto * (1 + margenL2));
+      prod.precioLista2 = Math.round(nuevoCosto * (1 + margenL2) * 100) / 100;
     } else {
       prod.precioLista2 = prod.precioLista2 || prod.precio || 0;
     }
@@ -5133,7 +5138,7 @@ function guardarEdicionProducto(id){
     else { prod.barcode=nuevoBarcode; cambios=true; }
   }
   if(cambios){ saveAll(); renderStats(); renderTotal(); renderStock(); toast(`Actualizado ${prod.marca} ${prod.nombre}`); }
-  else { document.getElementById(`stock-${id}`).value=fmt(stock[id]||0); document.getElementById(`price-${id}`).value=fmt(prod.precio); document.getElementById(`costo-${id}`).value=fmt(prod.costo||0); document.getElementById(`barcode-${id}`).value=prod.barcode; }
+  else { document.getElementById(`stock-${id}`).value=stock[id]||0; document.getElementById(`price-${id}`).value=Number(prod.precio)||0; document.getElementById(`costo-${id}`).value=Number(prod.costo)||0; document.getElementById(`barcode-${id}`).value=prod.barcode||''; }
 }
 
 function agregarProducto(){
