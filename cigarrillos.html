@@ -2423,7 +2423,6 @@ setInterval(() => {
 </div>
 
 <div class="tabs">
-  <button class="tab admin-only" onclick="showTab('dashboard',this)" style="background:#1a1a2e;color:#e8c84a;font-weight:800;">📊 Dashboard</button>
   <button class="tab active" onclick="showTab('surtidor',this)">⛽ Surtidor</button>
   <button class="tab" onclick="showTab('stock',this)">📦 Stock</button>
   <button class="tab" onclick="showTab('cigarrillos',this)">🚬 Cigarrillos</button>
@@ -4560,6 +4559,7 @@ async function loadAll(){
   if(!clientes)clientes=[];
   if(!proveedores)proveedores=[];
   if(!movimientosCC)movimientosCC=[];
+  if(typeof repararMovimientosCC === 'function') repararMovimientosCC();
   if(!descuentos)descuentos=[];
   if(!gastos)gastos=[];
   if(!turnos)turnos=[];
@@ -6729,7 +6729,7 @@ function showTab(name,btn){
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); 
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); 
   document.getElementById('panel-'+name).classList.add('active'); 
-  btn.classList.add('active'); 
+  if(btn) btn.classList.add('active'); 
   if(name==='movimientos') renderLog(); 
   if(name==='facturas') renderFacturas(); 
   if(name==='compra'){ actualizarDatalistCompra(); llenarSelectorProveedoresCompra(); setTimeout(()=>document.getElementById('compra-scan-input').focus(),100); }
@@ -8844,6 +8844,25 @@ function llenarSelectorProveedoresCompra(){
       return `<option value="${p.id}">${lbl}</option>`;
     }).join('');
   sel.value = valActual;
+}
+
+// Repara movimientos de cuenta corriente mal etiquetados.
+// Un bug viejo guardaba las ventas hechas desde el Surtidor con tipo:'venta'
+// en lugar de tipo:'cliente'. Como el saldo solo suma los de tipo:'cliente',
+// esas ventas no aparecían en el saldo del cliente. Acá las corregimos.
+// ('venta' nunca fue un tipo válido de cuenta corriente, así que es seguro
+//  convertir todos esos movimientos a 'cliente'.)
+function repararMovimientosCC(){
+  if(!Array.isArray(movimientosCC)) return;
+  let reparados = 0;
+  movimientosCC.forEach(m => {
+    if(m && m.tipo === 'venta'){
+      m.tipo = 'cliente';
+      if(m.entidadId != null) m.entidadId = Number(m.entidadId);
+      reparados++;
+    }
+  });
+  if(reparados > 0) console.log('🔧 Movimientos de cuenta corriente reparados:', reparados);
 }
 
 // Calcular saldo de una cuenta corriente
@@ -13151,9 +13170,9 @@ async function finalizarCobroSurtidor(total, cantDesp, formaPago, patente, clien
   // Si es cuenta corriente, registrar movimiento de CC
   if(formaPago === 'cuenta_corriente' && clienteId){
     movimientosCC.push({
-      id: Date.now() + 1,
-      tipo: 'venta',
-      entidadId: clienteId,
+      id: Date.now() + Math.random(),
+      tipo: 'cliente',
+      entidadId: Number(clienteId),
       fecha: nowStr(),
       concepto: `Venta unificada #${fid}` + (patente ? ` - ${patente}` : ''),
       debe: total,
@@ -15560,6 +15579,7 @@ function fbAplicarDatosRemotos(datos){
     if(datos.proveedores) proveedores = datos.proveedores;
     if(datos.facturas) facturas = datos.facturas;
     if(datos.movimientosCC) movimientosCC = datos.movimientosCC;
+    if(typeof repararMovimientosCC === 'function') repararMovimientosCC();
     if(datos.log) log = datos.log;
     if(datos.gastos && typeof gastos !== 'undefined') gastos = datos.gastos;
     if(datos.turnos && typeof turnos !== 'undefined') turnos = datos.turnos;
