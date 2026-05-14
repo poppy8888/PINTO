@@ -4620,6 +4620,16 @@ function renderStock(){
       const precioNum = Number(p.precio) || 0;
       const precioL2Num = Number(p.precioLista2) || 0;
       const precioCasaNum = Number(p.precioCasa) || 0;
+
+      // ==== DEBUG: ver qué valores estamos dibujando ====
+      if(p.id === 175 || p.nombre === 'ee'){
+        console.log('🟡 RENDER STOCK - producto', p.id, p.nombre,
+          '| p.costo =', p.costo, typeof p.costo,
+          '| costoNum =', costoNum,
+          '| p.precio =', p.precio,
+          '| precioNum =', precioNum);
+      }
+
       const util = (costoNum>0 && precioNum>0) ? (((precioNum-costoNum)/costoNum)*100).toFixed(1) : '0';
       const margenL2 = (costoNum>0 && precioL2Num>0) ? ((precioL2Num-costoNum)/costoNum) : 0;
       const precioL2actual = precioL2Num || precioNum || 0;
