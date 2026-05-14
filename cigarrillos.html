@@ -9431,8 +9431,16 @@ function autenticar(){
         const estado = (_usuariosNube[rolGuardado].estado || '').toLowerCase();
         rolActivo = (estado === 'activo');
       }
-      
-      if(rolActivo){
+
+      // ==== BLOQUEAR AUTO-LOGIN POR CELULAR SI NO ES ADMIN ====
+      if(rolActivo && window.innerWidth <= 600 && rolGuardado !== 'admin'){
+        // Limpiar sesión guardada y forzar login manual (que también va a fallar)
+        localStorage.removeItem(KEY_AUTH);
+        localStorage.removeItem('ER_ROL_ACTUAL');
+        if(err){
+          err.textContent = '📱 Solo el administrador puede entrar desde el celular.';
+        }
+      } else if(rolActivo){
         _rolActual = rolGuardado;
         ov.style.display='none';
         document.getElementById('app-contenido').style.display='block';
@@ -9464,7 +9472,15 @@ function autenticar(){
             return;
           }
         }
-        
+
+        // ==== BLOQUEAR ACCESO POR CELULAR A NO-ADMINS ====
+        if(window.innerWidth <= 600 && rol !== 'admin'){
+          err.textContent = '📱 Solo el administrador puede entrar desde el celular. Cajeros y operadora deben usar la PC.';
+          inp.value='';
+          inp.focus();
+          return;
+        }
+
         _rolActual = rol;
         if(rec && rec.checked){
           localStorage.setItem(KEY_AUTH,"1");
