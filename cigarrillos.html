@@ -4612,11 +4612,34 @@ function renderStock(){
     html+=`<div class="brand-group"><div class="brand-header"><span class="brand-pill">${marca}</span><span class="brand-count">${fmtUnidad(tot, items[0]?.tipo)}</span></div>`;
     items.forEach(p=>{
       const q=stock[p.id]||0;
-      // Forzar numéricos (defensa contra strings o valores raros)
-      const costoNum = Number(p.costo) || 0;
-      const precioNum = Number(p.precio) || 0;
-      const precioL2Num = Number(p.precioLista2) || 0;
-      const precioCasaNum = Number(p.precioCasa) || 0;
+      // ==== MEMORIA DE VALORES BUENOS: si alguna vez vimos un costo válido,
+      // nunca mostrar 0 a menos que sea explícitamente ese valor ====
+      if(!window._memoriaProductos) window._memoriaProductos = {};
+      const memoria = window._memoriaProductos[p.id] || {};
+
+      const costoRaw = Number(p.costo) || 0;
+      const precioRaw = Number(p.precio) || 0;
+      const precioL2Raw = Number(p.precioLista2) || 0;
+      const precioCasaRaw = Number(p.precioCasa) || 0;
+
+      // Si el valor actual es 0 pero tenemos uno bueno guardado, USAR EL BUENO
+      const costoNum = (costoRaw === 0 && memoria.costo > 0) ? memoria.costo : costoRaw;
+      const precioNum = (precioRaw === 0 && memoria.precio > 0) ? memoria.precio : precioRaw;
+      const precioL2Num = (precioL2Raw === 0 && memoria.precioLista2 > 0) ? memoria.precioLista2 : precioL2Raw;
+      const precioCasaNum = (precioCasaRaw === 0 && memoria.precioCasa > 0) ? memoria.precioCasa : precioCasaRaw;
+
+      // Si conseguimos valores buenos, actualizar la memoria Y el producto
+      if(costoNum > 0) memoria.costo = costoNum;
+      if(precioNum > 0) memoria.precio = precioNum;
+      if(precioL2Num > 0) memoria.precioLista2 = precioL2Num;
+      if(precioCasaNum > 0) memoria.precioCasa = precioCasaNum;
+      window._memoriaProductos[p.id] = memoria;
+
+      // Si recuperamos algo, ACTUALIZAR EL PRODUCTO REAL para que se sincronice
+      if(costoNum !== costoRaw){ p.costo = costoNum; }
+      if(precioNum !== precioRaw){ p.precio = precioNum; }
+      if(precioL2Num !== precioL2Raw){ p.precioLista2 = precioL2Num; }
+      if(precioCasaNum !== precioCasaRaw){ p.precioCasa = precioCasaNum; }
 
       // ==== DEBUG: ver qué valores estamos dibujando ====
       if(p.id === 175 || p.nombre === 'ee'){
@@ -15426,7 +15449,31 @@ function fbAplicarDatosRemotos(datos){
       });
     }
 
-    if(datos.productos) productos = datos.productos;
+    // ==== PROTECCIÓN: si los datos remotos son PEORES que los locales,
+    // fusionar inteligentemente en lugar de pisar todo ====
+    if(datos.productos && Array.isArray(datos.productos) && Array.isArray(productos) && productos.length > 0){
+      const productosLocales = productos;
+      const productosRemotos = datos.productos;
+      const productosFusionados = productosRemotos.map(pRemoto => {
+        const pLocal = productosLocales.find(pl => Number(pl.id) === Number(pRemoto.id));
+        if(!pLocal) return pRemoto;
+        // Fusionar campo por campo: si el remoto tiene 0 pero el local tiene valor, conservar local
+        const fusionado = {...pRemoto};
+        ['costo','precio','precioLista2','precioCasa','stockMin','stockIdeal'].forEach(campo => {
+          const valRemoto = Number(pRemoto[campo]) || 0;
+          const valLocal = Number(pLocal[campo]) || 0;
+          // Si el remoto es 0 pero el local tiene valor, CONSERVAR EL LOCAL (es mejor)
+          if(valRemoto === 0 && valLocal > 0){
+            fusionado[campo] = valLocal;
+            console.warn(`🛡️ PROTECCIÓN: ${pRemoto.nombre} - ${campo} remoto era 0, conservando local ${valLocal}`);
+          }
+        });
+        return fusionado;
+      });
+      productos = productosFusionados;
+    } else if(datos.productos) {
+      productos = datos.productos;
+    }
     if(datos.stock) stock = datos.stock;
     if(datos.clientes) clientes = datos.clientes;
     if(datos.proveedores) proveedores = datos.proveedores;
