@@ -1794,6 +1794,7 @@ setInterval(() => {
     <div class="header-date" id="hdate"></div>
     <button onclick="exportarBackup()" style="padding:10px 18px;border-radius:6px;border:1px solid #d4a020;background:#e8c84a;color:#1a1a2e;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">💾 Backup</button>
     <button onclick="exportarAExcel()" style="padding:10px 18px;border-radius:6px;border:1px solid #1f7c3e;background:#27ae60;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Exportar todo a un archivo Excel">📊 Excel</button>
+    <button onclick="diagnosticoNumeros()" style="padding:10px 18px;border-radius:6px;border:1px solid #c00;background:#f55;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Diagnóstico de números">🔍 DIAG</button>
     <button onclick="GDrive.iniciarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #1f5f9e;background:#3b82f6;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Conectar a Google Drive para subir fotos de cigarrillos">☁️ Conectar Drive</button>
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #888;background:#f0f0f0;color:#333;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
     <label style="padding:10px 18px;border-radius:6px;border:1px solid #1f5005;background:#2a6e2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/></label>
@@ -9217,6 +9218,54 @@ document.addEventListener('keydown', function(e){
   }
 });
 function exportarBackup(){ const data={productos,stock,log,facturas,clientes,proveedores,movimientosCC,fecha:new Date().toISOString()}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`backup_minimarket_${new Date().toLocaleDateString('es-AR').replace(/\//g,'-')}.json`; a.click(); URL.revokeObjectURL(blob); toast('Backup guardado'); }
+
+// ============================================================
+// =================== DIAGNÓSTICO NÚMEROS ====================
+// ============================================================
+function diagnosticoNumeros(){
+  // Mostrar los últimos 10 productos con sus tipos de datos
+  const ultimos = (productos || []).slice(-10);
+  let html = '<div style="font-family:Consolas,monospace;font-size:12px;background:#1a1a2e;color:#0f0;padding:14px;border-radius:8px;max-height:80vh;overflow:auto;">';
+  html += '<div style="color:#ff0;font-size:14px;margin-bottom:10px;">🔍 DIAGNÓSTICO — Últimos 10 productos</div>';
+  ultimos.forEach(p => {
+    html += '<div style="margin-bottom:14px;padding:8px;background:#2a2a3e;border-radius:4px;">';
+    html += '<div style="color:#ff0;font-weight:bold;">'+(p.marca||'')+' '+(p.nombre||'')+' (ID:'+p.id+')</div>';
+    ['costo','precio','precioLista2','precioCasa','stockMin','stockIdeal'].forEach(campo => {
+      const v = p[campo];
+      const tipo = typeof v;
+      const muestra = (tipo === 'string') ? '"'+v+'"' : String(v);
+      const color = (tipo === 'string') ? '#f55' : (tipo === 'number' ? '#0f0' : '#f80');
+      html += '<div style="color:'+color+';">  '+campo+': <span style="color:#fff;">'+muestra+'</span> ('+tipo+')</div>';
+    });
+    // Stock asociado
+    const s = stock[p.id];
+    const tipoStock = typeof s;
+    const muestraS = (tipoStock === 'string') ? '"'+s+'"' : String(s);
+    const colorStock = (tipoStock === 'string') ? '#f55' : (tipoStock === 'number' ? '#0f0' : '#f80');
+    html += '<div style="color:'+colorStock+';">  stock: <span style="color:#fff;">'+muestraS+'</span> ('+tipoStock+')</div>';
+    html += '</div>';
+  });
+  html += '<div style="color:#0ff;margin-top:14px;font-size:11px;">';
+  html += '🟢 verde = number (correcto)<br>';
+  html += '🔴 rojo = string (INCORRECTO — ese es el bug)<br>';
+  html += '🟡 naranja = otro tipo<br>';
+  html += '</div>';
+  html += '</div>';
+
+  // Mostrar en modal
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML = '<div style="background:#fff;max-width:800px;width:100%;border-radius:10px;padding:20px;max-height:90vh;overflow:auto;">' +
+    '<div style="display:flex;justify-content:space-between;margin-bottom:10px;"><h3 style="margin:0;">🔍 Diagnóstico de números</h3>' +
+    '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:#c0392b;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:bold;">✕ Cerrar</button></div>' +
+    html +
+    '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">' +
+    '<button onclick="normalizarNumerosProductos();saveAll();renderAll();toast(\'✅ Números reparados\');this.closest(\'div[style*=fixed]\').remove();" style="background:#27ae60;color:#fff;border:none;padding:10px 18px;border-radius:6px;cursor:pointer;font-weight:bold;">🔧 REPARAR AHORA</button>' +
+    '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:#888;color:#fff;border:none;padding:10px 18px;border-radius:6px;cursor:pointer;">Cerrar</button>' +
+    '</div></div>';
+  document.body.appendChild(modal);
+}
+// ============================================================
 
 // ============================================================
 // =================== EXPORTAR A EXCEL =======================
