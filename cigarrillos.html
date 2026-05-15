@@ -1801,6 +1801,7 @@ setInterval(() => {
     <button onclick="limpiarMercaderia()" style="padding:10px 18px;border-radius:6px;border:1px solid #b56b00;background:#d68910;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Borrar productos del minimarket (mantiene combustibles, clientes y proveedores)">🧹 Limpiar mercadería</button>
     <button onclick="recuperarBackupSeguridad()" style="padding:10px 18px;border-radius:6px;border:1px solid #1a5a8a;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Si perdiste datos, recuperar el último backup automático guardado en este navegador">🛟 Recuperar backup</button>
     <button onclick="abrirGestionUsuarios()" id="btn-usuarios" style="padding:10px 18px;border-radius:6px;border:1px solid #1a3a6b;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Cambiar contraseñas de los usuarios del sistema">👥 Usuarios</button>
+    <button onclick="abrirGestionBackups()" id="btn-backups-auto" style="padding:10px 18px;border-radius:6px;border:1px solid #5a3a1a;background:#8b6914;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Gestionar backups automáticos diarios">🛡️ Backups Auto</button>
     <button onclick="cerrarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #6b1818;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">🚪 Cerrar sesión</button>
   </div>
 </div>
@@ -4414,7 +4415,19 @@ window.addEventListener('beforeunload', function(e){
 });
 
 async function saveAll(){
-  // Guardar SIEMPRE en localStorage primero (instantáneo)
+  // ============================================================
+  // 🔥 IMPORTANTE: Google Sheets DESACTIVADO
+  // ============================================================
+  // El backup vía Google Apps Script causaba contagio entre PCs
+  // porque pisaba toda la base con la versión local de cada PC.
+  //
+  // Ahora la sincronización va 100% por Firebase (tiempo real),
+  // que tiene protecciones contra borrado accidental y unión
+  // segura de datos. saveAll() solo guarda en localStorage como
+  // respaldo de emergencia; Firebase se encarga de la nube.
+  // ============================================================
+  
+  // Guardar SIEMPRE en localStorage (respaldo local de emergencia)
   try { localStorage.setItem(KEY_P,JSON.stringify(productos)); } catch(e){}
   try { localStorage.setItem(KEY_S,JSON.stringify(stock)); } catch(e){}
   try { localStorage.setItem(KEY_L,JSON.stringify(log)); } catch(e){}
@@ -4432,41 +4445,12 @@ async function saveAll(){
     localStorage.setItem('mm_backup_seguridad', JSON.stringify(backup));
   } catch(e){}
   
-  if (!SCRIPT_URL) return;
-  
-  // 🛡️ ============================================================
-  //    PROTECCIÓN ANTI-CONTAGIO: NO subir si no bajamos primero
-  // 🛡️ ============================================================
-  // Si _datosVienenDeNube === false significa que los datos actuales
-  // son de localStorage viejo. Subirlos pisaría los datos buenos de
-  // otras PCs. ABORTAMOS la subida.
-  if(!_datosVienenDeNube || _bloqueoSubida){
-    _pendienteSubirOffline = true;
-    mostrarBarraOfflineConBoton();
-    console.warn('[ANTI-CONTAGIO] Subida BLOQUEADA: los datos no vienen de la nube. Guardado solo en local.');
-    toast('💾 Guardado local (sin subir a la nube)');
-    return;
-  }
-  
-  // Mostrar indicador
-  _guardandoEnNube = true;
-  mostrarBarraGuardando(true);
-  
-  try{
-    const data={productos,stock,log,facturas,clientes,proveedores,movimientosCC,descuentos,gastos,turnos,_meta:{subidoEn:Date.now(),pc:_idPC()}};
-    const formData=new FormData();
-    formData.append('data', JSON.stringify(data));
-    await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body: formData});
-    toast('✅ Guardado en la nube');
-  }catch(err){ 
-    toast('⚠️ No subió a la nube (datos guardados local)'); 
-  } finally {
-    _guardandoEnNube = false;
-    mostrarBarraGuardando(false);
-  }
+  // Firebase intercepta saveAll y sube en tiempo real por su lado.
+  // No subimos manualmente a Google Sheets aquí — se causaba contagio.
+  return;
 }
 
-// Identificador único de esta PC (para auditoría en la nube)
+// Identificador único de esta PC (queda por si alguna vez lo necesitamos)
 function _idPC(){
   let id = localStorage.getItem('ER_PC_ID');
   if(!id){
@@ -4600,83 +4584,31 @@ function loadFromJsonp(){
 }
 
 async function loadAll(){
-  let loadedFromCloud=false;
-  let intentoNube = false;
+  // ============================================================
+  // 🔥 IMPORTANTE: Google Sheets DESACTIVADO
+  // ============================================================
+  // Ya no bajamos de Google Apps Script porque causaba el contagio
+  // de datos viejos entre PCs. Ahora cargamos solo de localStorage
+  // como arranque rápido, y Firebase (que se inicializa después)
+  // sincroniza la versión más nueva en tiempo real.
+  // ============================================================
   
-  // 🛡️ Reset de la bandera de protección al inicio de cada carga
-  _datosVienenDeNube = false;
+  // _datosVienenDeNube queda en true porque Firebase sincronizará
+  // automáticamente cuando el módulo cargue. No bloqueamos saveAll.
+  _datosVienenDeNube = true;
   _bloqueoSubida = false;
   
-  if(SCRIPT_URL){
-    intentoNube = true;
-    try{
-      const data=await loadFromJsonp();
-      // SOLO si llegan datos válidos con productos, usarlos
-      if(data && data.productos && Array.isArray(data.productos)){
-        productos=data.productos; stock=data.stock||{}; log=data.log||[]; facturas=data.facturas||[];
-        clientes=data.clientes||[]; proveedores=data.proveedores||[]; movimientosCC=data.movimientosCC||[];
-        descuentos=data.descuentos||[]; gastos=data.gastos||[]; turnos=data.turnos||[];
-        loadedFromCloud=true;
-        _datosVienenDeNube = true;  // 🛡️ AHORA SÍ podemos subir
-        _versionNube = (data._meta && data._meta.subidoEn) ? data._meta.subidoEn : Date.now();
-        // ==== NORMALIZAR NÚMEROS (fix decimales con coma argentina) ====
-        normalizarNumerosProductos();
-        toast('📡 Datos desde la nube');
-      }
-    }catch(e){}
-  }
-  if(!loadedFromCloud){
-    // 🛡️ NO se cargó de la nube: BLOQUEAR subidas hasta que el usuario lo arregle
-    _datosVienenDeNube = false;
-    _bloqueoSubida = true;
-    
-    // Si la nube falló pero el SCRIPT_URL está configurado, advertir al usuario
-    if(intentoNube){
-      // Mostrar cartel rojo CRÍTICO si falla la conexión con la nube
-      setTimeout(() => {
-        let alerta = document.getElementById('alerta-sin-nube');
-        if(!alerta){
-          alerta = document.createElement('div');
-          alerta.id = 'alerta-sin-nube';
-          alerta.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:14px;background:#c0392b;color:#fff;text-align:center;font-weight:800;z-index:99998;font-family:"Segoe UI",Arial,sans-serif;font-size:0.95rem;box-shadow:0 2px 10px rgba(0,0,0,0.3);';
-          alerta.innerHTML = '⚠️ <strong>SIN CONEXIÓN A LA NUBE.</strong> NO se subirán cambios para no pisar datos de otras PCs. ' +
-            '<button id="btn-recargar-nube" style="margin-left:8px;padding:6px 14px;background:#fff;color:#c0392b;border:none;border-radius:5px;font-weight:800;cursor:pointer;">🔄 Reintentar</button> ' +
-            '<button id="btn-trabajar-offline" style="margin-left:6px;padding:6px 14px;background:#34495e;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.85rem;">📴 Trabajar solo local</button>';
-          document.body.appendChild(alerta);
-          document.getElementById('btn-recargar-nube').onclick = async () => {
-            const btn = document.getElementById('btn-recargar-nube');
-            btn.disabled = true; btn.textContent = '⏳ Conectando...';
-            const ok = await reintentarConexionNube();
-            if(ok){
-              alerta.remove();
-              const off = document.getElementById('barra-offline-bloqueada');
-              if(off) off.remove();
-              toast('✅ Conectado a la nube');
-            } else {
-              btn.disabled = false; btn.textContent = '🔄 Reintentar';
-              toast('❌ Aún sin conexión');
-            }
-          };
-          document.getElementById('btn-trabajar-offline').onclick = () => {
-            if(confirm('⚠️ Vas a trabajar SOLO con datos locales.\n\nLos cambios NO se subirán a la nube hasta que reconectes manualmente.\n\n¿Continuar?')){
-              alerta.remove();
-              mostrarBarraOfflineConBoton();
-            }
-          };
-        }
-      }, 2500);
-    }
-    
-    try{const p=localStorage.getItem(KEY_P);if(p)productos=JSON.parse(p)}catch(e){}
-    try{const s=localStorage.getItem(KEY_S);if(s)stock=JSON.parse(s)}catch(e){}
-    try{const l=localStorage.getItem(KEY_L);if(l)log=JSON.parse(l)}catch(e){}
-    try{const f=localStorage.getItem(KEY_F);if(f)facturas=JSON.parse(f)}catch(e){}
-    try{const c=localStorage.getItem(KEY_CLI);if(c)clientes=JSON.parse(c)}catch(e){}
-    try{const pr=localStorage.getItem(KEY_PROV);if(pr)proveedores=JSON.parse(pr)}catch(e){}
-    try{const cc=localStorage.getItem(KEY_CC);if(cc)movimientosCC=JSON.parse(cc)}catch(e){}
-    try{const dc=localStorage.getItem(KEY_DESC);if(dc)descuentos=JSON.parse(dc)}catch(e){}
-    try{const gs=localStorage.getItem(KEY_GAS);if(gs)gastos=JSON.parse(gs)}catch(e){}
-    try{const tr=localStorage.getItem(KEY_TUR);if(tr)turnos=JSON.parse(tr)}catch(e){}
+  // Cargar de localStorage (arranque instantáneo)
+  try{const p=localStorage.getItem(KEY_P);if(p)productos=JSON.parse(p)}catch(e){}
+  try{const s=localStorage.getItem(KEY_S);if(s)stock=JSON.parse(s)}catch(e){}
+  try{const l=localStorage.getItem(KEY_L);if(l)log=JSON.parse(l)}catch(e){}
+  try{const f=localStorage.getItem(KEY_F);if(f)facturas=JSON.parse(f)}catch(e){}
+  try{const c=localStorage.getItem(KEY_CLI);if(c)clientes=JSON.parse(c)}catch(e){}
+  try{const pr=localStorage.getItem(KEY_PROV);if(pr)proveedores=JSON.parse(pr)}catch(e){}
+  try{const cc=localStorage.getItem(KEY_CC);if(cc)movimientosCC=JSON.parse(cc)}catch(e){}
+  try{const dc=localStorage.getItem(KEY_DESC);if(dc)descuentos=JSON.parse(dc)}catch(e){}
+  try{const gs=localStorage.getItem(KEY_GAS);if(gs)gastos=JSON.parse(gs)}catch(e){}
+  try{const tr=localStorage.getItem(KEY_TUR);if(tr)turnos=JSON.parse(tr)}catch(e){}
 
     // ==== NORMALIZAR NÚMEROS (fix decimales con coma argentina) ====
     normalizarNumerosProductos();
@@ -4688,8 +4620,7 @@ async function loadAll(){
         {id:4,nombre:'Cigarrillos Marlboro',marca:'Cigarrillos',precio:3000,costo:2400,barcode:'',tipo:'unidad'}
       ];
     }
-    toast('📀 Datos locales');
-  }
+    toast('📀 Cargando... esperá Firebase');
   productos.forEach(p=>{
     if(stock[p.id]===undefined)stock[p.id]=0;
     if(!p.barcode)p.barcode='';
@@ -4746,8 +4677,8 @@ async function loadAll(){
   turnoActual = turnos.find(t => !t.cerrado) || null;
   nextCliId = clientes.length ? Math.max(...clientes.map(c=>c.id),0)+1 : 1;
   nextProvId = proveedores.length ? Math.max(...proveedores.map(p=>p.id),0)+1 : 1;
-  // Indicador de éxito en la conexión: ocultar si había alerta previa
-  return loadedFromCloud;
+  // Firebase se encarga de sincronizar — devolvemos true por compatibilidad
+  return true;
 }
 
 function addLog(tipo,prod,antes,despues,qty, facturaId=null){
@@ -10058,6 +9989,7 @@ function aplicarRestriccionesUI(){
   document.querySelectorAll('button[onclick="limpiarMercaderia()"]').forEach(b => b.style.display = 'none');
   document.querySelectorAll('button[onclick="recuperarBackupSeguridad()"]').forEach(b => b.style.display = 'none');
   document.querySelectorAll('button[onclick="exportarBackup()"]').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('button[onclick="abrirGestionBackups()"]').forEach(b => b.style.display = 'none');
   document.querySelectorAll('label').forEach(lbl => {
     const inp = lbl.querySelector('input[onchange*="importarBackup"]');
     const inp2 = lbl.querySelector('input[onchange*="importarCSV"]');
@@ -15630,7 +15562,8 @@ setInterval(() => {
 <!-- ============================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot, enableIndexedDbPersistence }
+import { getFirestore, doc, setDoc, getDoc, onSnapshot, enableIndexedDbPersistence,
+         collection, addDoc, query, orderBy, limit, getDocs, deleteDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -15946,6 +15879,354 @@ window.FB = {
   },
   estado: fbEstado
 };
+
+// ============================================================================
+// 🛡️ SISTEMA DE BACKUPS AUTOMÁTICOS DIARIOS A LAS 23:00
+// ----------------------------------------------------------------------------
+// SOLO se ejecuta en la PC marcada como "PC del administrador" (LocalStorage)
+// - A las 23:00 sube un snapshot a Firestore (colección "backups")
+// - Si la PC no estaba prendida a las 23:00, se hace al primer login del día
+// - Mantiene los últimos 30 backups, borra los más viejos automáticamente
+// - Botón en la UI para ver lista, descargar, restaurar y marcar/desmarcar PC
+// ============================================================================
+
+const HORA_BACKUP = 23;             // 23:00 hora local
+const MAX_BACKUPS = 30;             // mantener últimos 30
+const KEY_ES_PC_ADMIN = 'ER_ES_PC_ADMIN';        // 'true' si esta PC es la del admin
+const KEY_ULT_BACKUP   = 'ER_ULTIMO_BACKUP_FECHA'; // 'YYYY-MM-DD' del último backup
+
+function esPCAdminBackup(){
+  return localStorage.getItem(KEY_ES_PC_ADMIN) === 'true';
+}
+
+function fechaHoyStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function ultimoBackupFecha(){
+  return localStorage.getItem(KEY_ULT_BACKUP) || '';
+}
+
+// ====== HACER EL BACKUP (sube a Firestore + descarga JSON) ======
+async function hacerBackupAutomatico(){
+  if(!esPCAdminBackup()){
+    console.log('[BACKUP] No es la PC del admin, no se hace backup.');
+    return false;
+  }
+  const hoy = fechaHoyStr();
+  if(ultimoBackupFecha() === hoy){
+    console.log('[BACKUP] Ya se hizo backup hoy (' + hoy + ').');
+    return false;
+  }
+
+  try {
+    fbEstado('📦', 'Haciendo backup diario...', '#8b6914');
+
+    // Armar el snapshot
+    const snapshot = {
+      fecha: hoy,
+      fechaCompleta: new Date().toISOString(),
+      timestampMs: Date.now(),
+      productos: typeof productos !== 'undefined' ? productos : [],
+      stock: typeof stock !== 'undefined' ? stock : {},
+      clientes: typeof clientes !== 'undefined' ? clientes : [],
+      proveedores: typeof proveedores !== 'undefined' ? proveedores : [],
+      facturas: typeof facturas !== 'undefined' ? facturas : [],
+      movimientosCC: typeof movimientosCC !== 'undefined' ? movimientosCC : [],
+      log: typeof log !== 'undefined' ? log : [],
+      gastos: typeof gastos !== 'undefined' ? gastos : [],
+      turnos: typeof turnos !== 'undefined' ? turnos : [],
+      descuentos: typeof descuentos !== 'undefined' ? descuentos : [],
+      familiasExtra: window.familiasExtra || [],
+      nextId: typeof nextId !== 'undefined' ? nextId : 100,
+      nextCliId: typeof nextCliId !== 'undefined' ? nextCliId : 1,
+      nextProvId: typeof nextProvId !== 'undefined' ? nextProvId : 1,
+      _meta: { pc: 'PC-Admin', creadoEn: Date.now() }
+    };
+
+    // 1) Subir a Firestore en colección "backups"
+    const docId = 'backup_' + hoy + '_' + Date.now();
+    const backupRef = doc(db, 'backups', docId);
+    await setDoc(backupRef, snapshot);
+    console.log('[BACKUP] ☁️ Subido a Firestore como:', docId);
+
+    // 2) Descargar como JSON en la PC del admin
+    try {
+      const blob = new Blob([JSON.stringify(snapshot, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'backup_estacion_' + hoy + '.json';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      console.log('[BACKUP] 💾 Descargado al disco');
+    } catch(e){ console.warn('[BACKUP] No se pudo descargar:', e); }
+
+    // 3) Marcar la fecha
+    localStorage.setItem(KEY_ULT_BACKUP, hoy);
+
+    // 4) Limpiar backups viejos (mantener últimos MAX_BACKUPS)
+    await limpiarBackupsViejos();
+
+    fbEstado('✅', 'Backup OK · ' + hoy, '#27500a');
+    setTimeout(() => fbEstado('✅', 'Sincronizado', '#27500a'), 4000);
+    return true;
+  } catch(err) {
+    console.error('[BACKUP] Error:', err);
+    fbEstado('⚠️', 'Backup falló', '#c0392b');
+    setTimeout(() => fbEstado('✅', 'Sincronizado', '#27500a'), 4000);
+    return false;
+  }
+}
+
+// ====== LIMPIAR BACKUPS VIEJOS (mantener los últimos MAX_BACKUPS) ======
+async function limpiarBackupsViejos(){
+  try {
+    const q = query(collection(db, 'backups'), orderBy('timestampMs', 'desc'));
+    const snap = await getDocs(q);
+    const docs = [];
+    snap.forEach(d => docs.push({ id: d.id, ts: d.data().timestampMs || 0 }));
+    if(docs.length > MAX_BACKUPS){
+      const aBorrar = docs.slice(MAX_BACKUPS);
+      console.log('[BACKUP] Limpiando ' + aBorrar.length + ' backup(s) viejo(s)...');
+      for(const d of aBorrar){
+        await deleteDoc(doc(db, 'backups', d.id));
+      }
+    }
+  } catch(e){ console.warn('[BACKUP] Error limpiando viejos:', e); }
+}
+
+// ====== LISTAR BACKUPS DISPONIBLES ======
+async function listarBackups(){
+  try {
+    const q = query(collection(db, 'backups'), orderBy('timestampMs', 'desc'), limit(MAX_BACKUPS));
+    const snap = await getDocs(q);
+    const lista = [];
+    snap.forEach(d => {
+      const data = d.data();
+      lista.push({
+        id: d.id,
+        fecha: data.fecha || '?',
+        fechaCompleta: data.fechaCompleta || '',
+        timestampMs: data.timestampMs || 0,
+        cantProductos: (data.productos || []).length,
+        cantFacturas: (data.facturas || []).length,
+        cantClientes: (data.clientes || []).length
+      });
+    });
+    return lista;
+  } catch(e){
+    console.error('[BACKUP] Error listando:', e);
+    return [];
+  }
+}
+
+// ====== RESTAURAR UN BACKUP ======
+async function restaurarBackup(backupId){
+  if(!confirm('⚠️ Vas a RESTAURAR este backup.\n\nLos datos actuales del sistema se van a PISAR con los del backup elegido.\n\nEsto afecta TODAS las PCs en tiempo real.\n\n¿Seguro que querés continuar?')){
+    return false;
+  }
+  try {
+    const backupRef = doc(db, 'backups', backupId);
+    const snap = await getDoc(backupRef);
+    if(!snap.exists()){
+      alert('❌ El backup no existe o fue borrado.');
+      return false;
+    }
+    const datos = snap.data();
+    // Aplicar al sistema
+    if(datos.productos) productos = datos.productos;
+    if(datos.stock) stock = datos.stock;
+    if(datos.clientes) clientes = datos.clientes;
+    if(datos.proveedores) proveedores = datos.proveedores;
+    if(datos.facturas) facturas = datos.facturas;
+    if(datos.movimientosCC) movimientosCC = datos.movimientosCC;
+    if(datos.log) log = datos.log;
+    if(datos.gastos) gastos = datos.gastos;
+    if(datos.turnos) turnos = datos.turnos;
+    if(datos.descuentos) descuentos = datos.descuentos;
+    if(datos.familiasExtra) window.familiasExtra = datos.familiasExtra;
+    if(datos.nextId) nextId = datos.nextId;
+    if(datos.nextCliId) nextCliId = datos.nextCliId;
+    if(datos.nextProvId) nextProvId = datos.nextProvId;
+
+    // Guardar local y subir a Firebase para que se propague a las otras PCs
+    if(typeof saveAll === 'function') await saveAll();
+    if(typeof renderAll === 'function') renderAll();
+    alert('✅ Backup restaurado correctamente.\n\nFecha del backup: ' + (datos.fecha || '?') + '\nProductos: ' + (datos.productos||[]).length + '\nFacturas: ' + (datos.facturas||[]).length);
+    return true;
+  } catch(err){
+    console.error('[BACKUP] Error restaurando:', err);
+    alert('❌ Error al restaurar el backup: ' + err.message);
+    return false;
+  }
+}
+
+// ====== DESCARGAR UN BACKUP COMO JSON ======
+async function descargarBackup(backupId){
+  try {
+    const backupRef = doc(db, 'backups', backupId);
+    const snap = await getDoc(backupRef);
+    if(!snap.exists()){
+      alert('❌ El backup no existe.');
+      return;
+    }
+    const datos = snap.data();
+    const blob = new Blob([JSON.stringify(datos, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'backup_estacion_' + (datos.fecha || 'sin-fecha') + '.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  } catch(err){
+    alert('❌ Error: ' + err.message);
+  }
+}
+
+// ====== UI: MODAL DE GESTIÓN DE BACKUPS ======
+window.abrirGestionBackups = async function(){
+  const esPCAdmin = esPCAdminBackup();
+  let modal = document.getElementById('modal-backups-auto');
+  if(modal) modal.remove();
+  modal = document.createElement('div');
+  modal.id = 'modal-backups-auto';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI",Tahoma,Arial,sans-serif;';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;max-width:780px;width:96%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <h2 style="margin:0;color:#1a1a2e;font-size:1.3rem;">🛡️ Backups Automáticos</h2>
+        <button onclick="document.getElementById('modal-backups-auto').remove()" style="background:#e74c3c;color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.1rem;font-weight:700;">✕</button>
+      </div>
+
+      <div style="background:${esPCAdmin?'#d4edda':'#fff3cd'};border:2px solid ${esPCAdmin?'#27ae60':'#f39c12'};border-radius:8px;padding:14px;margin-bottom:18px;">
+        <div style="font-weight:800;color:${esPCAdmin?'#155724':'#856404'};margin-bottom:6px;font-size:1rem;">
+          ${esPCAdmin ? '✅ Esta PC ESTÁ marcada como Admin' : '⚠️ Esta PC NO está marcada como Admin'}
+        </div>
+        <div style="font-size:0.85rem;color:#333;margin-bottom:10px;">
+          ${esPCAdmin
+            ? 'Esta PC va a hacer el backup automático todos los días a las 23:00 (o al iniciar el día siguiente si estuvo apagada).'
+            : 'Si querés que ESTA PC haga los backups automáticos diarios, marcala con el botón de abajo. Solo UNA PC debe estar marcada.'}
+        </div>
+        ${esPCAdmin
+          ? '<button onclick="desmarcarPCAdmin()" style="background:#e74c3c;color:#fff;border:none;padding:9px 18px;border-radius:6px;font-weight:700;cursor:pointer;">🚫 Desmarcar esta PC</button>'
+          : '<button onclick="marcarPCAdmin()" style="background:#27ae60;color:#fff;border:none;padding:9px 18px;border-radius:6px;font-weight:700;cursor:pointer;">✅ Marcar esta PC como Admin</button>'}
+        <button onclick="hacerBackupManualAhora()" style="background:#3498db;color:#fff;border:none;padding:9px 18px;border-radius:6px;font-weight:700;cursor:pointer;margin-left:8px;">📦 Hacer backup AHORA</button>
+      </div>
+
+      <div style="font-size:0.95rem;font-weight:700;color:#1a1a2e;margin-bottom:10px;">📋 Últimos backups en la nube:</div>
+      <div id="lista-backups-auto" style="background:#f8f9fa;border-radius:8px;padding:14px;min-height:120px;">
+        <div style="text-align:center;color:#888;padding:20px;">⏳ Cargando...</div>
+      </div>
+
+      <div style="margin-top:14px;font-size:0.78rem;color:#666;padding:10px;background:#f0f0f0;border-radius:6px;">
+        ℹ️ Se guardan los últimos ${MAX_BACKUPS} backups. Los más viejos se borran automáticamente.
+        Hora del backup automático: <strong>${HORA_BACKUP}:00</strong>.
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  // Cargar la lista
+  const lista = await listarBackups();
+  const cont = document.getElementById('lista-backups-auto');
+  if(!cont) return;
+  if(lista.length === 0){
+    cont.innerHTML = '<div style="text-align:center;color:#888;padding:20px;">No hay backups todavía. El primero se hará a las 23:00.</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(b => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border:1px solid #ddd;border-radius:6px;margin-bottom:6px;">
+      <div>
+        <div style="font-weight:700;color:#1a1a2e;font-size:0.92rem;">📅 ${b.fecha} <span style="color:#888;font-size:0.78rem;font-weight:400;">${b.fechaCompleta ? '· '+new Date(b.fechaCompleta).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) : ''}</span></div>
+        <div style="font-size:0.78rem;color:#666;margin-top:2px;">${b.cantProductos} productos · ${b.cantFacturas} facturas · ${b.cantClientes} clientes</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="descargarBackupUI('${b.id}')" style="background:#3498db;color:#fff;border:none;padding:7px 12px;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.82rem;" title="Descargar como JSON">💾</button>
+        <button onclick="restaurarBackupUI('${b.id}','${b.fecha}')" style="background:#e67e22;color:#fff;border:none;padding:7px 12px;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.82rem;" title="Restaurar este backup">♻️ Restaurar</button>
+      </div>
+    </div>
+  `).join('');
+};
+
+window.marcarPCAdmin = function(){
+  if(!confirm('¿Marcar ESTA PC como la PC del administrador?\n\nA partir de ahora, esta PC va a hacer los backups automáticos todos los días a las 23:00.\n\nSi otra PC estaba marcada antes, desmarcala manualmente.')) return;
+  localStorage.setItem(KEY_ES_PC_ADMIN, 'true');
+  toast('✅ PC marcada como Admin. Los backups se harán desde acá.');
+  document.getElementById('modal-backups-auto').remove();
+  setTimeout(() => abrirGestionBackups(), 200);
+};
+window.desmarcarPCAdmin = function(){
+  if(!confirm('¿Desmarcar esta PC?\n\nDeja de hacer los backups automáticos. Acordate de marcar otra PC para que los siga haciendo.')) return;
+  localStorage.removeItem(KEY_ES_PC_ADMIN);
+  toast('🚫 PC desmarcada');
+  document.getElementById('modal-backups-auto').remove();
+  setTimeout(() => abrirGestionBackups(), 200);
+};
+window.hacerBackupManualAhora = async function(){
+  if(!esPCAdminBackup()){
+    alert('Esta PC no está marcada como Admin. Marcala primero.');
+    return;
+  }
+  // Forzar: reseteamos la fecha para que se haga aunque ya se haya hecho hoy
+  localStorage.removeItem(KEY_ULT_BACKUP);
+  const ok = await hacerBackupAutomatico();
+  if(ok){
+    toast('✅ Backup hecho manualmente');
+    document.getElementById('modal-backups-auto').remove();
+    setTimeout(() => abrirGestionBackups(), 500);
+  }
+};
+window.descargarBackupUI = (id) => descargarBackup(id);
+window.restaurarBackupUI = (id, fecha) => {
+  document.getElementById('modal-backups-auto').remove();
+  restaurarBackup(id);
+};
+
+// ====== SCHEDULER: cada minuto revisa si toca hacer backup ======
+function inicializarSchedulerBackup(){
+  // Chequeo al arrancar (si la PC estaba apagada y se perdió la hora del backup)
+  setTimeout(() => {
+    if(esPCAdminBackup()){
+      const ahora = new Date();
+      const hoy = fechaHoyStr();
+      // Si ya pasaron las 23:00 de hoy O si es de madrugada y no se hizo ayer
+      const ayerStr = (() => {
+        const d = new Date(); d.setDate(d.getDate()-1);
+        return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      })();
+      if(ahora.getHours() >= HORA_BACKUP && ultimoBackupFecha() !== hoy){
+        // Pasaron las 23 y no se hizo hoy → hacerlo ahora
+        hacerBackupAutomatico();
+      } else if(ahora.getHours() < HORA_BACKUP && ultimoBackupFecha() !== ayerStr && ultimoBackupFecha() !== hoy){
+        // Es de mañana/tarde temprano y no se hizo ni ayer ni hoy → hacerlo
+        hacerBackupAutomatico();
+      }
+    }
+  }, 12000); // esperar 12s para que Firebase esté listo
+
+  // Chequeo cada minuto (a las 23:00 va a coincidir)
+  setInterval(() => {
+    if(!esPCAdminBackup()) return;
+    const ahora = new Date();
+    if(ahora.getHours() === HORA_BACKUP && ahora.getMinutes() === 0){
+      if(ultimoBackupFecha() !== fechaHoyStr()){
+        hacerBackupAutomatico();
+      }
+    }
+  }, 60 * 1000);
+}
+inicializarSchedulerBackup();
+
+// Exponer para debug
+window.BACKUPS = {
+  hacerAhora: hacerBackupAutomatico,
+  listar: listarBackups,
+  restaurar: restaurarBackup,
+  esPCAdmin: esPCAdminBackup
+};
+
 </script>
 <!-- ====================== /FIREBASE SYNC ======================== -->
 
