@@ -108,7 +108,7 @@
   <div class="login-card">
     <div style="text-align:center;font-size:2.5rem;margin-bottom:8px;">⛽</div>
     <div class="login-title">Estación Don Ramón</div>
-    <div class="login-sub">🛒 Acceso Mayoristas</div>
+    <div class="login-sub">🚬 Mayoristas · Cigarrillos</div>
     <input type="tel" id="login-wsp" class="login-input" placeholder="📱 Número de WhatsApp" autocomplete="off">
     <input type="password" id="login-clave" class="login-input" placeholder="🔑 Clave de acceso" autocomplete="off">
     <button class="login-btn" onclick="hacerLogin()">Ingresar</button>
@@ -123,7 +123,7 @@
 <div class="app" id="app">
   <div class="top">
     <div>
-      <div class="top-titulo">🛒 Mayoristas · Estación Don Ramón</div>
+      <div class="top-titulo">🚬 Mayoristas · Cigarrillos · Estación Don Ramón</div>
       <div class="top-cliente" id="top-cliente">—</div>
     </div>
     <div class="top-acciones">
@@ -133,7 +133,7 @@
   </div>
 
   <div class="filtros">
-    <input type="text" id="buscador" class="buscador" placeholder="🔍 Buscar producto, marca..." oninput="filtrarProductos()">
+    <input type="text" id="buscador" class="buscador" placeholder="🔍 Buscar por marca (Marlboro, Camel...)" oninput="filtrarProductos()">
     <div id="chips-familias" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
   </div>
 
@@ -378,8 +378,12 @@ function getPrecioMay(p){
 
 function productosVisibles(){
   return state.productos.filter(p => {
+    // 🚬 SOLO CIGARRILLOS: filtramos solo productos de la familia Cigarrillos
+    const esCig = p.esCigarrillo || (p.familia === 'Cigarrillos') || (p.tipo === 'cigarrillo');
+    if(!esCig) return false;
+    // Y que tengan precio Lista 2 cargado
     const precio = getPrecioMay(p);
-    if(!(precio > 0)) return false; // sin Lista 2 cargado → no mostrar
+    if(!(precio > 0)) return false;
     return true;
   });
 }
@@ -387,11 +391,12 @@ function productosVisibles(){
 function renderChipsFamilias(){
   const cont = document.getElementById('chips-familias');
   const visibles = productosVisibles();
-  const familias = [...new Set(visibles.map(p => p.familia || p.marca || 'Otros'))].filter(Boolean).sort();
+  // Para cigarrillos: filtramos por MARCA (Marlboro, Camel, etc.) que es lo más útil
+  const marcas = [...new Set(visibles.map(p => p.marca || 'Otros'))].filter(Boolean).sort();
   let html = `<button class="chip ${state.filtroFamilia==='todas'?'active':''}" onclick="cambiarFiltro('todas')">Todas (${visibles.length})</button>`;
-  familias.forEach(f => {
-    const count = visibles.filter(p => (p.familia || p.marca || 'Otros') === f).length;
-    html += `<button class="chip ${state.filtroFamilia===f?'active':''}" onclick="cambiarFiltro('${f.replace(/'/g,"\\'")}')">${f} (${count})</button>`;
+  marcas.forEach(m => {
+    const count = visibles.filter(p => (p.marca || 'Otros') === m).length;
+    html += `<button class="chip ${state.filtroFamilia===m?'active':''}" onclick="cambiarFiltro('${m.replace(/'/g,"\\'")}')">${m} (${count})</button>`;
   });
   cont.innerHTML = html;
 }
@@ -406,7 +411,8 @@ function renderProductos(){
   const buscar = (document.getElementById('buscador')?.value || '').toLowerCase().trim();
   let lista = productosVisibles();
   if(state.filtroFamilia !== 'todas'){
-    lista = lista.filter(p => (p.familia || p.marca || 'Otros') === state.filtroFamilia);
+    // El filtro ahora es por MARCA (Marlboro, Camel, etc.)
+    lista = lista.filter(p => (p.marca || 'Otros') === state.filtroFamilia);
   }
   if(buscar){
     lista = lista.filter(p =>
