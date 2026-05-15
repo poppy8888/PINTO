@@ -1802,6 +1802,7 @@ setInterval(() => {
     <button onclick="recuperarBackupSeguridad()" style="padding:10px 18px;border-radius:6px;border:1px solid #1a5a8a;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Si perdiste datos, recuperar el último backup automático guardado en este navegador">🛟 Recuperar backup</button>
     <button onclick="abrirGestionUsuarios()" id="btn-usuarios" style="padding:10px 18px;border-radius:6px;border:1px solid #1a3a6b;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Cambiar contraseñas de los usuarios del sistema">👥 Usuarios</button>
     <button onclick="abrirGestionBackups()" id="btn-backups-auto" style="padding:10px 18px;border-radius:6px;border:1px solid #5a3a1a;background:#8b6914;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Gestionar backups automáticos diarios">🛡️ Backups Auto</button>
+    <button onclick="abrirPedidosMayoristas()" id="btn-pedidos-may" style="padding:10px 18px;border-radius:6px;border:1px solid #5a1a1a;background:#a52a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;position:relative;" title="Pedidos de clientes mayoristas">🛒 Pedidos May. <span id="badge-pedidos-nuevos" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#a52a2a;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #a52a2a;"></span></button>
     <button onclick="cerrarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #6b1818;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">🚪 Cerrar sesión</button>
   </div>
 </div>
@@ -3301,6 +3302,24 @@ setInterval(() => {
         </select>
       </div>
       <div style="grid-column:span 2;"><label style="font-size:0.78rem;font-weight:700;color:#444;text-transform:uppercase;">Notas</label><textarea id="cli-notas" rows="2" style="width:100%;padding:9px;border:2px solid #c8c8d8;border-radius:8px;font-size:0.9rem;resize:vertical;"></textarea></div>
+      
+      <!-- ===== ACCESO MAYORISTA WEB ===== -->
+      <div style="grid-column:span 2;margin-top:8px;padding:14px;background:linear-gradient(135deg,#e8c84a 0%,#d4a020 100%);border-radius:10px;border:2px solid #b8870c;">
+        <div style="font-size:0.85rem;font-weight:800;color:#1a1a2e;margin-bottom:8px;">🛒 Acceso Mayorista (página web)</div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.88rem;font-weight:700;color:#1a1a2e;">
+          <input type="checkbox" id="cli-es-mayorista" style="width:18px;height:18px;cursor:pointer;" onchange="document.getElementById('cli-mayorista-fields').style.display=this.checked?'grid':'none';">
+          Habilitar acceso a la página de mayoristas
+        </label>
+        <div id="cli-mayorista-fields" style="display:none;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+          <div><label style="font-size:0.72rem;font-weight:700;color:#1a1a2e;text-transform:uppercase;">WhatsApp (login) *</label>
+            <input type="text" id="cli-whatsapp" placeholder="Ej: 3854102266" style="width:100%;padding:8px;border:2px solid #b8870c;border-radius:6px;font-size:0.9rem;">
+          </div>
+          <div><label style="font-size:0.72rem;font-weight:700;color:#1a1a2e;text-transform:uppercase;">Clave de acceso *</label>
+            <input type="text" id="cli-clave-mayorista" placeholder="Ej: marlboro123" style="width:100%;padding:8px;border:2px solid #b8870c;border-radius:6px;font-size:0.9rem;">
+          </div>
+        </div>
+        <div style="font-size:0.72rem;color:#1a1a2e;margin-top:8px;opacity:0.85;">💡 El cliente entra a la página mayorista con su número de WhatsApp + clave. Ve precios Lista 2 y puede hacer pedidos.</div>
+      </div>
     </div>
     <div class="modal-btns" style="margin-top:18px;">
       <button class="btn-cancel" onclick="document.getElementById('cliente-modal').classList.remove('open');">Cancelar</button>
@@ -9176,11 +9195,13 @@ function renderClientes(){
 function abrirModalCliente(){
   editandoCliId = null;
   document.getElementById('cli-modal-titulo').innerHTML = '👥 Nuevo cliente';
-  ['cli-apellido','cli-nombre','cli-doc','cli-tel','cli-dom','cli-ciudad','cli-email','cli-notas'].forEach(id => {
+  ['cli-apellido','cli-nombre','cli-doc','cli-tel','cli-dom','cli-ciudad','cli-email','cli-notas','cli-whatsapp','cli-clave-mayorista'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.value = '';
   });
   document.getElementById('cli-lista').value = 'lista1';
+  const cb = document.getElementById('cli-es-mayorista');
+  if(cb){ cb.checked = false; document.getElementById('cli-mayorista-fields').style.display = 'none'; }
   document.getElementById('cliente-modal').classList.add('open');
   setTimeout(()=>document.getElementById('cli-apellido').focus(), 100);
 }
@@ -9199,12 +9220,40 @@ function editarCliente(id){
   document.getElementById('cli-email').value = c.email || '';
   document.getElementById('cli-lista').value = c.listaPrecio || 'lista1';
   document.getElementById('cli-notas').value = c.notas || '';
+  // Mayorista
+  const esMay = !!c.esMayorista;
+  const cb = document.getElementById('cli-es-mayorista');
+  if(cb){
+    cb.checked = esMay;
+    document.getElementById('cli-mayorista-fields').style.display = esMay ? 'grid' : 'none';
+    document.getElementById('cli-whatsapp').value = c.whatsappMayorista || '';
+    document.getElementById('cli-clave-mayorista').value = c.claveMayorista || '';
+  }
   document.getElementById('cliente-modal').classList.add('open');
 }
 
 function guardarCliente(){
   const apellido = document.getElementById('cli-apellido').value.trim();
   if(!apellido){ toast('El apellido es obligatorio'); return; }
+  const esMayorista = document.getElementById('cli-es-mayorista')?.checked || false;
+  const whatsappMayorista = document.getElementById('cli-whatsapp')?.value.trim().replace(/\D/g,'') || '';
+  const claveMayorista = document.getElementById('cli-clave-mayorista')?.value.trim() || '';
+  if(esMayorista){
+    if(!whatsappMayorista || whatsappMayorista.length < 8){
+      toast('⚠️ Para acceso mayorista, ingresá un WhatsApp válido');
+      return;
+    }
+    if(!claveMayorista || claveMayorista.length < 4){
+      toast('⚠️ La clave mayorista debe tener al menos 4 caracteres');
+      return;
+    }
+    // Verificar que no esté duplicado en otro cliente
+    const yaExiste = clientes.find(c => c.id !== editandoCliId && c.esMayorista && c.whatsappMayorista === whatsappMayorista);
+    if(yaExiste){
+      toast(`⚠️ Ese WhatsApp ya está registrado para ${yaExiste.apellido}`);
+      return;
+    }
+  }
   const datos = {
     apellido,
     nombre: document.getElementById('cli-nombre').value.trim(),
@@ -9214,7 +9263,10 @@ function guardarCliente(){
     ciudad: document.getElementById('cli-ciudad').value.trim(),
     email: document.getElementById('cli-email').value.trim(),
     listaPrecio: document.getElementById('cli-lista').value || 'lista1',
-    notas: document.getElementById('cli-notas').value.trim()
+    notas: document.getElementById('cli-notas').value.trim(),
+    esMayorista,
+    whatsappMayorista,
+    claveMayorista
   };
   if(editandoCliId){
     const c = clientes.find(x => x.id === editandoCliId);
@@ -9990,6 +10042,7 @@ function aplicarRestriccionesUI(){
   document.querySelectorAll('button[onclick="recuperarBackupSeguridad()"]').forEach(b => b.style.display = 'none');
   document.querySelectorAll('button[onclick="exportarBackup()"]').forEach(b => b.style.display = 'none');
   document.querySelectorAll('button[onclick="abrirGestionBackups()"]').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('button[onclick="abrirPedidosMayoristas()"]').forEach(b => b.style.display = 'none');
   document.querySelectorAll('label').forEach(lbl => {
     const inp = lbl.querySelector('input[onchange*="importarBackup"]');
     const inp2 = lbl.querySelector('input[onchange*="importarCSV"]');
@@ -15558,6 +15611,247 @@ setInterval(() => {
 <!-- ====================== /DASHBOARD ============================ -->
 
 <!-- ============================================================ -->
+<!-- ============== PEDIDOS MAYORISTAS ============================ -->
+<!-- ============================================================ -->
+<script>
+// ============================================================================
+// 🛒 GESTIÓN DE PEDIDOS MAYORISTAS
+// ----------------------------------------------------------------------------
+// Los pedidos vienen de mayoristas.html y se guardan en Firestore en la
+// colección "pedidosMayoristas". Acá los listamos, aprobamos, rechazamos.
+// ============================================================================
+
+// Configuración: número de WhatsApp del admin (editable)
+const KEY_WSP_ADMIN = 'ER_WSP_ADMIN';
+function getWspAdmin(){
+  return localStorage.getItem(KEY_WSP_ADMIN) || '3854102266';
+}
+function setWspAdmin(num){
+  localStorage.setItem(KEY_WSP_ADMIN, String(num).replace(/\D/g,''));
+}
+
+// Array local de pedidos (se sincroniza con Firebase)
+window.pedidosMayoristas = window.pedidosMayoristas || [];
+
+function abrirPedidosMayoristas(){
+  let modal = document.getElementById('modal-pedidos-may');
+  if(modal) modal.remove();
+  modal = document.createElement('div');
+  modal.id = 'modal-pedidos-may';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI",Tahoma,Arial,sans-serif;';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;max-width:980px;width:96%;max-height:92vh;overflow:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:2px solid #a52a2a;padding-bottom:12px;">
+        <h2 style="margin:0;color:#1a1a2e;font-size:1.3rem;">🛒 Pedidos Mayoristas</h2>
+        <button onclick="document.getElementById('modal-pedidos-may').remove()" style="background:#e74c3c;color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.1rem;font-weight:700;">✕</button>
+      </div>
+
+      <!-- Configuración -->
+      <div style="background:#f5e8c4;border:2px solid #d4a020;border-radius:10px;padding:14px;margin-bottom:18px;">
+        <div style="font-weight:800;color:#1a1a2e;margin-bottom:8px;font-size:0.95rem;">⚙️ Configuración</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <label style="font-size:0.85rem;font-weight:700;color:#1a1a2e;">📱 Mi WhatsApp (donde llegan los pedidos):</label>
+          <input id="cfg-wsp-admin" type="text" value="${getWspAdmin()}" style="padding:7px 10px;border:2px solid #b8870c;border-radius:6px;font-size:0.9rem;width:160px;">
+          <button onclick="guardarWspAdmin()" style="padding:7px 14px;background:#27500a;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;">💾 Guardar</button>
+          <a href="mayoristas.html" target="_blank" style="margin-left:auto;padding:7px 14px;background:#3498db;color:#fff;border-radius:6px;font-weight:700;text-decoration:none;font-size:0.85rem;">🌐 Abrir página mayoristas</a>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #ddd;">
+        <button onclick="filtrarPedidosMay('pendiente')" id="tab-may-pendiente" class="tab-may-btn active" style="padding:9px 16px;border:none;background:#a52a2a;color:#fff;border-radius:6px 6px 0 0;font-weight:700;cursor:pointer;">📥 Pendientes</button>
+        <button onclick="filtrarPedidosMay('aprobado')" id="tab-may-aprobado" class="tab-may-btn" style="padding:9px 16px;border:none;background:#ddd;color:#333;border-radius:6px 6px 0 0;font-weight:700;cursor:pointer;">✅ Aprobados</button>
+        <button onclick="filtrarPedidosMay('rechazado')" id="tab-may-rechazado" class="tab-may-btn" style="padding:9px 16px;border:none;background:#ddd;color:#333;border-radius:6px 6px 0 0;font-weight:700;cursor:pointer;">❌ Rechazados</button>
+        <button onclick="filtrarPedidosMay('todos')" id="tab-may-todos" class="tab-may-btn" style="padding:9px 16px;border:none;background:#ddd;color:#333;border-radius:6px 6px 0 0;font-weight:700;cursor:pointer;">📋 Todos</button>
+      </div>
+
+      <div id="lista-pedidos-may" style="min-height:200px;">
+        <div style="text-align:center;color:#888;padding:40px;">⏳ Cargando pedidos...</div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  filtrarPedidosMay('pendiente');
+}
+
+window.guardarWspAdmin = function(){
+  const v = document.getElementById('cfg-wsp-admin').value.trim().replace(/\D/g,'');
+  if(v.length < 8){ toast('Número inválido'); return; }
+  setWspAdmin(v);
+  toast('✅ WhatsApp guardado');
+};
+
+window.filtrarPedidosMay = function(estado){
+  document.querySelectorAll('.tab-may-btn').forEach(b => {
+    b.style.background = '#ddd'; b.style.color = '#333';
+  });
+  const activo = document.getElementById('tab-may-' + estado);
+  if(activo){ activo.style.background = '#a52a2a'; activo.style.color = '#fff'; }
+  
+  let pedidos = (window.pedidosMayoristas || []).slice();
+  if(estado !== 'todos'){
+    pedidos = pedidos.filter(p => (p.estado || 'pendiente') === estado);
+  }
+  pedidos.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+  
+  const cont = document.getElementById('lista-pedidos-may');
+  if(!cont) return;
+  if(pedidos.length === 0){
+    cont.innerHTML = '<div style="text-align:center;color:#888;padding:40px;font-style:italic;">No hay pedidos en esta categoría.</div>';
+    return;
+  }
+  
+  cont.innerHTML = pedidos.map(p => {
+    const fecha = p.timestamp ? new Date(p.timestamp).toLocaleString('es-AR') : '?';
+    const estadoColor = {pendiente:'#d4a020', aprobado:'#27ae60', rechazado:'#e74c3c'}[p.estado || 'pendiente'] || '#888';
+    const items = (p.items || []).map(i => `
+      <tr>
+        <td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:0.85rem;">${i.nombre}</td>
+        <td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:0.85rem;text-align:center;">${i.cantidad}</td>
+        <td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:0.85rem;text-align:right;font-family:monospace;">$${fmt(Math.round(i.precio))}</td>
+        <td style="padding:5px 8px;border-bottom:1px solid #eee;font-size:0.85rem;text-align:right;font-family:monospace;font-weight:700;">$${fmt(Math.round(i.precio * i.cantidad))}</td>
+      </tr>
+    `).join('');
+    const total = (p.items||[]).reduce((s,i)=> s + (i.precio * i.cantidad), 0);
+    return `
+      <div style="border:2px solid ${estadoColor};border-radius:10px;padding:14px;margin-bottom:14px;background:#fafafa;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <div>
+            <div style="font-weight:800;color:#1a1a2e;font-size:1.05rem;">${p.clienteNombre || 'Cliente'} <span style="color:#888;font-size:0.8rem;font-weight:400;">· ${fecha}</span></div>
+            <div style="font-size:0.83rem;color:#555;margin-top:3px;">📱 ${p.clienteWhatsapp || '?'} · 💳 ${p.formaPago || '?'} · ⏰ Retira: ${p.horarioRetiro || '?'}</div>
+            ${p.notas ? `<div style="font-size:0.83rem;color:#666;margin-top:4px;font-style:italic;">💬 ${p.notas}</div>` : ''}
+          </div>
+          <div style="background:${estadoColor};color:#fff;padding:5px 12px;border-radius:6px;font-weight:800;font-size:0.85rem;">${(p.estado||'pendiente').toUpperCase()}</div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:6px;overflow:hidden;">
+          <thead><tr style="background:#f0f0f0;">
+            <th style="padding:6px 8px;text-align:left;font-size:0.78rem;">Producto</th>
+            <th style="padding:6px 8px;font-size:0.78rem;">Cant</th>
+            <th style="padding:6px 8px;text-align:right;font-size:0.78rem;">Precio</th>
+            <th style="padding:6px 8px;text-align:right;font-size:0.78rem;">Subtotal</th>
+          </tr></thead>
+          <tbody>${items}</tbody>
+          <tfoot><tr><td colspan="3" style="padding:8px;text-align:right;font-weight:800;border-top:2px solid #333;">TOTAL:</td><td style="padding:8px;text-align:right;font-weight:800;font-family:monospace;font-size:1rem;border-top:2px solid #333;color:#27500a;">$${fmt(Math.round(total))}</td></tr></tfoot>
+        </table>
+        ${(p.estado || 'pendiente') === 'pendiente' ? `
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+            <button onclick="aprobarPedidoMay('${p.id}')" style="flex:1;min-width:140px;padding:9px;background:#27ae60;color:#fff;border:none;border-radius:6px;font-weight:800;cursor:pointer;">✅ Aprobar y facturar</button>
+            <button onclick="rechazarPedidoMay('${p.id}')" style="flex:1;min-width:140px;padding:9px;background:#e74c3c;color:#fff;border:none;border-radius:6px;font-weight:800;cursor:pointer;">❌ Rechazar</button>
+            <button onclick="responderWspPedido('${p.id}')" style="padding:9px 14px;background:#25d366;color:#fff;border:none;border-radius:6px;font-weight:800;cursor:pointer;">📱 WhatsApp</button>
+          </div>
+        ` : `
+          <div style="margin-top:10px;font-size:0.78rem;color:#666;">
+            ${p.estado === 'aprobado' && p.facturaId ? `Convertido en factura #${p.facturaId}` : ''}
+            ${p.estado === 'rechazado' ? `Rechazado el ${p.fechaRechazado ? new Date(p.fechaRechazado).toLocaleString('es-AR') : '?'}` : ''}
+          </div>
+        `}
+      </div>
+    `;
+  }).join('');
+};
+
+window.aprobarPedidoMay = async function(pedidoId){
+  const ped = (window.pedidosMayoristas || []).find(p => p.id === pedidoId);
+  if(!ped){ toast('Pedido no encontrado'); return; }
+  if(!confirm(`¿Aprobar el pedido de ${ped.clienteNombre} por $${fmt(Math.round((ped.items||[]).reduce((s,i)=>s+i.precio*i.cantidad,0)))}?\n\nSe va a generar una factura con estos productos a precios Lista 2.`)) return;
+  
+  // Crear factura
+  const cliente = clientes.find(c => Number(c.id) === Number(ped.clienteId));
+  const items = (ped.items || []).map(i => ({
+    id: i.id,
+    nombre: i.nombre,
+    cantidad: i.cantidad,
+    precio: i.precio,
+    subtotal: i.precio * i.cantidad
+  }));
+  const total = items.reduce((s,i) => s + i.subtotal, 0);
+  const nuevaFactura = {
+    id: facturas.length ? Math.max(...facturas.map(f => Number(f.id)||0)) + 1 : 1,
+    fecha: nowStr(),
+    cliente: cliente ? `${cliente.apellido} ${cliente.nombre||''}`.trim() : ped.clienteNombre,
+    clienteId: ped.clienteId,
+    items,
+    total,
+    metodoPago: ped.formaPago || 'efectivo',
+    estado: 'pendiente',
+    origen: 'mayorista-web',
+    pedidoMayoristaId: pedidoId,
+    notas: 'Pedido mayorista. Retira: ' + (ped.horarioRetiro || '?') + (ped.notas ? '. Notas: ' + ped.notas : '')
+  };
+  facturas.push(nuevaFactura);
+  
+  // Marcar pedido aprobado
+  ped.estado = 'aprobado';
+  ped.fechaAprobado = Date.now();
+  ped.facturaId = nuevaFactura.id;
+  
+  await guardarPedidoEnFirebase(ped);
+  saveAll();
+  toast(`✅ Pedido aprobado. Factura #${nuevaFactura.id} creada.`);
+  filtrarPedidosMay('pendiente');
+};
+
+window.rechazarPedidoMay = async function(pedidoId){
+  const ped = (window.pedidosMayoristas || []).find(p => p.id === pedidoId);
+  if(!ped) return;
+  const motivo = prompt('Motivo del rechazo (opcional, se le va a mostrar al cliente):');
+  if(motivo === null) return; // canceló
+  ped.estado = 'rechazado';
+  ped.fechaRechazado = Date.now();
+  ped.motivoRechazo = motivo || '';
+  await guardarPedidoEnFirebase(ped);
+  toast('❌ Pedido rechazado');
+  filtrarPedidosMay('pendiente');
+};
+
+window.responderWspPedido = function(pedidoId){
+  const ped = (window.pedidosMayoristas || []).find(p => p.id === pedidoId);
+  if(!ped || !ped.clienteWhatsapp){ toast('Sin WhatsApp del cliente'); return; }
+  const wsp = String(ped.clienteWhatsapp).replace(/\D/g,'');
+  // Si no tiene código de país, agregar 54 9 (Argentina mobile)
+  let num = wsp;
+  if(num.length === 10) num = '549' + num;
+  else if(num.length === 11 && num.startsWith('9')) num = '54' + num;
+  else if(!num.startsWith('54')) num = '54' + num;
+  const msg = encodeURIComponent(`Hola ${ped.clienteNombre}, recibimos tu pedido del ${new Date(ped.timestamp).toLocaleDateString('es-AR')}. `);
+  window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
+};
+
+// ============== Firebase: sincronización de pedidos ==============
+async function guardarPedidoEnFirebase(pedido){
+  if(!window.FBPedidos || !window.FBPedidos.guardar) return;
+  try { await window.FBPedidos.guardar(pedido); } catch(e){ console.warn(e); }
+}
+
+// Actualizar badge de pedidos nuevos
+function actualizarBadgePedidos(){
+  const badge = document.getElementById('badge-pedidos-nuevos');
+  if(!badge) return;
+  const nuevos = (window.pedidosMayoristas || []).filter(p => (p.estado||'pendiente') === 'pendiente').length;
+  if(nuevos > 0){
+    badge.style.display = 'flex';
+    badge.textContent = nuevos;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+// Refrescar cada vez que cambie el array
+window.refrescarPedidosMayUI = function(){
+  actualizarBadgePedidos();
+  const modal = document.getElementById('modal-pedidos-may');
+  if(modal){
+    const tabActiva = document.querySelector('.tab-may-btn[style*="background: rgb(165, 42, 42)"]');
+    const estado = tabActiva ? tabActiva.id.replace('tab-may-','') : 'pendiente';
+    filtrarPedidosMay(estado);
+  }
+};
+
+setInterval(actualizarBadgePedidos, 5000);
+setTimeout(actualizarBadgePedidos, 2000);
+</script>
+<!-- ============== /PEDIDOS MAYORISTAS ============================ -->
+
+<!-- ============================================================ -->
 <!-- ====================== FIREBASE SYNC ======================== -->
 <!-- ============================================================ -->
 <script type="module">
@@ -15892,6 +16186,47 @@ window.FB = {
     if(snap.exists()) fbAplicarDatosRemotos(snap.data());
   },
   estado: fbEstado
+};
+
+// ============================================================================
+// 🛒 PEDIDOS MAYORISTAS - sincronización con Firebase
+// ----------------------------------------------------------------------------
+// Listener en tiempo real sobre la colección "pedidosMayoristas"
+// Cuando llega un pedido nuevo, refresca window.pedidosMayoristas y la UI
+// ============================================================================
+import { onSnapshot as onSnapshotMay } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const colPedidosMay = collection(db, 'pedidosMayoristas');
+
+// Escuchar cambios en tiempo real
+onSnapshotMay(colPedidosMay, (snap) => {
+  const pedidos = [];
+  snap.forEach(d => pedidos.push({ id: d.id, ...d.data() }));
+  window.pedidosMayoristas = pedidos;
+  console.log('🛒 Pedidos mayoristas actualizados:', pedidos.length);
+  if(typeof window.refrescarPedidosMayUI === 'function'){
+    try { window.refrescarPedidosMayUI(); } catch(e){}
+  }
+  // Notificación visual de pedido nuevo
+  const pendientes = pedidos.filter(p => (p.estado||'pendiente') === 'pendiente').length;
+  const indicador = document.getElementById('fb-indicador');
+  if(pendientes > 0 && indicador){
+    // Sutil parpadeo del indicador
+  }
+}, (err) => {
+  console.warn('Pedidos mayoristas listener:', err);
+});
+
+window.FBPedidos = {
+  guardar: async (pedido) => {
+    if(!pedido || !pedido.id) throw new Error('pedido sin id');
+    const pedRef = doc(db, 'pedidosMayoristas', pedido.id);
+    await setDoc(pedRef, pedido);
+  },
+  eliminar: async (pedidoId) => {
+    const pedRef = doc(db, 'pedidosMayoristas', pedidoId);
+    await deleteDoc(pedRef);
+  }
 };
 
 // ============================================================================
