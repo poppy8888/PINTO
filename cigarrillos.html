@@ -15537,12 +15537,17 @@ async function fbSubir(){
 
 // ====== UNIÓN SEGURA: combina la lista remota + los registros que existen
 // SOLO en este equipo (identificando por id). NUNCA descarta lo local. ======
+// Contador que lleva cuántos registros se "rescataron" en cada turno de
+// aplicación remota. Si es > 0, significa que la nube tenía MENOS datos que
+// este equipo, así que hay que devolverle el estado completo para curarla.
+let _rescatadosEsteTurno = 0;
 function _fusionarPorId(remotos, locales){
   if(!Array.isArray(remotos)) return Array.isArray(locales) ? locales : [];
   if(!Array.isArray(locales) || locales.length === 0) return remotos;
   const idsRemotos = new Set(remotos.map(x => x && Number(x.id)));
   const soloLocales = locales.filter(x => x && x.id != null && !idsRemotos.has(Number(x.id)));
   if(soloLocales.length > 0){
+    _rescatadosEsteTurno += soloLocales.length;
     console.warn('🛡️ PROTECCIÓN: ' + soloLocales.length + ' registro(s) existían solo en este equipo — se conservan, NO se borran.');
   }
   return remotos.concat(soloLocales);
@@ -15552,6 +15557,7 @@ function _fusionarPorId(remotos, locales){
 function fbAplicarDatosRemotos(datos){
   if(!datos) return;
   _aplicandoCambioRemoto = true;
+  _rescatadosEsteTurno = 0;  // reset al inicio de cada turno
   try {
     // ==== DEBUG: mostrar en consola qué tipos llegan de Firebase ====
     if(datos.productos && datos.productos.length > 0){
@@ -15595,7 +15601,11 @@ function fbAplicarDatosRemotos(datos){
     // Stock: fusionar conservando las entradas que solo existen en este equipo
     // (si no, un producto local nuevo quedaría sin su stock).
     if(datos.stock){
-      stock = Object.assign({}, (stock && typeof stock === 'object') ? stock : {}, datos.stock);
+      const stockLocalActual = (stock && typeof stock === 'object') ? stock : {};
+      const llavesRemotas = new Set(Object.keys(datos.stock || {}));
+      const llavesSoloLocales = Object.keys(stockLocalActual).filter(k => !llavesRemotas.has(k));
+      if(llavesSoloLocales.length > 0) _rescatadosEsteTurno += llavesSoloLocales.length;
+      stock = Object.assign({}, stockLocalActual, datos.stock);
     }
     // Clientes, proveedores, facturas y movimientos: misma unión segura,
     // así tampoco se pierde un cliente, una factura o un movimiento cargado
@@ -15668,6 +15678,22 @@ function fbAplicarDatosRemotos(datos){
     if(typeof renderAll === 'function') renderAll();
   } finally {
     _aplicandoCambioRemoto = false;
+  }
+
+  // ====== CURAR LA NUBE ======
+  // Si en este turno rescatamos registros (la nube tenía menos que nosotros),
+  // significa que otro equipo subió un estado incompleto que nos hubiera
+  // borrado datos. Como nosotros ya los preservamos en memoria, ahora le
+  // devolvemos a la nube el estado completo para curarla y que no quede
+  // contagiando a los demás equipos.
+  if(_rescatadosEsteTurno > 0){
+    const cuantos = _rescatadosEsteTurno;
+    console.warn('🩹 La nube tenía menos datos que este equipo. Subiendo ' + cuantos + ' registro(s) rescatado(s) para curarla...');
+    fbEstado('🩹', 'Curando la nube...', '#3b82f6');
+    setTimeout(() => {
+      try { if(typeof saveAll === 'function') saveAll(); }
+      catch(e){ console.error('Error curando la nube:', e); }
+    }, 600);
   }
 }
 
