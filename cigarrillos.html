@@ -15699,6 +15699,20 @@ function fbAplicarDatosRemotos(datos){
             console.warn(`🛡️ PROTECCIÓN: ${pRemoto.nombre} - ${campo} remoto era 0, conservando local ${valLocal}`);
           }
         });
+        // 🛡️ PROTECCIÓN DE FOTO Y CAMPOS DE TEXTO: si el remoto los tiene vacíos
+        // pero el local tiene un valor, CONSERVAR el local. Esto evita que una
+        // PC que no pudo cargar la foto le borre la foto a las demás.
+        ['foto','imagen','fotoUrl','codigoBarra','barcode','descripcion','observaciones'].forEach(campo => {
+          const valRemoto = pRemoto[campo];
+          const valLocal  = pLocal[campo];
+          // Considerar vacío: null, undefined, "", "null", "undefined"
+          const remotoVacio = !valRemoto || valRemoto === 'null' || valRemoto === 'undefined';
+          const localTiene  = valLocal && valLocal !== 'null' && valLocal !== 'undefined' && String(valLocal).length > 0;
+          if(remotoVacio && localTiene){
+            fusionado[campo] = valLocal;
+            console.warn(`🛡️ PROTECCIÓN: ${pRemoto.nombre} - ${campo} remoto vacío, conservando local`);
+          }
+        });
         return fusionado;
       });
       // Paso 2 (CLAVE): agregar los productos que existen SOLO en este equipo.
