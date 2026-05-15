@@ -230,7 +230,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
-const docRef = doc(db, 'estacion_don_ramon', 'datos_principales');
+// ⚠️ IMPORTANTE: la colección se llama "estacion" (igual que en el sistema admin)
+const docRef = doc(db, 'estacion', 'datos_principales');
 
 // Estado de la app
 const state = {
