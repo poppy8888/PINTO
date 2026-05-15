@@ -15535,6 +15535,19 @@ async function fbSubir(){
   }
 }
 
+// ====== UNIÓN SEGURA: combina la lista remota + los registros que existen
+// SOLO en este equipo (identificando por id). NUNCA descarta lo local. ======
+function _fusionarPorId(remotos, locales){
+  if(!Array.isArray(remotos)) return Array.isArray(locales) ? locales : [];
+  if(!Array.isArray(locales) || locales.length === 0) return remotos;
+  const idsRemotos = new Set(remotos.map(x => x && Number(x.id)));
+  const soloLocales = locales.filter(x => x && x.id != null && !idsRemotos.has(Number(x.id)));
+  if(soloLocales.length > 0){
+    console.warn('🛡️ PROTECCIÓN: ' + soloLocales.length + ' registro(s) existían solo en este equipo — se conservan, NO se borran.');
+  }
+  return remotos.concat(soloLocales);
+}
+
 // ====== BAJAR los datos de Firebase al sistema ======
 function fbAplicarDatosRemotos(datos){
   if(!datos) return;
@@ -15554,15 +15567,15 @@ function fbAplicarDatosRemotos(datos){
     if(datos.productos && Array.isArray(datos.productos) && Array.isArray(productos) && productos.length > 0){
       const productosLocales = productos;
       const productosRemotos = datos.productos;
+      // Paso 1: por cada producto remoto, fusionar campo por campo con su par local
       const productosFusionados = productosRemotos.map(pRemoto => {
         const pLocal = productosLocales.find(pl => Number(pl.id) === Number(pRemoto.id));
         if(!pLocal) return pRemoto;
-        // Fusionar campo por campo: si el remoto tiene 0 pero el local tiene valor, conservar local
+        // Si el remoto tiene 0 pero el local tiene valor, conservar el local
         const fusionado = {...pRemoto};
         ['costo','precio','precioLista2','precioCasa','stockMin','stockIdeal'].forEach(campo => {
           const valRemoto = Number(pRemoto[campo]) || 0;
           const valLocal = Number(pLocal[campo]) || 0;
-          // Si el remoto es 0 pero el local tiene valor, CONSERVAR EL LOCAL (es mejor)
           if(valRemoto === 0 && valLocal > 0){
             fusionado[campo] = valLocal;
             console.warn(`🛡️ PROTECCIÓN: ${pRemoto.nombre} - ${campo} remoto era 0, conservando local ${valLocal}`);
@@ -15570,15 +15583,27 @@ function fbAplicarDatosRemotos(datos){
         });
         return fusionado;
       });
-      productos = productosFusionados;
+      // Paso 2 (CLAVE): agregar los productos que existen SOLO en este equipo.
+      // El bug anterior se quedaba ÚNICAMENTE con la lista remota, así que
+      // cualquier producto recién cargado acá y todavía no subido a la nube
+      // se perdía al recibir un cambio remoto. Ahora se hace UNIÓN: no se
+      // pierde nada. (Este era el origen de "se me borran los productos".)
+      productos = _fusionarPorId(productosFusionados, productosLocales);
     } else if(datos.productos) {
       productos = datos.productos;
     }
-    if(datos.stock) stock = datos.stock;
-    if(datos.clientes) clientes = datos.clientes;
-    if(datos.proveedores) proveedores = datos.proveedores;
-    if(datos.facturas) facturas = datos.facturas;
-    if(datos.movimientosCC) movimientosCC = datos.movimientosCC;
+    // Stock: fusionar conservando las entradas que solo existen en este equipo
+    // (si no, un producto local nuevo quedaría sin su stock).
+    if(datos.stock){
+      stock = Object.assign({}, (stock && typeof stock === 'object') ? stock : {}, datos.stock);
+    }
+    // Clientes, proveedores, facturas y movimientos: misma unión segura,
+    // así tampoco se pierde un cliente, una factura o un movimiento cargado
+    // en este equipo y todavía no sincronizado.
+    if(datos.clientes)      clientes      = _fusionarPorId(datos.clientes, clientes);
+    if(datos.proveedores)   proveedores   = _fusionarPorId(datos.proveedores, proveedores);
+    if(datos.facturas)      facturas      = _fusionarPorId(datos.facturas, facturas);
+    if(datos.movimientosCC) movimientosCC = _fusionarPorId(datos.movimientosCC, movimientosCC);
     if(typeof repararMovimientosCC === 'function') repararMovimientosCC();
     if(datos.log) log = datos.log;
     if(datos.gastos && typeof gastos !== 'undefined') gastos = datos.gastos;
