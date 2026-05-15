@@ -1,507 +1,607 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Estación de Servicio - Control Surtidores</title>
-    <style>
-        * { box-sizing: border-box; }
-        body {
-            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-            background: #e9eef3;
-            margin: 0;
-            padding: 16px;
-            padding-bottom: 80px;
-        }
-        .card {
-            background: white;
-            border-radius: 24px;
-            padding: 18px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        h2, h3 {
-            margin-top: 0;
-            color: #1e2a3e;
-        }
-        label {
-            font-weight: 600;
-            display: block;
-            margin: 12px 0 4px;
-            color: #2c3e50;
-        }
-        select, input, button {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border-radius: 16px;
-            border: 1px solid #ccc;
-            background: white;
-            margin-bottom: 8px;
-        }
-        button {
-            background: #2c7da0;
-            color: white;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        button:active { transform: scale(0.97); background: #1f5e7a; }
-        .btn-sec {
-            background: #6c757d;
-        }
-        .camera-area {
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            margin: 10px 0;
-            text-align: center;
-        }
-        video, canvas, .foto-preview img {
-            width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-            border-radius: 16px;
-        }
-        .foto-preview {
-            margin-top: 12px;
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 20px;
-        }
-        .mensaje {
-            background: #d4edda;
-            color: #155724;
-            padding: 10px;
-            border-radius: 20px;
-            margin-top: 12px;
-            font-size: 14px;
-        }
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .registro-item {
-            background: #fef9e6;
-            border-left: 6px solid #f4a261;
-            margin-bottom: 16px;
-            padding: 12px;
-            border-radius: 20px;
-        }
-        .registro-item img {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 12px;
-            margin-top: 8px;
-        }
-        .flex-btns {
-            display: flex;
-            gap: 10px;
-        }
-        .badge {
-            background: #2c7da0;
-            color: white;
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 50px;
-            font-size: 12px;
-            margin-right: 8px;
-        }
-        hr { margin: 20px 0; }
-        .admin-section {
-            background: #f4f6f9;
-            border-radius: 24px;
-            padding: 16px;
-        }
-        @media (max-width: 500px) {
-            body { padding: 12px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estación Don Ramón · Mayoristas</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#1e5b9e 0%,#1e5b9e 50%,#4a90d9 100%);min-height:100vh;color:#1a1a2e;}
+  
+  /* LOGIN */
+  .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+  .login-card{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:36px 32px;width:100%;max-width:380px;}
+  .login-title{text-align:center;font-size:1.4rem;font-weight:800;color:#1a1a2e;margin-bottom:6px;}
+  .login-sub{text-align:center;font-size:0.85rem;color:#666;margin-bottom:24px;}
+  .login-input{width:100%;padding:11px 14px;border:2px solid #d0d0e0;border-radius:8px;font-size:0.95rem;margin-bottom:12px;font-family:inherit;}
+  .login-input:focus{outline:none;border-color:#1e5b9e;}
+  .login-btn{width:100%;padding:12px;background:#1e5b9e;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:800;cursor:pointer;margin-top:6px;}
+  .login-btn:hover{background:#164a85;}
+  .login-error{color:#c0392b;font-size:0.85rem;text-align:center;margin-top:10px;display:none;font-weight:700;}
+
+  /* APP */
+  .app{display:none;}
+  .top{background:#1a1a2e;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap;position:sticky;top:0;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+  .top-titulo{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:8px;}
+  .top-cliente{font-size:0.83rem;opacity:0.9;}
+  .top-acciones{display:flex;gap:8px;align-items:center;}
+  .btn-top{background:#2980b9;color:#fff;border:none;padding:8px 14px;border-radius:7px;font-weight:700;cursor:pointer;font-size:0.85rem;}
+  .btn-top.cerrar{background:#7b1818;}
+  .btn-top.carrito{background:#e67e22;position:relative;}
+  .badge-carr{background:#fff;color:#e67e22;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:0.78rem;margin-left:6px;}
+
+  /* BUSCADOR/FILTROS */
+  .filtros{background:#fff;padding:14px 20px;border-bottom:1px solid #ddd;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .buscador{flex:1;min-width:240px;padding:10px 14px;border:2px solid #d0d0e0;border-radius:8px;font-size:0.95rem;}
+  .chip{padding:7px 14px;background:#f0f0f0;color:#333;border:2px solid #e0e0e0;border-radius:20px;font-size:0.83rem;font-weight:700;cursor:pointer;transition:all 0.15s;}
+  .chip.active{background:#1e5b9e;color:#fff;border-color:#1e5b9e;}
+  .chip:hover{border-color:#1e5b9e;}
+
+  /* CARDS */
+  .productos{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:18px 20px;}
+  .card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.12);display:flex;flex-direction:column;transition:transform 0.15s;}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.18);}
+  .card-foto{width:100%;height:140px;background:#e8e8f0 center/contain no-repeat;display:flex;align-items:center;justify-content:center;font-size:3rem;color:#aaa;}
+  .card-foto.cigarrillo{background-color:#4a1818;color:#d4a020;}
+  .card-info{padding:12px;flex:1;display:flex;flex-direction:column;}
+  .card-marca{font-size:0.72rem;color:#888;text-transform:uppercase;font-weight:700;letter-spacing:0.5px;}
+  .card-nombre{font-size:0.92rem;font-weight:700;color:#1a1a2e;margin-top:2px;line-height:1.3;flex:1;}
+  .card-precio{font-size:1.2rem;font-weight:800;color:#1e5b9e;margin-top:8px;font-family:'Consolas',monospace;}
+  .card-precio-label{font-size:0.7rem;color:#888;font-weight:600;text-transform:uppercase;display:block;margin-top:6px;}
+  .card-actions{display:flex;gap:6px;margin-top:10px;align-items:center;}
+  .card-qty{display:flex;align-items:center;gap:4px;}
+  .qty-btn{width:28px;height:28px;border-radius:6px;border:1px solid #ccc;background:#f8f8f8;cursor:pointer;font-weight:800;font-size:1rem;}
+  .qty-input{width:42px;text-align:center;padding:5px;border:1px solid #ccc;border-radius:5px;font-size:0.9rem;font-weight:700;}
+  .btn-agregar{flex:1;padding:8px;background:#27ae60;color:#fff;border:none;border-radius:6px;font-weight:800;cursor:pointer;font-size:0.83rem;}
+  .btn-agregar:hover{background:#1f8c4e;}
+  .card.agregado{outline:3px solid #27ae60;}
+
+  /* CARRITO */
+  .carr-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:1000;padding:14px;}
+  .carr-overlay.open{display:flex;}
+  .carr{background:#fff;border-radius:14px;max-width:680px;width:100%;max-height:92vh;display:flex;flex-direction:column;}
+  .carr-h{padding:18px 22px;border-bottom:2px solid #1e5b9e;display:flex;justify-content:space-between;align-items:center;}
+  .carr-h h2{font-size:1.2rem;color:#1a1a2e;}
+  .carr-close{background:#e74c3c;color:#fff;border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-weight:800;font-size:1rem;}
+  .carr-body{padding:14px 22px;overflow-y:auto;flex:1;}
+  .carr-item{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eee;}
+  .carr-vacio{text-align:center;color:#888;padding:30px;font-style:italic;}
+  .carr-total{padding:14px 22px;background:#f8f8f8;font-size:1.1rem;font-weight:800;display:flex;justify-content:space-between;}
+  .carr-form{padding:14px 22px;display:grid;gap:10px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .form-row label{font-size:0.78rem;font-weight:700;color:#444;display:block;margin-bottom:4px;text-transform:uppercase;}
+  .form-row select,.form-row input,.form-row textarea{width:100%;padding:8px 10px;border:2px solid #d0d0e0;border-radius:7px;font-size:0.9rem;font-family:inherit;}
+  .carr-footer{padding:14px 22px;border-top:1px solid #eee;display:flex;gap:10px;}
+  .btn-enviar{flex:1;padding:12px;background:#27ae60;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:1rem;cursor:pointer;}
+  .btn-enviar:disabled{background:#aaa;cursor:not-allowed;}
+  .btn-cancelar{padding:12px 18px;background:#888;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 22px;border-radius:24px;font-weight:700;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,0.3);opacity:0;transition:opacity 0.25s;font-size:0.92rem;}
+  .toast.show{opacity:1;}
+
+  /* CARRITO FLOTANTE */
+  .carrito-flotante{position:fixed;bottom:20px;right:20px;background:#e67e22;color:#fff;padding:14px 22px;border-radius:30px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(230,126,34,0.5);z-index:99;display:none;align-items:center;gap:10px;border:none;font-size:1rem;}
+  .carrito-flotante.activo{display:flex;}
+  .carrito-flotante:hover{background:#d35400;}
+
+  @media (max-width:600px){
+    .productos{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;padding:12px;}
+    .card-foto{height:110px;}
+    .card-precio{font-size:1.05rem;}
+    .form-row{grid-template-columns:1fr;}
+  }
+
+  /* ESTADO PEDIDO ENVIADO */
+  .pedido-ok{padding:30px;text-align:center;}
+  .pedido-ok .icono{font-size:4rem;}
+  .pedido-ok h3{color:#27ae60;margin:10px 0;font-size:1.4rem;}
+  .pedido-ok p{color:#444;margin-bottom:16px;font-size:0.95rem;}
+
+  .sin-resultados{text-align:center;padding:60px 20px;color:#fff;font-size:1.05rem;}
+</style>
 </head>
 <body>
-    <div class="card">
-        <h2>⛽ Control de Surtidores</h2>
-        <label>👤 Playero:</label>
-        <select id="playero">
-            <option value="Juan">Juan Pérez</option>
-            <option value="Carlos">Carlos Gómez</option>
-            <option value="Lucía">Lucía Rodríguez</option>
-            <option value="Otro">Otro (escribir)</option>
-        </select>
-        <input type="text" id="playeroOtro" placeholder="Nombre si es Otro" style="display:none">
-        
-        <label>🆔 Surtidor:</label>
-        <select id="surtidor">
-            <option value="1">Surtidor 1</option>
-            <option value="2">Surtidor 2</option>
-            <option value="3">Surtidor 3</option>
-        </select>
 
-        <label>⛽ Combustible:</label>
-        <select id="combustible">
-            <option value="Nafta">Nafta</option>
-            <option value="Gasoil Común">Gasoil Común</option>
-            <option value="Gasoil Premium (el bueno)">Gasoil Premium (el bueno)</option>
-        </select>
-
-        <label>🕒 Momento:</label>
-        <select id="momento">
-            <option value="apertura">📷 Apertura de caja (foto inicial)</option>
-            <option value="cierre">🔒 Cierre de caja (foto final)</option>
-        </select>
-
-        <button id="btnAbrirCamara">📸 Tomar foto del surtidor</button>
-        
-        <div id="cameraPanel" style="display:none;">
-            <div class="camera-area">
-                <video id="video" autoplay playsinline style="width:100%; display:block;"></video>
-                <canvas id="canvas" style="display:none;"></canvas>
-            </div>
-            <div class="flex-btns">
-                <button id="btnTomarFoto">✅ Tomar foto</button>
-                <button id="btnCerrarCamara" class="btn-sec">❌ Cancelar</button>
-            </div>
-        </div>
-
-        <div id="previewArea" class="foto-preview" style="display:none;"></div>
-        <button id="btnGuardar" disabled>💾 Guardar registro (foto + lectura)</button>
-        <div id="mensajeGlobal" class="mensaje"></div>
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-card">
+    <div style="text-align:center;font-size:2.5rem;margin-bottom:8px;">⛽</div>
+    <div class="login-title">Estación Don Ramón</div>
+    <div class="login-sub">🛒 Acceso Mayoristas</div>
+    <input type="tel" id="login-wsp" class="login-input" placeholder="📱 Número de WhatsApp" autocomplete="off">
+    <input type="password" id="login-clave" class="login-input" placeholder="🔑 Clave de acceso" autocomplete="off">
+    <button class="login-btn" onclick="hacerLogin()">Ingresar</button>
+    <div class="login-error" id="login-error"></div>
+    <div style="margin-top:18px;text-align:center;font-size:0.78rem;color:#888;">
+      ¿No tenés acceso? Comunicate con la administración para que te habiliten.
     </div>
+  </div>
+</div>
 
-    <div class="card admin-section">
-        <h3>📋 Panel de Dirección</h3>
-        <div class="flex-btns" style="margin-bottom: 12px;">
-            <button id="btnVerRegistros">🔄 Actualizar registros</button>
-            <button id="btnExportarJSON" class="btn-sec">📎 Exportar JSON</button>
-            <button id="btnBorrarTodo" class="btn-sec" style="background:#b33;">🗑️ Borrar todo</button>
-        </div>
-        <div id="listaRegistros">🔍 Presiona "Actualizar" para ver los registros guardados.</div>
+<!-- APP -->
+<div class="app" id="app">
+  <div class="top">
+    <div>
+      <div class="top-titulo">🛒 Mayoristas · Estación Don Ramón</div>
+      <div class="top-cliente" id="top-cliente">—</div>
     </div>
+    <div class="top-acciones">
+      <button class="btn-top carrito" onclick="abrirCarrito()" id="btn-carrito">🛒 Carrito <span class="badge-carr" id="badge-carrito">0</span></button>
+      <button class="btn-top cerrar" onclick="cerrarSesion()">Salir</button>
+    </div>
+  </div>
 
-    <script>
-        // --------------------------------------------------------------
-        // CONFIGURACIÓN OCR.SPACE (cambiar por tu API Key gratuita)
-        // Obtener en https://ocr.space/OCRAPI (gratis, solo email)
-        // La clave "helloworld" funciona hasta 50 requests/día (pruebas)
-        // --------------------------------------------------------------
-        const OCR_API_KEY = "helloworld";   // <-- REEMPLAZAR si tenés tu propia clave
-        const OCR_API_URL = "https://api.ocr.space/parse/image";
+  <div class="filtros">
+    <input type="text" id="buscador" class="buscador" placeholder="🔍 Buscar producto, marca..." oninput="filtrarProductos()">
+    <div id="chips-familias" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+  </div>
 
-        // -------- IndexedDB para guardar registros localmente --------
-        let db = null;
-        const DB_NAME = "EstacionSurtidoresDB";
-        const STORE_NAME = "registros";
+  <div id="productos" class="productos">
+    <div class="sin-resultados">⏳ Cargando catálogo...</div>
+  </div>
+  
+  <button class="carrito-flotante" id="carrito-flotante" onclick="abrirCarrito()">
+    🛒 <span id="carrito-flotante-count">0</span> · $<span id="carrito-flotante-total">0</span>
+  </button>
+</div>
 
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, 1);
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
-                };
-                request.onupgradeneeded = (e) => {
-                    const store = e.target.result.createObjectStore(STORE_NAME, { keyPath: "id", autoIncrement: true });
-                    store.createIndex("fecha", "fecha", { unique: false });
-                    store.createIndex("surtidor", "surtidor", { unique: false });
-                };
-            });
-        }
+<!-- MODAL CARRITO -->
+<div class="carr-overlay" id="carr-overlay">
+  <div class="carr" id="carr">
+    <div class="carr-h">
+      <h2>🛒 Tu pedido</h2>
+      <button class="carr-close" onclick="cerrarCarrito()">✕</button>
+    </div>
+    <div class="carr-body" id="carr-body">
+      <div class="carr-vacio">No hay productos en el carrito.</div>
+    </div>
+    <div class="carr-total">
+      <span>TOTAL:</span>
+      <span id="carr-total-monto" style="font-family:Consolas,monospace;color:#1e5b9e;">$0</span>
+    </div>
+    <div class="carr-form" id="carr-form">
+      <div class="form-row">
+        <div>
+          <label>💳 Forma de pago</label>
+          <select id="forma-pago">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Cheque">Cheque</option>
+          </select>
+        </div>
+        <div>
+          <label>⏰ Horario de retiro</label>
+          <select id="horario-retiro">
+            <option value="8:00 - 10:00">8:00 - 10:00</option>
+            <option value="10:00 - 12:00">10:00 - 12:00</option>
+            <option value="12:00 - 14:00">12:00 - 14:00</option>
+            <option value="14:00 - 16:00">14:00 - 16:00</option>
+            <option value="16:00 - 18:00">16:00 - 18:00</option>
+            <option value="18:00 - 20:00">18:00 - 20:00</option>
+            <option value="20:00 - 23:00">20:00 - 23:00</option>
+            <option value="A coordinar">A coordinar</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label>💬 Notas / aclaraciones (opcional)</label>
+        <textarea id="notas-pedido" rows="2" placeholder="Ej: traer 2 cajas de Marlboro Box..."></textarea>
+      </div>
+    </div>
+    <div class="carr-footer">
+      <button class="btn-cancelar" onclick="cerrarCarrito()">Seguir comprando</button>
+      <button class="btn-enviar" id="btn-enviar-pedido" onclick="enviarPedido()">📤 Enviar pedido</button>
+    </div>
+  </div>
+</div>
 
-        async function guardarRegistro(registro) {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(STORE_NAME, "readwrite");
-                const store = tx.objectStore(STORE_NAME);
-                const req = store.add(registro);
-                req.onsuccess = () => resolve(req.result);
-                req.onerror = () => reject(req.error);
-            });
-        }
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-        async function obtenerTodosRegistros() {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(STORE_NAME, "readonly");
-                const store = tx.objectStore(STORE_NAME);
-                const req = store.getAll();
-                req.onsuccess = () => resolve(req.result || []);
-                req.onerror = () => reject(req.error);
-            });
-        }
+<!-- ============================================================ -->
+<!-- ============== FIREBASE Y LÓGICA ============================ -->
+<!-- ============================================================ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, onSnapshot, setDoc, collection }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        async function borrarTodosRegistros() {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(STORE_NAME, "readwrite");
-                const store = tx.objectStore(STORE_NAME);
-                const req = store.clear();
-                req.onsuccess = () => resolve();
-                req.onerror = () => reject(req.error);
-            });
-        }
+const firebaseConfig = {
+  apiKey: "AIzaSyBfIyFUkg3Ys8Z66AAaqmn42CQ1B9i9eug",
+  authDomain: "estacion-don-ramon-bb3be.firebaseapp.com",
+  projectId: "estacion-don-ramon-bb3be",
+  storageBucket: "estacion-don-ramon-bb3be.firebasestorage.app",
+  messagingSenderId: "481874293546",
+  appId: "1:481874293546:web:0bbe18f6f44b758f272453"
+};
 
-        // ---------- Elementos DOM ----------
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const btnAbrir = document.getElementById('btnAbrirCamara');
-        const cameraPanel = document.getElementById('cameraPanel');
-        const btnTomar = document.getElementById('btnTomarFoto');
-        const btnCerrar = document.getElementById('btnCerrarCamara');
-        const previewArea = document.getElementById('previewArea');
-        const btnGuardar = document.getElementById('btnGuardar');
-        const mensajeDiv = document.getElementById('mensajeGlobal');
-        const playeroSelect = document.getElementById('playero');
-        const playeroOtro = document.getElementById('playeroOtro');
-        const btnVer = document.getElementById('btnVerRegistros');
-        const listaRegistrosDiv = document.getElementById('listaRegistros');
-        const btnExportar = document.getElementById('btnExportarJSON');
-        const btnBorrarTodo = document.getElementById('btnBorrarTodo');
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const docRef = doc(db, 'estacion_don_ramon', 'datos_principales');
 
-        let stream = null;
-        let currentImageDataURL = null;
-        let currentNumerosDetectados = "";
-        let currentRegistroPendiente = null;  // almacena datos antes de guardar
+// Estado de la app
+const state = {
+  productos: [],
+  clientes: [],
+  clienteActual: null,
+  filtroFamilia: 'todas',
+  carrito: {} // { productId: cantidad }
+};
 
-        playeroSelect.addEventListener('change', () => {
-            playeroOtro.style.display = playeroSelect.value === 'Otro' ? 'block' : 'none';
-        });
+window.STATE = state; // debug
 
-        function mostrarMensaje(texto, esError = false) {
-            mensajeDiv.textContent = texto;
-            mensajeDiv.className = esError ? 'mensaje error' : 'mensaje';
-            setTimeout(() => {
-                if (mensajeDiv.textContent === texto) mensajeDiv.textContent = '';
-            }, 5000);
-        }
+// ============== Sincronización en tiempo real ==============
+onSnapshot(docRef, (snap) => {
+  if(!snap.exists()) return;
+  const data = snap.data();
+  state.productos = data.productos || [];
+  state.clientes  = data.clientes || [];
+  // Si ya estábamos logueados, refrescar la UI
+  if(state.clienteActual){
+    renderProductos();
+  }
+}, (err) => console.warn('Firebase listener:', err));
 
-        // ---------- Cámara ----------
-        btnAbrir.onclick = async () => {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                video.srcObject = stream;
-                video.style.display = "block";
-                cameraPanel.style.display = "block";
-                btnAbrir.disabled = true;
-                previewArea.style.display = "none";
-                currentImageDataURL = null;
-                btnGuardar.disabled = true;
-                mostrarMensaje("Cámara activa. Enfoca los números del surtidor.");
-            } catch (err) {
-                mostrarMensaje("Error de cámara: " + err.message, true);
-            }
-        };
+// ============== LOGIN ==============
+window.hacerLogin = function(){
+  const wsp = document.getElementById('login-wsp').value.trim().replace(/\D/g,'');
+  const clave = document.getElementById('login-clave').value.trim();
+  const errBox = document.getElementById('login-error');
+  errBox.style.display = 'none';
 
-        btnCerrar.onclick = () => {
-            if (stream) {
-                stream.getTracks().forEach(t => t.stop());
-                stream = null;
-            }
-            cameraPanel.style.display = "none";
-            btnAbrir.disabled = false;
-            video.style.display = "none";
-        };
+  if(!wsp || !clave){
+    errBox.textContent = '⚠️ Completá WhatsApp y clave';
+    errBox.style.display = 'block';
+    return;
+  }
+  
+  if(state.clientes.length === 0){
+    errBox.textContent = '⏳ Cargando datos... probá de nuevo en 2 segundos';
+    errBox.style.display = 'block';
+    return;
+  }
 
-        btnTomar.onclick = async () => {
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const dataURL = canvas.toDataURL('image/jpeg', 0.9);
-            currentImageDataURL = dataURL;
-            
-            // Cerrar cámara
-            if (stream) {
-                stream.getTracks().forEach(t => t.stop());
-                stream = null;
-            }
-            cameraPanel.style.display = "none";
-            btnAbrir.disabled = false;
-            
-            // Mostrar preview y analizar con OCR
-            previewArea.style.display = "block";
-            previewArea.innerHTML = `<img src="${dataURL}" alt="Foto"><p>🔍 Enviando a OCR para leer números...</p>`;
-            
-            // Llamar a OCR.space
-            const numeros = await leerNumerosConOCR(dataURL);
-            currentNumerosDetectados = numeros;
-            
-            previewArea.innerHTML = `
-                <img src="${dataURL}" alt="Foto">
-                <p>📊 <strong>Números detectados por IA:</strong> ${numeros || "❌ No se detectaron"}</p>
-                <label>✏️ Corregir si es necesario:</label>
-                <input type="text" id="lecturaManual" value="${numeros || ''}" placeholder="Ej: 12345.6" style="width:100%">
-                <button id="btnConfirmarLectura">✅ Confirmar números y habilitar guardado</button>
-            `;
-            
-            document.getElementById('btnConfirmarLectura').onclick = () => {
-                const lecturaFinal = document.getElementById('lecturaManual').value.trim();
-                if (!lecturaFinal) {
-                    mostrarMensaje("Debés ingresar o confirmar los números del surtidor.", true);
-                    return;
-                }
-                currentNumerosDetectados = lecturaFinal;
-                btnGuardar.disabled = false;
-                mostrarMensaje(`Números guardados: ${lecturaFinal}. Ahora podés presionar "Guardar registro".`);
-                // Opcional: dejar feedback visual
-                previewArea.innerHTML += `<p style="color:green;">✅ Números confirmados: ${lecturaFinal}</p>`;
-            };
-        };
+  // Buscar cliente
+  const cli = state.clientes.find(c =>
+    c.esMayorista &&
+    String(c.whatsappMayorista||'').replace(/\D/g,'') === wsp &&
+    String(c.claveMayorista||'').trim() === clave
+  );
 
-        async function leerNumerosConOCR(dataURL) {
-            // Convertir dataURL a Blob
-            const blob = dataURLtoBlob(dataURL);
-            const formData = new FormData();
-            formData.append("file", blob, "surtidor.jpg");
-            formData.append("apikey", OCR_API_KEY);
-            formData.append("language", "spa");
-            formData.append("OCREngine", "2");  // motor más preciso
-            formData.append("scale", "true");
-            formData.append("isOverlayRequired", "false");
-            
-            try {
-                mostrarMensaje("Procesando imagen con OCR...");
-                const response = await fetch(OCR_API_URL, {
-                    method: "POST",
-                    body: formData
-                });
-                const data = await response.json();
-                if (data.IsErroredOnProcessing) {
-                    console.error(data.ErrorMessage);
-                    return "";
-                }
-                const text = data.ParsedResults?.[0]?.ParsedText || "";
-                // Extraer números (enteros o decimales)
-                const numerosEncontrados = text.match(/\d+[\.,]?\d*/g);
-                if (numerosEncontrados && numerosEncontrados.length) {
-                    // Tomar el más largo (suele ser la lectura principal)
-                    let mejor = numerosEncontrados.reduce((a,b) => a.length >= b.length ? a : b, "");
-                    // Reemplazar coma por punto si es decimal
-                    mejor = mejor.replace(',', '.');
-                    return mejor;
-                }
-                return "";
-            } catch (err) {
-                console.error("Error OCR:", err);
-                return "";
-            }
-        }
+  if(!cli){
+    errBox.textContent = '❌ WhatsApp o clave incorrectos. Si necesitás acceso, comunicate con la administración.';
+    errBox.style.display = 'block';
+    return;
+  }
 
-        function dataURLtoBlob(dataURL) {
-            const arr = dataURL.split(',');
-            const mime = arr[0].match(/:(.*?);/)[1];
-            const bstr = atob(arr[1]);
-            let n = bstr.length;
-            const u8arr = new Uint8Array(n);
-            while (n--) u8arr[n] = bstr.charCodeAt(n);
-            return new Blob([u8arr], { type: mime });
-        }
+  state.clienteActual = cli;
+  localStorage.setItem('mayorista_wsp', wsp);
+  localStorage.setItem('mayorista_clave', clave);
+  mostrarApp();
+};
 
-        // ---------- Guardar registro ----------
-        btnGuardar.onclick = async () => {
-            if (!currentImageDataURL) {
-                mostrarMensaje("No hay foto. Primero tomá una foto.", true);
-                return;
-            }
-            if (!currentNumerosDetectados) {
-                mostrarMensaje("Primero confirmá los números del surtidor.", true);
-                return;
-            }
-            
-            let playero = playeroSelect.value;
-            if (playero === "Otro") {
-                playero = playeroOtro.value.trim() || "Anónimo";
-            }
-            const surtidor = document.getElementById('surtidor').value;
-            const combustible = document.getElementById('combustible').value;
-            const momento = document.getElementById('momento').value;
-            const fecha = new Date().toISOString();
-            
-            const registro = {
-                playero,
-                surtidor,
-                combustible,
-                momento,
-                fecha,
-                numeros: currentNumerosDetectados,
-                fotoDataURL: currentImageDataURL   // se guarda completo (puede ser pesado, pero es prototipo)
-            };
-            
-            try {
-                await guardarRegistro(registro);
-                mostrarMensaje("✅ Registro guardado correctamente. La dirección puede verlo.");
-                // Limpiar estado
-                currentImageDataURL = null;
-                currentNumerosDetectados = "";
-                previewArea.style.display = "none";
-                btnGuardar.disabled = true;
-                // Opcional: refrescar lista de dirección automáticamente
-                cargarRegistrosEnPanel();
-            } catch (err) {
-                mostrarMensaje("Error al guardar: " + err.message, true);
-            }
-        };
+window.cerrarSesion = function(){
+  localStorage.removeItem('mayorista_wsp');
+  localStorage.removeItem('mayorista_clave');
+  state.clienteActual = null;
+  state.carrito = {};
+  document.getElementById('login-wrap').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+};
 
-        // ---------- Panel de dirección ----------
-        async function cargarRegistrosEnPanel() {
-            listaRegistrosDiv.innerHTML = "Cargando...";
-            const registros = await obtenerTodosRegistros();
-            if (!registros.length) {
-                listaRegistrosDiv.innerHTML = "📭 No hay registros aún. Tomá fotos desde la sección superior.";
-                return;
-            }
-            // Ordenar descendente por fecha
-            registros.sort((a,b) => new Date(b.fecha) - new Date(a.fecha));
-            let html = "";
-            for (const reg of registros) {
-                const fechaLocal = new Date(reg.fecha).toLocaleString();
-                html += `
-                    <div class="registro-item">
-                        <div><span class="badge">${reg.momento === 'apertura' ? '📷 APERTURA' : '🔒 CIERRE'}</span>
-                        <strong>Surtidor ${reg.surtidor}</strong> - ${reg.combustible}</div>
-                        <div>👤 ${reg.playero} | 🕒 ${fechaLocal}</div>
-                        <div>🔢 Lectura: <strong style="font-size:1.2rem;">${reg.numeros}</strong></div>
-                        <img src="${reg.fotoDataURL}" alt="foto" onclick="window.open(this.src)">
-                        <div style="font-size:12px; margin-top:8px;">📸 Click en imagen para ampliar</div>
-                    </div>
-                `;
-            }
-            listaRegistrosDiv.innerHTML = html;
-        }
+function mostrarApp(){
+  document.getElementById('login-wrap').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const c = state.clienteActual;
+  document.getElementById('top-cliente').textContent = `👋 ${c.apellido} ${c.nombre||''}`.trim();
+  renderChipsFamilias();
+  renderProductos();
+}
 
-        btnVer.onclick = cargarRegistrosEnPanel;
-        
-        btnExportar.onclick = async () => {
-            const registros = await obtenerTodosRegistros();
-            const exportData = registros.map(r => ({
-                ...r,
-                fotoDataURL: r.fotoDataURL ? "(imagen base64 muy larga)" : null
-            }));
-            const dataStr = JSON.stringify(registros.map(({ fotoDataURL, ...rest }) => rest), null, 2);
-            const blob = new Blob([dataStr], {type: "application/json"});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `registros_${new Date().toISOString()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            mostrarMensaje("Exportado (sin las imágenes para no saturar)");
-        };
-        
-        btnBorrarTodo.onclick = async () => {
-            if (confirm("⚠️ ¿Eliminar TODOS los registros? No se puede deshacer.")) {
-                await borrarTodosRegistros();
-                await cargarRegistrosEnPanel();
-                mostrarMensaje("Todos los registros fueron eliminados.");
-            }
-        };
+// Auto-login si hay credenciales guardadas
+function intentarAutoLogin(){
+  const wsp = localStorage.getItem('mayorista_wsp');
+  const clave = localStorage.getItem('mayorista_clave');
+  if(!wsp || !clave) return;
+  
+  const intentar = () => {
+    if(state.clientes.length === 0){
+      setTimeout(intentar, 800);
+      return;
+    }
+    const cli = state.clientes.find(c =>
+      c.esMayorista &&
+      String(c.whatsappMayorista||'').replace(/\D/g,'') === wsp &&
+      String(c.claveMayorista||'').trim() === clave
+    );
+    if(cli){
+      state.clienteActual = cli;
+      mostrarApp();
+    }
+  };
+  setTimeout(intentar, 1000);
+}
+intentarAutoLogin();
 
-        // Inicializar DB y cargar registros
-        initDB().then(() => {
-            console.log("Base de datos local lista");
-            cargarRegistrosEnPanel();
-        }).catch(err => {
-            console.error("Error IndexedDB:", err);
-            listaRegistrosDiv.innerHTML = "Error: no se pudo inicializar almacenamiento local. Revisá permisos.";
-        });
-    </script>
+// ============== RENDER ==============
+function getPrecioMay(p){
+  // Lista 2 con fallback a precio normal
+  return Number(p.precioLista2) > 0 ? Number(p.precioLista2) : Number(p.precio) || 0;
+}
+
+function productosVisibles(){
+  return state.productos.filter(p => {
+    const precio = getPrecioMay(p);
+    if(!(precio > 0)) return false; // sin Lista 2 cargado → no mostrar
+    return true;
+  });
+}
+
+function renderChipsFamilias(){
+  const cont = document.getElementById('chips-familias');
+  const visibles = productosVisibles();
+  const familias = [...new Set(visibles.map(p => p.familia || p.marca || 'Otros'))].filter(Boolean).sort();
+  let html = `<button class="chip ${state.filtroFamilia==='todas'?'active':''}" onclick="cambiarFiltro('todas')">Todas (${visibles.length})</button>`;
+  familias.forEach(f => {
+    const count = visibles.filter(p => (p.familia || p.marca || 'Otros') === f).length;
+    html += `<button class="chip ${state.filtroFamilia===f?'active':''}" onclick="cambiarFiltro('${f.replace(/'/g,"\\'")}')">${f} (${count})</button>`;
+  });
+  cont.innerHTML = html;
+}
+
+window.cambiarFiltro = function(f){
+  state.filtroFamilia = f;
+  renderChipsFamilias();
+  renderProductos();
+};
+
+function renderProductos(){
+  const buscar = (document.getElementById('buscador')?.value || '').toLowerCase().trim();
+  let lista = productosVisibles();
+  if(state.filtroFamilia !== 'todas'){
+    lista = lista.filter(p => (p.familia || p.marca || 'Otros') === state.filtroFamilia);
+  }
+  if(buscar){
+    lista = lista.filter(p =>
+      (p.nombre||'').toLowerCase().includes(buscar) ||
+      (p.marca||'').toLowerCase().includes(buscar) ||
+      (p.barcode||'').includes(buscar)
+    );
+  }
+  lista.sort((a,b) => (a.marca||'').localeCompare(b.marca||'') || (a.nombre||'').localeCompare(b.nombre||''));
+
+  const cont = document.getElementById('productos');
+  if(lista.length === 0){
+    cont.innerHTML = '<div class="sin-resultados">No se encontraron productos.</div>';
+    return;
+  }
+  cont.innerHTML = lista.map(p => {
+    const cant = state.carrito[p.id] || 0;
+    const precio = getPrecioMay(p);
+    const esCig = p.esCigarrillo || (p.familia === 'Cigarrillos');
+    const fotoEstilo = p.foto ? `background-image:url(${p.foto});background-color:#fff;` : '';
+    const icono = esCig ? '🚬' : '📦';
+    return `
+      <div class="card ${cant>0?'agregado':''}">
+        <div class="card-foto ${esCig?'cigarrillo':''}" style="${fotoEstilo}">${p.foto ? '' : icono}</div>
+        <div class="card-info">
+          <div class="card-marca">${p.marca || ''}</div>
+          <div class="card-nombre">${p.nombre || ''}</div>
+          <span class="card-precio-label">Precio mayorista</span>
+          <div class="card-precio">$${fmt(precio)}</div>
+          <div class="card-actions">
+            <div class="card-qty">
+              <button class="qty-btn" onclick="cambiarCant(${p.id}, -1)">−</button>
+              <input type="number" class="qty-input" min="0" value="${cant}" onchange="setCant(${p.id}, this.value)">
+              <button class="qty-btn" onclick="cambiarCant(${p.id}, 1)">+</button>
+            </div>
+            <button class="btn-agregar" onclick="agregarUno(${p.id})">${cant>0?'✓ '+cant:'+ Agregar'}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.filtrarProductos = renderProductos;
+
+window.cambiarCant = function(id, delta){
+  const actual = state.carrito[id] || 0;
+  const nuevo = Math.max(0, actual + delta);
+  if(nuevo === 0) delete state.carrito[id];
+  else state.carrito[id] = nuevo;
+  renderProductos();
+  actualizarCarritoFlotante();
+};
+window.setCant = function(id, val){
+  const v = Math.max(0, Math.floor(Number(val)) || 0);
+  if(v === 0) delete state.carrito[id];
+  else state.carrito[id] = v;
+  renderProductos();
+  actualizarCarritoFlotante();
+};
+window.agregarUno = function(id){
+  state.carrito[id] = (state.carrito[id] || 0) + 1;
+  renderProductos();
+  actualizarCarritoFlotante();
+  toast('🛒 Agregado al carrito');
+};
+
+function actualizarCarritoFlotante(){
+  const items = Object.keys(state.carrito);
+  const totalItems = items.reduce((s,id) => s + state.carrito[id], 0);
+  const totalMonto = items.reduce((s,id) => {
+    const p = state.productos.find(x => Number(x.id) === Number(id));
+    if(!p) return s;
+    return s + getPrecioMay(p) * state.carrito[id];
+  }, 0);
+  const flot = document.getElementById('carrito-flotante');
+  const badge = document.getElementById('badge-carrito');
+  if(badge) badge.textContent = totalItems;
+  if(flot){
+    flot.classList.toggle('activo', totalItems > 0);
+    document.getElementById('carrito-flotante-count').textContent = totalItems;
+    document.getElementById('carrito-flotante-total').textContent = fmt(Math.round(totalMonto));
+  }
+}
+
+// ============== CARRITO MODAL ==============
+window.abrirCarrito = function(){
+  document.getElementById('carr-overlay').classList.add('open');
+  renderCarrito();
+};
+window.cerrarCarrito = function(){
+  document.getElementById('carr-overlay').classList.remove('open');
+};
+
+function renderCarrito(){
+  const body = document.getElementById('carr-body');
+  const ids = Object.keys(state.carrito);
+  if(ids.length === 0){
+    body.innerHTML = '<div class="carr-vacio">No hay productos en el carrito.<br><small>Agregá productos desde el catálogo.</small></div>';
+    document.getElementById('carr-total-monto').textContent = '$0';
+    document.getElementById('btn-enviar-pedido').disabled = true;
+    return;
+  }
+  let total = 0;
+  body.innerHTML = ids.map(id => {
+    const p = state.productos.find(x => Number(x.id) === Number(id));
+    if(!p) return '';
+    const cant = state.carrito[id];
+    const precio = getPrecioMay(p);
+    const subt = precio * cant;
+    total += subt;
+    return `
+      <div class="carr-item">
+        <div>
+          <div style="font-weight:700;font-size:0.92rem;">${p.nombre}</div>
+          <div style="font-size:0.78rem;color:#888;">${p.marca || ''} · $${fmt(precio)} c/u</div>
+        </div>
+        <div class="card-qty">
+          <button class="qty-btn" onclick="cambiarCant(${p.id},-1);renderCarrito();">−</button>
+          <span style="min-width:30px;text-align:center;font-weight:800;">${cant}</span>
+          <button class="qty-btn" onclick="cambiarCant(${p.id},1);renderCarrito();">+</button>
+        </div>
+        <div style="font-weight:800;font-family:Consolas,monospace;min-width:80px;text-align:right;">$${fmt(Math.round(subt))}</div>
+        <button onclick="cambiarCant(${p.id},-${cant});renderCarrito();" style="background:#e74c3c;color:#fff;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-weight:700;">🗑️</button>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('carr-total-monto').textContent = '$' + fmt(Math.round(total));
+  document.getElementById('btn-enviar-pedido').disabled = false;
+}
+
+// ============== ENVIAR PEDIDO ==============
+window.enviarPedido = async function(){
+  const ids = Object.keys(state.carrito);
+  if(ids.length === 0){ toast('Carrito vacío'); return; }
+  if(!state.clienteActual){ toast('Sesión expirada'); return; }
+  
+  const items = ids.map(id => {
+    const p = state.productos.find(x => Number(x.id) === Number(id));
+    if(!p) return null;
+    return {
+      id: Number(p.id),
+      nombre: p.nombre,
+      marca: p.marca || '',
+      cantidad: state.carrito[id],
+      precio: getPrecioMay(p)
+    };
+  }).filter(Boolean);
+
+  const total = items.reduce((s,i) => s + i.precio * i.cantidad, 0);
+  const formaPago = document.getElementById('forma-pago').value;
+  const horarioRetiro = document.getElementById('horario-retiro').value;
+  const notas = document.getElementById('notas-pedido').value.trim();
+  
+  const cli = state.clienteActual;
+  const pedido = {
+    id: 'ped_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+    timestamp: Date.now(),
+    clienteId: cli.id,
+    clienteNombre: `${cli.apellido} ${cli.nombre || ''}`.trim(),
+    clienteWhatsapp: cli.whatsappMayorista,
+    items,
+    total,
+    formaPago,
+    horarioRetiro,
+    notas,
+    estado: 'pendiente'
+  };
+
+  const btn = document.getElementById('btn-enviar-pedido');
+  btn.disabled = true;
+  btn.textContent = '⏳ Enviando...';
+
+  try {
+    // Guardar en Firestore
+    await setDoc(doc(db, 'pedidosMayoristas', pedido.id), pedido);
+
+    // Abrir WhatsApp al admin
+    const wspAdmin = '5493854102266'; // por defecto, pero se puede leer de config
+    let detalle = items.map(i => `• ${i.cantidad}x ${i.marca?i.marca+' ':''}${i.nombre} — $${fmt(Math.round(i.precio*i.cantidad))}`).join('\n');
+    const msg = encodeURIComponent(
+      `🛒 *NUEVO PEDIDO MAYORISTA*\n\n` +
+      `👤 ${pedido.clienteNombre}\n` +
+      `📱 ${pedido.clienteWhatsapp}\n\n` +
+      `📦 *PRODUCTOS:*\n${detalle}\n\n` +
+      `💰 *TOTAL: $${fmt(Math.round(total))}*\n` +
+      `💳 Pago: ${formaPago}\n` +
+      `⏰ Retira: ${horarioRetiro}\n` +
+      (notas ? `💬 Notas: ${notas}\n` : '') +
+      `\n_(Ya está cargado en el sistema)_`
+    );
+    
+    // Mostrar pantalla de éxito
+    const overlay = document.getElementById('carr-overlay');
+    overlay.querySelector('.carr').innerHTML = `
+      <div class="pedido-ok">
+        <div class="icono">✅</div>
+        <h3>¡Pedido enviado!</h3>
+        <p>Te vamos a confirmar pronto por WhatsApp.<br><strong>Total: $${fmt(Math.round(total))}</strong></p>
+        <a href="https://wa.me/${wspAdmin}?text=${msg}" target="_blank" style="display:inline-block;padding:12px 22px;background:#25d366;color:#fff;border-radius:8px;font-weight:800;text-decoration:none;margin-top:10px;">📲 Avisar por WhatsApp</a>
+        <div style="margin-top:14px;">
+          <button onclick="reiniciarTrasPedido()" style="padding:10px 18px;background:#1e5b9e;color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer;">Volver al catálogo</button>
+        </div>
+      </div>
+    `;
+    state.carrito = {};
+    actualizarCarritoFlotante();
+  } catch(err){
+    console.error(err);
+    toast('❌ Error al enviar: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = '📤 Enviar pedido';
+  }
+};
+
+window.reiniciarTrasPedido = function(){
+  location.reload();
+};
+
+// ============== HELPERS ==============
+function fmt(n){
+  return Math.round(Number(n)||0).toLocaleString('es-AR');
+}
+window.fmt = fmt;
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+window.toast = toast;
+
+// ============== ENTER en login ==============
+document.getElementById('login-clave').addEventListener('keydown', e => {
+  if(e.key === 'Enter') hacerLogin();
+});
+document.getElementById('login-wsp').addEventListener('keydown', e => {
+  if(e.key === 'Enter') document.getElementById('login-clave').focus();
+});
+</script>
 </body>
 </html>
