@@ -4376,6 +4376,22 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 let _guardandoEnNube = false;
 let _saveTimer = null;
 
+// ============================================================================
+// 🛡️ PROTECCIÓN ANTI-CONTAGIO ENTRE PCs
+// ----------------------------------------------------------------------------
+// PROBLEMA QUE RESUELVE: si la PC abre el sistema sin conexión a la nube,
+// carga datos VIEJOS de localStorage y al hacer cualquier acción los SUBE
+// pisando los datos buenos de las otras PCs.
+//
+// REGLA DE ORO: NO subir a la nube nunca, jamás, hasta confirmar que primero
+// pudimos BAJAR la versión más nueva de la nube. Si no pudimos bajar, los
+// datos quedan solo en local y el usuario decide manualmente si subir.
+// ============================================================================
+let _datosVienenDeNube = false;   // true sólo si loadAll trajo datos válidos de la nube
+let _bloqueoSubida    = false;   // true si el usuario eligió "trabajar offline" — sigue bloqueado
+let _versionNube      = null;    // timestamp/versión del último dato bajado de la nube
+let _pendienteSubirOffline = false; // hubo cambios locales mientras estaba offline
+
 function mostrarBarraGuardando(activo){
   let div = document.getElementById('barra-guardando');
   if(!div){
@@ -4418,12 +4434,26 @@ async function saveAll(){
   
   if (!SCRIPT_URL) return;
   
+  // 🛡️ ============================================================
+  //    PROTECCIÓN ANTI-CONTAGIO: NO subir si no bajamos primero
+  // 🛡️ ============================================================
+  // Si _datosVienenDeNube === false significa que los datos actuales
+  // son de localStorage viejo. Subirlos pisaría los datos buenos de
+  // otras PCs. ABORTAMOS la subida.
+  if(!_datosVienenDeNube || _bloqueoSubida){
+    _pendienteSubirOffline = true;
+    mostrarBarraOfflineConBoton();
+    console.warn('[ANTI-CONTAGIO] Subida BLOQUEADA: los datos no vienen de la nube. Guardado solo en local.');
+    toast('💾 Guardado local (sin subir a la nube)');
+    return;
+  }
+  
   // Mostrar indicador
   _guardandoEnNube = true;
   mostrarBarraGuardando(true);
   
   try{
-    const data={productos,stock,log,facturas,clientes,proveedores,movimientosCC,descuentos,gastos,turnos};
+    const data={productos,stock,log,facturas,clientes,proveedores,movimientosCC,descuentos,gastos,turnos,_meta:{subidoEn:Date.now(),pc:_idPC()}};
     const formData=new FormData();
     formData.append('data', JSON.stringify(data));
     await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body: formData});
@@ -4433,6 +4463,124 @@ async function saveAll(){
   } finally {
     _guardandoEnNube = false;
     mostrarBarraGuardando(false);
+  }
+}
+
+// Identificador único de esta PC (para auditoría en la nube)
+function _idPC(){
+  let id = localStorage.getItem('ER_PC_ID');
+  if(!id){
+    id = 'PC-' + Math.random().toString(36).slice(2,8).toUpperCase() + '-' + Date.now().toString(36).slice(-4).toUpperCase();
+    try{ localStorage.setItem('ER_PC_ID', id); }catch(e){}
+  }
+  return id;
+}
+
+// Barra naranja persistente con botón para reintentar conexión a la nube
+function mostrarBarraOfflineConBoton(){
+  let div = document.getElementById('barra-offline-bloqueada');
+  if(div) return; // ya está mostrada
+  div = document.createElement('div');
+  div.id = 'barra-offline-bloqueada';
+  div.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:14px;background:#d35400;color:#fff;text-align:center;font-weight:800;z-index:99997;font-family:"Segoe UI",Arial,sans-serif;font-size:0.95rem;box-shadow:0 2px 10px rgba(0,0,0,0.3);';
+  div.innerHTML = '🔌 <strong>MODO OFFLINE.</strong> Tus cambios NO se están subiendo a la nube (para no pisar los datos de otras PCs). ' +
+    '<button id="btn-reintentar-nube" style="margin-left:10px;padding:6px 14px;background:#fff;color:#d35400;border:none;border-radius:5px;font-weight:800;cursor:pointer;">🔄 Reintentar conexión</button>';
+  document.body.appendChild(div);
+  document.getElementById('btn-reintentar-nube').onclick = async function(){
+    this.disabled = true;
+    this.textContent = '⏳ Conectando...';
+    const ok = await reintentarConexionNube();
+    if(ok){
+      div.remove();
+      const alerta = document.getElementById('alerta-sin-nube');
+      if(alerta) alerta.remove();
+      toast('✅ Conectado a la nube. Subiendo tus cambios...');
+      await saveAll();
+    } else {
+      this.disabled = false;
+      this.textContent = '🔄 Reintentar conexión';
+      toast('❌ Aún sin conexión. Probá más tarde.');
+    }
+  };
+}
+
+// Reintenta bajar de la nube. Si tiene éxito y los datos remotos son distintos,
+// le pregunta al usuario qué versión conservar.
+async function reintentarConexionNube(){
+  try{
+    const dataNube = await loadFromJsonp();
+    if(!dataNube || !dataNube.productos || !Array.isArray(dataNube.productos)){
+      return false;
+    }
+    // Llegaron datos buenos de la nube. Ahora hay 3 escenarios:
+    // A) Los datos locales son IGUALES → solo marcamos _datosVienenDeNube=true y listo
+    // B) Hay diferencias y NO hicimos cambios locales → reemplazar local con nube
+    // C) Hay diferencias Y hicimos cambios locales → preguntar al usuario
+    const localSig = JSON.stringify({p:productos.length, s:Object.keys(stock).length, f:facturas.length, t:turnos.length});
+    const nubeSig  = JSON.stringify({p:dataNube.productos.length, s:Object.keys(dataNube.stock||{}).length, f:(dataNube.facturas||[]).length, t:(dataNube.turnos||[]).length});
+    
+    if(localSig === nubeSig && !_pendienteSubirOffline){
+      // Mismos datos, todo en orden
+      _datosVienenDeNube = true;
+      _bloqueoSubida = false;
+      return true;
+    }
+    
+    if(_pendienteSubirOffline){
+      // Hubo cambios offline. Preguntar al usuario.
+      const respuesta = confirm(
+        '⚠️ ATENCIÓN — HAY CONFLICTO\n\n' +
+        'Hiciste cambios en esta PC mientras NO había conexión a la nube.\n' +
+        'Mientras tanto, la nube tiene otra versión (quizás de otra PC).\n\n' +
+        '👉 Tocá ACEPTAR para SUBIR los cambios de ESTA PC (vas a pisar lo que esté en la nube).\n' +
+        '👉 Tocá CANCELAR para DESCARTAR tus cambios offline y bajar lo que hay en la nube.\n\n' +
+        '⚠️ Si no estás 100% seguro, ¡tocá CANCELAR! Es más seguro.'
+      );
+      if(respuesta){
+        // Subir lo local
+        _datosVienenDeNube = true;
+        _bloqueoSubida = false;
+        _pendienteSubirOffline = false;
+        return true;
+      } else {
+        // Descartar local, usar nube
+        productos = dataNube.productos;
+        stock = dataNube.stock || {};
+        log = dataNube.log || [];
+        facturas = dataNube.facturas || [];
+        clientes = dataNube.clientes || [];
+        proveedores = dataNube.proveedores || [];
+        movimientosCC = dataNube.movimientosCC || [];
+        descuentos = dataNube.descuentos || [];
+        gastos = dataNube.gastos || [];
+        turnos = dataNube.turnos || [];
+        normalizarNumerosProductos();
+        _datosVienenDeNube = true;
+        _bloqueoSubida = false;
+        _pendienteSubirOffline = false;
+        if(typeof renderAll === 'function') renderAll();
+        return true;
+      }
+    }
+    
+    // No hubo cambios offline pero los datos son distintos → bajar de nube
+    productos = dataNube.productos;
+    stock = dataNube.stock || {};
+    log = dataNube.log || [];
+    facturas = dataNube.facturas || [];
+    clientes = dataNube.clientes || [];
+    proveedores = dataNube.proveedores || [];
+    movimientosCC = dataNube.movimientosCC || [];
+    descuentos = dataNube.descuentos || [];
+    gastos = dataNube.gastos || [];
+    turnos = dataNube.turnos || [];
+    normalizarNumerosProductos();
+    _datosVienenDeNube = true;
+    _bloqueoSubida = false;
+    if(typeof renderAll === 'function') renderAll();
+    return true;
+  }catch(e){
+    return false;
   }
 }
 
@@ -4455,6 +4603,10 @@ async function loadAll(){
   let loadedFromCloud=false;
   let intentoNube = false;
   
+  // 🛡️ Reset de la bandera de protección al inicio de cada carga
+  _datosVienenDeNube = false;
+  _bloqueoSubida = false;
+  
   if(SCRIPT_URL){
     intentoNube = true;
     try{
@@ -4465,6 +4617,8 @@ async function loadAll(){
         clientes=data.clientes||[]; proveedores=data.proveedores||[]; movimientosCC=data.movimientosCC||[];
         descuentos=data.descuentos||[]; gastos=data.gastos||[]; turnos=data.turnos||[];
         loadedFromCloud=true;
+        _datosVienenDeNube = true;  // 🛡️ AHORA SÍ podemos subir
+        _versionNube = (data._meta && data._meta.subidoEn) ? data._meta.subidoEn : Date.now();
         // ==== NORMALIZAR NÚMEROS (fix decimales con coma argentina) ====
         normalizarNumerosProductos();
         toast('📡 Datos desde la nube');
@@ -4472,6 +4626,10 @@ async function loadAll(){
     }catch(e){}
   }
   if(!loadedFromCloud){
+    // 🛡️ NO se cargó de la nube: BLOQUEAR subidas hasta que el usuario lo arregle
+    _datosVienenDeNube = false;
+    _bloqueoSubida = true;
+    
     // Si la nube falló pero el SCRIPT_URL está configurado, advertir al usuario
     if(intentoNube){
       // Mostrar cartel rojo CRÍTICO si falla la conexión con la nube
@@ -4480,10 +4638,31 @@ async function loadAll(){
         if(!alerta){
           alerta = document.createElement('div');
           alerta.id = 'alerta-sin-nube';
-          alerta.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:14px;background:#c0392b;color:#fff;text-align:center;font-weight:800;z-index:99998;font-family:"Segoe UI",Arial,sans-serif;font-size:0.95rem;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:pointer;';
-          alerta.innerHTML = '⚠️ <strong>SIN CONEXIÓN A LA NUBE.</strong> Trabajando con datos locales. <span style="font-weight:600;font-size:0.85rem;">Tocá acá para reintentar.</span>';
-          alerta.onclick = () => { location.reload(); };
+          alerta.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:14px;background:#c0392b;color:#fff;text-align:center;font-weight:800;z-index:99998;font-family:"Segoe UI",Arial,sans-serif;font-size:0.95rem;box-shadow:0 2px 10px rgba(0,0,0,0.3);';
+          alerta.innerHTML = '⚠️ <strong>SIN CONEXIÓN A LA NUBE.</strong> NO se subirán cambios para no pisar datos de otras PCs. ' +
+            '<button id="btn-recargar-nube" style="margin-left:8px;padding:6px 14px;background:#fff;color:#c0392b;border:none;border-radius:5px;font-weight:800;cursor:pointer;">🔄 Reintentar</button> ' +
+            '<button id="btn-trabajar-offline" style="margin-left:6px;padding:6px 14px;background:#34495e;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.85rem;">📴 Trabajar solo local</button>';
           document.body.appendChild(alerta);
+          document.getElementById('btn-recargar-nube').onclick = async () => {
+            const btn = document.getElementById('btn-recargar-nube');
+            btn.disabled = true; btn.textContent = '⏳ Conectando...';
+            const ok = await reintentarConexionNube();
+            if(ok){
+              alerta.remove();
+              const off = document.getElementById('barra-offline-bloqueada');
+              if(off) off.remove();
+              toast('✅ Conectado a la nube');
+            } else {
+              btn.disabled = false; btn.textContent = '🔄 Reintentar';
+              toast('❌ Aún sin conexión');
+            }
+          };
+          document.getElementById('btn-trabajar-offline').onclick = () => {
+            if(confirm('⚠️ Vas a trabajar SOLO con datos locales.\n\nLos cambios NO se subirán a la nube hasta que reconectes manualmente.\n\n¿Continuar?')){
+              alerta.remove();
+              mostrarBarraOfflineConBoton();
+            }
+          };
         }
       }, 2500);
     }
