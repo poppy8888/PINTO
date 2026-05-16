@@ -6719,7 +6719,9 @@ function renderLog(){
   }).join('');
 }
 function renderFacturas(){
+  try {
   const cont = document.getElementById('lista-facturas');
+  if(!cont) return;
   if(!facturas.length){ cont.innerHTML='<div class="empty">No hay facturas</div>'; return; }
 
   // Filtro y búsqueda rápida
@@ -6771,11 +6773,11 @@ function renderFacturas(){
 
     return `<div class="invoice-card ${f.anulada?'anulada':''}" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <div class="invoice-info" style="flex:1;min-width:180px;">
-        <strong>${esVenta?'🛒 Venta':'📦 Compra'} #${f.id}</strong>
+        <strong>${esVenta?'🛒 Venta':'📦 Compra'} #${f.id||'?'}</strong>
         ${f.anulada?'<span style="color:#a66000;font-size:0.75rem;"> — ANULADA</span>':''}
-        <br><span style="font-size:0.8rem;color:#666;">${f.fecha}</span>
+        <br><span style="font-size:0.8rem;color:#666;">${f.fecha||'sin fecha'}</span>
         <br><span style="font-size:0.8rem;">${cliNombre}${fpLabel?' · '+fpLabel:''}</span>
-        <br>${f.lineas.length} art. · Total: <span class="invoice-total ${f.tipo}">$${fmt(f.total)}</span>
+        <br>${(f.lineas||[]).length} art. · Total: <span class="invoice-total ${f.tipo||''}">$${fmt(f.total||0)}</span>
         ${f.descuento>0?`<span style="font-size:0.75rem;color:#8b1a8b;"> (dto. $${fmt(f.descuento)})</span>`:''}
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
@@ -6786,6 +6788,11 @@ function renderFacturas(){
   }).join('');
 
   cont.innerHTML = filtroHTML + (lista.length ? cardsHTML : '<div class="empty">Sin resultados</div>');
+  } catch(err){
+    console.error('Error en renderFacturas:', err);
+    const cont = document.getElementById('lista-facturas');
+    if(cont) cont.innerHTML = '<div class="empty">⚠️ Error al cargar facturas. Recargá la página.</div>';
+  }
 }
 
 function imprimirFacturaId(fid){
@@ -16095,7 +16102,9 @@ function fbAplicarDatosRemotos(datos){
     try { localStorage.setItem('mm_cc_v1', JSON.stringify(movimientosCC)); } catch(e){}
     try { localStorage.setItem('mm_log_v1', JSON.stringify(log)); } catch(e){}
 
-    if(typeof renderAll === 'function') renderAll();
+    if(typeof renderAll === 'function') {
+      try { renderAll(); } catch(errRender){ console.error('Error en renderAll tras cambio remoto:', errRender); }
+    }
   } finally {
     _aplicandoCambioRemoto = false;
   }
