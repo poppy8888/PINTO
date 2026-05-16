@@ -14783,7 +14783,8 @@ window.GDrive = (function(){
         resource: { role: 'reader', type: 'anyone' }
       }).then(function(){
         // Devolver link directo de visualización
-        return 'https://drive.google.com/uc?export=view&id=' + file.id;
+        // Usamos lh3.googleusercontent.com porque drive.google.com/uc fue deprecado
+        return 'https://lh3.googleusercontent.com/d/' + file.id;
       });
     });
   }
@@ -15991,9 +15992,62 @@ window.abrirMigracionFotos = function(){
         ℹ️ <strong>Importante:</strong> mantené esta ventana abierta hasta que termine. No cierres ni recargues.
         Las fotos seguirán visibles igual, solo cambia dónde se guardan.
       </div>
+      
+      <!-- SECCIÓN ARREGLAR LINKS VIEJOS -->
+      ${(() => {
+        const linksViejos = productos.filter(p => p.foto && typeof p.foto === 'string' && p.foto.includes('drive.google.com/uc'));
+        if(linksViejos.length === 0) return '';
+        return `
+          <div style="margin-top:18px;padding:14px;background:#e3f2fd;border:2px solid #2196f3;border-radius:10px;">
+            <div style="font-weight:800;color:#1a1a2e;margin-bottom:8px;">🔧 Detecté ${linksViejos.length} fotos con link viejo de Drive</div>
+            <div style="font-size:0.85rem;color:#444;line-height:1.5;margin-bottom:10px;">
+              Estas fotos están en Drive pero el formato de URL ya no funciona (Google lo deprecó).
+              Las fotos siguen ahí, solo hay que cambiar el formato del link. Esto es <strong>INSTANTÁNEO</strong>, no sube nada de nuevo.
+            </div>
+            <button onclick="arreglarLinksDrive()" style="width:100%;padding:12px;background:#2196f3;color:#fff;border:none;border-radius:7px;font-weight:800;cursor:pointer;font-size:0.95rem;">
+              🔧 Arreglar ${linksViejos.length} links viejos (instantáneo)
+            </button>
+          </div>
+        `;
+      })()}
     </div>
   `;
   document.body.appendChild(modal);
+};
+
+// Función para arreglar los links viejos de Drive en un solo paso
+window.arreglarLinksDrive = async function(){
+  const linksViejos = productos.filter(p => p.foto && typeof p.foto === 'string' && p.foto.includes('drive.google.com/uc'));
+  if(linksViejos.length === 0){
+    alert('No hay links viejos para arreglar.');
+    return;
+  }
+  if(!confirm(`Voy a arreglar ${linksViejos.length} links de fotos de Drive.\n\nCambio de:\nhttps://drive.google.com/uc?export=view&id=XXX\n\nA:\nhttps://lh3.googleusercontent.com/d/XXX\n\nEs instantáneo y las fotos van a volver a aparecer. ¿Continuar?`)) return;
+  
+  let arreglados = 0;
+  linksViejos.forEach(p => {
+    // Extraer el ID de la URL vieja: ...&id=ABC123
+    const match = p.foto.match(/[?&]id=([^&]+)/);
+    if(match && match[1]){
+      const id = match[1];
+      p.foto = 'https://lh3.googleusercontent.com/d/' + id;
+      arreglados++;
+    }
+  });
+  
+  // Guardar local + subir a Firebase
+  try {
+    if(typeof saveAll === 'function') await saveAll();
+  } catch(e){ console.error(e); }
+  
+  // Refrescar UI
+  if(typeof renderAll === 'function') renderAll();
+  
+  alert(`✅ ${arreglados} links arreglados.\n\nLas fotos van a aparecer ahora. Si alguna no aparece, esperá unos segundos y recargá con Ctrl+F5.`);
+  
+  // Cerrar modal y reabrir para refrescar números
+  document.getElementById('modal-migracion-fotos').remove();
+  setTimeout(() => abrirMigracionFotos(), 500);
 };
 
 let _migracionEnCurso = false;
