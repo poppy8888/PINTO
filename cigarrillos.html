@@ -1803,6 +1803,7 @@ setInterval(() => {
     <button onclick="abrirGestionUsuarios()" id="btn-usuarios" style="padding:10px 18px;border-radius:6px;border:1px solid #1a3a6b;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Cambiar contraseñas de los usuarios del sistema">👥 Usuarios</button>
     <button onclick="abrirGestionBackups()" id="btn-backups-auto" style="padding:10px 18px;border-radius:6px;border:1px solid #5a3a1a;background:#8b6914;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Gestionar backups automáticos diarios">🛡️ Backups Auto</button>
     <button onclick="abrirPedidosMayoristas()" id="btn-pedidos-may" style="padding:10px 18px;border-radius:6px;border:1px solid #5a1a1a;background:#a52a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;position:relative;" title="Pedidos de clientes mayoristas">🛒 Pedidos May. <span id="badge-pedidos-nuevos" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#a52a2a;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #a52a2a;"></span></button>
+    <button onclick="abrirMigracionFotos()" id="btn-migracion-fotos" style="padding:10px 18px;border-radius:6px;border:1px solid #1a4d3a;background:#16a085;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Migrar fotos pesadas a Drive (libera espacio en Firebase)">📦 Liberar Espacio</button>
     <button onclick="cerrarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #6b1818;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">🚪 Cerrar sesión</button>
   </div>
 </div>
@@ -10050,6 +10051,7 @@ function aplicarRestriccionesUI(){
   document.querySelectorAll('button[onclick="exportarBackup()"]').forEach(b => b.style.display = 'none');
   document.querySelectorAll('button[onclick="abrirGestionBackups()"]').forEach(b => b.style.display = 'none');
   document.querySelectorAll('button[onclick="abrirPedidosMayoristas()"]').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('button[onclick="abrirMigracionFotos()"]').forEach(b => b.style.display = 'none');
   document.querySelectorAll('label').forEach(lbl => {
     const inp = lbl.querySelector('input[onchange*="importarBackup"]');
     const inp2 = lbl.querySelector('input[onchange*="importarCSV"]');
@@ -15857,6 +15859,266 @@ setInterval(actualizarBadgePedidos, 5000);
 setTimeout(actualizarBadgePedidos, 2000);
 </script>
 <!-- ============== /PEDIDOS MAYORISTAS ============================ -->
+
+<!-- ============================================================ -->
+<!-- ============== MIGRACIÓN DE FOTOS A DRIVE ===================== -->
+<!-- ============================================================ -->
+<script>
+// ============================================================================
+// 📦 LIBERAR ESPACIO: migra fotos base64 pesadas a Google Drive
+// ----------------------------------------------------------------------------
+// Problema: las fotos guardadas como base64 dentro del producto ocupan
+// mucho espacio en Firebase (limite 1MB por documento).
+// Solución: subir cada foto pesada a Google Drive y reemplazar el base64
+// por el link de Drive (que es muy chico).
+// ============================================================================
+
+function tamañoKB(obj){
+  return (JSON.stringify(obj).length / 1024).toFixed(1);
+}
+
+function esFotoBase64(foto){
+  if(!foto || typeof foto !== 'string') return false;
+  // Si empieza con "data:image" es base64 (pesado)
+  return foto.startsWith('data:image') && foto.length > 1000;
+}
+
+function esFotoLink(foto){
+  if(!foto || typeof foto !== 'string') return false;
+  return foto.startsWith('http');
+}
+
+window.abrirMigracionFotos = function(){
+  let modal = document.getElementById('modal-migracion-fotos');
+  if(modal) modal.remove();
+  
+  // Calcular tamaños
+  const total = (
+    JSON.stringify(productos).length +
+    JSON.stringify(stock).length +
+    JSON.stringify(log).length +
+    JSON.stringify(facturas).length +
+    JSON.stringify(clientes).length +
+    JSON.stringify(proveedores).length +
+    JSON.stringify(movimientosCC).length +
+    JSON.stringify(gastos).length +
+    JSON.stringify(turnos).length
+  );
+  const totalKB = (total/1024).toFixed(1);
+  const limiteKB = 1048;
+  const porcentaje = ((total/1048576)*100).toFixed(1);
+  
+  const conBase64 = productos.filter(p => esFotoBase64(p.foto));
+  const conLink = productos.filter(p => esFotoLink(p.foto));
+  const sinFoto = productos.filter(p => !p.foto);
+  const pesoFotos = conBase64.reduce((s,p) => s + p.foto.length, 0);
+  const pesoFotosKB = (pesoFotos/1024).toFixed(1);
+  
+  const colorTotal = total > 1000000 ? '#c0392b' : total > 800000 ? '#e67e22' : '#27ae60';
+  const driveOK = window.GDrive && window.GDrive.estaConectado && window.GDrive.estaConectado();
+  
+  modal = document.createElement('div');
+  modal.id = 'modal-migracion-fotos';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI",Tahoma,Arial,sans-serif;';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:14px;max-width:720px;width:96%;max-height:92vh;overflow:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:2px solid #16a085;padding-bottom:12px;">
+        <h2 style="margin:0;color:#1a1a2e;font-size:1.3rem;">📦 Liberar Espacio en Firebase</h2>
+        <button onclick="document.getElementById('modal-migracion-fotos').remove()" style="background:#e74c3c;color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-weight:800;font-size:1rem;">✕</button>
+      </div>
+      
+      <!-- Estado actual -->
+      <div style="background:linear-gradient(135deg,${colorTotal}22,${colorTotal}11);border:2px solid ${colorTotal};border-radius:10px;padding:16px;margin-bottom:16px;">
+        <div style="font-weight:800;color:#1a1a2e;margin-bottom:10px;">📊 Estado actual de tu base de datos:</div>
+        <div style="font-size:0.95rem;line-height:1.7;">
+          <strong>Tamaño total:</strong> <span style="color:${colorTotal};font-weight:800;">${totalKB} KB</span> de ${limiteKB} KB máximo (${porcentaje}%)
+          <div style="background:#eee;height:14px;border-radius:7px;margin-top:6px;overflow:hidden;">
+            <div style="background:${colorTotal};height:100%;width:${Math.min(porcentaje,100)}%;transition:width 0.5s;"></div>
+          </div>
+          ${total > 1000000 ? '<div style="margin-top:8px;color:#c0392b;font-weight:800;">⚠️ EXCEDISTE el límite. Por eso Firebase rechaza guardar cambios.</div>' : ''}
+          ${total > 800000 && total <= 1000000 ? '<div style="margin-top:8px;color:#e67e22;font-weight:800;">⚠️ Estás cerca del límite. Conviene liberar espacio ya.</div>' : ''}
+        </div>
+      </div>
+      
+      <!-- Fotos -->
+      <div style="background:#f8f9fa;border-radius:10px;padding:14px;margin-bottom:16px;">
+        <div style="font-weight:800;color:#1a1a2e;margin-bottom:8px;">🖼️ Análisis de fotos:</div>
+        <div style="font-size:0.9rem;line-height:1.8;">
+          📦 <strong style="color:#c0392b;">${conBase64.length}</strong> productos con foto pesada (base64) — ocupan <strong>${pesoFotosKB} KB</strong>
+          <br>🔗 <strong style="color:#27ae60;">${conLink.length}</strong> productos con foto en link (correcto)
+          <br>🚫 <strong style="color:#888;">${sinFoto.length}</strong> productos sin foto
+        </div>
+      </div>
+      
+      <!-- Drive status -->
+      <div style="background:${driveOK?'#d4edda':'#fff3cd'};border:2px solid ${driveOK?'#27ae60':'#f39c12'};border-radius:10px;padding:12px;margin-bottom:16px;">
+        <div style="font-size:0.9rem;font-weight:700;color:#1a1a2e;">
+          ${driveOK ? '✅ Google Drive conectado · listo para migrar' : '⚠️ Google Drive NO conectado. Tocá "Conectar Drive" primero arriba.'}
+        </div>
+      </div>
+      
+      ${conBase64.length === 0 ? `
+        <div style="background:#d4edda;border:2px solid #27ae60;border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:2rem;">✅</div>
+          <div style="font-weight:800;color:#155724;margin-top:8px;">¡No hay fotos pesadas que migrar!</div>
+          <div style="font-size:0.85rem;color:#155724;margin-top:6px;">Todas las fotos ya están como links de Drive.</div>
+        </div>
+      ` : `
+        <div style="background:#fff;border:2px solid #16a085;border-radius:10px;padding:16px;">
+          <div style="font-weight:800;color:#1a1a2e;margin-bottom:8px;">🚀 Plan de migración:</div>
+          <div style="font-size:0.88rem;line-height:1.6;color:#444;margin-bottom:12px;">
+            Voy a subir las <strong>${conBase64.length} fotos pesadas</strong> a Google Drive una por una, 
+            y reemplazar el contenido pesado por el link de Drive. <br>
+            <strong>Tiempo estimado:</strong> ~${Math.ceil(conBase64.length * 3 / 60)} minuto(s).<br>
+            <strong>Después de migrar:</strong> el documento bajará de ${totalKB} KB a ~${(totalKB - pesoFotosKB + (conBase64.length * 0.1)).toFixed(0)} KB.
+          </div>
+          
+          <div id="migr-progreso" style="display:none;background:#f0f0f0;border-radius:8px;padding:12px;margin-bottom:12px;">
+            <div style="font-weight:700;margin-bottom:6px;" id="migr-texto">Preparando...</div>
+            <div style="background:#ddd;height:18px;border-radius:9px;overflow:hidden;">
+              <div id="migr-bar" style="background:#16a085;height:100%;width:0%;transition:width 0.3s;display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.78rem;font-weight:700;"></div>
+            </div>
+            <div id="migr-log" style="margin-top:8px;font-size:0.78rem;color:#666;max-height:120px;overflow-y:auto;font-family:monospace;"></div>
+          </div>
+          
+          <button id="btn-iniciar-migr" onclick="iniciarMigracionFotos()" ${!driveOK?'disabled':''} style="width:100%;padding:14px;background:${driveOK?'#16a085':'#aaa'};color:#fff;border:none;border-radius:8px;font-weight:800;font-size:1rem;cursor:${driveOK?'pointer':'not-allowed'};">
+            ${driveOK ? '🚀 Iniciar migración' : '⚠️ Conectá Drive primero'}
+          </button>
+        </div>
+      `}
+      
+      <div style="margin-top:14px;padding:10px;background:#fff3cd;border-radius:6px;font-size:0.78rem;color:#856404;">
+        ℹ️ <strong>Importante:</strong> mantené esta ventana abierta hasta que termine. No cierres ni recargues.
+        Las fotos seguirán visibles igual, solo cambia dónde se guardan.
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+};
+
+let _migracionEnCurso = false;
+
+window.iniciarMigracionFotos = async function(){
+  if(_migracionEnCurso) return;
+  if(!window.GDrive || !window.GDrive.estaConectado || !window.GDrive.estaConectado()){
+    alert('⚠️ Conectá primero Google Drive (botón arriba).');
+    return;
+  }
+  if(!confirm('¿Iniciar migración?\n\nVa a subir las fotos pesadas a Drive una por una. Mantené esta ventana abierta.\n\nEsto puede tardar varios minutos.')) return;
+  
+  _migracionEnCurso = true;
+  document.getElementById('btn-iniciar-migr').disabled = true;
+  document.getElementById('btn-iniciar-migr').textContent = '⏳ Migrando... no cierres la ventana';
+  const progresoDiv = document.getElementById('migr-progreso');
+  const textoDiv = document.getElementById('migr-texto');
+  const bar = document.getElementById('migr-bar');
+  const logDiv = document.getElementById('migr-log');
+  progresoDiv.style.display = 'block';
+  
+  const conBase64 = productos.filter(p => esFotoBase64(p.foto));
+  const total = conBase64.length;
+  let migrados = 0;
+  let errores = 0;
+  
+  function log(msg){
+    const linea = document.createElement('div');
+    linea.textContent = msg;
+    logDiv.appendChild(linea);
+    logDiv.scrollTop = logDiv.scrollHeight;
+  }
+  
+  log(`Iniciando migración de ${total} fotos...`);
+  
+  for(let i = 0; i < conBase64.length; i++){
+    const prod = conBase64[i];
+    const pct = Math.round(((i+1)/total)*100);
+    textoDiv.textContent = `Subiendo ${i+1} de ${total}: ${prod.nombre}`;
+    bar.style.width = pct + '%';
+    bar.textContent = pct + '%';
+    
+    try {
+      // Limpiar nombre para archivo
+      const nombreLimpio = prod.nombre.replace(/[^a-zA-Z0-9_\-]/g, '_').substring(0, 50);
+      const nombreArchivo = `cigarrillo_${prod.id}_${nombreLimpio}.jpg`;
+      
+      const linkDrive = await window.GDrive.subirImagen(prod.foto, nombreArchivo);
+      
+      // Reemplazar la foto base64 por el link
+      const pReal = productos.find(p => p.id === prod.id);
+      if(pReal){
+        pReal.foto = linkDrive;
+      }
+      
+      migrados++;
+      log(`✅ ${prod.nombre} → migrado`);
+      
+      // Cada 5 productos, guardamos en local (no en Firebase todavía)
+      if(migrados % 5 === 0){
+        try { localStorage.setItem('mm_prods_v1', JSON.stringify(productos)); } catch(e){}
+      }
+      
+      // Esperita entre subidas para no saturar Drive
+      await new Promise(r => setTimeout(r, 800));
+      
+    } catch(err){
+      errores++;
+      console.error('Error migrando ' + prod.nombre + ':', err);
+      log(`❌ ${prod.nombre} → ERROR: ${err.message||err}`);
+      // Esperita extra ante error
+      await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+  
+  // Guardar el resultado final
+  textoDiv.textContent = 'Guardando en Firebase...';
+  bar.style.width = '100%';
+  bar.textContent = '100%';
+  
+  try {
+    if(typeof saveAll === 'function') await saveAll();
+    log(`✅ Cambios guardados en Firebase`);
+  } catch(e){
+    log(`⚠️ Error guardando en Firebase: ${e.message}`);
+  }
+  
+  if(typeof renderAll === 'function') renderAll();
+  
+  textoDiv.textContent = `✅ Migración completa: ${migrados} migrados, ${errores} con error`;
+  log(`════════════════════════`);
+  log(`MIGRACIÓN TERMINADA`);
+  log(`Migrados: ${migrados}`);
+  log(`Errores: ${errores}`);
+  
+  // Recalcular tamaño
+  const nuevoTotal = (
+    JSON.stringify(productos).length +
+    JSON.stringify(stock).length +
+    JSON.stringify(log).length +
+    JSON.stringify(facturas).length +
+    JSON.stringify(clientes).length +
+    JSON.stringify(proveedores).length +
+    JSON.stringify(movimientosCC).length +
+    JSON.stringify(gastos).length +
+    JSON.stringify(turnos).length
+  );
+  log(`Nuevo tamaño: ${(nuevoTotal/1024).toFixed(1)} KB (antes: ${(JSON.stringify(productos).length/1024).toFixed(1)} KB)`);
+  
+  document.getElementById('btn-iniciar-migr').style.display = 'none';
+  
+  // Botón para cerrar
+  const btnCerrar = document.createElement('button');
+  btnCerrar.style.cssText = 'width:100%;padding:14px;background:#27ae60;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:1rem;cursor:pointer;margin-top:10px;';
+  btnCerrar.textContent = '✅ Listo · Cerrar';
+  btnCerrar.onclick = () => {
+    document.getElementById('modal-migracion-fotos').remove();
+    location.reload();
+  };
+  progresoDiv.appendChild(btnCerrar);
+  
+  _migracionEnCurso = false;
+};
+</script>
+<!-- ============== /MIGRACIÓN DE FOTOS ============================ -->
 
 <!-- ============================================================ -->
 <!-- ====================== FIREBASE SYNC ======================== -->
