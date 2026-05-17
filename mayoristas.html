@@ -243,6 +243,7 @@ const state = {
 };
 
 window.STATE = state; // debug
+window.state = state; // 👈 alias para que el chatbot pueda leer al cliente logueado
 
 // ============== Sincronización en tiempo real ==============
 onSnapshot(docRef, (snap) => {
