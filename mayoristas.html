@@ -244,6 +244,12 @@ const state = {
 
 window.STATE = state; // debug
 window.state = state; // 👈 alias para que el chatbot pueda leer al cliente logueado
+// 👇 Funciones que necesita el chatbot para leer precios y refrescar UI
+setTimeout(() => {
+  window.getPrecioMay = getPrecioMay;
+  window.renderProductos = renderProductos;
+  window.actualizarCarritoFlotante = actualizarCarritoFlotante;
+}, 100);
 
 // ============== Sincronización en tiempo real ==============
 onSnapshot(docRef, (snap) => {
@@ -1131,11 +1137,13 @@ Si el cliente pide ayuda para decidir, sugerile opciones basado EXCLUSIVAMENTE e
 ## REGLAS IMPORTANTES
 1. ⚠️ Usá SOLO los IDs, nombres y precios que están en el catálogo arriba. Si te piden algo que no está, decílo claro: "No lo tenemos por ahora, pero te puedo ofrecer X".
 2. ⚠️ NUNCA inventes productos, marcas o precios. Si dudás, MIRÁ el catálogo otra vez.
-3. Si te preguntan algo no relacionado a cigarrillos/venta, redirigí amablemente.
-4. Mantené las respuestas BREVES y al punto (máximo 4-5 líneas salvo que pidan listas).
-5. Cuando muestres precios, formatealos con punto: $5.500 (no $5500).
-6. Si el cliente pregunta por algo (marca, tipo) que no tenés, ofrecé alternativas SIMILARES que SÍ tengas (sacando del catálogo de arriba).
-7. NO inventes funciones técnicas (no podés enviar el pedido vos, eso lo hace el cliente con el botón).
+3. ⚠️ NO EXPANDÁS NI INTERPRETÉS NOMBRES DE MARCAS. Si el cliente escribe "PIER", buscá EXACTAMENTE "PIER" en el catálogo, NO asumas que quiso decir "Pielroja" o cualquier otra cosa. Si el cliente escribe abreviado o con error, preguntale: "¿Te referís a [marca exacta del catálogo]?" antes de descartar.
+4. ⚠️ Cuando digas "no tenemos X", usá la MISMA palabra que escribió el cliente. Si escribió "PIER", decí "no encontré PIER en el catálogo" (NO "no tenemos Pielroja").
+5. Si te preguntan algo no relacionado a cigarrillos/venta, redirigí amablemente.
+6. Mantené las respuestas BREVES y al punto (máximo 4-5 líneas salvo que pidan listas).
+7. Cuando muestres precios, formatealos con punto: $5.500 (no $5500).
+8. Si el cliente pregunta por algo que no tenés, ofrecé alternativas SIMILARES que SÍ tengas (sacando del catálogo de arriba).
+9. NO inventes funciones técnicas (no podés enviar el pedido vos, eso lo hace el cliente con el botón).
 
 Estás atendiendo en este momento. Sé natural, eficiente y amable. Pero sobre todo: SOLO usá los productos del catálogo de arriba.`;
     
