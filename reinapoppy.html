@@ -669,11 +669,16 @@ select {
   padding-right: 24px !important;
 }
 
-/* ============= MÓDULO SURTIDOR (OCULTO EN LA REINA) ============= */
-#panel-surtidor { display: none !important; }
+/* ============= MÓDULO VENTAS (LA REINA) ============= */
+/* Ocultar solo los elementos de combustible, no toda la pantalla */
+#surtidores-grid { display: none !important; }
+.surt-grid { display: none !important; }
 #despacho-modal { display: none !important; }
 #combustible-modal { display: none !important; }
-.mbn-vender { display: none !important; }
+.surt-card { display: none !important; }
+#panel-surtidor .surt-section { display: none !important; }
+/* Ocultar título de combustibles */
+#panel-surtidor span:has(+ #surtidores-grid) { display: none !important; }
 .surt-grid{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
   gap:14px;margin-bottom:18px;
@@ -2430,7 +2435,7 @@ setInterval(() => {
 </div>
 
 <div class="tabs">
-  <!-- Surtidor eliminado para MiniMarket La Reina -->
+  <button class="tab active" onclick="showTab('surtidor',this)">🛒 Ventas</button>
   <button class="tab active" onclick="showTab('stock',this)">📦 Stock</button>
   <button class="tab" onclick="showTab('cigarrillos',this)">🚬 Cigarrillos</button>
   <button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button>
@@ -2521,20 +2526,20 @@ setInterval(() => {
 <!-- ====================== /PANEL DASHBOARD ======================= -->
 
 <!-- PANEL SURTIDOR -->
-<div id="panel-surtidor" class="panel" style="display:none!important">
+<div id="panel-surtidor" class="panel active">
 
   <!-- Cabecera tipo modal de venta -->
   <div style="background:linear-gradient(135deg,#0a1a2e,#1e3a5e);color:#fff;padding:14px 22px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 2px 10px rgba(10,26,46,0.2);">
     <div style="display:flex;align-items:center;gap:12px;">
       <span style="font-size:1.5rem;">⛽</span>
       <div>
-        <div style="font-size:1.15rem;font-weight:900;letter-spacing:1.2px;">VENTA SURTIDOR</div>
+        <div style="font-size:1.15rem;font-weight:900;letter-spacing:1.2px;">CAJA - VENTAS</div>
         <div style="font-size:0.72rem;opacity:0.75;" id="vu-fecha-cab">—</div>
       </div>
     </div>
     <div style="display:flex;gap:18px;align-items:center;font-size:0.85rem;">
       <div>
-        <span style="opacity:0.75;">Ventas hoy:</span>
+        <span style="opacity:0.75;">Ventas hoy 🛒:</span>
         <span id="desp-resumen-hoy" style="font-weight:800;color:#f5c500;margin-left:6px;">—</span>
       </div>
     </div>
@@ -2612,7 +2617,7 @@ setInterval(() => {
     <!-- Combustibles compactos -->
     <details style="background:#0f0f22;border-radius:10px;padding:0;margin-bottom:12px;overflow:hidden;">
       <summary style="padding:10px 14px;cursor:pointer;color:#f5c500;font-weight:800;font-size:0.85rem;letter-spacing:0.5px;display:flex;justify-content:space-between;align-items:center;">
-        <span>⛽ COMBUSTIBLES — Tocá un surtidor para despachar</span>
+        <span style="display:none">⛽ COMBUSTIBLES — Tocá un surtidor para despachar</span>
       </summary>
       <div style="padding:0 14px 12px 14px;">
         <div id="surtidores-grid" class="surt-grid"></div>
@@ -2940,7 +2945,7 @@ setInterval(() => {
 <!-- ZONA DE IMPRESIÓN (oculta normalmente, se muestra solo al imprimir) -->
 <div id="zona-impresion" style="display:none;"></div>
 
-<div id="panel-stock" class="panel active">
+<div id="panel-stock" class="panel">
   <!-- Filtro por familia -->
   <div style="background:#f5f5f5;border:1px solid #c8c8c8;border-radius:6px;padding:10px 14px;margin-bottom:12px;">
     <div style="font-size:0.78rem;font-weight:700;color:#444;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📂 Filtrar por familia / categoría</div>
