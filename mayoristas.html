@@ -966,8 +966,9 @@ document.getElementById('login-wsp').addEventListener('keydown', e => {
   // URL del proxy en Cloudflare Workers
   const WORKER_URL = 'https://donramon-chatbot.poppycespedes3.workers.dev';
   
-  // Modelo de Claude (Haiku = más económico)
-  const MODELO = 'claude-haiku-4-5-20251001';
+  // Modelo de Claude (Sonnet 4.6 = más inteligente, no inventa productos)
+  // Para volver al más barato: 'claude-haiku-4-5-20251001'
+  const MODELO = 'claude-sonnet-4-6';
   
   // Estado del chat
   let historial = []; // mensajes para enviar a la API
@@ -1079,19 +1080,41 @@ ${carrito.length === 0 ? 'Carrito vacío' : carrito.map(i => `• ${i.cantidad} 
 ### 1. RESPONDER consultas
 Sobre productos, precios, stock, marcas disponibles. SIEMPRE chequeando contra el catálogo de arriba.
 
-### 2. AGREGAR PRODUCTOS AL CARRITO (función especial)
-Cuando el cliente quiere comprar algo, INCLUÍ en tu respuesta una etiqueta especial:
+### 2. AGREGAR PRODUCTOS AL CARRITO (⚠️ FUNCIÓN CRÍTICA ⚠️)
+
+🚨 REGLA ABSOLUTA: Para que un producto APAREZCA REALMENTE en el carrito del cliente, OBLIGATORIO escribir esta etiqueta especial en tu respuesta:
 
 [AGREGAR_CARRITO:ID_PRODUCTO:CANTIDAD]
 
-Por ejemplo, si el cliente dice "mandame 10 marlboro red ks", y el ID de Marlboro Red KS es 77993483, respondé algo como:
+SIN esa etiqueta, los productos NO SE AGREGAN. El sistema NO te cree de palabra.
+Si decís "ya te lo agrego" pero NO escribís la etiqueta → el carrito queda VACÍO y el cliente queda esperando productos que nunca llegaron. Esto es lo PEOR que puede pasar.
+
+✅ EJEMPLO CORRECTO:
+Cliente: "agregame 10 marlboro red ks"
+Bot:
 "¡Perfecto! Agrego 10 unidades de Marlboro Red KS X 20.
 [AGREGAR_CARRITO:77993483:10]
 Quedaron en el carrito. ¿Algo más?"
 
-Podés agregar VARIOS productos en un mensaje:
+✅ EJEMPLO CORRECTO con VARIOS productos:
+Cliente: "10 marlboro red y 5 lucky strike"
+Bot:
+"¡Listo! Agrego todo:
 [AGREGAR_CARRITO:77993483:10]
 [AGREGAR_CARRITO:77981813:5]
+Ya están en el carrito. ¿Te sumo algo más?"
+
+❌ EJEMPLO INCORRECTO (FATAL — NUNCA HAGAS ESTO):
+"¡Perfecto! Agregué 10 Marlboro Red al carrito. ¿Algo más?"
+(le falta la etiqueta → los productos NO se agregaron → cliente engañado)
+
+❌ TAMBIÉN INCORRECTO:
+"Tu carrito tiene 10 Camel y 10 Chester, total $126.000"
+(estás INVENTANDO el carrito; el carrito real lo ves en la sección "CARRITO ACTUAL DEL CLIENTE" de este prompt, NO te lo imagines)
+
+🔑 REGLA DE ORO: SIEMPRE que digas "agrego", "te sumo", "te pongo", "queda en el carrito" → INMEDIATAMENTE después debe ir [AGREGAR_CARRITO:ID:CANT]. Sin excepción.
+
+🔑 OTRA REGLA: Solo confías en lo que dice "CARRITO ACTUAL DEL CLIENTE" de este prompt. NO inventes productos que están en el carrito.
 
 ### 3. QUITAR del carrito (función especial)
 Si el cliente quiere sacar algo:
