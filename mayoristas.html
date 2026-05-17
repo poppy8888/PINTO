@@ -758,17 +758,24 @@ document.getElementById('login-wsp').addEventListener('keydown', e => {
     display: inline-block;
   }
   .chatbot-cerrar {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.25);
     color: #fff;
-    border: none;
-    width: 32px;
-    height: 32px;
+    border: 2px solid rgba(255,255,255,0.35);
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
   }
-  .chatbot-cerrar:hover { background: rgba(255,255,255,0.3); }
+  .chatbot-cerrar:hover, .chatbot-cerrar:active { 
+    background: rgba(255,255,255,0.4); 
+    transform: scale(1.05);
+  }
   
   /* Cuerpo del chat */
   .chatbot-body {
@@ -1019,6 +1026,8 @@ document.getElementById('login-wsp').addEventListener('keydown', e => {
     return getCarrito().reduce((s, i) => s + i.precio * i.cantidad, 0);
   }
   
+  // Construye prompt en DOS partes: estática (cacheable) y dinámica
+  // La estática (catálogo + reglas) se cachea para ahorrar hasta 90% en input
   function construirSistemaPrompt(){
     const productos = getProductosDisponibles();
     const cliente = getClienteActual();
@@ -1050,7 +1059,8 @@ document.getElementById('login-wsp').addEventListener('keydown', e => {
       return `• ${p.nombre} — $${precio}`;
     }).join('\n');
     
-    let prompt = `Sos el "Asistente Don Ramón", un vendedor virtual profesional pero cercano de la Estación de Servicio Don Ramón, ubicada en Argentina. Atendés a clientes MAYORISTAS que quieren comprar cigarrillos al por mayor.
+    // ===== PARTE 1: ESTÁTICA (cacheable, no cambia mucho) =====
+    const promptEstatico = `Sos el "Asistente Don Ramón", un vendedor virtual profesional pero cercano de la Estación de Servicio Don Ramón, ubicada en Argentina. Atendés a clientes MAYORISTAS que quieren comprar cigarrillos al por mayor.
 
 ## TU PERSONALIDAD
 - Profesional pero cálido y cercano
@@ -1072,14 +1082,6 @@ Cuando te pregunten "cuál es el más barato" o "el más económico", respondé 
 
 ## ⭐ LOS 5 PREMIUM / MÁS CAROS
 ${top5Caros}
-
-## INFORMACIÓN DEL CLIENTE ACTUAL
-${cliente ? `Cliente: ${cliente.nombre || 'sin nombre'}
-DNI: ${cliente.dni || 'sin DNI'}` : 'No hay cliente logueado'}
-
-## CARRITO ACTUAL DEL CLIENTE
-${carrito.length === 0 ? 'Carrito vacío' : carrito.map(i => `• ${i.cantidad} x ${i.nombre} = $${i.precio * i.cantidad}`).join('\n')}
-**Total parcial: $${total}**
 
 ## QUÉ PODÉS HACER
 
@@ -1147,7 +1149,20 @@ Si el cliente pide ayuda para decidir, sugerile opciones basado EXCLUSIVAMENTE e
 
 Estás atendiendo en este momento. Sé natural, eficiente y amable. Pero sobre todo: SOLO usá los productos del catálogo de arriba.`;
     
-    return prompt;
+    // ===== PARTE 2: DINÁMICA (cambia cada mensaje, NO se cachea) =====
+    const promptDinamico = `## INFORMACIÓN DEL CLIENTE ACTUAL
+${cliente ? `Cliente: ${cliente.nombre || 'sin nombre'}
+DNI: ${cliente.dni || 'sin DNI'}` : 'No hay cliente logueado'}
+
+## CARRITO ACTUAL DEL CLIENTE
+${carrito.length === 0 ? 'Carrito vacío' : carrito.map(i => `• ${i.cantidad} x ${i.nombre} = $${i.precio * i.cantidad}`).join('\n')}
+**Total parcial: $${total}**`;
+    
+    // Devolvemos array con la estructura que entiende Anthropic para caching
+    return [
+      { type: 'text', text: promptEstatico, cache_control: { type: 'ephemeral' } },
+      { type: 'text', text: promptDinamico }
+    ];
   }
   
   function fmt(n){
@@ -1279,10 +1294,18 @@ Estás atendiendo en este momento. Sé natural, eficiente y amable. Pero sobre t
   
   // ====================== INTERFAZ PÚBLICA ======================
   
+  // Flag para saber si estamos cerrando por el botón "atrás" del celular
+  let cerrandoPorAtras = false;
+  
   window.Chatbot = {
     abrir(){
       document.getElementById('chatbot-window').classList.add('show');
       document.getElementById('chatbot-badge').style.display = 'none';
+      
+      // 📱 Capturar botón "atrás" del celular para que cierre el chat (no salga de la página)
+      try {
+        history.pushState({ chatbotAbierto: true }, '', '');
+      } catch(e){ /* ignorar si falla */ }
       
       // Saludo inicial solo la primera vez
       if(!saludoMostrado){
@@ -1303,6 +1326,12 @@ Estás atendiendo en este momento. Sé natural, eficiente y amable. Pero sobre t
     
     cerrar(){
       document.getElementById('chatbot-window').classList.remove('show');
+      // Si cerramos manualmente (con la X), volvemos atrás en el historial
+      // para limpiar el estado que metimos al abrir
+      if(!cerrandoPorAtras && history.state && history.state.chatbotAbierto){
+        try { history.back(); } catch(e){}
+      }
+      cerrandoPorAtras = false;
     },
     
     async enviar(){
@@ -1376,6 +1405,15 @@ Estás atendiendo en este momento. Sé natural, eficiente y amable. Pero sobre t
         if(e.key === 'Enter') window.Chatbot.enviar();
       });
     }
+    
+    // 📱 Capturar el botón "atrás" del celular: cierra el chat en vez de salir de la página
+    window.addEventListener('popstate', (e) => {
+      const ventana = document.getElementById('chatbot-window');
+      if(ventana && ventana.classList.contains('show')){
+        cerrandoPorAtras = true;
+        window.Chatbot.cerrar();
+      }
+    });
   }
   
   if(document.readyState === 'loading'){
