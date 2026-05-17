@@ -655,5 +655,675 @@ document.getElementById('login-wsp').addEventListener('keydown', e => {
   if(e.key === 'Enter') document.getElementById('login-clave').focus();
 });
 </script>
+
+<!-- ============================================================ -->
+<!-- ================= ASISTENTE DON RAMÓN (CHATBOT) ============= -->
+<!-- ============================================================ -->
+<style>
+  /* Botón flotante */
+  .chatbot-fab {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #d4a020;
+    border: 3px solid #d4a020;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 999998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    transition: transform 0.2s;
+  }
+  .chatbot-fab:hover { transform: scale(1.1); }
+  .chatbot-fab.show { display: flex; }
+  .chatbot-fab .badge-nuevo {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+  }
+  
+  /* Ventana del chat */
+  .chatbot-window {
+    position: fixed;
+    bottom: 95px;
+    left: 20px;
+    width: min(380px, calc(100vw - 40px));
+    height: min(560px, calc(100vh - 130px));
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    z-index: 999999;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  }
+  .chatbot-window.show { display: flex; animation: slideUp 0.3s; }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  
+  /* Header del chat */
+  .chatbot-header {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #fff;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chatbot-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #d4a020;
+    color: #1a1a2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+  }
+  .chatbot-titulo { flex: 1; }
+  .chatbot-titulo .nombre { font-weight: 800; font-size: 15px; }
+  .chatbot-titulo .estado { font-size: 11px; opacity: 0.85; display: flex; align-items: center; gap: 4px; }
+  .chatbot-titulo .estado::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #2ecc71;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .chatbot-cerrar {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .chatbot-cerrar:hover { background: rgba(255,255,255,0.3); }
+  
+  /* Cuerpo del chat */
+  .chatbot-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Burbujas */
+  .chat-msg {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  .chat-msg.bot {
+    background: #fff;
+    color: #1a1a2e;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .chat-msg.user {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-msg.system {
+    background: #fff3cd;
+    color: #856404;
+    align-self: center;
+    font-size: 12px;
+    font-style: italic;
+    padding: 6px 12px;
+    border-radius: 12px;
+  }
+  
+  /* Indicador "escribiendo" */
+  .chat-typing {
+    align-self: flex-start;
+    background: #fff;
+    padding: 12px 16px;
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: none;
+  }
+  .chat-typing.show { display: block; }
+  .chat-typing span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #999;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typing 1.4s infinite;
+  }
+  .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+  .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing { 
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+  
+  /* Input */
+  .chatbot-input {
+    padding: 12px;
+    background: #fff;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 8px;
+  }
+  .chatbot-input input {
+    flex: 1;
+    border: 2px solid #eee;
+    border-radius: 22px;
+    padding: 10px 14px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  .chatbot-input input:focus { border-color: #d4a020; }
+  .chatbot-input button {
+    background: linear-gradient(135deg, #d4a020, #e8c84a);
+    color: #1a1a2e;
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .chatbot-input button:disabled { opacity: 0.5; cursor: not-allowed; }
+  
+  /* Acciones rápidas */
+  .chat-acciones {
+    padding: 8px 12px;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+  }
+  .chat-accion-btn {
+    background: #f0f0f0;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .chat-accion-btn:hover { background: #d4a020; color: #1a1a2e; }
+  
+  /* Items de producto que el bot puede mostrar */
+  .chat-prod-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 6px 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .chat-prod-card .nombre { font-weight: 700; font-size: 13px; color: #1a1a2e; flex: 1; }
+  .chat-prod-card .precio { color: #16a085; font-weight: 800; font-size: 13px; }
+  .chat-prod-card button {
+    background: #16a085;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  
+  @media (max-width: 480px) {
+    .chatbot-window {
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 100vh;
+      border-radius: 0;
+      max-height: none;
+    }
+    .chatbot-fab { bottom: 80px; }
+  }
+</style>
+
+<!-- Botón flotante -->
+<button class="chatbot-fab" id="chatbot-fab" onclick="window.Chatbot.abrir()" title="Asistente Don Ramón">
+  💬
+  <span class="badge-nuevo" id="chatbot-badge" style="display:none;">1</span>
+</button>
+
+<!-- Ventana del chat -->
+<div class="chatbot-window" id="chatbot-window">
+  <div class="chatbot-header">
+    <div class="chatbot-avatar">👑</div>
+    <div class="chatbot-titulo">
+      <div class="nombre">Asistente Don Ramón</div>
+      <div class="estado">en línea</div>
+    </div>
+    <button class="chatbot-cerrar" onclick="window.Chatbot.cerrar()" title="Cerrar">✕</button>
+  </div>
+  <div class="chatbot-body" id="chatbot-body"></div>
+  <div class="chat-typing" id="chatbot-typing">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="chat-acciones" id="chatbot-acciones">
+    <button class="chat-accion-btn" onclick="window.Chatbot.enviarTexto('¿Qué marcas tenés disponibles?')">📋 Ver marcas</button>
+    <button class="chat-accion-btn" onclick="window.Chatbot.enviarTexto('¿Cuáles son los más vendidos?')">🔥 Más vendidos</button>
+    <button class="chat-accion-btn" onclick="window.Chatbot.enviarTexto('¿Cuáles son las formas de pago?')">💳 Formas de pago</button>
+  </div>
+  <div class="chatbot-input">
+    <input type="text" id="chatbot-input" placeholder="Escribí tu pregunta..." autocomplete="off">
+    <button onclick="window.Chatbot.enviar()" id="chatbot-send">➤</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 🤖 ASISTENTE DON RAMÓN - Chatbot con Claude API
+// ============================================================
+
+(function(){
+  // URL del proxy en Cloudflare Workers
+  const WORKER_URL = 'https://donramon-chatbot.poppycespedes3.workers.dev';
+  
+  // Modelo de Claude (Haiku = más económico)
+  const MODELO = 'claude-haiku-4-5-20251001';
+  
+  // Estado del chat
+  let historial = []; // mensajes para enviar a la API
+  let saludoMostrado = false;
+  let enviando = false;
+  
+  // ====================== UTILS ======================
+  
+  function getProductosDisponibles(){
+    if(!window.state || !window.state.productos) return [];
+    return window.state.productos.filter(p => {
+      const esCig = p.esCigarrillo === true || 
+                    (p.familia && p.familia.toLowerCase().includes('cigarrillo'));
+      if(!esCig) return false;
+      const precio = window.getPrecioMay ? window.getPrecioMay(p) : 0;
+      return precio > 0;
+    });
+  }
+  
+  function getClienteActual(){
+    return (window.state && window.state.clienteActual) || null;
+  }
+  
+  function getCarrito(){
+    if(!window.state || !window.state.carrito) return [];
+    const items = [];
+    for(const id in window.state.carrito){
+      const cant = window.state.carrito[id];
+      const prod = window.state.productos.find(p => Number(p.id) === Number(id));
+      if(prod){
+        items.push({
+          nombre: prod.nombre || 'Sin nombre',
+          cantidad: cant,
+          precio: window.getPrecioMay ? window.getPrecioMay(prod) : 0
+        });
+      }
+    }
+    return items;
+  }
+  
+  function totalCarrito(){
+    return getCarrito().reduce((s, i) => s + i.precio * i.cantidad, 0);
+  }
+  
+  function construirSistemaPrompt(){
+    const productos = getProductosDisponibles();
+    const cliente = getClienteActual();
+    const carrito = getCarrito();
+    const total = totalCarrito();
+    
+    // Lista de productos para el bot (compacta)
+    const listaProductos = productos.map(p => {
+      const precio = window.getPrecioMay ? window.getPrecioMay(p) : 0;
+      return `ID:${p.id} | ${p.nombre} | $${precio}`;
+    }).join('\n');
+    
+    let prompt = `Sos el "Asistente Don Ramón", un vendedor virtual profesional pero cercano de la Estación de Servicio Don Ramón, ubicada en Argentina. Atendés a clientes MAYORISTAS que quieren comprar cigarrillos al por mayor.
+
+## TU PERSONALIDAD
+- Profesional pero cálido y cercano
+- Hablás en español argentino, informal pero respetuoso (usás "vos" no "tú")
+- Sos eficiente: respondés directo, sin vueltas
+- Sos amable y servicial
+- Tu objetivo es VENDER y ayudar al cliente
+
+## TU CATÁLOGO DE CIGARRILLOS (con precios mayoristas Lista 2)
+${listaProductos}
+
+## INFORMACIÓN DEL CLIENTE ACTUAL
+${cliente ? `Cliente: ${cliente.nombre || 'sin nombre'}
+DNI: ${cliente.dni || 'sin DNI'}` : 'No hay cliente logueado'}
+
+## CARRITO ACTUAL DEL CLIENTE
+${carrito.length === 0 ? 'Carrito vacío' : carrito.map(i => `• ${i.cantidad} x ${i.nombre} = $${i.precio * i.cantidad}`).join('\n')}
+**Total parcial: $${total}**
+
+## QUÉ PODÉS HACER
+
+### 1. RESPONDER consultas
+Sobre productos, precios, stock, marcas disponibles.
+
+### 2. AGREGAR PRODUCTOS AL CARRITO (función especial)
+Cuando el cliente quiere comprar algo, INCLUÍ en tu respuesta una etiqueta especial:
+
+[AGREGAR_CARRITO:ID_PRODUCTO:CANTIDAD]
+
+Por ejemplo, si el cliente dice "mandame 10 marlboro red ks", y el ID de Marlboro Red KS es 77993483, respondé algo como:
+"¡Perfecto! Agrego 10 unidades de Marlboro Red KS X 20.
+[AGREGAR_CARRITO:77993483:10]
+Quedaron en el carrito. ¿Algo más?"
+
+Podés agregar VARIOS productos en un mensaje:
+[AGREGAR_CARRITO:77993483:10]
+[AGREGAR_CARRITO:77981813:5]
+
+### 3. QUITAR del carrito (función especial)
+Si el cliente quiere sacar algo:
+[QUITAR_CARRITO:ID_PRODUCTO]
+
+### 4. RECOMENDAR productos
+Si el cliente pide ayuda para decidir, sugiriéndole opciones basado en el catálogo.
+
+### 5. INFORMAR sobre la compra
+- Formas de pago: Efectivo, Transferencia, Cheque
+- Horario de retiro: de 8:00 a 23:00 hs
+- Confirmar el pedido le corresponde al cliente desde el botón del carrito
+
+## REGLAS IMPORTANTES
+1. Usá SOLO los IDs y precios que están en el catálogo arriba. Si te piden algo que no está, decílo claro.
+2. NUNCA inventes productos o precios.
+3. Si te preguntan algo no relacionado a cigarrillos/venta, redirigí amablemente.
+4. Mantené las respuestas BREVES y al punto (máximo 4-5 líneas salvo que pidan listas).
+5. Cuando muestres precios, formatealos con punto: $5.500 (no $5500).
+6. Si el cliente pregunta por algo (marca, tipo) que no tenés, ofrecé alternativas similares.
+7. NO inventes funciones técnicas (no podés enviar el pedido vos, eso lo hace el cliente con el botón).
+
+Estás atendiendo en este momento. Sé natural, eficiente y amable.`;
+    
+    return prompt;
+  }
+  
+  function fmt(n){
+    return new Intl.NumberFormat('es-AR').format(Math.round(n));
+  }
+  
+  // ====================== RENDERIZADO ======================
+  
+  function addMsg(texto, tipo){
+    const body = document.getElementById('chatbot-body');
+    const msg = document.createElement('div');
+    msg.className = 'chat-msg ' + tipo;
+    
+    // Procesar texto para mostrar precios mejor
+    let textoLimpio = texto.replace(/\[AGREGAR_CARRITO:[^\]]+\]/g, '').replace(/\[QUITAR_CARRITO:[^\]]+\]/g, '').trim();
+    msg.textContent = textoLimpio;
+    
+    body.appendChild(msg);
+    body.scrollTop = body.scrollHeight;
+    return msg;
+  }
+  
+  function showTyping(show){
+    const t = document.getElementById('chatbot-typing');
+    if(show){
+      t.classList.add('show');
+      document.getElementById('chatbot-body').scrollTop = 999999;
+    } else {
+      t.classList.remove('show');
+    }
+  }
+  
+  // ====================== PROCESAR ACCIONES DEL BOT ======================
+  
+  function procesarAcciones(textoBot){
+    // Buscar [AGREGAR_CARRITO:ID:CANT]
+    const regexAgregar = /\[AGREGAR_CARRITO:(\d+):(\d+)\]/g;
+    let m;
+    let agregados = 0;
+    while((m = regexAgregar.exec(textoBot)) !== null){
+      const id = Number(m[1]);
+      const cant = Number(m[2]);
+      const prod = window.state.productos.find(p => Number(p.id) === id);
+      if(prod && cant > 0){
+        window.state.carrito[id] = (window.state.carrito[id] || 0) + cant;
+        agregados += cant;
+      }
+    }
+    
+    // Buscar [QUITAR_CARRITO:ID]
+    const regexQuitar = /\[QUITAR_CARRITO:(\d+)\]/g;
+    let quitados = 0;
+    while((m = regexQuitar.exec(textoBot)) !== null){
+      const id = Number(m[1]);
+      if(window.state.carrito[id]){
+        delete window.state.carrito[id];
+        quitados++;
+      }
+    }
+    
+    if(agregados > 0 || quitados > 0){
+      // Actualizar UI
+      if(typeof window.renderProductos === 'function') window.renderProductos();
+      if(typeof window.actualizarCarritoFlotante === 'function') window.actualizarCarritoFlotante();
+      
+      // Mostrar mensaje del sistema
+      let txt = '';
+      if(agregados > 0) txt += `🛒 +${agregados} agregado(s) al carrito · Total: $${fmt(totalCarrito())}`;
+      if(quitados > 0) txt += (txt?' · ':'') + `🗑️ ${quitados} quitado(s)`;
+      
+      const sysMsg = document.createElement('div');
+      sysMsg.className = 'chat-msg system';
+      sysMsg.textContent = txt;
+      document.getElementById('chatbot-body').appendChild(sysMsg);
+    }
+  }
+  
+  // ====================== LLAMAR A CLAUDE ======================
+  
+  async function llamarClaude(mensajeUsuario){
+    try {
+      // Construir el mensaje
+      historial.push({
+        role: 'user',
+        content: mensajeUsuario
+      });
+      
+      // Mantener solo últimos 20 mensajes para no gastar mucho
+      const historialCorto = historial.slice(-20);
+      
+      const payload = {
+        model: MODELO,
+        max_tokens: 600,
+        system: construirSistemaPrompt(),
+        messages: historialCorto
+      };
+      
+      const resp = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await resp.json();
+      
+      if(data.error){
+        throw new Error(data.error.message || data.error);
+      }
+      
+      if(!data.content || !data.content[0]){
+        throw new Error('Respuesta vacía del bot');
+      }
+      
+      const respuestaBot = data.content[0].text || '';
+      
+      // Agregar al historial
+      historial.push({
+        role: 'assistant',
+        content: respuestaBot
+      });
+      
+      return respuestaBot;
+      
+    } catch(err){
+      console.error('Error chatbot:', err);
+      return `⚠️ Disculpá, tuve un problema técnico. Intentá de nuevo en un momento.\n\n(${err.message || err})`;
+    }
+  }
+  
+  // ====================== INTERFAZ PÚBLICA ======================
+  
+  window.Chatbot = {
+    abrir(){
+      document.getElementById('chatbot-window').classList.add('show');
+      document.getElementById('chatbot-badge').style.display = 'none';
+      
+      // Saludo inicial solo la primera vez
+      if(!saludoMostrado){
+        saludoMostrado = true;
+        const cli = getClienteActual();
+        const nombre = (cli && cli.nombre) ? cli.nombre.split(' ')[0] : '';
+        const saludo = nombre ? 
+          `¡Hola ${nombre}! 👋 Soy el Asistente Don Ramón. Estoy acá para ayudarte con tu pedido.\n\n¿En qué te puedo ayudar hoy? Puedo:\n• Mostrarte qué marcas tenemos\n• Recomendarte productos\n• Armar tu pedido\n\nProbá tocando algún botón de abajo o escribime tu consulta.` :
+          `¡Hola! 👋 Soy el Asistente Don Ramón. Estoy acá para ayudarte con tu pedido.\n\n¿En qué te puedo ayudar?`;
+        addMsg(saludo, 'bot');
+      }
+      
+      setTimeout(() => {
+        const input = document.getElementById('chatbot-input');
+        if(input && window.innerWidth > 480) input.focus();
+      }, 300);
+    },
+    
+    cerrar(){
+      document.getElementById('chatbot-window').classList.remove('show');
+    },
+    
+    async enviar(){
+      if(enviando) return;
+      const input = document.getElementById('chatbot-input');
+      const texto = input.value.trim();
+      if(!texto) return;
+      input.value = '';
+      this.enviarTexto(texto);
+    },
+    
+    async enviarTexto(texto){
+      if(enviando) return;
+      enviando = true;
+      
+      const sendBtn = document.getElementById('chatbot-send');
+      if(sendBtn) sendBtn.disabled = true;
+      
+      // Mostrar mensaje del usuario
+      addMsg(texto, 'user');
+      
+      // Mostrar "escribiendo..."
+      showTyping(true);
+      
+      // Llamar a Claude
+      const respuesta = await llamarClaude(texto);
+      
+      showTyping(false);
+      
+      // Procesar acciones del bot (agregar/quitar carrito)
+      procesarAcciones(respuesta);
+      
+      // Mostrar respuesta del bot
+      addMsg(respuesta, 'bot');
+      
+      enviando = false;
+      if(sendBtn) sendBtn.disabled = false;
+    },
+    
+    reset(){
+      historial = [];
+      saludoMostrado = false;
+      document.getElementById('chatbot-body').innerHTML = '';
+    }
+  };
+  
+  // ====================== INICIALIZACIÓN ======================
+  
+  function init(){
+    // Mostrar botón flotante solo cuando el cliente está logueado
+    const obs = setInterval(() => {
+      const fab = document.getElementById('chatbot-fab');
+      if(!fab) return;
+      const cli = getClienteActual();
+      if(cli){
+        fab.classList.add('show');
+        // Badge animado si nunca abrió el chat
+        if(!saludoMostrado){
+          const badge = document.getElementById('chatbot-badge');
+          if(badge) badge.style.display = 'flex';
+        }
+      } else {
+        fab.classList.remove('show');
+      }
+    }, 1000);
+    
+    // Enter para enviar
+    const input = document.getElementById('chatbot-input');
+    if(input){
+      input.addEventListener('keydown', e => {
+        if(e.key === 'Enter') window.Chatbot.enviar();
+      });
+    }
+  }
+  
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+<!-- ================= /ASISTENTE DON RAMÓN ====================== -->
+
 </body>
 </html>
