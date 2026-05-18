@@ -17708,17 +17708,53 @@ window.vueltoConfirmar = vueltoConfirmar;
 .cam-header{background:linear-gradient(180deg,#1a1a1a,#2a2a2a);color:#f5c500;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:0.95rem;border-bottom:2px solid #f5c500;}
 .cam-cerrar{background:rgba(255,255,255,0.08);border:1px solid #444;color:#fff;width:30px;height:28px;border-radius:4px;cursor:pointer;font-size:0.9rem;line-height:1;}
 .cam-cerrar:hover{background:#c0392b;border-color:#c0392b;}
-.cam-body{position:relative;background:#000;display:block;min-width:300px;min-height:280px;width:100%;}
+.cam-body{position:relative;background:#000;display:block;min-width:300px;min-height:280px;width:100%;overflow:hidden;}
 #cam-video{display:block !important;width:100%;height:auto;min-height:280px;max-height:62vh;background:#000;object-fit:cover;
   /* GPU acceleration: arregla "stream activo pero video negro" en muchos Android WebViews y iOS Safari */
   transform:translateZ(0);-webkit-transform:translateZ(0);
   /* Forzar visibilidad incluso si algún CSS de la página tiene reglas globales */
   visibility:visible !important;opacity:1 !important;
+  position:relative;z-index:1;
 }
-.cam-overlay{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;z-index:2;}
-#cam-video{position:relative;z-index:1;}
-.cam-frame{width:78%;max-width:340px;height:110px;border:3px solid #f5c500;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.4);position:relative;overflow:hidden;}
-.cam-frame::before{content:"";position:absolute;left:8px;right:8px;top:50%;height:2px;background:#f5c500;box-shadow:0 0 10px #f5c500,0 0 18px #f5c500;animation:cam-scan 1.8s ease-in-out infinite;}
+/* === APUNTADOR (marco amarillo + línea de escaneo) === */
+.cam-overlay{
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  z-index:10;
+}
+.cam-frame{
+  width:78%;max-width:340px;height:110px;
+  border:4px solid #f5c500;
+  border-radius:10px;
+  position:relative;
+  overflow:hidden;
+  /* Viñeta oscura alrededor — usamos outline en vez de box-shadow gigante,
+     que algunos navegadores móviles recortan o no renderizan */
+  box-shadow:0 0 0 9999px rgba(0,0,0,0.45),0 0 12px rgba(245,197,0,0.7);
+}
+/* Esquinas resaltadas tipo escáner (más visibles que solo un borde) */
+.cam-frame::after{
+  content:"";position:absolute;inset:-4px;border-radius:10px;pointer-events:none;
+  background:
+    linear-gradient(#f5c500,#f5c500) top left/22px 4px no-repeat,
+    linear-gradient(#f5c500,#f5c500) top left/4px 22px no-repeat,
+    linear-gradient(#f5c500,#f5c500) top right/22px 4px no-repeat,
+    linear-gradient(#f5c500,#f5c500) top right/4px 22px no-repeat,
+    linear-gradient(#f5c500,#f5c500) bottom left/22px 4px no-repeat,
+    linear-gradient(#f5c500,#f5c500) bottom left/4px 22px no-repeat,
+    linear-gradient(#f5c500,#f5c500) bottom right/22px 4px no-repeat,
+    linear-gradient(#f5c500,#f5c500) bottom right/4px 22px no-repeat;
+}
+/* Línea de escaneo animada */
+.cam-frame::before{
+  content:"";position:absolute;left:8px;right:8px;top:50%;height:2px;
+  background:#f5c500;
+  box-shadow:0 0 10px #f5c500,0 0 18px #f5c500;
+  animation:cam-scan 1.8s ease-in-out infinite;
+  z-index:1;
+}
 @keyframes cam-scan{0%{transform:translateY(-46px);}50%{transform:translateY(46px);}100%{transform:translateY(-46px);}}
 #cam-status{background:#1a1a1a;color:#fff;padding:10px 16px;text-align:center;font-size:0.92rem;min-height:24px;font-weight:600;letter-spacing:0.2px;border-top:1px solid #333;}
 .cam-footer{background:linear-gradient(180deg,#1a1a1a,#0f0f0f);padding:9px 12px;display:flex;gap:8px;border-top:1px solid #333;}
