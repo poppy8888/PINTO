@@ -17248,9 +17248,21 @@ window.BACKUPS = {
         </table>
       </div>
       
-      <div class="mvp-input-row">
-        <input type="text" id="mvp-codigo" placeholder="🔍 Código de barras o nombre del producto..." autocomplete="off">
-        <button onclick="mvpAgregarProducto()">+ Agregar</button>
+      <!-- ESCÁNER DE CÓDIGO DE BARRAS -->
+      <div style="background:#e8f5e9;border:2px solid #27ae60;border-radius:10px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:0.7rem;font-weight:800;color:#1f7c3e;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">📱 Escáner Código de Barras</div>
+        <input type="text" id="mvp-escaner" placeholder="Pasá el escáner por el código..." autocomplete="off" style="width:100%;padding:12px 14px;border:2px solid #27ae60;border-radius:8px;font-size:1.05rem;outline:none;font-weight:700;font-family:monospace;text-align:center;">
+        <div id="mvp-escaner-msg" style="font-size:0.75rem;color:#666;margin-top:6px;text-align:center;min-height:18px;"></div>
+      </div>
+      
+      <!-- BÚSQUEDA POR NOMBRE -->
+      <div style="background:#e3f2fd;border:2px solid #2196f3;border-radius:10px;padding:12px;">
+        <div style="font-size:0.7rem;font-weight:800;color:#1565c0;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🔍 Buscar Manual por Nombre</div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="mvp-buscar" placeholder="Escribí el nombre del producto..." autocomplete="off" style="flex:1;padding:11px 14px;border:2px solid #2196f3;border-radius:8px;font-size:0.95rem;outline:none;">
+          <button onclick="mvpBuscarManual()" style="padding:11px 22px;background:#2196f3;color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:0.9rem;">🔍 Buscar</button>
+        </div>
+        <div id="mvp-buscar-resultados" style="margin-top:10px;max-height:180px;overflow-y:auto;"></div>
       </div>
     </div>
     
@@ -17293,8 +17305,15 @@ function abrirModalVentasPOS(){
   mvpRender();
   document.getElementById('modal-ventas-pos').classList.add('show');
   setTimeout(() => {
-    const inp = document.getElementById('mvp-codigo');
+    const inp = document.getElementById('mvp-escaner');
     if(inp) inp.focus();
+    // Limpiar campos de búsqueda
+    const buscar = document.getElementById('mvp-buscar');
+    if(buscar) buscar.value = '';
+    const resultados = document.getElementById('mvp-buscar-resultados');
+    if(resultados) resultados.innerHTML = '';
+    const msg = document.getElementById('mvp-escaner-msg');
+    if(msg) msg.textContent = '';
   }, 200);
 }
 
@@ -17307,27 +17326,137 @@ function cerrarModalVentasPOS(){
 }
 
 function mvpAgregarProducto(){
-  const inp = document.getElementById('mvp-codigo');
-  const texto = inp.value.trim().toLowerCase();
-  if(!texto) return;
+  // Esta función ya no se usa directamente, pero la dejamos por si algo la llama
+  const inp = document.getElementById('mvp-escaner');
+  if(inp) mvpEscanear(inp.value);
+}
+
+// ===== ESCÁNER (busca SOLO por código de barras) =====
+function mvpEscanear(codigoRaw){
+  const codigo = (codigoRaw || '').toString().trim();
+  const inp = document.getElementById('mvp-escaner');
+  const msg = document.getElementById('mvp-escaner-msg');
+  
+  if(!codigo){
+    if(msg) msg.textContent = '';
+    return;
+  }
+  
+  if(!window.productos || !Array.isArray(window.productos) || window.productos.length === 0){
+    if(msg){
+      msg.style.color = '#c0392b';
+      msg.textContent = '⚠️ No hay productos cargados en el sistema';
+    }
+    if(inp) inp.value = '';
+    return;
+  }
+  
+  // Normalizar el código: trim, sin espacios, sin guiones
+  const codNorm = codigo.replace(/\s+/g, '').replace(/-/g, '').toLowerCase();
+  
+  // Buscar producto por código (varias formas)
+  let prod = window.productos.find(p => {
+    const cb1 = ((p.codigoBarra || '') + '').replace(/\s+/g, '').replace(/-/g, '').toLowerCase();
+    const cb2 = ((p.barcode || '') + '').replace(/\s+/g, '').replace(/-/g, '').toLowerCase();
+    const id  = ((p.id || '') + '').toLowerCase();
+    return cb1 === codNorm || cb2 === codNorm || id === codNorm;
+  });
+  
+  if(!prod){
+    // Si no lo encuentra exacto, intentar coincidencia parcial
+    prod = window.productos.find(p => {
+      const cb1 = ((p.codigoBarra || '') + '').replace(/\s+/g, '').toLowerCase();
+      return cb1 && (cb1.endsWith(codNorm) || codNorm.endsWith(cb1));
+    });
+  }
+  
+  if(!prod){
+    if(msg){
+      msg.style.color = '#c0392b';
+      msg.innerHTML = `❌ Código <strong>"${codigo}"</strong> no encontrado · Probá la <strong>búsqueda manual</strong> abajo ↓`;
+    }
+    if(inp){
+      inp.value = '';
+      inp.focus();
+      inp.style.borderColor = '#c0392b';
+      setTimeout(() => { inp.style.borderColor = '#27ae60'; }, 1500);
+    }
+    return;
+  }
+  
+  // Agregarlo
+  mvpAgregarItem(prod);
+  if(msg){
+    msg.style.color = '#1f7c3e';
+    msg.innerHTML = `✅ Agregado: <strong>${prod.nombre}</strong>`;
+  }
+  if(inp){
+    inp.value = '';
+    inp.focus();
+  }
+  setTimeout(() => {
+    if(msg) msg.textContent = '';
+  }, 2500);
+}
+
+// ===== BÚSQUEDA MANUAL (busca por nombre, código parcial, etc) =====
+function mvpBuscarManual(){
+  const inp = document.getElementById('mvp-buscar');
+  const texto = (inp.value || '').trim().toLowerCase();
+  const resultadosDiv = document.getElementById('mvp-buscar-resultados');
+  
+  if(!texto){
+    resultadosDiv.innerHTML = '<div style="color:#999;font-size:0.85rem;text-align:center;padding:8px;">Escribí algo para buscar</div>';
+    return;
+  }
+  
   if(!window.productos || !Array.isArray(window.productos)){
-    alert('No hay productos cargados en el sistema');
+    resultadosDiv.innerHTML = '<div style="color:#c0392b;font-size:0.85rem;text-align:center;padding:8px;">⚠️ No hay productos en el sistema</div>';
     return;
   }
-  let prod = window.productos.find(p => 
-    (p.codigoBarra && p.codigoBarra.toString().toLowerCase() === texto) ||
-    (p.barcode && p.barcode.toString().toLowerCase() === texto) ||
-    (p.id && p.id.toString() === texto)
-  );
-  if(!prod){
-    prod = window.productos.find(p => p.nombre && p.nombre.toLowerCase().includes(texto));
-  }
-  if(!prod){
-    alert('Producto no encontrado: ' + texto);
+  
+  // Buscar coincidencias en nombre, código, marca
+  const palabras = texto.split(/\s+/).filter(p => p.length > 0);
+  const resultados = window.productos.filter(p => {
+    const nombre = ((p.nombre || '') + '').toLowerCase();
+    const codigo = ((p.codigoBarra || p.barcode || p.id || '') + '').toLowerCase();
+    const marca = ((p.marca || p.familia || '') + '').toLowerCase();
+    const textoCompleto = `${nombre} ${codigo} ${marca}`;
+    return palabras.every(p => textoCompleto.includes(p));
+  }).slice(0, 20); // Máximo 20 resultados
+  
+  if(resultados.length === 0){
+    resultadosDiv.innerHTML = '<div style="color:#c0392b;font-size:0.85rem;text-align:center;padding:8px;">❌ No se encontraron productos con "' + texto + '"</div>';
     return;
   }
+  
+  let html = '<div style="font-size:0.7rem;color:#666;margin-bottom:6px;font-weight:700;">' + resultados.length + ' resultado(s):</div>';
+  resultados.forEach(p => {
+    const precio = Number(p.precio || 0);
+    const stock = p.stock !== undefined ? Number(p.stock) : null;
+    const stockTxt = stock !== null ? `Stock: ${stock}` : '';
+    const codigo = p.codigoBarra || p.barcode || p.id || '-';
+    html += `<div style="background:#fff;border:1px solid #d0e4f0;border-radius:7px;padding:8px 12px;margin-bottom:5px;display:flex;align-items:center;gap:10px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:0.88rem;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.nombre || 'Sin nombre'}</div>
+        <div style="font-size:0.72rem;color:#888;font-family:monospace;">Cód: ${codigo} · $${formatearMVP(precio)} · ${stockTxt}</div>
+      </div>
+      <button onclick="mvpAgregarPorId('${p.id}')" style="background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:800;font-size:0.85rem;white-space:nowrap;">+ Agregar</button>
+    </div>`;
+  });
+  resultadosDiv.innerHTML = html;
+}
+
+function mvpAgregarPorId(id){
+  if(!window.productos) return;
+  const prod = window.productos.find(p => String(p.id) === String(id));
+  if(!prod) return;
+  mvpAgregarItem(prod);
+}
+
+function mvpAgregarItem(prod){
   const precio = Number(prod.precio || 0);
-  const existente = mvpItems.find(i => i.id === prod.id);
+  const existente = mvpItems.find(i => String(i.id) === String(prod.id));
   if(existente){
     existente.cantidad++;
   } else {
@@ -17339,8 +17468,6 @@ function mvpAgregarProducto(){
       cantidad: 1
     });
   }
-  inp.value = '';
-  inp.focus();
   mvpRender();
 }
 
@@ -17456,15 +17583,37 @@ function mvpGuardarVenta(){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const inp = document.getElementById('mvp-codigo');
-  if(inp){
-    inp.addEventListener('keydown', e => {
+  // Escáner: cuando se escanea, viene con Enter al final
+  const escan = document.getElementById('mvp-escaner');
+  if(escan){
+    escan.addEventListener('keydown', e => {
       if(e.key === 'Enter'){
         e.preventDefault();
-        mvpAgregarProducto();
+        mvpEscanear(escan.value);
       }
     });
   }
+  
+  // Búsqueda manual: Enter ejecuta búsqueda
+  const buscar = document.getElementById('mvp-buscar');
+  if(buscar){
+    buscar.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        mvpBuscarManual();
+      }
+    });
+    // Búsqueda en vivo mientras tipea (con debounce)
+    let timer;
+    buscar.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        if(buscar.value.length >= 2) mvpBuscarManual();
+      }, 350);
+    });
+  }
+  
+  // ESC para cerrar el modal
   document.addEventListener('keydown', e => {
     if(e.key === 'Escape' && document.getElementById('modal-ventas-pos') && document.getElementById('modal-ventas-pos').classList.contains('show')){
       cerrarModalVentasPOS();
@@ -17475,6 +17624,10 @@ document.addEventListener('DOMContentLoaded', () => {
 window.abrirModalVentasPOS = abrirModalVentasPOS;
 window.cerrarModalVentasPOS = cerrarModalVentasPOS;
 window.mvpAgregarProducto = mvpAgregarProducto;
+window.mvpEscanear = mvpEscanear;
+window.mvpBuscarManual = mvpBuscarManual;
+window.mvpAgregarPorId = mvpAgregarPorId;
+window.mvpAgregarItem = mvpAgregarItem;
 window.mvpQuitar = mvpQuitar;
 window.mvpCambiarCantidad = mvpCambiarCantidad;
 window.mvpLimpiar = mvpLimpiar;
