@@ -8,27 +8,137 @@
 /* ========== CLAVE OVERLAY ========== */
 #clave-overlay {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.85); z-index: 10000; display: flex;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 40%, #2a2a2a 100%);
+  z-index: 10000; display: flex;
   align-items: center; justify-content: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+}
+#clave-overlay::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 50% 50%, rgba(245,197,0,0.08) 0%, transparent 50%);
+  animation: shimmer 8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes shimmer {
+  0%, 100% { transform: rotate(0deg); opacity: 0.5; }
+  50% { transform: rotate(180deg); opacity: 1; }
+}
+.clave-presentacion {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+  z-index: 2;
+  animation: fadeInDown 1s ease-out;
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.corona-logo {
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 20px rgba(245, 197, 0, 0.5));
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+.corona-logo svg {
+  width: 100%;
+  height: 100%;
+}
+.titulo-marca {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #f5c500;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 12px rgba(245,197,0,0.3);
+  font-style: italic;
+}
+.subtitulo-marca {
+  color: #d4d4d4;
+  font-size: 0.75rem;
+  letter-spacing: 5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 }
 .clave-card {
-  background: #fff; border-radius: 24px; padding: 32px; width: 320px;
-  text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  background: rgba(255,255,255,0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 18px;
+  padding: 32px 36px;
+  width: 340px;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  border: 1px solid rgba(245,197,0,0.2);
+  position: relative;
+  z-index: 2;
+  animation: fadeInUp 1s ease-out 0.3s both;
 }
-.clave-card h2 { margin-bottom: 20px; color: #1a1a1a; }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.clave-card h2 { 
+  margin-bottom: 8px; 
+  color: #1a1a1a;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.clave-card .subtitle-card {
+  font-size: 0.75rem;
+  color: #888;
+  margin-bottom: 22px;
+}
 .clave-card input {
-  width: 100%; padding: 10px; font-size: 1rem; border: 1px solid #ccc;
-  border-radius: 12px; margin-bottom: 20px; text-align: center;
+  width: 100%; 
+  padding: 12px 16px; 
+  font-size: 0.95rem; 
+  border: 2px solid #e8e8e8;
+  border-radius: 10px; 
+  margin-bottom: 18px; 
+  text-align: center;
+  outline: none;
+  transition: all 0.2s;
+}
+.clave-card input:focus {
+  border-color: #f5c500;
+  box-shadow: 0 0 0 3px rgba(245,197,0,0.15);
 }
 .clave-card button {
-  background: #1a1a1a; color: white; border: none; border-radius: 30px;
-  padding: 10px 20px; font-size: 1rem; cursor: pointer; width: 100%;
+  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+  color: #f5c500; 
+  border: none; 
+  border-radius: 30px;
+  padding: 13px 20px; 
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer; 
+  width: 100%;
+  transition: all 0.2s;
+  text-transform: uppercase;
 }
-.clave-card button:hover { background: #2a2a4a; }
+.clave-card button:hover { 
+  background: linear-gradient(135deg, #2a2a2a, #3a3a3a);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
 .clave-recordar {
   display: flex; align-items: center; justify-content: center;
-  gap: 8px; margin-bottom: 16px; font-size: 0.9rem; color: #555;
+  gap: 8px; margin-bottom: 16px; font-size: 0.85rem; color: #555;
   cursor: pointer; user-select: none;
 }
 .clave-recordar input { width: auto; margin: 0; }
@@ -121,11 +231,24 @@ body{
 .scanner-status{font-size:0.85rem;min-width:140px;text-align:right;font-weight:600;}
 .scanner-status.ok{color:#97c459}
 .scanner-status.err{color:#f09595}
-.tabs{display:flex;flex-wrap:wrap;margin:18px 24px 0;background:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.4);padding:8px;gap:6px;border-radius:10px;backdrop-filter:blur(6px);box-shadow:0 4px 16px rgba(0,0,0,0.15);}
-.tab{flex:1 1 auto;min-width:160px;padding:18px 22px;border:1px solid #c8c8d0;background:#f8f8fa;cursor:pointer;font-size:1rem;font-weight:600;color:#333;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:6px;transition:all 0.1s ease;letter-spacing:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
-.tab:hover{background:#e8e8ec;border-color:#a0a0a8;}
-.tab.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
-@media (max-width:768px){.tab{font-size:0.9rem;padding:14px 12px;min-width:130px;}}
+.tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));margin:14px 20px 0;background:rgba(255,255,255,0.95);border:2px solid rgba(245,197,0,0.4);padding:14px;gap:10px;border-radius:12px;backdrop-filter:blur(6px);box-shadow:0 8px 24px rgba(0,0,0,0.25);}
+.tab{padding:14px 8px;border:2px solid #e8e8e8;background:#fff;cursor:pointer;font-size:0.78rem;font-weight:700;color:#1a1a1a;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:7px;border-radius:10px;transition:all 0.2s ease;letter-spacing:0.3px;font-family:'Segoe UI',Tahoma,Arial,sans-serif;box-shadow:0 2px 6px rgba(0,0,0,0.06);min-height:82px;text-align:center;position:relative;overflow:hidden;}
+.tab::before{content:'';position:absolute;top:0;left:0;right:0;height:36px;background:linear-gradient(135deg,#fff9d6,#fff4b0);z-index:0;border-bottom:1px solid rgba(245,197,0,0.2);}
+.tab > *{position:relative;z-index:1;}
+.tab .tab-icon{font-size:1.7rem;line-height:1;margin-top:1px;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.1));}
+.tab .tab-label{font-size:0.78rem;font-weight:700;color:#1a1a1a;margin-top:auto;}
+.tab:hover{transform:translateY(-3px);box-shadow:0 10px 20px rgba(245,197,0,0.35);border-color:#f5c500;}
+.tab:hover::before{background:linear-gradient(135deg,#fff4b0,#f5e040);}
+.tab.active{border-color:#1a1a1a;box-shadow:0 6px 16px rgba(0,0,0,0.4);transform:translateY(-2px);}
+.tab.active::before{background:linear-gradient(135deg,#1a1a1a,#2a2a2a);}
+.tab.active .tab-label{color:#f5c500;}
+.tab.active .tab-icon{filter:drop-shadow(0 2px 6px rgba(245,197,0,0.5));}
+@media (max-width:768px){
+  .tabs{grid-template-columns:repeat(auto-fit,minmax(85px,1fr));gap:8px;padding:10px;margin:10px;}
+  .tab{font-size:0.7rem;padding:10px 4px;min-height:70px;}
+  .tab .tab-icon{font-size:1.4rem;}
+  .tab .tab-label{font-size:0.7rem;}
+}
 .panel{display:none;padding:16px 24px 24px}
 .panel.active{display:block}
 .search-bar{display:flex;gap:12px;margin-bottom:20px;align-items:center}
@@ -1647,18 +1770,60 @@ setInterval(() => {
 </script>
 
 <div id="clave-overlay">
-  <div class="clave-card">
-    <h2>⛽ MiniMarket La Reina</h2>
-    <div style="font-size:0.78rem;color:#888;margin-bottom:10px;text-align:center;">Sistema de gestión integral</div>
-    <input type="password" id="clave-input" placeholder="Contraseña" autofocus>
-    <label class="clave-recordar">
-      <input type="checkbox" id="clave-recordar"> Recordarme en este dispositivo
-    </label>
-    <button id="btn-validar">Ingresar</button>
-    <div id="clave-error" class="mensaje-error"></div>
-    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #ddd;font-size:0.72rem;color:#888;text-align:center;line-height:1.5;">
-      👑 Admin · 📝 Operadora · 💼 Cajero<br>
-      <span style="font-size:0.68rem;opacity:0.7;">Cada usuario tiene su propia contraseña</span>
+  <div style="display:flex;flex-direction:column;align-items:center;">
+    <div class="clave-presentacion">
+      <div class="corona-logo">
+        <svg viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+          <!-- Corona dorada estilizada -->
+          <defs>
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#fff4b0;stop-opacity:1" />
+              <stop offset="40%" style="stop-color:#f5c500;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#b8860a;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="gemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#c0392b;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <!-- Base de la corona -->
+          <rect x="15" y="62" width="70" height="10" rx="2" fill="url(#goldGrad)" stroke="#8b6914" stroke-width="0.5"/>
+          <!-- Banda decorativa -->
+          <rect x="15" y="58" width="70" height="4" fill="#d4a800" stroke="#8b6914" stroke-width="0.3"/>
+          <!-- Puntas de la corona -->
+          <path d="M 15 58 L 25 30 L 35 50 L 50 18 L 65 50 L 75 30 L 85 58 Z" 
+                fill="url(#goldGrad)" stroke="#8b6914" stroke-width="0.8" stroke-linejoin="round"/>
+          <!-- Gemas en las puntas -->
+          <circle cx="25" cy="28" r="3" fill="url(#gemGrad)" stroke="#8b1818" stroke-width="0.5"/>
+          <circle cx="50" cy="16" r="3.5" fill="#27ae60" stroke="#1a5005" stroke-width="0.5"/>
+          <circle cx="75" cy="28" r="3" fill="url(#gemGrad)" stroke="#8b1818" stroke-width="0.5"/>
+          <!-- Brillo central -->
+          <circle cx="50" cy="14" r="1.5" fill="#a0ff8e" opacity="0.8"/>
+          <!-- Gemas pequeñas en la base -->
+          <circle cx="27" cy="67" r="1.5" fill="#c0392b"/>
+          <circle cx="40" cy="67" r="1.5" fill="#27ae60"/>
+          <circle cx="50" cy="67" r="1.5" fill="#c0392b"/>
+          <circle cx="60" cy="67" r="1.5" fill="#27ae60"/>
+          <circle cx="73" cy="67" r="1.5" fill="#c0392b"/>
+        </svg>
+      </div>
+      <div class="titulo-marca">MiniMarket La Reina</div>
+      <div class="subtitulo-marca">Sistema de Gestión</div>
+    </div>
+    
+    <div class="clave-card">
+      <h2>Bienvenido</h2>
+      <div class="subtitle-card">Ingresá tu contraseña para continuar</div>
+      <input type="password" id="clave-input" placeholder="Contraseña" autofocus>
+      <label class="clave-recordar">
+        <input type="checkbox" id="clave-recordar"> Recordarme en este dispositivo
+      </label>
+      <button id="btn-validar">Ingresar</button>
+      <div id="clave-error" class="mensaje-error"></div>
+      <div style="margin-top:18px;padding-top:14px;border-top:1px solid #eee;font-size:0.7rem;color:#888;text-align:center;line-height:1.5;">
+        👑 Admin · 📝 Operadora · 💼 Cajero<br>
+        <span style="font-size:0.65rem;opacity:0.7;">Cada usuario tiene su propia contraseña</span>
+      </div>
     </div>
   </div>
 </div>
@@ -1784,36 +1949,24 @@ setInterval(() => {
 <div id="app-pc">
 <div class="header">
   <div class="header-left">
-    <div class="header-icon">
-      <!-- Corona -->
-      <svg viewBox="0 0 24 24" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="0.5" stroke-linejoin="round">
-        <path d="M2 18 L4 8 L8 12 L12 5 L16 12 L20 8 L22 18 Z"/>
-        <rect x="2" y="18" width="20" height="2.5" rx="0.5"/>
-        <circle cx="4" cy="7" r="1.2" fill="#c0392b"/>
-        <circle cx="12" cy="4" r="1.2" fill="#c0392b"/>
-        <circle cx="20" cy="7" r="1.2" fill="#c0392b"/>
+    <div class="header-icon" style="background:linear-gradient(135deg,#f5c500,#d4a800);width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:6px;box-shadow:0 4px 12px rgba(245,197,0,0.4);">
+      <svg viewBox="0 0 100 80" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+        <rect x="15" y="62" width="70" height="10" rx="2" fill="#1a1a1a"/>
+        <rect x="15" y="58" width="70" height="4" fill="#0a0a0a"/>
+        <path d="M 15 58 L 25 30 L 35 50 L 50 18 L 65 50 L 75 30 L 85 58 Z" fill="#1a1a1a"/>
+        <circle cx="25" cy="28" r="3" fill="#c0392b"/>
+        <circle cx="50" cy="16" r="3.5" fill="#27ae60"/>
+        <circle cx="75" cy="28" r="3" fill="#c0392b"/>
       </svg>
     </div>
     <div>
-      <div class="header-title">⛽ MiniMarket La Reina</div>
-      <div class="header-sub">🛒 Sistema de Gestión · MiniMarket</div>
+      <div class="header-title" style="font-family:'Georgia',serif;font-style:italic;color:#f5c500;letter-spacing:0.5px;">MiniMarket La Reina</div>
+      <div class="header-sub" style="letter-spacing:2px;text-transform:uppercase;font-size:0.65rem;color:#aaa;">Sistema de Gestión</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <div class="header-date" id="hdate"></div>
-    <button onclick="exportarBackup()" style="padding:10px 18px;border-radius:6px;border:1px solid #f5c500;background:#f5c500;color:#1a1a1a;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">💾 Backup</button>
-    <button onclick="exportarAExcel()" style="padding:10px 18px;border-radius:6px;border:1px solid #1f7c3e;background:#27ae60;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Exportar todo a un archivo Excel">📊 Excel</button>
-    <button onclick="diagnosticoNumeros()" style="padding:10px 18px;border-radius:6px;border:1px solid #c00;background:#f55;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Diagnóstico de números">🔍 DIAG</button>
-    <button onclick="GDrive.iniciarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #1f5f9e;background:#3b82f6;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Conectar a Google Drive para subir fotos de cigarrillos">☁️ Conectar Drive</button>
-    <label style="padding:10px 18px;border-radius:6px;border:1px solid #888;background:#f0f0f0;color:#333;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
-    <label style="padding:10px 18px;border-radius:6px;border:1px solid #1f5005;background:#2a6e2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/></label>
-    <button onclick="limpiarMercaderia()" style="padding:10px 18px;border-radius:6px;border:1px solid #b56b00;background:#d68910;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Borrar productos del minimarket (mantiene combustibles, clientes y proveedores)">🧹 Limpiar mercadería</button>
-    <button onclick="recuperarBackupSeguridad()" style="padding:10px 18px;border-radius:6px;border:1px solid #1a5a8a;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Si perdiste datos, recuperar el último backup automático guardado en este navegador">🛟 Recuperar backup</button>
-    <button onclick="abrirGestionUsuarios()" id="btn-usuarios" style="padding:10px 18px;border-radius:6px;border:1px solid #1a3a6b;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Cambiar contraseñas de los usuarios del sistema">👥 Usuarios</button>
-    <button onclick="abrirGestionBackups()" id="btn-backups-auto" style="padding:10px 18px;border-radius:6px;border:1px solid #5a3a1a;background:#8b6914;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Gestionar backups automáticos diarios">🛡️ Backups Auto</button>
-    <button onclick="abrirPedidosMayoristas()" id="btn-pedidos-may" style="padding:10px 18px;border-radius:6px;border:1px solid #5a1a1a;background:#a52a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;position:relative;" title="Pedidos de clientes mayoristas">🛒 Pedidos May. <span id="badge-pedidos-nuevos" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#a52a2a;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #a52a2a;"></span></button>
-    <button onclick="abrirMigracionFotos()" id="btn-migracion-fotos" style="padding:10px 18px;border-radius:6px;border:1px solid #1a4d3a;background:#16a085;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Migrar fotos pesadas a Drive (libera espacio en Firebase)">📦 Liberar Espacio</button>
-    <button onclick="cerrarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #6b1818;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">🚪 Cerrar sesión</button>
+    <button onclick="cerrarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #6b1818;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">🚪 Salir</button>
   </div>
 </div>
 
@@ -2435,24 +2588,31 @@ setInterval(() => {
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('surtidor',this)">🛒 Ventas</button>
-  <button class="tab active" onclick="showTab('stock',this)">📦 Stock</button>
-  <button class="tab" onclick="showTab('cigarrillos',this)">🚬 Cigarrillos</button>
-  <button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button>
-  <button class="tab" onclick="showTab('compra',this)">🛒 Compra</button>
-  <button class="tab" onclick="showTab('precios',this)">💲 Precios</button>
-  <button class="tab" onclick="showTab('facturas',this)">🧾 Facturas</button>
-  <button class="tab" onclick="showTab('movimientos',this)">📜 Movimientos</button>
-  <button class="tab" onclick="showTab('contabilidad',this)">📊 Contabilidad</button>
-  <button class="tab" onclick="showTab('clientes',this)">👥 Clientes</button>
-  <button class="tab" onclick="showTab('proveedores',this)">🚚 Proveedores</button>
-  <button class="tab" onclick="showTab('cuentas',this)">💳 Cuentas Corrientes</button>
-  <button class="tab" onclick="showTab('miturno',this)">📋 Mi Turno</button>
-  <button class="tab" onclick="showTab('gastos',this)">💸 Gastos</button>
-  <button class="tab" onclick="showTab('caja',this)">🏦 Caja/Turno</button>
-  <div class="dropdown-mas" style="position:relative;display:inline-block;">
-    <button id="btn-mas" class="tab" onclick="toggleMasMenu(event)">🔧 Más ▾</button>
+  <button class="tab active" onclick="showTab('surtidor',this)"><span class="tab-icon">🛒</span><span class="tab-label">Ventas</span></button>
+  <button class="tab" onclick="showTab('stock',this)"><span class="tab-icon">📦</span><span class="tab-label">Stock</span></button>
+  <button class="tab" onclick="showTab('cigarrillos',this)"><span class="tab-icon">🚬</span><span class="tab-label">Cigarrillos</span></button>
+  <button class="tab" onclick="showTab('acciones',this)"><span class="tab-icon">⚡</span><span class="tab-label">Acciones</span></button>
+  <button class="tab" onclick="showTab('compra',this)"><span class="tab-icon">🛍️</span><span class="tab-label">Compra</span></button>
+  <button class="tab" onclick="showTab('precios',this)"><span class="tab-icon">💲</span><span class="tab-label">Precios</span></button>
+  <button class="tab" onclick="showTab('facturas',this)"><span class="tab-icon">🧾</span><span class="tab-label">Facturas</span></button>
+  <button class="tab" onclick="showTab('movimientos',this)"><span class="tab-icon">📜</span><span class="tab-label">Movimientos</span></button>
+  <button class="tab" onclick="showTab('contabilidad',this)"><span class="tab-icon">📊</span><span class="tab-label">Contabilidad</span></button>
+  <button class="tab" onclick="showTab('clientes',this)"><span class="tab-icon">👥</span><span class="tab-label">Clientes</span></button>
+  <button class="tab" onclick="showTab('proveedores',this)"><span class="tab-icon">🚚</span><span class="tab-label">Proveedores</span></button>
+  <button class="tab" onclick="showTab('cuentas',this)"><span class="tab-icon">💳</span><span class="tab-label">Cta. Corriente</span></button>
+  <button class="tab" id="btn-mas" onclick="toggleMasMenu(event)"><span class="tab-icon">🔧</span><span class="tab-label">Más</span></button>
+  <!-- Pestañas ocultas (accesibles solo desde "Más") -->
+  <button class="tab" id="tab-admin-lr" onclick="showTab('admin-lr',this)" style="display:none;"><span class="tab-icon">⚙️</span><span class="tab-label">Admin</span></button>
+  <button class="tab" onclick="showTab('miturno',this)" style="display:none;"><span class="tab-icon">📋</span><span class="tab-label">Mi Turno</span></button>
+  <button class="tab" onclick="showTab('gastos',this)" style="display:none;"><span class="tab-icon">💸</span><span class="tab-label">Gastos</span></button>
+  <button class="tab" onclick="showTab('caja',this)" style="display:none;"><span class="tab-icon">🏦</span><span class="tab-label">Caja/Turno</span></button>
+  <div class="dropdown-mas" style="position:relative;display:none;">
     <div id="mas-menu" class="dropdown-menu-mas" style="display:none;">
+      <button class="dropdown-item" onclick="showTabFromMenu('miturno')">📋 Mi Turno</button>
+      <button class="dropdown-item" onclick="showTabFromMenu('gastos')">💸 Gastos</button>
+      <button class="dropdown-item" onclick="showTabFromMenu('caja')">🏦 Caja / Turno</button>
+      <button class="dropdown-item" onclick="showTabFromMenu('admin-lr')" style="background:#fff4b0;color:#1a1a1a;font-weight:800;">⚙️ Admin</button>
+      <div style="height:1px;background:#e0e0e0;margin:6px 0;"></div>
       <button class="dropdown-item" onclick="showTabFromMenu('estadisticas')">📈 Estadísticas</button>
       <button class="dropdown-item" onclick="showTabFromMenu('analisis')">🔍 Análisis</button>
       <button class="dropdown-item" onclick="showTabFromMenu('descuentos')">🏷️ Descuentos</button>
@@ -2524,6 +2684,80 @@ setInterval(() => {
 
 </div>
 <!-- ====================== /PANEL DASHBOARD ======================= -->
+
+<!-- PANEL ADMIN LA REINA -->
+<div id="panel-admin-lr" class="panel">
+  <div style="font-family:'Segoe UI',Tahoma,Arial,sans-serif;padding:20px;max-width:900px;margin:0 auto;">
+    
+    <div style="font-size:1.2rem;font-weight:800;color:#1a1a1a;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+      ⚙️ Panel de Administración
+      <span style="font-size:0.8rem;font-weight:400;color:#888;">— MiniMarket La Reina</span>
+    </div>
+
+    <!-- Fila 1: Datos y backup -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:0.75rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">💾 Datos y Backup</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <button onclick="exportarBackup()" style="padding:12px 20px;border-radius:8px;border:2px solid #f5c500;background:#f5c500;color:#1a1a1a;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">💾 Backup</button>
+        <label style="padding:12px 20px;border-radius:8px;border:2px solid #888;background:#f0f0f0;color:#333;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">
+          📂 Restaurar backup
+          <input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/>
+        </label>
+        <button onclick="recuperarBackupSeguridad()" style="padding:12px 20px;border-radius:8px;border:2px solid #2980b9;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">🛟 Recuperar backup</button>
+        <button onclick="abrirGestionBackups()" style="padding:12px 20px;border-radius:8px;border:2px solid #8b6914;background:#8b6914;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">🛡️ Backups Auto</button>
+      </div>
+    </div>
+
+    <!-- Fila 2: Exportar -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:0.75rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">📊 Exportar</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <button onclick="exportarAExcel()" style="padding:12px 20px;border-radius:8px;border:2px solid #27ae60;background:#27ae60;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">📊 Exportar Excel</button>
+        <label style="padding:12px 20px;border-radius:8px;border:2px solid #2a6e2a;background:#2a6e2a;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">
+          📋 Importar CSV
+          <input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/>
+        </label>
+      </div>
+    </div>
+
+    <!-- Fila 3: Google Drive y espacio -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:0.75rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">☁️ Google Drive y Firebase</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <button onclick="GDrive.iniciarSesion()" style="padding:12px 20px;border-radius:8px;border:2px solid #3b82f6;background:#3b82f6;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">☁️ Conectar Drive</button>
+        <button onclick="abrirMigracionFotos()" style="padding:12px 20px;border-radius:8px;border:2px solid #16a085;background:#16a085;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">📦 Liberar Espacio Firebase</button>
+      </div>
+    </div>
+
+    <!-- Fila 4: Usuarios y sistema -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:0.75rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">👥 Usuarios y Sistema</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <button onclick="abrirGestionUsuarios()" style="padding:12px 20px;border-radius:8px;border:2px solid #2980b9;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">👥 Gestionar Usuarios</button>
+        <button onclick="limpiarMercaderia()" style="padding:12px 20px;border-radius:8px;border:2px solid #d68910;background:#d68910;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">🧹 Limpiar Mercadería</button>
+        <button onclick="diagnosticoNumeros()" style="padding:12px 20px;border-radius:8px;border:2px solid #e74c3c;background:#e74c3c;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">🔍 Diagnóstico</button>
+      </div>
+    </div>
+
+    <!-- Fila 5: Pedidos mayoristas -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:0.75rem;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">🛒 Pedidos</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;">
+        <button onclick="abrirPedidosMayoristas()" style="padding:12px 20px;border-radius:8px;border:2px solid #a52a2a;background:#a52a2a;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;position:relative;">
+          🛒 Pedidos Mayoristas
+          <span id="badge-pedidos-nuevos" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#a52a2a;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #a52a2a;"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Fila 6: Cerrar sesión -->
+    <div style="margin-top:30px;padding-top:20px;border-top:2px solid #f0f0f0;">
+      <button onclick="cerrarSesion()" style="padding:12px 24px;border-radius:8px;border:2px solid #8b2a2a;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">🚪 Cerrar Sesión</button>
+    </div>
+
+  </div>
+</div>
+<!-- /PANEL ADMIN LA REINA -->
 
 <!-- PANEL SURTIDOR -->
 <div id="panel-surtidor" class="panel active">
