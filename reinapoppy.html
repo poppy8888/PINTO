@@ -17759,49 +17759,98 @@ let camActive = false;
 
 let camFacingMode = 'environment'; // 'environment' = trasera, 'user' = frontal
 
+// Mostrar error grande y visible (para depurar en celular sin DevTools)
+function camMostrarError(titulo, detalle){
+  let modal = document.getElementById('modal-camara-pos');
+  if(!modal){
+    // El modal no existe en el DOM — crear uno de emergencia
+    alert((titulo||'Error de cámara') + (detalle ? ('\n\n' + detalle) : ''));
+    return;
+  }
+  modal.classList.add('show');
+  const status = document.getElementById('cam-status');
+  if(status){
+    status.innerHTML = '<div style="color:#ff8a8a;font-weight:700;margin-bottom:6px;">' + (titulo || '⚠️ Error') + '</div>' +
+                       (detalle ? '<div style="color:#ffcccc;font-size:0.78rem;font-weight:400;line-height:1.4;">' + detalle + '</div>' : '');
+  } else {
+    alert((titulo||'Error de cámara') + (detalle ? ('\n\n' + detalle) : ''));
+  }
+}
+
 async function camAbrir(){
-  document.getElementById('modal-camara-pos').classList.add('show');
-  camSetStatus('Cargando librería de escaneo...');
-
-  // ---- Chequeo previo: ¿este navegador puede usar cámara? ----
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    camSetStatus('⚠️ Este navegador no soporta cámara. Probá Chrome o Safari actualizados.');
-    return;
-  }
-  const esSeguro = window.isSecureContext || location.protocol === 'https:' ||
-                   location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-  if(!esSeguro){
-    camSetStatus('⚠️ La cámara requiere HTTPS. Esta página está en ' + location.protocol);
-    return;
-  }
-
-  // Cargar ZXing si no está cargado
-  if(!camLibLoaded){
-    try {
-      await camCargarLib();
-      camLibLoaded = true;
-    } catch(e) {
-      camSetStatus('⚠️ No se pudo cargar la librería. Verificá tu conexión a internet.');
+  // ---- PASO 1: Mostrar el modal INMEDIATAMENTE, antes de cualquier await ----
+  // Así, si algo falla después, al menos el usuario ve que el botón funcionó.
+  try {
+    const modal = document.getElementById('modal-camara-pos');
+    if(!modal){
+      alert('⚠️ El modal de cámara no está en la página. Recargá la página (deslizá hacia abajo).');
       return;
     }
+    modal.classList.add('show');
+  } catch(e){
+    alert('⚠️ Error al abrir el modal: ' + (e.message || e));
+    return;
   }
 
-  // Pre-aplicar atributos al video antes de cualquier asignación (iOS lo requiere)
-  const video = document.getElementById('cam-video');
-  video.setAttribute('playsinline','true');
-  video.setAttribute('webkit-playsinline','true');
-  video.setAttribute('x5-playsinline','true');
-  video.setAttribute('muted','true');
-  video.muted = true;
-  video.autoplay = true;
-
+  // A partir de acá, todos los errores los mostramos dentro del modal
   try {
-    if(!camReader){ camReader = new ZXing.BrowserMultiFormatReader(); }
+    camSetStatus('Iniciando...');
+
+    // ---- PASO 2: Chequeos de compatibilidad ----
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      camMostrarError('⚠️ Navegador no compatible',
+        'Este navegador no soporta acceso a la cámara. Si estás dentro de WhatsApp, Instagram o Facebook, tocá los 3 puntos arriba a la derecha y elegí "Abrir en Chrome" o "Abrir en el navegador".');
+      return;
+    }
+
+    const esSeguro = window.isSecureContext || location.protocol === 'https:' ||
+                     location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if(!esSeguro){
+      camMostrarError('⚠️ Página no segura (sin HTTPS)',
+        'La cámara solo funciona en páginas con https://. Esta página está cargada como: ' + location.protocol + '//' + location.hostname);
+      return;
+    }
+
+    // ---- PASO 3: Cargar ZXing ----
+    if(!camLibLoaded){
+      camSetStatus('Cargando librería...');
+      try {
+        await camCargarLib();
+        camLibLoaded = true;
+      } catch(e) {
+        camMostrarError('⚠️ Sin conexión',
+          'No se pudo cargar la librería de escaneo (necesita internet la primera vez). Revisá tu conexión Wi-Fi/datos y volvé a intentar.');
+        return;
+      }
+    }
+
+    // ---- PASO 4: Preparar el video ----
+    const video = document.getElementById('cam-video');
+    if(!video){
+      camMostrarError('⚠️ Error interno', 'No se encontró el elemento de video. Recargá la página.');
+      return;
+    }
+    video.setAttribute('playsinline','true');
+    video.setAttribute('webkit-playsinline','true');
+    video.setAttribute('x5-playsinline','true');
+    video.setAttribute('muted','true');
+    video.muted = true;
+    video.autoplay = true;
+
+    // ---- PASO 5: Iniciar el reader y el escaneo ----
+    if(!camReader){
+      try { camReader = new ZXing.BrowserMultiFormatReader(); }
+      catch(e){
+        camMostrarError('⚠️ Error al iniciar el escáner', e.message || String(e));
+        return;
+      }
+    }
     camLastCode = null;
     await camIniciarEscaneo();
+
   } catch(e){
-    camSetStatus('⚠️ Error al acceder a la cámara: ' + (e.message || e));
-    console.error(e);
+    console.error('camAbrir error:', e);
+    camMostrarError('⚠️ Error inesperado', (e && e.message) ? e.message : String(e));
   }
 }
 
@@ -17968,6 +18017,37 @@ document.addEventListener('keydown', e => {
 window.camAbrir = camAbrir;
 window.camCerrar = camCerrar;
 window.camCambiar = camCambiar;
+
+// ---- RED DE SEGURIDAD: re-conectar el botón de cámara después de cargar la página ----
+// Si el onclick="camAbrir()" inline falla por cualquier razón (ej: error JS previo
+// que rompe los handlers inline en algunos navegadores móviles), este listener
+// programático asegura que el botón funcione igual.
+function _camConectarBotones(){
+  const botones = document.querySelectorAll('button.mvp-btn-cam, [data-cam-abrir]');
+  botones.forEach(btn => {
+    if(btn.dataset.camWired === '1') return;
+    btn.dataset.camWired = '1';
+    btn.addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      try { camAbrir(); }
+      catch(e){
+        alert('Error al abrir cámara: ' + (e.message || e));
+      }
+    }, false);
+    // touchend extra para algunos Android que ignoran click en botones dentro de modales
+    btn.addEventListener('touchend', function(ev){
+      // No prevenimos default acá para no romper accesibilidad; click ya está bindeado
+    }, {passive:true});
+  });
+}
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', _camConectarBotones);
+} else {
+  _camConectarBotones();
+}
+// Volver a conectar cada vez que el usuario abre el módulo (por si se re-renderiza)
+setInterval(_camConectarBotones, 2000);
 </script>
 <!-- ================ /MODAL CÁMARA ============================= -->
 
