@@ -2576,7 +2576,7 @@ setInterval(() => {
   <div style="background:#1a1a1a;border-radius:20px;padding:20px;width:min(95vw,420px);text-align:center;">
     <div style="font-size:1rem;font-weight:700;color:#f5c500;margin-bottom:12px;">📷 Escaneá el código</div>
     <div style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;">
-      <video id="camara-video" autoplay playsinline style="width:100%;max-height:300px;display:block;"></video>
+      <video id="camara-video" autoplay playsinline muted webkit-playsinline style="width:100%;max-height:300px;display:block;background:#000;"></video>
       <canvas id="camara-canvas" style="display:none;"></canvas>
     </div>
     <div id="camara-status" style="margin-top:10px;font-size:0.8rem;color:#8888aa;">Iniciando...</div>
@@ -10573,7 +10573,26 @@ let _nativeDetector = null; // BarcodeDetector nativo (Chrome Android / Safari i
 async function abrirCamara(destino){
   camaraDestino = destino || 'venta';
   document.getElementById('camara-modal').classList.add('open');
-  document.getElementById('camara-status').textContent = 'Iniciando cámara...';
+  const statusEl = document.getElementById('camara-status');
+  statusEl.textContent = 'Iniciando cámara...';
+
+  // ---- CHEQUEO 1: el navegador soporta getUserMedia ----
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    statusEl.innerHTML = '❌ Este navegador no soporta cámara.<br><span style="font-size:0.75rem;color:#ffb;">Probá con Chrome o Safari actualizados.</span>';
+    return;
+  }
+
+  // ---- CHEQUEO 2: contexto seguro (HTTPS o localhost) ----
+  // Esta es la causa #1 de "la cámara no abre" en celulares.
+  const esSeguro = window.isSecureContext || location.protocol === 'https:' || 
+                   location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if(!esSeguro){
+    statusEl.innerHTML = '❌ La cámara requiere HTTPS.<br>' +
+      '<span style="font-size:0.75rem;color:#ffb;">Estás abriendo la página por <b>' + location.protocol + '</b>. ' +
+      'En el celular la cámara solo funciona si la página se sirve por <b>https://</b> ' +
+      '(no funciona con file:// ni http:// salvo localhost).</span>';
+    return;
+  }
 
   // Intentar BarcodeDetector nativo (Chrome Android, Safari 17+, Edge)
   if(!_nativeDetector && 'BarcodeDetector' in window){
@@ -10586,11 +10605,12 @@ async function abrirCamara(destino){
 
   // Si no hay detector nativo, cargar ZXing
   if(!_nativeDetector && !window.ZXing){
+    statusEl.textContent = 'Cargando escáner...';
     await new Promise((resolve)=>{
       const s = document.createElement('script');
       s.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
       s.onload = resolve;
-      s.onerror = ()=>{ document.getElementById('camara-status').textContent='❌ Necesita internet para cargar el escáner.'; resolve(); };
+      s.onerror = ()=>{ statusEl.textContent='❌ Necesita internet para cargar el escáner.'; resolve(); };
       document.head.appendChild(s);
     });
   }
@@ -10598,14 +10618,25 @@ async function abrirCamara(destino){
 }
 
 async function iniciarStream(){
+  const statusEl = document.getElementById('camara-status');
   try {
     if(camaraStream){ camaraStream.getTracks().forEach(t=>t.stop()); camaraStream = null; }
 
+    statusEl.textContent = 'Solicitando permiso de cámara...';
+
+    // ---- IMPORTANTE: setear atributos del video ANTES de asignar el stream (iOS) ----
+    const video = document.getElementById('camara-video');
+    video.setAttribute('playsinline','true');
+    video.setAttribute('webkit-playsinline','true');
+    video.setAttribute('muted','true');
+    video.muted = true;
+    video.autoplay = true;
+
     // Constraints optimizados para celulares: primero exact, si falla prueba sin exact
     let stream;
-    const constraintsExact = { video: { facingMode: { exact: camarasFacingMode }, width:{ideal:1280}, height:{ideal:720} } };
-    const constraintsFallback = { video: { facingMode: camarasFacingMode, width:{ideal:1280}, height:{ideal:720} } };
-    const constraintsBasic = { video: true };
+    const constraintsExact = { video: { facingMode: { exact: camarasFacingMode }, width:{ideal:1280}, height:{ideal:720} }, audio:false };
+    const constraintsFallback = { video: { facingMode: camarasFacingMode, width:{ideal:1280}, height:{ideal:720} }, audio:false };
+    const constraintsBasic = { video: true, audio:false };
 
     try { stream = await navigator.mediaDevices.getUserMedia(constraintsExact); }
     catch(e1){
@@ -10614,22 +10645,44 @@ async function iniciarStream(){
     }
 
     camaraStream = stream;
-    const video = document.getElementById('camara-video');
     video.srcObject = stream;
-    video.setAttribute('playsinline','true'); // iOS requiere esto
-    video.setAttribute('muted','true');
-    video.muted = true;
-    await video.play();
+
+    // play() puede colgarse en iOS si falta playsinline; le ponemos timeout
+    try {
+      await Promise.race([
+        video.play(),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), 4000))
+      ]);
+    } catch(playErr){
+      // Algunos navegadores reproducen igual aunque play() falle. Seguimos.
+      console.warn('video.play() warning:', playErr);
+    }
 
     const modo = _nativeDetector ? '🔵 Escáner nativo' : '🟡 Escáner ZXing';
-    document.getElementById('camara-status').textContent = `${modo} — Apuntá al código...`;
+    statusEl.textContent = `${modo} — Apuntá al código...`;
     iniciarEscaneo();
   } catch(err){
+    console.error('Error cámara:', err);
     let msg = '❌ No se pudo acceder a la cámara.';
-    if(err.name === 'NotAllowedError') msg = '❌ Permiso de cámara denegado. Habilitalo en el navegador.';
-    else if(err.name === 'NotFoundError') msg = '❌ No se encontró ninguna cámara.';
-    else if(err.name === 'NotReadableError') msg = '❌ La cámara está en uso por otra app.';
-    document.getElementById('camara-status').textContent = msg;
+    if(err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'){
+      msg = '❌ Permiso de cámara denegado.<br><span style="font-size:0.75rem;color:#ffb;">Tocá el candado/ícono al lado de la URL → Permisos → Cámara → Permitir. Después recargá la página.</span>';
+    }
+    else if(err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError'){
+      msg = '❌ No se encontró ninguna cámara en el dispositivo.';
+    }
+    else if(err.name === 'NotReadableError' || err.name === 'TrackStartError'){
+      msg = '❌ La cámara está siendo usada por otra app. Cerrá WhatsApp, Instagram, etc. y volvé a intentar.';
+    }
+    else if(err.name === 'OverconstrainedError'){
+      msg = '❌ La cámara no soporta los parámetros pedidos. Probá tocar 🔄 Cambiar.';
+    }
+    else if(err.name === 'SecurityError'){
+      msg = '❌ Error de seguridad. La página debe servirse por HTTPS.';
+    }
+    else if(err.message){
+      msg = '❌ ' + err.message;
+    }
+    statusEl.innerHTML = msg;
   }
 }
 
