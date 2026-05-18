@@ -17709,7 +17709,7 @@ window.vueltoConfirmar = vueltoConfirmar;
 .cam-cerrar{background:rgba(255,255,255,0.08);border:1px solid #444;color:#fff;width:30px;height:28px;border-radius:4px;cursor:pointer;font-size:0.9rem;line-height:1;}
 .cam-cerrar:hover{background:#c0392b;border-color:#c0392b;}
 .cam-body{position:relative;background:#000;display:flex;align-items:center;justify-content:center;min-width:300px;min-height:280px;}
-#cam-video{display:block;max-width:90vw;max-height:62vh;width:auto;height:auto;background:#000;}
+#cam-video{display:block;max-width:90vw;max-height:62vh;width:100%;height:auto;min-height:280px;background:#000;object-fit:cover;}
 .cam-overlay{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;}
 .cam-frame{width:78%;max-width:340px;height:110px;border:3px solid #f5c500;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.4);position:relative;overflow:hidden;}
 .cam-frame::before{content:"";position:absolute;left:8px;right:8px;top:50%;height:2px;background:#f5c500;box-shadow:0 0 10px #f5c500,0 0 18px #f5c500;animation:cam-scan 1.8s ease-in-out infinite;}
@@ -17734,7 +17734,7 @@ window.vueltoConfirmar = vueltoConfirmar;
       <button class="cam-cerrar" onclick="camCerrar()" title="Cerrar (Esc)">✕</button>
     </div>
     <div class="cam-body">
-      <video id="cam-video" autoplay playsinline muted></video>
+      <video id="cam-video" autoplay playsinline muted webkit-playsinline x5-playsinline disablepictureinpicture></video>
       <div class="cam-overlay"><div class="cam-frame"></div></div>
     </div>
     <div id="cam-status">Cargando cámara...</div>
@@ -17757,9 +17757,23 @@ let camLastCodeTime = 0;
 let camLibLoaded = false;
 let camActive = false;
 
+let camFacingMode = 'environment'; // 'environment' = trasera, 'user' = frontal
+
 async function camAbrir(){
   document.getElementById('modal-camara-pos').classList.add('show');
   camSetStatus('Cargando librería de escaneo...');
+
+  // ---- Chequeo previo: ¿este navegador puede usar cámara? ----
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    camSetStatus('⚠️ Este navegador no soporta cámara. Probá Chrome o Safari actualizados.');
+    return;
+  }
+  const esSeguro = window.isSecureContext || location.protocol === 'https:' ||
+                   location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if(!esSeguro){
+    camSetStatus('⚠️ La cámara requiere HTTPS. Esta página está en ' + location.protocol);
+    return;
+  }
 
   // Cargar ZXing si no está cargado
   if(!camLibLoaded){
@@ -17772,25 +17786,17 @@ async function camAbrir(){
     }
   }
 
+  // Pre-aplicar atributos al video antes de cualquier asignación (iOS lo requiere)
+  const video = document.getElementById('cam-video');
+  video.setAttribute('playsinline','true');
+  video.setAttribute('webkit-playsinline','true');
+  video.setAttribute('x5-playsinline','true');
+  video.setAttribute('muted','true');
+  video.muted = true;
+  video.autoplay = true;
+
   try {
     if(!camReader){ camReader = new ZXing.BrowserMultiFormatReader(); }
-
-    camSetStatus('Buscando cámaras disponibles...');
-    camDevices = await camReader.listVideoInputDevices();
-    if(!camDevices || camDevices.length === 0){
-      camSetStatus('⚠️ No se detectó ninguna cámara en este dispositivo');
-      return;
-    }
-
-    // Preferir cámara trasera
-    let idx = 0;
-    for(let i=0;i<camDevices.length;i++){
-      const lbl = (camDevices[i].label || '').toLowerCase();
-      if(lbl.includes('back') || lbl.includes('trasera') || lbl.includes('rear') || lbl.includes('environment')){
-        idx = i; break;
-      }
-    }
-    camCurrentDeviceIdx = idx;
     camLastCode = null;
     await camIniciarEscaneo();
   } catch(e){
@@ -17800,30 +17806,88 @@ async function camAbrir(){
 }
 
 async function camIniciarEscaneo(){
-  if(!camReader || camDevices.length === 0) return;
-  const deviceId = camDevices[camCurrentDeviceIdx].deviceId;
+  if(!camReader) return;
   const video = document.getElementById('cam-video');
-  camSetStatus('🎯 Apuntá la cámara al código de barras...');
+  camSetStatus('Solicitando permiso de cámara...');
   camActive = true;
+
+  // Detener cualquier stream/escaneo previo
+  try { camReader.reset(); } catch(e){}
+
+  // ---- ESTRATEGIA CLAVE: usar constraints con facingMode en vez de enumerar dispositivos ----
+  // En celular, listVideoInputDevices() devuelve cámaras sin label hasta que se pide permiso,
+  // y elegir el deviceId correcto es poco fiable. facingMode delega esa decisión al SO,
+  // que SIEMPRE elige bien la trasera/frontal.
+  const constraintsList = [
+    { video: { facingMode: { ideal: camFacingMode }, width:{ideal:1280}, height:{ideal:720} }, audio:false },
+    { video: { facingMode: camFacingMode }, audio:false },
+    { video: true, audio:false }
+  ];
+
+  let stream = null, ultimoError = null;
+  for(const c of constraintsList){
+    try {
+      stream = await navigator.mediaDevices.getUserMedia(c);
+      break;
+    } catch(e){ ultimoError = e; }
+  }
+  if(!stream){
+    const err = ultimoError || new Error('No se pudo abrir la cámara');
+    let msg = '⚠️ No se pudo acceder a la cámara.';
+    if(err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'){
+      msg = '⚠️ Permiso denegado. Tocá el candado en la URL → Permisos → Cámara → Permitir, y recargá.';
+    } else if(err.name === 'NotFoundError'){
+      msg = '⚠️ No se encontró ninguna cámara en el dispositivo.';
+    } else if(err.name === 'NotReadableError'){
+      msg = '⚠️ La cámara está siendo usada por otra app. Cerrá WhatsApp/cámara/Instagram y reintentá.';
+    } else if(err.message){
+      msg = '⚠️ ' + err.message;
+    }
+    camSetStatus(msg);
+    return;
+  }
+
+  // Asignar stream esperando metadata (clave en iOS para que no quede en negro)
+  await new Promise((resolve)=>{
+    let done = false;
+    const onMeta = ()=>{ if(done) return; done = true; video.removeEventListener('loadedmetadata', onMeta); resolve(); };
+    video.addEventListener('loadedmetadata', onMeta);
+    video.srcObject = stream;
+    setTimeout(()=>{ if(!done){ done = true; resolve(); } }, 3000);
+  });
+
   try {
-    await camReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
+    const p = video.play();
+    if(p && typeof p.then === 'function'){
+      await Promise.race([p, new Promise(r=>setTimeout(r, 3000))]).catch(()=>{});
+    }
+  } catch(e){ console.warn('play warn:', e); }
+
+  // Reintento defensivo
+  setTimeout(()=>{
+    if(video.paused){ try { video.play(); } catch(e){} }
+  }, 700);
+
+  camSetStatus('🎯 Apuntá la cámara al código de barras...');
+
+  // ---- Loop de detección con ZXing usando el video ya activo ----
+  // En vez de decodeFromVideoDevice (que recrea su propio stream), usamos decodeFromVideoElement
+  // que escanea el <video> que ya tiene nuestro stream funcionando.
+  try {
+    camReader.decodeFromVideoElement(video, (result, err) => {
       if(!camActive) return;
       if(result){
         const code = result.text;
         const now = Date.now();
-        // Anti-duplicado: 2.5s entre escaneos del mismo código
         if(code === camLastCode && (now - camLastCodeTime) < 2500) return;
         camLastCode = code;
         camLastCodeTime = now;
         camBeep();
         if(navigator.vibrate) navigator.vibrate(80);
-
         const inp = document.getElementById('mvp-escaner');
         if(inp){
           inp.value = code;
-          if(typeof mvpProcesarEntrada === 'function'){
-            mvpProcesarEntrada();
-          }
+          if(typeof mvpProcesarEntrada === 'function'){ mvpProcesarEntrada(); }
         }
         camSetStatus('✅ ' + code + ' agregado al ticket');
         setTimeout(() => {
@@ -17839,14 +17903,16 @@ async function camIniciarEscaneo(){
 }
 
 async function camCambiar(){
-  if(camDevices.length < 2){
-    camSetStatus('⚠️ Solo hay una cámara disponible en este dispositivo');
-    setTimeout(() => camSetStatus('🎯 Apuntá la cámara al próximo código...'), 1500);
-    return;
-  }
-  camCurrentDeviceIdx = (camCurrentDeviceIdx + 1) % camDevices.length;
-  if(camReader){ try{ camReader.reset(); }catch(e){} }
+  // Alternar entre trasera y frontal
+  camFacingMode = (camFacingMode === 'environment') ? 'user' : 'environment';
   camLastCode = null;
+  if(camReader){ try{ camReader.reset(); }catch(e){} }
+  // Detener stream actual antes de reabrir con la otra cámara
+  const video = document.getElementById('cam-video');
+  if(video && video.srcObject){
+    try { video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
+    video.srcObject = null;
+  }
   await camIniciarEscaneo();
 }
 
