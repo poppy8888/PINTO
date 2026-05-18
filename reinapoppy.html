@@ -2588,8 +2588,8 @@ setInterval(() => {
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('surtidor',this)"><span class="tab-icon">🛒</span><span class="tab-label">Ventas</span></button>
-  <button class="tab" onclick="showTab('stock',this)"><span class="tab-icon">📦</span><span class="tab-label">Stock</span></button>
+  <button class="tab" onclick="abrirModalVentasPOS()" style="background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;border-color:#1f7c3e;"><span class="tab-icon" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">🛒</span><span class="tab-label" style="color:#fff;">Ventas</span></button>
+  <button class="tab active" onclick="showTab('stock',this)"><span class="tab-icon">📦</span><span class="tab-label">Stock</span></button>
   <button class="tab" onclick="showTab('cigarrillos',this)"><span class="tab-icon">🚬</span><span class="tab-label">Cigarrillos</span></button>
   <button class="tab" onclick="showTab('acciones',this)"><span class="tab-icon">⚡</span><span class="tab-label">Acciones</span></button>
   <button class="tab" onclick="showTab('compra',this)"><span class="tab-icon">🛍️</span><span class="tab-label">Compra</span></button>
@@ -2760,7 +2760,7 @@ setInterval(() => {
 <!-- /PANEL ADMIN LA REINA -->
 
 <!-- PANEL SURTIDOR -->
-<div id="panel-surtidor" class="panel active">
+<div id="panel-surtidor" class="panel">
 
   <!-- Cabecera tipo modal de venta -->
   <div style="background:linear-gradient(135deg,#0a1a2e,#1e3a5e);color:#fff;padding:14px 22px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 2px 10px rgba(10,26,46,0.2);">
@@ -3179,7 +3179,7 @@ setInterval(() => {
 <!-- ZONA DE IMPRESIÓN (oculta normalmente, se muestra solo al imprimir) -->
 <div id="zona-impresion" style="display:none;"></div>
 
-<div id="panel-stock" class="panel">
+<div id="panel-stock" class="panel active">
   <!-- Filtro por familia -->
   <div style="background:#f5f5f5;border:1px solid #c8c8c8;border-radius:6px;padding:10px 14px;margin-bottom:12px;">
     <div style="font-size:0.78rem;font-weight:700;color:#444;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📂 Filtrar por familia / categoría</div>
@@ -17146,6 +17146,342 @@ window.BACKUPS = {
 
 </script>
 <!-- ====================== /FIREBASE SYNC ======================== -->
+
+<!-- ============================================================ -->
+<!-- ================= MODAL DE VENTAS ESTILO POS ================ -->
+<!-- ============================================================ -->
+<style>
+#modal-ventas-pos{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99998;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
+#modal-ventas-pos.show{display:flex;}
+.mvp-modal{background:#fff;border-radius:14px;width:min(1100px,96vw);max-height:94vh;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.5);display:flex;flex-direction:column;}
+.mvp-header{background:linear-gradient(135deg,#1a1a1a,#2a2a2a);color:#f5c500;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;}
+.mvp-header h2{margin:0;font-size:1.2rem;font-weight:800;display:flex;align-items:center;gap:10px;}
+.mvp-cerrar{background:rgba(255,255,255,0.1);color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.1rem;font-weight:700;transition:all 0.2s;}
+.mvp-cerrar:hover{background:#e74c3c;transform:scale(1.05);}
+.mvp-body{padding:16px 22px;overflow-y:auto;flex:1;}
+.mvp-datos{background:#f8f9fa;border:1px solid #e0e0e0;border-radius:10px;padding:12px;margin-bottom:12px;}
+.mvp-datos-titulo{font-size:0.75rem;font-weight:800;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.mvp-grid-datos{display:grid;grid-template-columns:2fr 1.2fr 1fr;gap:10px;}
+.mvp-campo label{display:block;font-size:0.7rem;color:#888;font-weight:700;text-transform:uppercase;margin-bottom:3px;letter-spacing:0.5px;}
+.mvp-campo select, .mvp-campo input{width:100%;padding:8px 10px;border:2px solid #e0e0e0;border-radius:7px;font-size:0.9rem;outline:none;background:#fff;font-family:inherit;}
+.mvp-campo select:focus, .mvp-campo input:focus{border-color:#f5c500;box-shadow:0 0 0 3px rgba(245,197,0,0.2);}
+.mvp-tabla-wrap{border:2px solid #e0e0e0;border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.mvp-tabla{width:100%;border-collapse:collapse;font-size:0.88rem;}
+.mvp-tabla thead{background:linear-gradient(135deg,#f5c500,#e0b000);color:#1a1a1a;}
+.mvp-tabla th{padding:10px 8px;text-align:left;font-weight:800;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;}
+.mvp-tabla td{padding:10px 8px;border-bottom:1px solid #f0f0f0;}
+.mvp-tabla tbody tr:hover{background:#fffde0;}
+.mvp-tabla .col-precio,.mvp-tabla .col-cant,.mvp-tabla .col-total{text-align:right;}
+.mvp-tabla .col-acc{width:30px;text-align:center;}
+.mvp-tabla-vacia{padding:30px;text-align:center;color:#999;font-style:italic;}
+.mvp-input-row{display:flex;gap:8px;margin-bottom:12px;}
+.mvp-input-row input{flex:1;padding:11px 14px;border:2px solid #1a1a1a;border-radius:8px;font-size:0.95rem;outline:none;font-weight:600;}
+.mvp-input-row input:focus{border-color:#f5c500;box-shadow:0 0 0 3px rgba(245,197,0,0.2);}
+.mvp-input-row button{padding:11px 22px;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);color:#f5c500;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:0.9rem;}
+.mvp-input-row button:hover{background:linear-gradient(135deg,#2a2a2a,#3a3a3a);}
+.mvp-footer{background:#f8f9fa;border-top:2px solid #e0e0e0;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.mvp-acciones{display:flex;gap:8px;flex-wrap:wrap;}
+.mvp-btn{padding:11px 18px;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
+.mvp-btn:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,0.15);}
+.mvp-btn-cancel{background:#e74c3c;color:#fff;}
+.mvp-btn-guardar{background:#27ae60;color:#fff;}
+.mvp-btn-borrar{background:#888;color:#fff;}
+.mvp-btn-imprimir{background:#3498db;color:#fff;}
+.mvp-total{background:linear-gradient(135deg,#1a1a1a,#2a2a2a);color:#f5c500;padding:12px 26px;border-radius:10px;font-size:1.6rem;font-weight:900;font-family:'Courier New',monospace;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+.mvp-total-label{font-size:0.7rem;color:#aaa;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:2px;}
+.mvp-quitar-btn{background:#e74c3c;color:#fff;border:none;width:24px;height:24px;border-radius:50%;cursor:pointer;font-weight:800;font-size:0.85rem;display:flex;align-items:center;justify-content:center;margin:0 auto;}
+.mvp-quitar-btn:hover{background:#c0392b;}
+@media(max-width:768px){
+  .mvp-modal{width:100vw;max-height:100vh;border-radius:0;}
+  .mvp-grid-datos{grid-template-columns:1fr;}
+  .mvp-tabla{font-size:0.78rem;}
+  .mvp-acciones{justify-content:center;}
+}
+</style>
+
+<div id="modal-ventas-pos">
+  <div class="mvp-modal">
+    <div class="mvp-header">
+      <h2>🛒 Nueva Venta</h2>
+      <button class="mvp-cerrar" onclick="cerrarModalVentasPOS()" title="Cerrar (ESC)">✕</button>
+    </div>
+    
+    <div class="mvp-body">
+      <div class="mvp-datos">
+        <div class="mvp-datos-titulo">📋 Datos de la Venta</div>
+        <div class="mvp-grid-datos">
+          <div class="mvp-campo">
+            <label>Cliente</label>
+            <select id="mvp-cliente"></select>
+          </div>
+          <div class="mvp-campo">
+            <label>Forma de Pago</label>
+            <select id="mvp-pago">
+              <option value="efectivo">💵 Efectivo</option>
+              <option value="tarjeta">💳 Tarjeta</option>
+              <option value="transferencia">🏦 Transferencia</option>
+              <option value="cta_cte">📋 Cuenta Corriente</option>
+            </select>
+          </div>
+          <div class="mvp-campo">
+            <label>Fecha</label>
+            <input type="text" id="mvp-fecha" readonly>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mvp-tabla-wrap">
+        <table class="mvp-tabla">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Producto</th>
+              <th class="col-cant">Cant.</th>
+              <th class="col-precio">Precio</th>
+              <th class="col-total">Total</th>
+              <th class="col-acc"></th>
+            </tr>
+          </thead>
+          <tbody id="mvp-items">
+            <tr><td colspan="6" class="mvp-tabla-vacia">— Aún no hay productos cargados —</td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="mvp-input-row">
+        <input type="text" id="mvp-codigo" placeholder="🔍 Código de barras o nombre del producto..." autocomplete="off">
+        <button onclick="mvpAgregarProducto()">+ Agregar</button>
+      </div>
+    </div>
+    
+    <div class="mvp-footer">
+      <div class="mvp-acciones">
+        <button class="mvp-btn mvp-btn-cancel" onclick="cerrarModalVentasPOS()">✕ Cancelar</button>
+        <button class="mvp-btn mvp-btn-borrar" onclick="mvpLimpiar()">🗑️ Limpiar</button>
+        <button class="mvp-btn mvp-btn-imprimir" onclick="mvpImprimir()">🖨️ Imprimir</button>
+        <button class="mvp-btn mvp-btn-guardar" onclick="mvpGuardarVenta()">✓ COBRAR Y GUARDAR</button>
+      </div>
+      <div>
+        <div class="mvp-total-label">Total a Pagar</div>
+        <div class="mvp-total" id="mvp-total">$0.00</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 💰 MODAL DE VENTAS POS - MiniMarket La Reina
+// ============================================================
+let mvpItems = [];
+
+function abrirModalVentasPOS(){
+  const sel = document.getElementById('mvp-cliente');
+  sel.innerHTML = '<option value="">— Consumidor Final —</option>';
+  if(window.clientes && Array.isArray(window.clientes)){
+    window.clientes.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.nombre + (c.dni ? ' (DNI ' + c.dni + ')' : '');
+      sel.appendChild(opt);
+    });
+  }
+  const now = new Date();
+  const fecha = now.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+  document.getElementById('mvp-fecha').value = fecha;
+  mvpItems = [];
+  mvpRender();
+  document.getElementById('modal-ventas-pos').classList.add('show');
+  setTimeout(() => {
+    const inp = document.getElementById('mvp-codigo');
+    if(inp) inp.focus();
+  }, 200);
+}
+
+function cerrarModalVentasPOS(){
+  if(mvpItems.length > 0){
+    if(!confirm('¿Cancelar la venta? Se perderán los productos cargados.')) return;
+  }
+  document.getElementById('modal-ventas-pos').classList.remove('show');
+  mvpItems = [];
+}
+
+function mvpAgregarProducto(){
+  const inp = document.getElementById('mvp-codigo');
+  const texto = inp.value.trim().toLowerCase();
+  if(!texto) return;
+  if(!window.productos || !Array.isArray(window.productos)){
+    alert('No hay productos cargados en el sistema');
+    return;
+  }
+  let prod = window.productos.find(p => 
+    (p.codigoBarra && p.codigoBarra.toString().toLowerCase() === texto) ||
+    (p.barcode && p.barcode.toString().toLowerCase() === texto) ||
+    (p.id && p.id.toString() === texto)
+  );
+  if(!prod){
+    prod = window.productos.find(p => p.nombre && p.nombre.toLowerCase().includes(texto));
+  }
+  if(!prod){
+    alert('Producto no encontrado: ' + texto);
+    return;
+  }
+  const precio = Number(prod.precio || 0);
+  const existente = mvpItems.find(i => i.id === prod.id);
+  if(existente){
+    existente.cantidad++;
+  } else {
+    mvpItems.push({
+      id: prod.id,
+      codigo: prod.codigoBarra || prod.barcode || '-',
+      nombre: prod.nombre || 'Sin nombre',
+      precio: precio,
+      cantidad: 1
+    });
+  }
+  inp.value = '';
+  inp.focus();
+  mvpRender();
+}
+
+function mvpQuitar(idx){
+  mvpItems.splice(idx, 1);
+  mvpRender();
+}
+
+function mvpCambiarCantidad(idx, delta){
+  if(!mvpItems[idx]) return;
+  mvpItems[idx].cantidad += delta;
+  if(mvpItems[idx].cantidad <= 0) mvpItems.splice(idx, 1);
+  mvpRender();
+}
+
+function mvpRender(){
+  const tbody = document.getElementById('mvp-items');
+  const totalEl = document.getElementById('mvp-total');
+  if(mvpItems.length === 0){
+    tbody.innerHTML = '<tr><td colspan="6" class="mvp-tabla-vacia">— Aún no hay productos cargados —</td></tr>';
+    totalEl.textContent = '$0.00';
+    return;
+  }
+  let total = 0;
+  let html = '';
+  mvpItems.forEach((it, i) => {
+    const subtotal = it.precio * it.cantidad;
+    total += subtotal;
+    html += `<tr>
+      <td style="font-family:monospace;color:#666;">${it.codigo}</td>
+      <td style="font-weight:600;">${it.nombre}</td>
+      <td class="col-cant">
+        <button onclick="mvpCambiarCantidad(${i},-1)" style="background:#e0e0e0;border:none;width:22px;height:22px;border-radius:50%;cursor:pointer;font-weight:800;">−</button>
+        <span style="margin:0 8px;font-weight:700;">${it.cantidad}</span>
+        <button onclick="mvpCambiarCantidad(${i},1)" style="background:#27ae60;color:#fff;border:none;width:22px;height:22px;border-radius:50%;cursor:pointer;font-weight:800;">+</button>
+      </td>
+      <td class="col-precio">$${formatearMVP(it.precio)}</td>
+      <td class="col-total" style="font-weight:800;color:#1a1a1a;">$${formatearMVP(subtotal)}</td>
+      <td class="col-acc"><button class="mvp-quitar-btn" onclick="mvpQuitar(${i})" title="Quitar">×</button></td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+  totalEl.textContent = '$' + formatearMVP(total);
+}
+
+function formatearMVP(n){
+  return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+}
+
+function mvpLimpiar(){
+  if(mvpItems.length === 0) return;
+  if(!confirm('¿Limpiar todos los productos?')) return;
+  mvpItems = [];
+  mvpRender();
+}
+
+function mvpImprimir(){
+  if(mvpItems.length === 0){
+    alert('No hay productos para imprimir');
+    return;
+  }
+  let total = 0;
+  let detalle = '';
+  mvpItems.forEach(it => {
+    const sub = it.precio * it.cantidad;
+    total += sub;
+    detalle += `${it.cantidad} x ${it.nombre} = $${formatearMVP(sub)}\n`;
+  });
+  alert('TICKET DE VENTA\n\n' + detalle + '\n──────────────\nTotal: $' + formatearMVP(total));
+}
+
+function mvpGuardarVenta(){
+  if(mvpItems.length === 0){
+    alert('No hay productos para guardar');
+    return;
+  }
+  const clienteId = document.getElementById('mvp-cliente').value;
+  const formaPago = document.getElementById('mvp-pago').value;
+  const lineas = mvpItems.map(it => ({
+    id: it.id,
+    nombre: it.nombre,
+    cantidad: it.cantidad,
+    precio: it.precio,
+    subtotal: it.precio * it.cantidad
+  }));
+  const total = lineas.reduce((s, l) => s + l.subtotal, 0);
+  const factura = {
+    id: Date.now(),
+    fecha: new Date().toLocaleString('es-AR'),
+    tipo: 'venta',
+    cliente: clienteId || '',
+    formaPago: formaPago,
+    lineas: lineas,
+    total: total,
+    descuento: 0
+  };
+  if(window.facturas && Array.isArray(window.facturas)){
+    window.facturas.push(factura);
+  }
+  if(window.productos && Array.isArray(window.productos)){
+    mvpItems.forEach(it => {
+      const p = window.productos.find(x => x.id === it.id);
+      if(p && p.stock !== undefined){
+        p.stock = Math.max(0, Number(p.stock) - it.cantidad);
+      }
+    });
+  }
+  if(typeof saveAll === 'function') saveAll();
+  if(typeof renderAll === 'function') renderAll();
+  alert('✅ Venta guardada\n\nTotal: $' + formatearMVP(total) + '\nForma de pago: ' + formaPago.toUpperCase());
+  mvpItems = [];
+  document.getElementById('modal-ventas-pos').classList.remove('show');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('mvp-codigo');
+  if(inp){
+    inp.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        mvpAgregarProducto();
+      }
+    });
+  }
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && document.getElementById('modal-ventas-pos') && document.getElementById('modal-ventas-pos').classList.contains('show')){
+      cerrarModalVentasPOS();
+    }
+  });
+});
+
+window.abrirModalVentasPOS = abrirModalVentasPOS;
+window.cerrarModalVentasPOS = cerrarModalVentasPOS;
+window.mvpAgregarProducto = mvpAgregarProducto;
+window.mvpQuitar = mvpQuitar;
+window.mvpCambiarCantidad = mvpCambiarCantidad;
+window.mvpLimpiar = mvpLimpiar;
+window.mvpImprimir = mvpImprimir;
+window.mvpGuardarVenta = mvpGuardarVenta;
+</script>
+<!-- ============== /MODAL DE VENTAS POS ========================== -->
 
 </body>
 </html>
