@@ -4625,6 +4625,14 @@ let productos=[], stock={}, log=[], facturas=[], clientes=[], proveedores=[], mo
 window.getProductos = function(){ return productos; };
 window.getStock = function(){ return stock; };
 window.getFacturas = function(){ return facturas; };
+// === FIX: puentes vivos para que window.productos / window.clientes / window.facturas
+// siempre devuelvan el array actual (resuelve el error "No hay productos cargados"
+// en el escáner y en la búsqueda del modal de Ventas POS) ===
+Object.defineProperty(window, 'productos',  { get: () => productos,  set: v => { productos  = v; }, configurable: true });
+Object.defineProperty(window, 'clientes',   { get: () => clientes,   set: v => { clientes   = v; }, configurable: true });
+Object.defineProperty(window, 'facturas',   { get: () => facturas,   set: v => { facturas   = v; }, configurable: true });
+Object.defineProperty(window, 'stock',      { get: () => stock,      set: v => { stock      = v; }, configurable: true });
+Object.defineProperty(window, 'proveedores',{ get: () => proveedores,set: v => { proveedores= v; }, configurable: true });
 let descuentos=[], gastos=[], turnos=[], turnoActual=null;
 let ventaDescuentoAplicado = 0; // descuento activo en la venta actual (monto fijo)
 let scannerMode='salida', deleteTarget=null, nextId=100, nextCliId=1, nextProvId=1;
