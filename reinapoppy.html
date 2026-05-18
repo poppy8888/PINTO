@@ -2575,8 +2575,8 @@ setInterval(() => {
 <div class="modal-overlay" id="camara-modal" style="z-index:3000;background:rgba(0,0,0,0.92);">
   <div style="background:#1a1a1a;border-radius:20px;padding:20px;width:min(95vw,420px);text-align:center;">
     <div style="font-size:1rem;font-weight:700;color:#f5c500;margin-bottom:12px;">📷 Escaneá el código</div>
-    <div style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;">
-      <video id="camara-video" autoplay playsinline muted webkit-playsinline style="width:100%;max-height:300px;display:block;background:#000;"></video>
+    <div style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;min-height:240px;">
+      <video id="camara-video" autoplay playsinline muted webkit-playsinline x5-playsinline disablepictureinpicture style="width:100%;height:auto;min-height:240px;max-height:60vh;display:block;background:#000;object-fit:cover;"></video>
       <canvas id="camara-canvas" style="display:none;"></canvas>
     </div>
     <div id="camara-status" style="margin-top:10px;font-size:0.8rem;color:#8888aa;">Iniciando...</div>
@@ -10624,15 +10624,24 @@ async function iniciarStream(){
 
     statusEl.textContent = 'Solicitando permiso de cámara...';
 
-    // ---- IMPORTANTE: setear atributos del video ANTES de asignar el stream (iOS) ----
+    // ---- IMPORTANTE: setear atributos del video ANTES de asignar el stream (iOS/Android) ----
     const video = document.getElementById('camara-video');
     video.setAttribute('playsinline','true');
     video.setAttribute('webkit-playsinline','true');
+    video.setAttribute('x5-playsinline','true');
     video.setAttribute('muted','true');
     video.muted = true;
     video.autoplay = true;
+    video.controls = false;
 
-    // Constraints optimizados para celulares: primero exact, si falla prueba sin exact
+    // Limpiar cualquier srcObject previo y reflowear (importante en algunos Android)
+    video.srcObject = null;
+
+    // Esperar a que el modal esté realmente renderizado antes de pedir el stream.
+    // Si el video está en display:none o 0x0, iOS NO renderiza el frame.
+    await new Promise(r => requestAnimationFrame(()=>requestAnimationFrame(r)));
+
+    // Constraints: primero exact, si falla prueba sin exact, después básico
     let stream;
     const constraintsExact = { video: { facingMode: { exact: camarasFacingMode }, width:{ideal:1280}, height:{ideal:720} }, audio:false };
     const constraintsFallback = { video: { facingMode: camarasFacingMode, width:{ideal:1280}, height:{ideal:720} }, audio:false };
@@ -10645,18 +10654,48 @@ async function iniciarStream(){
     }
 
     camaraStream = stream;
-    video.srcObject = stream;
 
-    // play() puede colgarse en iOS si falta playsinline; le ponemos timeout
+    // ---- Patrón correcto: asignar srcObject y ESPERAR a loadedmetadata antes de play() ----
+    // Sin esto, en iOS Safari y muchos WebViews el video queda en negro aunque la cámara esté activa.
+    await new Promise((resolve, reject) => {
+      let resolved = false;
+      const onMeta = () => {
+        if(resolved) return;
+        resolved = true;
+        video.removeEventListener('loadedmetadata', onMeta);
+        resolve();
+      };
+      video.addEventListener('loadedmetadata', onMeta);
+      video.srcObject = stream;
+      // Fallback: si no llega loadedmetadata en 3s seguimos igual
+      setTimeout(()=>{ if(!resolved){ resolved = true; resolve(); } }, 3000);
+    });
+
+    // Ahora sí, reproducir. play() devuelve una Promise que puede rechazar en iOS si
+    // no se cumplen las condiciones (gesto de usuario, muted, playsinline), pero el modal
+    // se abrió con un click así que hay gesto. Si falla, seguimos: el stream a veces
+    // se reproduce solo gracias al atributo autoplay.
+    let playOk = false;
     try {
-      await Promise.race([
-        video.play(),
-        new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), 4000))
-      ]);
+      const playPromise = video.play();
+      if(playPromise && typeof playPromise.then === 'function'){
+        await Promise.race([
+          playPromise.then(()=>{ playOk = true; }),
+          new Promise((_,rej)=>setTimeout(()=>rej(new Error('play_timeout')), 4000))
+        ]);
+      } else {
+        playOk = true;
+      }
     } catch(playErr){
-      // Algunos navegadores reproducen igual aunque play() falle. Seguimos.
       console.warn('video.play() warning:', playErr);
     }
+
+    // Reintento: si después de 800ms el video sigue sin tener datos, forzamos otro play
+    setTimeout(()=>{
+      if(video.readyState < 2 || video.paused){
+        try { video.play(); } catch(e){}
+      }
+    }, 800);
 
     const modo = _nativeDetector ? '🔵 Escáner nativo' : '🟡 Escáner ZXing';
     statusEl.textContent = `${modo} — Apuntá al código...`;
