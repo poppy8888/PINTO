@@ -17499,17 +17499,175 @@ window.BACKUPS = {
 .vuelto-btn-ok:hover{background:linear-gradient(180deg,#34d27d,#229954);}
 @media(max-width:560px){.vuelto-modal{width:96vw;}.vuelto-num{font-size:2.3rem;padding:7px 12px;}#modal-vuelto-pos input.vuelto-num-input{font-size:2.3rem !important;padding:7px 12px !important;}}
 
-/* Mobile */
+/* ===================================================================
+   Mobile — Layout reorganizado:
+   1) Escáner arriba (cómodo para escanear con la mano)
+   2) Lista de productos en formato TARJETAS (ya no tabla aplastada)
+   3) Totales compactos abajo
+   =================================================================== */
 @media(max-width:880px){
   .mvp-modal{width:100vw;height:100vh;max-height:100vh;border-radius:0;}
-  .mvp-main{grid-template-columns:1fr;grid-template-rows:auto 1fr;}
-  .mvp-totales{order:-1;max-height:42vh;}
-  .mvp-tabla-zona{order:1;}
+  .mvp-body{padding:8px;gap:6px;}
+
+  /* Datos de la venta más compactos */
+  .mvp-datos{padding:6px 8px;}
   .mvp-fila-3,.mvp-fila-3b{grid-template-columns:1fr 1fr;}
-  .mvp-tot-total-val{font-size:1.7rem;}
-  .mvp-fbtn{font-size:0.7rem;min-width:64px;padding:6px 4px;}
-  .mvp-fbtn .ico{font-size:1rem;}
+
+  /* Apilar tabla y totales en una sola columna */
+  .mvp-main{
+    display:flex !important;
+    flex-direction:column;
+    grid-template-columns:none;
+    grid-template-rows:none;
+    gap:8px;
+    flex:1;
+    min-height:0;
+  }
+
+  /* ZONA DE TABLA — crece y ocupa todo lo posible.
+     column-reverse: la barra de escáner queda ARRIBA y la lista debajo */
+  .mvp-tabla-zona{
+    order:1;
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column-reverse;
+    gap:6px;
+  }
+  .mvp-tabla-wrap{flex:1 1 auto; min-height:220px;}
+
+  /* TOTALES compactos abajo (solo lo esencial visible de un vistazo) */
+  .mvp-totales{
+    order:2;
+    max-height:none;
+    flex:none;
+    padding:8px 10px;
+  }
+  .mvp-totales-titulo{margin-bottom:4px;}
+  .mvp-tot-total-val{font-size:1.9rem;}
+
+  /* ============= TABLA → TARJETAS ===============
+     Cada <tr> se transforma en una tarjeta legible.
+     Las celdas se reposicionan con grid-template-areas según
+     su posición (nth-child), por lo que NO hace falta tocar
+     la función mvpRender() del JavaScript. */
+  .mvp-tabla{display:block; width:100%;}
+  .mvp-tabla thead{display:none;}
+  .mvp-tabla tbody{display:block; width:100%;}
+
+  .mvp-tabla tbody tr{
+    display:grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "nombre nombre  acc"
+      "cod    iva     iva"
+      "cant   precio  total"
+      "dto    dto     total";
+    align-items:center;
+    gap:4px 10px;
+    padding:10px 12px;
+    margin:0 0 6px 0;
+    background:#fff;
+    border:1px solid #d8dde3;
+    border-radius:8px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.06);
+  }
+  .mvp-tabla tbody tr.sel{
+    border-color:#2196f3;
+    background:#eaf4ff;
+    outline:none;
+  }
+  .mvp-tabla tbody td{
+    display:block;
+    padding:0;
+    border:none;
+    font-size:0.85rem;
+    text-align:left;
+  }
+
+  /* Asignación por posición (orden que produce mvpRender):
+     1=Código  2=Cant  3=Nombre  4=Precio  5=IVA  6=Dto  7=Total  8=Acción */
+  .mvp-tabla tbody tr td:nth-child(1){
+    grid-area:cod;
+    color:#888;
+    font-size:0.72rem;
+    font-family:Consolas,monospace;
+  }
+  .mvp-tabla tbody tr td:nth-child(2){ grid-area:cant; }
+  .mvp-tabla tbody tr td:nth-child(3){
+    grid-area:nombre;
+    font-weight:700;
+    font-size:1rem;
+    color:#1a1a1a;
+    line-height:1.2;
+  }
+  .mvp-tabla tbody tr td:nth-child(4){
+    grid-area:precio;
+    font-size:0.78rem;
+    color:#555;
+    text-align:left;
+  }
+  .mvp-tabla tbody tr td:nth-child(5){
+    grid-area:iva;
+    font-size:0.7rem;
+    color:#888;
+    text-align:left;
+  }
+  .mvp-tabla tbody tr td:nth-child(6){ grid-area:dto; font-size:0.78rem; }
+  .mvp-tabla tbody tr td:nth-child(7){
+    grid-area:total;
+    font-weight:900;
+    font-size:1.15rem;
+    color:#1f7c3e;
+    text-align:right;
+    align-self:center;
+  }
+  .mvp-tabla tbody tr td:nth-child(8){ grid-area:acc; text-align:right; }
+
+  /* Etiquetas pequeñas para que se entienda cada campo */
+  .mvp-tabla tbody tr td:nth-child(2)::before{ content:"Cant: "; color:#888; font-size:0.72rem; font-weight:600; }
+  .mvp-tabla tbody tr td:nth-child(4)::before{ content:"Precio "; color:#888; font-size:0.72rem; }
+  .mvp-tabla tbody tr td:nth-child(5)::before{ content:"IVA "; color:#888; font-size:0.7rem; }
+  .mvp-tabla tbody tr td:nth-child(5)::after{ content:"%"; color:#888; font-size:0.7rem; }
+  .mvp-tabla tbody tr td:nth-child(6)::before{ content:"Dto: "; color:#888; font-size:0.72rem; font-weight:600; }
+  .mvp-tabla tbody tr td:nth-child(6)::after{ content:"%"; color:#888; font-size:0.7rem; }
+
+  /* Inputs más cómodos para dedo */
+  .mvp-cant-input{width:58px; height:32px; font-size:0.95rem; padding:2px 6px;}
+  .mvp-quitar-btn{width:32px; height:32px; font-size:1.05rem; border-radius:6px;}
+
+  /* Fila VACÍA (— Aún no hay productos —): que ocupe toda la "tarjeta" */
+  .mvp-tabla tbody tr td.mvp-tabla-vacia{
+    grid-area: unset !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 1 / -1 !important;
+    padding:30px 16px !important;
+    text-align:center !important;
+    font-style:italic;
+    color:#999;
+    background:transparent;
+  }
+
+  /* Footer */
+  .mvp-fbtn{font-size:0.7rem;min-width:64px;padding:8px 4px;}
+  .mvp-fbtn .ico{font-size:1.1rem;}
   .mvp-fbtn .tag{display:none;}
+}
+
+/* Pantallas muy chicas (≤420px) → un toque más compacto */
+@media(max-width:420px){
+  .mvp-tabla tbody tr{
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "nombre  acc"
+      "cod     iva"
+      "cant    total"
+      "precio  total"
+      "dto     total";
+    gap:3px 8px;
+    padding:9px 10px;
+  }
+  .mvp-tot-total-val{font-size:1.7rem;}
 }
 </style>
 
