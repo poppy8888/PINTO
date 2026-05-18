@@ -17259,6 +17259,51 @@ window.BACKUPS = {
 .mvp-fbtn-exit{background:linear-gradient(180deg,#fff,#fff0f0);}
 .mvp-fbtn-exit .ico{color:#c0392b;}
 
+/* ============== MODAL DE VUELTO (chico) ============== */
+#modal-vuelto-pos{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99999;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
+#modal-vuelto-pos.show{display:flex;}
+.vuelto-modal{background:#ececec;border:1px solid #999;border-radius:8px;width:520px;max-width:96vw;box-shadow:0 20px 60px rgba(0,0,0,0.7);overflow:hidden;}
+.vuelto-header{background:linear-gradient(180deg,#3a6fa8,#2d568a);color:#fff;padding:9px 18px;display:flex;justify-content:space-between;align-items:center;font-size:1rem;font-weight:700;}
+.vuelto-cerrar{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;width:28px;height:26px;border-radius:3px;cursor:pointer;font-size:0.9rem;line-height:1;}
+.vuelto-cerrar:hover{background:#c0392b;border-color:#c0392b;}
+.vuelto-body{padding:18px 22px 16px 22px;}
+.vuelto-fila{margin-bottom:12px;}
+.vuelto-fila label{display:block;font-size:1rem;color:#222;font-weight:800;margin-bottom:4px;letter-spacing:0.3px;}
+.vuelto-num{background:#000;color:#fff;font-family:Consolas,'Courier New',monospace;font-size:3.3rem;font-weight:900;text-align:right;padding:10px 20px;border:1px solid #555;border-radius:3px;line-height:1.05;letter-spacing:-1px;box-sizing:border-box;width:100%;}
+.vuelto-num-readonly{color:#fff;}
+#modal-vuelto-pos input.vuelto-num-input{
+  background:#000 !important;
+  color:#00d4ff !important;
+  font-family:Consolas,'Courier New',monospace !important;
+  font-size:3.3rem !important;
+  font-weight:900 !important;
+  text-align:right !important;
+  padding:10px 20px !important;
+  border:1px solid #555 !important;
+  border-radius:3px !important;
+  line-height:1.05 !important;
+  letter-spacing:-1px !important;
+  box-sizing:border-box !important;
+  width:100% !important;
+  height:auto !important;
+  outline:none !important;
+  display:block !important;
+  box-shadow:none !important;
+  margin:0 !important;
+}
+#modal-vuelto-pos input.vuelto-num-input:focus{border-color:#00d4ff !important;box-shadow:0 0 0 2px rgba(0,212,255,0.25) !important;background:#000 !important;color:#00d4ff !important;}
+#modal-vuelto-pos input.vuelto-num-input::placeholder{color:#456 !important;opacity:0.55 !important;}
+.vuelto-num-result{color:#ff5252;}
+.vuelto-msg{font-size:0.95rem;color:#666;text-align:center;margin:10px 0 14px 0;font-style:italic;min-height:22px;font-weight:600;}
+.vuelto-acciones{display:flex;gap:10px;}
+.vuelto-btn{flex:1;padding:11px 8px;border-radius:5px;border:1px solid #aaa;cursor:pointer;font-weight:800;font-size:0.95rem;transition:all 0.12s;}
+.vuelto-btn:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,0.2);}
+.vuelto-btn-cancel{background:#fff;color:#333;}
+.vuelto-btn-cancel:hover{background:#fff0f0;border-color:#c0392b;color:#c0392b;}
+.vuelto-btn-ok{background:linear-gradient(180deg,#2ecc71,#27ae60);color:#fff;border-color:#27ae60;}
+.vuelto-btn-ok:hover{background:linear-gradient(180deg,#34d27d,#229954);}
+@media(max-width:560px){.vuelto-modal{width:96vw;}.vuelto-num{font-size:2.3rem;padding:7px 12px;}#modal-vuelto-pos input.vuelto-num-input{font-size:2.3rem !important;padding:7px 12px !important;}}
+
 /* Mobile */
 @media(max-width:880px){
   .mvp-modal{width:100vw;height:100vh;max-height:100vh;border-radius:0;}
@@ -17308,10 +17353,10 @@ window.BACKUPS = {
           <div class="mvp-campo">
             <label>Tipo de Pago</label>
             <select id="mvp-pago" onchange="mvpRecalcular()">
-              <option value="contado">💵 CONTADO</option>
-              <option value="tarjeta">💳 TARJETA</option>
-              <option value="transferencia">🏦 TRANSFERENCIA</option>
-              <option value="cta_cte">📋 CTA. CTE.</option>
+              <option value="contado">CONTADO</option>
+              <option value="tarjeta">TARJETA</option>
+              <option value="transferencia">TRANSFERENCIA</option>
+              <option value="cta_cte">CTA. CTE.</option>
             </select>
           </div>
           <div class="mvp-campo">
@@ -17446,6 +17491,117 @@ window.BACKUPS = {
     </div>
   </div>
 </div>
+
+<!-- Modal chico de Calcular Vuelto (sale al guardar venta en efectivo) -->
+<div id="modal-vuelto-pos">
+  <div class="vuelto-modal">
+    <div class="vuelto-header">
+      <span>💵 Calculando Vuelto</span>
+      <button class="vuelto-cerrar" onclick="vueltoCancelar()" title="Cancelar (Esc)">✕</button>
+    </div>
+    <div class="vuelto-body">
+      <div class="vuelto-fila">
+        <label>Importe</label>
+        <div id="vuelto-importe" class="vuelto-num vuelto-num-readonly">$0,00</div>
+      </div>
+      <div class="vuelto-fila">
+        <label>Entrega</label>
+        <input type="text" id="vuelto-entrega" class="vuelto-num vuelto-num-input" placeholder="0,00" inputmode="decimal" autocomplete="off" oninput="vueltoCalcular()">
+      </div>
+      <div class="vuelto-fila">
+        <label>Vuelto</label>
+        <div id="vuelto-resultado" class="vuelto-num vuelto-num-result">$0,00</div>
+      </div>
+      <div class="vuelto-msg" id="vuelto-msg">Ingresá el valor recibido y presioná <b>Enter</b> para finalizar</div>
+      <div class="vuelto-acciones">
+        <button class="vuelto-btn vuelto-btn-cancel" onclick="vueltoCancelar()">✕ Cancelar [Esc]</button>
+        <button class="vuelto-btn vuelto-btn-ok" onclick="vueltoConfirmar()">✓ Confirmar [Enter]</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 💵 Modal de Vuelto — se abre al guardar venta en efectivo
+// ============================================================
+function vueltoAbrir(){
+  // Calcular el total actual de la venta
+  let subtotal = 0;
+  mvpItems.forEach(it => { subtotal += it.precio * it.cantidad * (1 - (it.dto || 0) / 100); });
+  const descPct = parseFloat(document.getElementById('mvp-desc-pct')?.value || '0') || 0;
+  const recPct  = parseFloat(document.getElementById('mvp-rec-pct')?.value  || '0') || 0;
+  const total = subtotal - (subtotal * descPct / 100) + (subtotal * recPct / 100);
+  window.__vueltoTotal = total;
+  document.getElementById('vuelto-importe').textContent = '$' + formatearMVP(total);
+  document.getElementById('vuelto-entrega').value = '';
+  document.getElementById('vuelto-resultado').textContent = '$0,00';
+  document.getElementById('vuelto-resultado').style.color = '#ff5252';
+  document.getElementById('vuelto-msg').innerHTML = 'Ingresá el valor recibido y presioná <b>Enter</b> para finalizar';
+  document.getElementById('vuelto-msg').style.color = '#666';
+  document.getElementById('modal-vuelto-pos').classList.add('show');
+  setTimeout(() => {
+    const inp = document.getElementById('vuelto-entrega');
+    if(inp) inp.focus();
+  }, 80);
+}
+function vueltoCalcular(){
+  const total = window.__vueltoTotal || 0;
+  const rawTxt = (document.getElementById('vuelto-entrega').value || '').replace(/\./g,'').replace(',', '.');
+  const entrega = parseFloat(rawTxt) || 0;
+  const dif = entrega - total;
+  const out = document.getElementById('vuelto-resultado');
+  const msg = document.getElementById('vuelto-msg');
+  if(entrega <= 0){
+    out.textContent = '$0,00';
+    out.style.color = '#ff5252';
+    msg.innerHTML = 'Ingresá el valor recibido y presioná <b>Enter</b> para finalizar';
+    msg.style.color = '#666';
+  } else if(dif < 0){
+    out.textContent = '-$' + formatearMVP(Math.abs(dif));
+    out.style.color = '#ff5252';
+    msg.innerHTML = `⚠️ Falta <b>$${formatearMVP(Math.abs(dif))}</b>`;
+    msg.style.color = '#c0392b';
+  } else {
+    out.textContent = '$' + formatearMVP(dif);
+    out.style.color = '#00ff88';
+    msg.innerHTML = `✓ Vuelto a entregar: <b>$${formatearMVP(dif)}</b>`;
+    msg.style.color = '#1f7c3e';
+  }
+}
+function vueltoCancelar(){
+  document.getElementById('modal-vuelto-pos').classList.remove('show');
+  window.__mvpVueltoOK = false;
+}
+function vueltoConfirmar(){
+  const total = window.__vueltoTotal || 0;
+  const rawTxt = (document.getElementById('vuelto-entrega').value || '').replace(/\./g,'').replace(',', '.');
+  const entrega = parseFloat(rawTxt) || 0;
+  if(entrega <= 0){
+    if(!confirm('No ingresaste un importe. ¿Guardar la venta igual?')) return;
+  } else if(entrega < total){
+    if(!confirm(`Falta $${formatearMVP(total - entrega)}. ¿Guardar la venta igual?`)) return;
+  }
+  // Reflejar también en el panel de totales
+  const rec = document.getElementById('mvp-recibe'); if(rec) rec.value = formatearMVP(entrega);
+  if(typeof mvpCalcVuelto === 'function') mvpCalcVuelto();
+  document.getElementById('modal-vuelto-pos').classList.remove('show');
+  window.__mvpVueltoOK = true;
+  // Volver a llamar a Guardar — esta vez ya no se desvía al modal porque __mvpVueltoOK=true
+  mvpGuardarVenta();
+}
+// Atajos de teclado para el modal de vuelto
+document.addEventListener('keydown', e => {
+  const m = document.getElementById('modal-vuelto-pos');
+  if(!m || !m.classList.contains('show')) return;
+  if(e.key === 'Enter'){ e.preventDefault(); vueltoConfirmar(); }
+  if(e.key === 'Escape'){ e.preventDefault(); vueltoCancelar(); }
+});
+window.vueltoAbrir = vueltoAbrir;
+window.vueltoCalcular = vueltoCalcular;
+window.vueltoCancelar = vueltoCancelar;
+window.vueltoConfirmar = vueltoConfirmar;
+</script>
 
 <script>
 // ============================================================
@@ -17826,6 +17982,15 @@ function mvpGuardarVenta(){
     alert('⚠️ No hay productos para guardar');
     return;
   }
+  // Si paga en efectivo y "Calcular Vuelto" está tildado → abrir el modal de vuelto primero
+  const _formaPago = document.getElementById('mvp-pago').value;
+  const _calc = document.getElementById('mvp-calc-vuelto');
+  const _calcVuelto = _calc ? _calc.checked : true;
+  if(_formaPago === 'contado' && _calcVuelto && !window.__mvpVueltoOK){
+    vueltoAbrir();
+    return;
+  }
+  window.__mvpVueltoOK = false;
   const clienteId = document.getElementById('mvp-cliente').value;
   const formaPago = document.getElementById('mvp-pago').value;
   const comprobante = document.getElementById('mvp-comprobante').value;
