@@ -17702,15 +17702,21 @@ window.vueltoConfirmar = vueltoConfirmar;
 <!-- ================ MODAL CÁMARA (escáner por cam) ============ -->
 <!-- ============================================================ -->
 <style>
-#modal-camara-pos{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:100000;display:none;align-items:center;justify-content:center;font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
+#modal-camara-pos{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:2147483647 !important;display:none;align-items:center;justify-content:center;font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
 #modal-camara-pos.show{display:flex;}
 .cam-modal{background:#000;border-radius:10px;overflow:hidden;max-width:96vw;max-height:96vh;box-shadow:0 30px 80px rgba(0,0,0,0.85);display:flex;flex-direction:column;}
 .cam-header{background:linear-gradient(180deg,#1a1a1a,#2a2a2a);color:#f5c500;padding:9px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:0.95rem;border-bottom:2px solid #f5c500;}
 .cam-cerrar{background:rgba(255,255,255,0.08);border:1px solid #444;color:#fff;width:30px;height:28px;border-radius:4px;cursor:pointer;font-size:0.9rem;line-height:1;}
 .cam-cerrar:hover{background:#c0392b;border-color:#c0392b;}
-.cam-body{position:relative;background:#000;display:flex;align-items:center;justify-content:center;min-width:300px;min-height:280px;}
-#cam-video{display:block;max-width:90vw;max-height:62vh;width:100%;height:auto;min-height:280px;background:#000;object-fit:cover;}
-.cam-overlay{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;}
+.cam-body{position:relative;background:#000;display:block;min-width:300px;min-height:280px;width:100%;}
+#cam-video{display:block !important;width:100%;height:auto;min-height:280px;max-height:62vh;background:#000;object-fit:cover;
+  /* GPU acceleration: arregla "stream activo pero video negro" en muchos Android WebViews y iOS Safari */
+  transform:translateZ(0);-webkit-transform:translateZ(0);
+  /* Forzar visibilidad incluso si algún CSS de la página tiene reglas globales */
+  visibility:visible !important;opacity:1 !important;
+}
+.cam-overlay{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;z-index:2;}
+#cam-video{position:relative;z-index:1;}
 .cam-frame{width:78%;max-width:340px;height:110px;border:3px solid #f5c500;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,0.4);position:relative;overflow:hidden;}
 .cam-frame::before{content:"";position:absolute;left:8px;right:8px;top:50%;height:2px;background:#f5c500;box-shadow:0 0 10px #f5c500,0 0 18px #f5c500;animation:cam-scan 1.8s ease-in-out infinite;}
 @keyframes cam-scan{0%{transform:translateY(-46px);}50%{transform:translateY(46px);}100%{transform:translateY(-46px);}}
@@ -17799,7 +17805,17 @@ async function camAbrir(){
       alert('⚠️ El modal de cámara no está en la página. Recargá la página.');
       return;
     }
+    // ---- FIX CRÍTICO: mover el modal al <body> si no está ya ahí ----
+    // El modal de ventas POS tiene backdrop-filter:blur, que crea un nuevo
+    // "stacking context". Cualquier elemento DENTRO de ese contexto
+    // (aunque tenga z-index altísimo) queda atrapado y no se ve por encima
+    // del modal de ventas. Sacándolo al body, escapa de ese contexto.
+    if(modal.parentElement !== document.body){
+      document.body.appendChild(modal);
+    }
     modal.classList.add('show');
+    // Forzar repintado por las dudas
+    void modal.offsetHeight;
   } catch(e){
     alert('⚠️ Error al abrir el modal: ' + (e.message || e));
     return;
@@ -17911,12 +17927,19 @@ async function camIniciarEscaneo(){
     return;
   }
 
+  // ---- Esperar a que el modal/video tengan dimensiones reales (clave en iOS Safari) ----
+  // Si asignamos srcObject mientras el <video> está con width:0 o height:0,
+  // muchos navegadores móviles nunca lo renderizan aunque el stream esté activo.
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
   // ---- Asignar el stream al <video> esperando metadata (clave en iOS) ----
   await new Promise((resolve)=>{
     let done = false;
     const onMeta = ()=>{ if(done) return; done = true; video.removeEventListener('loadedmetadata', onMeta); resolve(); };
     video.addEventListener('loadedmetadata', onMeta);
     video.srcObject = camStream;
+    // Forzar reload del elemento — algunos Android WebViews necesitan esto
+    try { video.load && video.load(); } catch(e){}
     setTimeout(()=>{ if(!done){ done = true; resolve(); } }, 3000);
   });
 
@@ -17931,6 +17954,24 @@ async function camIniciarEscaneo(){
   setTimeout(()=>{
     if(video.paused){ try { video.play(); } catch(e){} }
   }, 700);
+
+  // ---- WORKAROUND PANTALLA NEGRA ----
+  // Si después de 1.2s el stream está activo pero el video sigue sin renderizar
+  // (sin frames pintados, videoWidth=0 o sigue pausado), forzamos una "patada":
+  // reasignamos srcObject. Esto destraba el render en muchos Android WebViews
+  // (WhatsApp/Instagram/Facebook in-app browser, MIUI, etc.) e iOS Safari viejo.
+  setTimeout(()=>{
+    if(!camActive) return;
+    const sinFrames = (video.videoWidth === 0 || video.readyState < 2);
+    if(sinFrames && camStream){
+      try {
+        video.srcObject = null;
+        video.srcObject = camStream;
+        const p2 = video.play();
+        if(p2 && p2.catch) p2.catch(()=>{});
+      } catch(e){}
+    }
+  }, 1200);
 
   camSetStatus('🎯 Apuntá la cámara al código de barras...');
 
