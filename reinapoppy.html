@@ -17747,17 +17747,31 @@ window.vueltoConfirmar = vueltoConfirmar;
 
 <script>
 // ============================================================
-// 📷 Escáner con cámara (usa la librería ZXing-js cargada bajo demanda)
+// 📷 Escáner con cámara (BarcodeDetector nativo + ZXing como fallback)
 // ============================================================
-let camReader = null;
-let camDevices = [];
-let camCurrentDeviceIdx = 0;
+// IMPORTANTE: nosotros controlamos el stream, NO ZXing. Esto evita que la
+// cámara quede en negro en Android/Chrome cuando ZXing reasigna srcObject.
+let camStream = null;       // MediaStream activo
+let camReader = null;       // ZXing MultiFormatReader (modo fallback)
+let camNativeDetector = null; // BarcodeDetector nativo si existe
+let camScanInterval = null; // setInterval del loop de escaneo
 let camLastCode = null;
 let camLastCodeTime = 0;
 let camLibLoaded = false;
 let camActive = false;
 
 let camFacingMode = 'environment'; // 'environment' = trasera, 'user' = frontal
+
+// Inicializar BarcodeDetector nativo si el dispositivo lo soporta (Chrome Android, Edge, Samsung Internet)
+(function initNativeBarcode(){
+  if('BarcodeDetector' in window){
+    try {
+      camNativeDetector = new window.BarcodeDetector({
+        formats: ['ean_13','ean_8','code_128','code_39','code_93','codabar','itf','upc_a','upc_e','qr_code']
+      });
+    } catch(e){ camNativeDetector = null; }
+  }
+})();
 
 // Mostrar error grande y visible (para depurar en celular sin DevTools)
 function camMostrarError(titulo, detalle){
@@ -17778,12 +17792,11 @@ function camMostrarError(titulo, detalle){
 }
 
 async function camAbrir(){
-  // ---- PASO 1: Mostrar el modal INMEDIATAMENTE, antes de cualquier await ----
-  // Así, si algo falla después, al menos el usuario ve que el botón funcionó.
+  // ---- PASO 1: Mostrar el modal INMEDIATAMENTE ----
   try {
     const modal = document.getElementById('modal-camara-pos');
     if(!modal){
-      alert('⚠️ El modal de cámara no está en la página. Recargá la página (deslizá hacia abajo).');
+      alert('⚠️ El modal de cámara no está en la página. Recargá la página.');
       return;
     }
     modal.classList.add('show');
@@ -17792,7 +17805,6 @@ async function camAbrir(){
     return;
   }
 
-  // A partir de acá, todos los errores los mostramos dentro del modal
   try {
     camSetStatus('Iniciando...');
 
@@ -17811,9 +17823,11 @@ async function camAbrir(){
       return;
     }
 
-    // ---- PASO 3: Cargar ZXing ----
-    if(!camLibLoaded){
-      camSetStatus('Cargando librería...');
+    // ---- PASO 3: Cargar ZXing SOLO si no hay BarcodeDetector nativo ----
+    // En Chrome Android moderno BarcodeDetector ya existe y es más rápido,
+    // así no dependemos de internet ni de la librería externa.
+    if(!camNativeDetector && !camLibLoaded){
+      camSetStatus('Cargando librería de escaneo...');
       try {
         await camCargarLib();
         camLibLoaded = true;
@@ -17836,10 +17850,11 @@ async function camAbrir(){
     video.setAttribute('muted','true');
     video.muted = true;
     video.autoplay = true;
+    video.controls = false;
 
-    // ---- PASO 5: Iniciar el reader y el escaneo ----
-    if(!camReader){
-      try { camReader = new ZXing.BrowserMultiFormatReader(); }
+    // ---- PASO 5: ZXing solo en modo fallback (decode sobre canvas) ----
+    if(!camNativeDetector && !camReader && typeof ZXing !== 'undefined'){
+      try { camReader = new ZXing.MultiFormatReader(); }
       catch(e){
         camMostrarError('⚠️ Error al iniciar el escáner', e.message || String(e));
         return;
@@ -17855,32 +17870,32 @@ async function camAbrir(){
 }
 
 async function camIniciarEscaneo(){
-  if(!camReader) return;
   const video = document.getElementById('cam-video');
   camSetStatus('Solicitando permiso de cámara...');
   camActive = true;
 
-  // Detener cualquier stream/escaneo previo
-  try { camReader.reset(); } catch(e){}
+  // Detener stream/loop previos por las dudas
+  if(camScanInterval){ clearInterval(camScanInterval); camScanInterval = null; }
+  if(camStream){
+    try { camStream.getTracks().forEach(t=>t.stop()); } catch(e){}
+    camStream = null;
+  }
 
-  // ---- ESTRATEGIA CLAVE: usar constraints con facingMode en vez de enumerar dispositivos ----
-  // En celular, listVideoInputDevices() devuelve cámaras sin label hasta que se pide permiso,
-  // y elegir el deviceId correcto es poco fiable. facingMode delega esa decisión al SO,
-  // que SIEMPRE elige bien la trasera/frontal.
+  // ---- Pedir el stream con facingMode (lo elige el SO, más fiable que deviceId) ----
   const constraintsList = [
     { video: { facingMode: { ideal: camFacingMode }, width:{ideal:1280}, height:{ideal:720} }, audio:false },
     { video: { facingMode: camFacingMode }, audio:false },
     { video: true, audio:false }
   ];
 
-  let stream = null, ultimoError = null;
+  let ultimoError = null;
   for(const c of constraintsList){
     try {
-      stream = await navigator.mediaDevices.getUserMedia(c);
+      camStream = await navigator.mediaDevices.getUserMedia(c);
       break;
-    } catch(e){ ultimoError = e; }
+    } catch(e){ ultimoError = e; camStream = null; }
   }
-  if(!stream){
+  if(!camStream){
     const err = ultimoError || new Error('No se pudo abrir la cámara');
     let msg = '⚠️ No se pudo acceder a la cámara.';
     if(err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError'){
@@ -17896,12 +17911,12 @@ async function camIniciarEscaneo(){
     return;
   }
 
-  // Asignar stream esperando metadata (clave en iOS para que no quede en negro)
+  // ---- Asignar el stream al <video> esperando metadata (clave en iOS) ----
   await new Promise((resolve)=>{
     let done = false;
     const onMeta = ()=>{ if(done) return; done = true; video.removeEventListener('loadedmetadata', onMeta); resolve(); };
     video.addEventListener('loadedmetadata', onMeta);
-    video.srcObject = stream;
+    video.srcObject = camStream;
     setTimeout(()=>{ if(!done){ done = true; resolve(); } }, 3000);
   });
 
@@ -17912,68 +17927,105 @@ async function camIniciarEscaneo(){
     }
   } catch(e){ console.warn('play warn:', e); }
 
-  // Reintento defensivo
+  // Reintento defensivo (Android a veces queda pausado tras el primer play)
   setTimeout(()=>{
     if(video.paused){ try { video.play(); } catch(e){} }
   }, 700);
 
   camSetStatus('🎯 Apuntá la cámara al código de barras...');
 
-  // ---- Loop de detección con ZXing usando el video ya activo ----
-  // En vez de decodeFromVideoDevice (que recrea su propio stream), usamos decodeFromVideoElement
-  // que escanea el <video> que ya tiene nuestro stream funcionando.
-  try {
-    camReader.decodeFromVideoElement(video, (result, err) => {
-      if(!camActive) return;
-      if(result){
-        const code = result.text;
-        const now = Date.now();
-        if(code === camLastCode && (now - camLastCodeTime) < 2500) return;
-        camLastCode = code;
-        camLastCodeTime = now;
-        camBeep();
-        if(navigator.vibrate) navigator.vibrate(80);
-        const inp = document.getElementById('mvp-escaner');
-        if(inp){
-          inp.value = code;
-          if(typeof mvpProcesarEntrada === 'function'){ mvpProcesarEntrada(); }
+  // ---- LOOP DE ESCANEO: BarcodeDetector nativo (preferido) o ZXing en canvas ----
+  // Importante: NO usamos camReader.decodeFromVideoElement/decodeFromVideoDevice
+  // porque en muchos celulares pisan nuestro stream y dejan el <video> en negro.
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  camScanInterval = setInterval(async () => {
+    if(!camActive) return;
+    if(video.readyState < 2 || video.paused || !video.videoWidth) return;
+
+    // Modo nativo
+    if(camNativeDetector){
+      try {
+        const barcodes = await camNativeDetector.detect(video);
+        if(barcodes && barcodes.length > 0){
+          camProcesarCodigo(barcodes[0].rawValue);
         }
-        camSetStatus('✅ ' + code + ' agregado al ticket');
-        setTimeout(() => {
-          if(camActive && document.getElementById('modal-camara-pos').classList.contains('show')){
-            camSetStatus('🎯 Apuntá la cámara al próximo código...');
-          }
-        }, 1500);
-      }
-    });
-  } catch(e){
-    camSetStatus('⚠️ ' + (e.message || e));
+      } catch(e){ /* ignorar y seguir */ }
+      return;
+    }
+
+    // Modo ZXing (fallback)
+    if(camReader && typeof ZXing !== 'undefined'){
+      try {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const luminanceSource = new ZXing.HTMLCanvasElementLuminanceSource(canvas);
+        const binaryBitmap = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminanceSource));
+        const result = camReader.decode(binaryBitmap);
+        if(result){
+          camProcesarCodigo(result.getText());
+        }
+      } catch(e){ /* NotFoundException es normal, ignorar */ }
+    }
+  }, 250);
+}
+
+// Procesa un código detectado: dedupe + beep + agregar al ticket
+function camProcesarCodigo(code){
+  if(!code) return;
+  const now = Date.now();
+  if(code === camLastCode && (now - camLastCodeTime) < 2500) return;
+  camLastCode = code;
+  camLastCodeTime = now;
+  camBeep();
+  if(navigator.vibrate) navigator.vibrate(80);
+  const inp = document.getElementById('mvp-escaner');
+  if(inp){
+    inp.value = code;
+    if(typeof mvpProcesarEntrada === 'function'){ mvpProcesarEntrada(); }
   }
+  camSetStatus('✅ ' + code + ' agregado al ticket');
+  setTimeout(() => {
+    const m = document.getElementById('modal-camara-pos');
+    if(camActive && m && m.classList.contains('show')){
+      camSetStatus('🎯 Apuntá la cámara al próximo código...');
+    }
+  }, 1500);
 }
 
 async function camCambiar(){
   // Alternar entre trasera y frontal
   camFacingMode = (camFacingMode === 'environment') ? 'user' : 'environment';
   camLastCode = null;
-  if(camReader){ try{ camReader.reset(); }catch(e){} }
-  // Detener stream actual antes de reabrir con la otra cámara
+  // Detener loop e stream actuales antes de reabrir
+  if(camScanInterval){ clearInterval(camScanInterval); camScanInterval = null; }
   const video = document.getElementById('cam-video');
   if(video && video.srcObject){
     try { video.srcObject.getTracks().forEach(t=>t.stop()); } catch(e){}
     video.srcObject = null;
+  }
+  if(camStream){
+    try { camStream.getTracks().forEach(t=>t.stop()); } catch(e){}
+    camStream = null;
   }
   await camIniciarEscaneo();
 }
 
 function camCerrar(){
   camActive = false;
-  if(camReader){ try{ camReader.reset(); }catch(e){} }
+  if(camScanInterval){ clearInterval(camScanInterval); camScanInterval = null; }
   document.getElementById('modal-camara-pos').classList.remove('show');
   // Detener cualquier stream que haya quedado activo
   const video = document.getElementById('cam-video');
   if(video && video.srcObject){
     try { video.srcObject.getTracks().forEach(t => t.stop()); } catch(e){}
     video.srcObject = null;
+  }
+  if(camStream){
+    try { camStream.getTracks().forEach(t=>t.stop()); } catch(e){}
+    camStream = null;
   }
 }
 
