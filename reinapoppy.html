@@ -2572,12 +2572,109 @@ setInterval(() => {
 </div>
 
 <!-- MODAL CÁMARA -->
+<style>
+/* ========== APUNTADOR / MIRA DE LA CÁMARA (VIEWFINDER) ========== */
+.cam-apuntador{
+  position:absolute;
+  inset:0;
+  pointer-events:none;   /* dejá que los clicks pasen al video si hicieran falta */
+  z-index:5;
+}
+.cam-marco{
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%, -50%);
+  width:78%;
+  height:38%;
+  max-width:340px;
+  border-radius:14px;
+  /* La sombra gigante "oscurece" todo lo que está afuera del marco
+     para que tu ojo se concentre en el recuadro central */
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.45);
+}
+/* Esquinas amarillas en forma de L (típicas de un escáner) */
+.cam-esq{
+  position:absolute;
+  width:30px;
+  height:30px;
+  border:4px solid #f5c500;
+  filter: drop-shadow(0 0 6px rgba(245,197,0,0.75));
+}
+.cam-esq-tl{ top:-3px;    left:-3px;   border-right:none;  border-bottom:none; border-radius:12px 0 0 0; }
+.cam-esq-tr{ top:-3px;    right:-3px;  border-left:none;   border-bottom:none; border-radius:0 12px 0 0; }
+.cam-esq-bl{ bottom:-3px; left:-3px;   border-right:none;  border-top:none;    border-radius:0 0 0 12px; }
+.cam-esq-br{ bottom:-3px; right:-3px;  border-left:none;   border-top:none;    border-radius:0 0 12px 0; }
+
+/* Línea roja que recorre el recuadro de arriba abajo */
+.cam-linea{
+  position:absolute;
+  left:5%;
+  right:5%;
+  top:0;
+  height:2px;
+  background: linear-gradient(90deg, transparent 0%, #ff3b3b 15%, #ff3b3b 85%, transparent 100%);
+  box-shadow: 0 0 10px 2px #ff3b3b, 0 0 22px 4px rgba(255,59,59,0.55);
+  animation: cam-scan 2.2s ease-in-out infinite;
+  will-change: top;
+}
+@keyframes cam-scan{
+  0%   { top: 4%;   opacity: 0.4; }
+  12%  { opacity: 1; }
+  50%  { top: 96%;  opacity: 1; }
+  62%  { opacity: 1; }
+  100% { top: 4%;   opacity: 0.4; }
+}
+
+/* Texto de ayuda debajo del recuadro */
+.cam-ayuda{
+  position:absolute;
+  bottom:10px;
+  left:50%;
+  transform: translateX(-50%);
+  font-size:0.78rem;
+  color:#fff;
+  font-weight:600;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9);
+  background:rgba(0,0,0,0.55);
+  padding:5px 12px;
+  border-radius:14px;
+  white-space:nowrap;
+}
+
+/* Cuando se detecta un código: marco verde + flash */
+.cam-marco.cam-ok .cam-esq{
+  border-color:#3ddc84;
+  filter: drop-shadow(0 0 8px rgba(61,220,132,0.9));
+}
+.cam-marco.cam-ok .cam-linea{ display:none; }
+.cam-marco.cam-ok{
+  animation: cam-ok-pulse 0.45s ease-out;
+}
+@keyframes cam-ok-pulse{
+  0%   { box-shadow: 0 0 0 9999px rgba(0,0,0,0.45), inset 0 0 0 0   rgba(61,220,132,0); }
+  50%  { box-shadow: 0 0 0 9999px rgba(0,0,0,0.45), inset 0 0 40px 0 rgba(61,220,132,0.65); }
+  100% { box-shadow: 0 0 0 9999px rgba(0,0,0,0.45), inset 0 0 0 0   rgba(61,220,132,0); }
+}
+</style>
 <div class="modal-overlay" id="camara-modal" style="z-index:3000;background:rgba(0,0,0,0.92);">
   <div style="background:#1a1a1a;border-radius:20px;padding:20px;width:min(95vw,420px);text-align:center;">
     <div style="font-size:1rem;font-weight:700;color:#f5c500;margin-bottom:12px;">📷 Escaneá el código</div>
     <div style="position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;min-height:240px;">
       <video id="camara-video" autoplay playsinline muted webkit-playsinline x5-playsinline disablepictureinpicture style="width:100%;height:auto;min-height:240px;max-height:60vh;display:block;background:#000;object-fit:cover;"></video>
       <canvas id="camara-canvas" style="display:none;"></canvas>
+
+      <!-- APUNTADOR sobre el video: te muestra dónde tenés que centrar el código -->
+      <div class="cam-apuntador">
+        <div class="cam-marco" id="cam-marco">
+          <span class="cam-esq cam-esq-tl"></span>
+          <span class="cam-esq cam-esq-tr"></span>
+          <span class="cam-esq cam-esq-bl"></span>
+          <span class="cam-esq cam-esq-br"></span>
+          <div class="cam-linea"></div>
+        </div>
+        <div class="cam-ayuda">Centrá el código de barras dentro del recuadro</div>
+      </div>
+
     </div>
     <div id="camara-status" style="margin-top:10px;font-size:0.8rem;color:#8888aa;">Iniciando...</div>
     <div style="display:flex;gap:10px;margin-top:14px;justify-content:center;">
@@ -10727,8 +10824,12 @@ async function iniciarStream(){
 
 function _enviarCodigo(codigo){
   if(navigator.vibrate) navigator.vibrate(100);
+  // Feedback visual: el marco se pone verde para confirmar que el código fue detectado
+  const _marco = document.getElementById('cam-marco');
+  if(_marco) _marco.classList.add('cam-ok');
   document.getElementById('camara-status').textContent = '✅ Código: ' + codigo;
   setTimeout(()=>{
+    if(_marco) _marco.classList.remove('cam-ok');
     cerrarCamara();
     const inputId = camaraDestino === 'venta' ? 'venta-scan-input' : 'compra-scan-input';
     const inp = document.getElementById(inputId);
