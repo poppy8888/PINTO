@@ -16694,13 +16694,12 @@ function setWspAdmin(num){
 // Array local de pedidos (se sincroniza con Firebase)
 window.pedidosMayoristas = window.pedidosMayoristas || [];
 
-window.abrirPedidosMayoristas = function abrirPedidosMayoristas(){
-  try {
+function abrirPedidosMayoristas(){
   let modal = document.getElementById('modal-pedidos-may');
   if(modal) modal.remove();
   modal = document.createElement('div');
   modal.id = 'modal-pedidos-may';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI",Tahoma,Arial,sans-serif;';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI",Tahoma,Arial,sans-serif;';
   modal.innerHTML = `
     <div style="background:#fff;border-radius:12px;max-width:980px;width:96%;max-height:92vh;overflow:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:2px solid #a52a2a;padding-bottom:12px;">
@@ -16734,11 +16733,7 @@ window.abrirPedidosMayoristas = function abrirPedidosMayoristas(){
   `;
   document.body.appendChild(modal);
   filtrarPedidosMay('pendiente');
-  } catch(err){
-    console.error('Error al abrir Pedidos Mayoristas:', err);
-    alert('No se pudo abrir Pedidos Mayoristas.\n\nError: ' + (err && err.message ? err.message : err) + '\n\nProbá recargar la página (Ctrl+F5). Si sigue el problema, sacale una foto a este mensaje y a la consola del navegador (F12).');
-  }
-};
+}
 
 window.guardarWspAdmin = function(){
   const v = document.getElementById('cfg-wsp-admin').value.trim().replace(/\D/g,'');
@@ -16748,7 +16743,6 @@ window.guardarWspAdmin = function(){
 };
 
 window.filtrarPedidosMay = function(estado){
-  try {
   document.querySelectorAll('.tab-may-btn').forEach(b => {
     b.style.background = '#ddd'; b.style.color = '#333';
   });
@@ -16764,11 +16758,7 @@ window.filtrarPedidosMay = function(estado){
   const cont = document.getElementById('lista-pedidos-may');
   if(!cont) return;
   if(pedidos.length === 0){
-    const totalGlobal = (window.pedidosMayoristas || []).length;
-    const msg = totalGlobal === 0
-      ? '⏳ Aún no llegó ningún pedido desde la página de mayoristas, o la nube todavía no terminó de sincronizar. Si tenés pedidos cargados, esperá unos segundos y volvé a tocar la pestaña.'
-      : 'No hay pedidos en esta categoría.';
-    cont.innerHTML = '<div style="text-align:center;color:#888;padding:40px;font-style:italic;">'+msg+'</div>';
+    cont.innerHTML = '<div style="text-align:center;color:#888;padding:40px;font-style:italic;">No hay pedidos en esta categoría.</div>';
     return;
   }
   
@@ -16819,11 +16809,6 @@ window.filtrarPedidosMay = function(estado){
       </div>
     `;
   }).join('');
-  } catch(err){
-    console.error('Error al filtrar pedidos mayoristas:', err);
-    const cont = document.getElementById('lista-pedidos-may');
-    if(cont) cont.innerHTML = '<div style="text-align:center;color:#c0392b;padding:40px;">⚠️ Error al cargar pedidos: '+(err && err.message ? err.message : err)+'</div>';
-  }
 };
 
 window.aprobarPedidoMay = async function(pedidoId){
@@ -16893,10 +16878,18 @@ window.responderWspPedido = function(pedidoId){
   window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
 };
 
-// ============== Firebase: sincronización de pedidos ==============
+// ============== Supabase: sincronización de pedidos ==============
 async function guardarPedidoEnFirebase(pedido){
-  if(!window.FBPedidos || !window.FBPedidos.guardar) return;
-  try { await window.FBPedidos.guardar(pedido); } catch(e){ console.warn(e); }
+  // El nombre quedó por compatibilidad: en realidad guarda en Supabase ahora.
+  if(window.SBPedidos && window.SBPedidos.guardar){
+    try { await window.SBPedidos.guardar(pedido); }
+    catch(e){ console.warn('No se pudo guardar pedido en la nube:', e); toast('⚠️ No se pudo guardar el cambio en la nube'); }
+    return;
+  }
+  // Fallback antiguo (no debería ejecutarse nunca ya)
+  if(window.FBPedidos && window.FBPedidos.guardar){
+    try { await window.FBPedidos.guardar(pedido); } catch(e){ console.warn(e); }
+  }
 }
 
 // Actualizar badge de pedidos nuevos
@@ -16924,21 +16917,6 @@ window.refrescarPedidosMayUI = function(){
 
 setInterval(actualizarBadgePedidos, 5000);
 setTimeout(actualizarBadgePedidos, 2000);
-
-// Listener de respaldo: si el onclick inline falla por algún motivo,
-// igual capturamos el clic en el botón
-document.addEventListener('click', function(ev){
-  const btn = ev.target.closest && ev.target.closest('#btn-pedidos-may');
-  if(!btn) return;
-  // Sólo actuar si el modal NO está ya abierto (para no abrirlo dos veces)
-  if(document.getElementById('modal-pedidos-may')) return;
-  ev.preventDefault();
-  if(typeof window.abrirPedidosMayoristas === 'function'){
-    window.abrirPedidosMayoristas();
-  } else {
-    alert('La función Pedidos Mayoristas no está cargada todavía. Esperá unos segundos y volvé a intentar.');
-  }
-}, true);
 </script>
 <!-- ============== /PEDIDOS MAYORISTAS ============================ -->
 
@@ -17595,43 +17573,19 @@ window.FB = {
 };
 
 // ============================================================================
-// 🛒 PEDIDOS MAYORISTAS - sincronización con Firebase
+// 🛒 PEDIDOS MAYORISTAS - DESACTIVADO (ahora se hace por Supabase)
 // ----------------------------------------------------------------------------
-// Listener en tiempo real sobre la colección "pedidosMayoristas"
-// Cuando llega un pedido nuevo, refresca window.pedidosMayoristas y la UI
+// El listener de pedidos ahora vive fuera de este módulo, en el bloque de
+// Supabase al final del archivo. Acá dejamos un FBPedidos "fantasma" para
+// que las funciones viejas (aprobarPedidoMay, rechazarPedidoMay) sigan
+// funcionando sin tirar error; ahora delegan en window.SBPedidos.
 // ============================================================================
-import { onSnapshot as onSnapshotMay } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const colPedidosMay = collection(db, 'pedidosMayoristas');
-
-// Escuchar cambios en tiempo real
-onSnapshotMay(colPedidosMay, (snap) => {
-  const pedidos = [];
-  snap.forEach(d => pedidos.push({ id: d.id, ...d.data() }));
-  window.pedidosMayoristas = pedidos;
-  console.log('🛒 Pedidos mayoristas actualizados:', pedidos.length);
-  if(typeof window.refrescarPedidosMayUI === 'function'){
-    try { window.refrescarPedidosMayUI(); } catch(e){}
-  }
-  // Notificación visual de pedido nuevo
-  const pendientes = pedidos.filter(p => (p.estado||'pendiente') === 'pendiente').length;
-  const indicador = document.getElementById('fb-indicador');
-  if(pendientes > 0 && indicador){
-    // Sutil parpadeo del indicador
-  }
-}, (err) => {
-  console.warn('Pedidos mayoristas listener:', err);
-});
-
 window.FBPedidos = {
   guardar: async (pedido) => {
-    if(!pedido || !pedido.id) throw new Error('pedido sin id');
-    const pedRef = doc(db, 'pedidosMayoristas', pedido.id);
-    await setDoc(pedRef, pedido);
+    if(window.SBPedidos && window.SBPedidos.guardar) return window.SBPedidos.guardar(pedido);
   },
   eliminar: async (pedidoId) => {
-    const pedRef = doc(db, 'pedidosMayoristas', pedidoId);
-    await deleteDoc(pedRef);
+    if(window.SBPedidos && window.SBPedidos.eliminar) return window.SBPedidos.eliminar(pedidoId);
   }
 };
 
@@ -18162,6 +18116,149 @@ window.BACKUPS = {
     document.addEventListener('DOMContentLoaded', esperarApp);
   } else {
     esperarApp();
+  }
+})();
+</script>
+
+<!-- ============================================================ -->
+<!-- 🛒 PEDIDOS MAYORISTAS · SUPABASE (reemplaza a Firebase)      -->
+<!-- ============================================================ -->
+<script>
+(function() {
+  const SUPABASE_URL = 'https://edpydpymdolnhpraabkr.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_bgtaEsTDdoF6kjg0iQ2HcQ_iQ0QKYbi';
+  const TABLA = 'pedidos_mayoristas';
+
+  let sb = null;
+  let listoSB = false;
+
+  // En la base los campos están en snake_case (cliente_nombre, etc.)
+  // El resto del programa usa camelCase (clienteNombre, etc.). Esta función
+  // convierte un pedido de Supabase al formato que esperan las funciones viejas.
+  function normalizarPedido(p){
+    if(!p) return p;
+    return {
+      id: p.id,
+      timestamp: p.timestamp || (p.created_at ? new Date(p.created_at).getTime() : Date.now()),
+      clienteId: p.cliente_id != null ? p.cliente_id : p.clienteId,
+      clienteNombre: p.cliente_nombre != null ? p.cliente_nombre : p.clienteNombre,
+      clienteWhatsapp: p.cliente_whatsapp != null ? p.cliente_whatsapp : p.clienteWhatsapp,
+      items: Array.isArray(p.items) ? p.items : [],
+      total: p.total,
+      formaPago: p.forma_pago != null ? p.forma_pago : p.formaPago,
+      horarioRetiro: p.horario_retiro != null ? p.horario_retiro : p.horarioRetiro,
+      notas: p.notas || '',
+      estado: p.estado || 'pendiente',
+      fechaAprobado: p.fecha_aprobado != null ? p.fecha_aprobado : p.fechaAprobado,
+      fechaRechazado: p.fecha_rechazado != null ? p.fecha_rechazado : p.fechaRechazado,
+      motivoRechazo: p.motivo_rechazo != null ? p.motivo_rechazo : p.motivoRechazo,
+      facturaId: p.factura_id != null ? p.factura_id : p.facturaId,
+      _raw: p  // por si necesitamos algo después
+    };
+  }
+
+  // Convierte de vuelta al formato de la base (snake_case)
+  function aFormatoBase(p){
+    return {
+      id: p.id,
+      timestamp: p.timestamp,
+      cliente_id: p.clienteId,
+      cliente_nombre: p.clienteNombre,
+      cliente_whatsapp: p.clienteWhatsapp,
+      items: p.items,
+      total: p.total,
+      forma_pago: p.formaPago,
+      horario_retiro: p.horarioRetiro,
+      notas: p.notas,
+      estado: p.estado,
+      fecha_aprobado: p.fechaAprobado || null,
+      fecha_rechazado: p.fechaRechazado || null,
+      motivo_rechazo: p.motivoRechazo || null,
+      factura_id: p.facturaId || null
+    };
+  }
+
+  async function cargarPedidos(){
+    if(!sb) return;
+    try {
+      const { data, error } = await sb.from(TABLA).select('*').order('timestamp', { ascending: false });
+      if(error) throw error;
+      const pedidos = (data || []).map(normalizarPedido);
+      window.pedidosMayoristas = pedidos;
+      console.log('🛒 Pedidos mayoristas cargados desde Supabase:', pedidos.length);
+      if(typeof window.refrescarPedidosMayUI === 'function'){
+        try { window.refrescarPedidosMayUI(); } catch(e){}
+      }
+    } catch(err){
+      console.error('Error cargando pedidos mayoristas:', err.message || err);
+    }
+  }
+
+  function suscribirseATiempoReal(){
+    if(!sb) return;
+    try {
+      sb.channel('pedidos-mayoristas-rt')
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: TABLA },
+          (payload) => {
+            console.log('🛒 Cambio en pedidos mayoristas:', payload.eventType);
+            // Cuando hay cualquier cambio, volvemos a leer toda la lista
+            // (más simple y robusto que actualizar incrementalmente)
+            cargarPedidos();
+            if(payload.eventType === 'INSERT' && typeof toast === 'function'){
+              const nuevo = normalizarPedido(payload.new);
+              toast('🛒 Nuevo pedido mayorista: ' + (nuevo.clienteNombre || 'cliente'));
+            }
+          }
+        )
+        .subscribe((status) => {
+          if(status === 'SUBSCRIBED') console.log('🛒 Tiempo real de pedidos mayoristas activado');
+        });
+    } catch(err){
+      console.error('Error en realtime de pedidos mayoristas:', err);
+    }
+  }
+
+  // Exponer API para que las funciones aprobar/rechazar puedan guardar cambios
+  window.SBPedidos = {
+    guardar: async (pedido) => {
+      if(!sb) { console.warn('Supabase aún no conectado'); return; }
+      if(!pedido || !pedido.id) throw new Error('pedido sin id');
+      const fila = aFormatoBase(pedido);
+      const { error } = await sb.from(TABLA).upsert(fila, { onConflict: 'id' });
+      if(error){ console.error('Error guardando pedido:', error); throw error; }
+    },
+    eliminar: async (pedidoId) => {
+      if(!sb) return;
+      const { error } = await sb.from(TABLA).delete().eq('id', pedidoId);
+      if(error) throw error;
+    },
+    recargar: cargarPedidos
+  };
+
+  function iniciar(){
+    if(listoSB) return;
+    if(!window.supabase){
+      setTimeout(iniciar, 400);
+      return;
+    }
+    try {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      listoSB = true;
+      console.log('🛒 Supabase para pedidos mayoristas conectado');
+      cargarPedidos();
+      suscribirseATiempoReal();
+      // Recargar cada 30s como respaldo por si se cae el realtime
+      setInterval(cargarPedidos, 30000);
+    } catch(err){
+      console.error('No se pudo conectar Supabase para pedidos:', err);
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', iniciar);
+  } else {
+    iniciar();
   }
 })();
 </script>
