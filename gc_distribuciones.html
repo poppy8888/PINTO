@@ -1807,20 +1807,67 @@ setInterval(() => {
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <div class="header-date" id="hdate"></div>
-    <button onclick="exportarBackup()" style="padding:10px 18px;border-radius:6px;border:1px solid #d4a020;background:#e8c84a;color:#1a1a2e;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">💾 Backup</button>
-    <button onclick="exportarAExcel()" style="padding:10px 18px;border-radius:6px;border:1px solid #1f7c3e;background:#27ae60;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Exportar todo a un archivo Excel">📊 Excel</button>
-    <button onclick="diagnosticoNumeros()" style="padding:10px 18px;border-radius:6px;border:1px solid #c00;background:#f55;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Diagnóstico de números">🔍 DIAG</button>
-    <button onclick="GDrive.iniciarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #1f5f9e;background:#3b82f6;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Conectar a Google Drive para subir fotos de cigarrillos">☁️ Conectar Drive</button>
-    <label style="padding:10px 18px;border-radius:6px;border:1px solid #888;background:#f0f0f0;color:#333;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📂 Restaurar<input type="file" accept=".json" onchange="importarBackup(event)" style="display:none"/></label>
-    <label style="padding:10px 18px;border-radius:6px;border:1px solid #1f5005;background:#2a6e2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="importarCSV(event)" style="display:none"/></label>
-    <button onclick="limpiarMercaderia()" style="padding:10px 18px;border-radius:6px;border:1px solid #b56b00;background:#d68910;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Borrar productos del minimarket (mantiene combustibles, clientes y proveedores)">🧹 Limpiar mercadería</button>
-    <button onclick="recuperarBackupSeguridad()" style="padding:10px 18px;border-radius:6px;border:1px solid #1a5a8a;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Si perdiste datos, recuperar el último backup automático guardado en este navegador">🛟 Recuperar backup</button>
-    <button onclick="abrirGestionUsuarios()" id="btn-usuarios" style="padding:10px 18px;border-radius:6px;border:1px solid #1a3a6b;background:#2980b9;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Cambiar contraseñas de los usuarios del sistema">👥 Usuarios</button>
-    <button onclick="abrirGestionBackups()" id="btn-backups-auto" style="padding:10px 18px;border-radius:6px;border:1px solid #5a3a1a;background:#8b6914;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Gestionar backups automáticos diarios">🛡️ Backups Auto</button>
-    <button onclick="abrirPedidosMayoristas()" id="btn-pedidos-may" style="padding:10px 18px;border-radius:6px;border:1px solid #5a1a1a;background:#a52a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;position:relative;" title="Pedidos de clientes mayoristas">🛒 Pedidos May. <span id="badge-pedidos-nuevos" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#a52a2a;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #a52a2a;"></span></button>
-    <button onclick="abrirMigracionFotos()" id="btn-migracion-fotos" style="padding:10px 18px;border-radius:6px;border:1px solid #1a4d3a;background:#16a085;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Migrar fotos pesadas a Drive (libera espacio en Firebase)">📦 Liberar Espacio</button>
-    <button onclick="cerrarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #6b1818;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">🚪 Cerrar sesión</button>
-  </div>
+    <!-- Menú de Herramientas (todos los botones agrupados) -->
+    <div style="position:relative;display:inline-block;">
+      <button onclick="toggleMenuHerr()" id="btn-menu-herr" style="padding:10px 18px;border-radius:6px;border:1px solid #d4a020;background:#1a1a2e;color:#d4a020;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">⚙️ Herramientas ▾</button>
+      <div id="menu-herr" style="display:none;position:absolute;top:calc(100% + 6px);right:0;background:#fff;border:2px solid #d4a020;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.4);min-width:260px;z-index:99999;overflow:hidden;">
+        <button class="mh-item" onclick="mhExec(exportarBackup)">💾 Backup</button>
+        <button class="mh-item" onclick="mhExec(exportarAExcel)">📊 Exportar a Excel</button>
+        <button class="mh-item" onclick="mhExec(diagnosticoNumeros)">🔍 Diagnóstico (DIAG)</button>
+        <button class="mh-item" onclick="mhExec(function(){GDrive.iniciarSesion();})">☁️ Conectar Drive</button>
+        <label class="mh-item" style="display:block;">📂 Restaurar Backup<input type="file" accept=".json" onchange="mhCerrar();importarBackup(event)" style="display:none"/></label>
+        <label class="mh-item" style="display:block;">📊 Importar CSV<input id="csv-file-input" type="file" accept=".csv,.txt" onchange="mhCerrar();importarCSV(event)" style="display:none"/></label>
+        <button class="mh-item" onclick="mhExec(limpiarMercaderia)">🧹 Limpiar mercadería</button>
+        <button class="mh-item" onclick="mhExec(recuperarBackupSeguridad)">🛟 Recuperar backup</button>
+        <button class="mh-item" onclick="mhExec(abrirGestionUsuarios)">👥 Usuarios</button>
+        <button class="mh-item" onclick="mhExec(abrirGestionBackups)">🛡️ Backups Auto</button>
+        <button class="mh-item" onclick="mhExec(abrirMigracionFotos)">📦 Liberar Espacio</button>
+        <button class="mh-item" onclick="mhExec(cerrarSesion)" style="color:#a52a2a;font-weight:800;">🚪 Cerrar sesión</button>
+      </div>
+    </div>
+    <style>
+      .mh-item {
+        display: block;
+        width: 100%;
+        padding: 11px 16px;
+        text-align: left;
+        background: #fff;
+        color: #1a1a2e;
+        border: none;
+        border-bottom: 1px solid #eee;
+        font-size: 0.92rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+        transition: background 0.15s;
+      }
+      .mh-item:hover { background: #f5e9b8; }
+      .mh-item:last-child { border-bottom: none; }
+    </style>
+    <script>
+      function toggleMenuHerr(){
+        const m = document.getElementById('menu-herr');
+        if(!m) return;
+        m.style.display = m.style.display === 'block' ? 'none' : 'block';
+      }
+      function mhCerrar(){
+        const m = document.getElementById('menu-herr');
+        if(m) m.style.display = 'none';
+      }
+      function mhExec(fn){
+        mhCerrar();
+        try { fn(); } catch(e){ console.error(e); }
+      }
+      document.addEventListener('click', function(e){
+        const btn = document.getElementById('btn-menu-herr');
+        const menu = document.getElementById('menu-herr');
+        if(!btn || !menu) return;
+        if(!btn.contains(e.target) && !menu.contains(e.target)) {
+          menu.style.display = 'none';
+        }
+      });
+    </script>
+    </div>
 </div>
 
 <!-- Elementos ocultos para compatibilidad con funciones existentes -->
