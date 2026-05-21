@@ -16694,12 +16694,13 @@ function setWspAdmin(num){
 // Array local de pedidos (se sincroniza con Firebase)
 window.pedidosMayoristas = window.pedidosMayoristas || [];
 
-function abrirPedidosMayoristas(){
+window.abrirPedidosMayoristas = function abrirPedidosMayoristas(){
+  try {
   let modal = document.getElementById('modal-pedidos-may');
   if(modal) modal.remove();
   modal = document.createElement('div');
   modal.id = 'modal-pedidos-may';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI",Tahoma,Arial,sans-serif;';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2147483647;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI",Tahoma,Arial,sans-serif;';
   modal.innerHTML = `
     <div style="background:#fff;border-radius:12px;max-width:980px;width:96%;max-height:92vh;overflow:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:2px solid #a52a2a;padding-bottom:12px;">
@@ -16733,7 +16734,11 @@ function abrirPedidosMayoristas(){
   `;
   document.body.appendChild(modal);
   filtrarPedidosMay('pendiente');
-}
+  } catch(err){
+    console.error('Error al abrir Pedidos Mayoristas:', err);
+    alert('No se pudo abrir Pedidos Mayoristas.\n\nError: ' + (err && err.message ? err.message : err) + '\n\nProbá recargar la página (Ctrl+F5). Si sigue el problema, sacale una foto a este mensaje y a la consola del navegador (F12).');
+  }
+};
 
 window.guardarWspAdmin = function(){
   const v = document.getElementById('cfg-wsp-admin').value.trim().replace(/\D/g,'');
@@ -16743,6 +16748,7 @@ window.guardarWspAdmin = function(){
 };
 
 window.filtrarPedidosMay = function(estado){
+  try {
   document.querySelectorAll('.tab-may-btn').forEach(b => {
     b.style.background = '#ddd'; b.style.color = '#333';
   });
@@ -16758,7 +16764,11 @@ window.filtrarPedidosMay = function(estado){
   const cont = document.getElementById('lista-pedidos-may');
   if(!cont) return;
   if(pedidos.length === 0){
-    cont.innerHTML = '<div style="text-align:center;color:#888;padding:40px;font-style:italic;">No hay pedidos en esta categoría.</div>';
+    const totalGlobal = (window.pedidosMayoristas || []).length;
+    const msg = totalGlobal === 0
+      ? '⏳ Aún no llegó ningún pedido desde la página de mayoristas, o la nube todavía no terminó de sincronizar. Si tenés pedidos cargados, esperá unos segundos y volvé a tocar la pestaña.'
+      : 'No hay pedidos en esta categoría.';
+    cont.innerHTML = '<div style="text-align:center;color:#888;padding:40px;font-style:italic;">'+msg+'</div>';
     return;
   }
   
@@ -16809,6 +16819,11 @@ window.filtrarPedidosMay = function(estado){
       </div>
     `;
   }).join('');
+  } catch(err){
+    console.error('Error al filtrar pedidos mayoristas:', err);
+    const cont = document.getElementById('lista-pedidos-may');
+    if(cont) cont.innerHTML = '<div style="text-align:center;color:#c0392b;padding:40px;">⚠️ Error al cargar pedidos: '+(err && err.message ? err.message : err)+'</div>';
+  }
 };
 
 window.aprobarPedidoMay = async function(pedidoId){
@@ -16909,6 +16924,21 @@ window.refrescarPedidosMayUI = function(){
 
 setInterval(actualizarBadgePedidos, 5000);
 setTimeout(actualizarBadgePedidos, 2000);
+
+// Listener de respaldo: si el onclick inline falla por algún motivo,
+// igual capturamos el clic en el botón
+document.addEventListener('click', function(ev){
+  const btn = ev.target.closest && ev.target.closest('#btn-pedidos-may');
+  if(!btn) return;
+  // Sólo actuar si el modal NO está ya abierto (para no abrirlo dos veces)
+  if(document.getElementById('modal-pedidos-may')) return;
+  ev.preventDefault();
+  if(typeof window.abrirPedidosMayoristas === 'function'){
+    window.abrirPedidosMayoristas();
+  } else {
+    alert('La función Pedidos Mayoristas no está cargada todavía. Esperá unos segundos y volvé a intentar.');
+  }
+}, true);
 </script>
 <!-- ============== /PEDIDOS MAYORISTAS ============================ -->
 
@@ -17958,144 +17988,8 @@ window.BACKUPS = {
 
 <!-- ============================================================ -->
 <!-- ☁️ SINCRONIZACIÓN EN LA NUBE CON SUPABASE                    -->
-<!-- 🔔 NOTIFICACIONES DE PEDIDOS MAYORISTAS EN VIVO              -->
 <!-- ============================================================ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- Botón flotante y modal de pedidos -->
-<style>
-  #btn-pedidos-may-flot {
-    position: fixed;
-    bottom: 24px;
-    left: 24px;
-    background: linear-gradient(135deg, #e67e22, #d35400);
-    color: #fff;
-    border: none;
-    padding: 14px 22px;
-    border-radius: 30px;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(230,126,34,0.55);
-    z-index: 9998;
-    font-size: 1rem;
-    display: none;
-    align-items: center;
-    gap: 10px;
-    animation: pulseMay 2s infinite;
-  }
-  #btn-pedidos-may-flot.activo { display: inline-flex; }
-  #btn-pedidos-may-flot:hover { background: linear-gradient(135deg, #d35400, #ba4a00); }
-  @keyframes pulseMay {
-    0%, 100% { box-shadow: 0 8px 24px rgba(230,126,34,0.55); }
-    50% { box-shadow: 0 8px 30px rgba(230,126,34,0.9); }
-  }
-  #pedidos-may-count {
-    background: #fff;
-    color: #e67e22;
-    border-radius: 50%;
-    min-width: 24px;
-    height: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 0.85rem;
-    padding: 0 6px;
-  }
-  #modal-pedidos-may {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: 14px;
-  }
-  #modal-pedidos-may.open { display: flex; }
-  .mp-card {
-    background: #fff;
-    border-radius: 14px;
-    max-width: 720px;
-    width: 100%;
-    max-height: 92vh;
-    display: flex;
-    flex-direction: column;
-    color: #1a1a2e;
-  }
-  .mp-head {
-    padding: 16px 22px;
-    border-bottom: 3px solid #e67e22;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .mp-head h2 { font-size: 1.15rem; color: #1a1a2e; margin: 0; }
-  .mp-close {
-    background: #e74c3c;
-    color: #fff;
-    border: none;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-weight: 800;
-    font-size: 1rem;
-  }
-  .mp-body { padding: 14px 22px; overflow-y: auto; flex: 1; }
-  .pedido-may-card {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 12px;
-    background: #fff;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-  }
-  .pedido-may-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 8px;
-  }
-  .pedido-may-items {
-    padding: 10px 14px;
-    background: #f8f8f8;
-    border-radius: 8px;
-    margin: 8px 0;
-  }
-  .pedido-may-items ul { margin: 0; padding-left: 18px; font-size: 0.88rem; line-height: 1.6; }
-  .pedido-may-meta { font-size: 0.85rem; color: #444; margin: 6px 0; }
-  .pedido-may-acciones { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .pedido-may-acciones a, .pedido-may-acciones button {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 7px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 0.85rem;
-    text-decoration: none;
-    text-align: center;
-  }
-  .pedido-may-acciones .btn-wa { background: #25d366; color: #fff; flex: 1; min-width: 180px; }
-  .pedido-may-acciones .btn-ok { background: #1e5b9e; color: #fff; }
-  .pedido-may-acciones .btn-no { background: #e74c3c; color: #fff; }
-</style>
-
-<button id="btn-pedidos-may-flot" onclick="abrirModalPedidosMay()">
-  🛒 Pedidos Mayoristas <span id="pedidos-may-count">0</span>
-</button>
-
-<div id="modal-pedidos-may">
-  <div class="mp-card">
-    <div class="mp-head">
-      <h2>🛒 Pedidos Mayoristas Pendientes</h2>
-      <button class="mp-close" onclick="cerrarModalPedidosMay()">✕</button>
-    </div>
-    <div class="mp-body" id="lista-pedidos-may"></div>
-  </div>
-</div>
-
 <script>
 (function() {
   const SUPABASE_URL = 'https://edpydpymdolnhpraabkr.supabase.co';
@@ -18105,7 +17999,6 @@ window.BACKUPS = {
   let saveTimer = null;
   let cargandoNube = false;
   let yaInicializado = false;
-  let pedidosPendientes = [];
 
   function esperarApp() {
     if (yaInicializado) return;
@@ -18114,10 +18007,10 @@ window.BACKUPS = {
       return;
     }
     yaInicializado = true;
-    iniciarTodo();
+    iniciarSync();
   }
 
-  function iniciarTodo() {
+  function iniciarSync() {
     try {
       sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       console.log('☁️ Supabase conectado');
@@ -18126,24 +18019,28 @@ window.BACKUPS = {
       return;
     }
 
-    // === SINCRONIZACIÓN DE app_data ===
+    // 1) Cargar datos desde la nube al iniciar
     cargarDesdeNube();
-    sb.channel('cambios-app-data')
-      .on('postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'app_data', filter: 'id=eq.1' },
-        (payload) => {
-          if (!cargandoNube && payload.new) {
-            console.log('☁️ Cambios recibidos desde otra PC');
-            aplicarDatosNube(payload.new);
-            if (typeof toast === 'function') toast('☁️ Actualizado desde otro dispositivo');
-          }
-        }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') console.log('☁️ Tiempo real de datos activado');
-      });
 
-    // Interceptar saveAll para guardar en la nube
+    // 2) Suscribirse a cambios en tiempo real
+    try {
+      sb.channel('cambios-app')
+        .on('postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'app_data', filter: 'id=eq.1' },
+          (payload) => {
+            if (!cargandoNube && payload.new) {
+              console.log('☁️ Cambios recibidos desde otra PC/dispositivo');
+              aplicarDatosNube(payload.new);
+              if (typeof toast === 'function') toast('☁️ Actualizado desde otro dispositivo');
+            }
+          }
+        )
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') console.log('☁️ Tiempo real activado');
+        });
+    } catch(e) { console.error('Error en realtime:', e); }
+
+    // 3) Interceptar saveAll para que también guarde en la nube
     const originalSaveAll = window.saveAll;
     window.saveAll = async function() {
       const r = await originalSaveAll.apply(this, arguments);
@@ -18151,55 +18048,8 @@ window.BACKUPS = {
       return r;
     };
 
-    // === NOTIFICACIONES DE PEDIDOS MAYORISTAS ===
-    cargarPedidosPendientes();
-    sb.channel('pedidos-mayoristas-live')
-      .on('postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'pedidos_mayoristas' },
-        (payload) => {
-          const p = payload.new;
-          if (p && p.estado === 'pendiente') {
-            pedidosPendientes.unshift(p);
-            actualizarBadgeMay();
-            notificarNuevoPedido(p);
-            if (document.getElementById('modal-pedidos-may').classList.contains('open')) {
-              renderListaPedidosMay();
-            }
-          }
-        }
-      )
-      .on('postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'pedidos_mayoristas' },
-        (payload) => {
-          const idx = pedidosPendientes.findIndex(p => p.id === payload.new.id);
-          if (idx >= 0) {
-            if (payload.new.estado !== 'pendiente') {
-              pedidosPendientes.splice(idx, 1);
-            } else {
-              pedidosPendientes[idx] = payload.new;
-            }
-            actualizarBadgeMay();
-            if (document.getElementById('modal-pedidos-may').classList.contains('open')) {
-              renderListaPedidosMay();
-            }
-          }
-        }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') console.log('☁️ Tiempo real de pedidos activado');
-      });
-
-    // Pedir permiso de notificaciones del navegador
-    if ('Notification' in window && Notification.permission === 'default') {
-      setTimeout(() => {
-        try { Notification.requestPermission(); } catch(e) {}
-      }, 6000);
-    }
-
-    console.log('☁️ Sincronización + notificaciones activas');
+    console.log('☁️ Sincronización con la nube activa');
   }
-
-  // ========== SINCRONIZACIÓN app_data ==========
 
   async function cargarDesdeNube() {
     if (!sb) return;
@@ -18212,7 +18062,7 @@ window.BACKUPS = {
         if (typeof toast === 'function') toast('☁️ Datos cargados desde la nube');
       }
     } catch (err) {
-      console.warn('No se pudo cargar desde la nube:', err.message);
+      console.warn('No se pudo cargar desde la nube (usando datos locales):', err.message);
     } finally {
       cargandoNube = false;
     }
@@ -18220,6 +18070,7 @@ window.BACKUPS = {
 
   function aplicarDatosNube(data) {
     let huboCambios = false;
+
     if (Array.isArray(data.productos)) {
       productos = data.productos;
       try { localStorage.setItem('mm_prods_v1', JSON.stringify(productos)); } catch(e){}
@@ -18266,18 +18117,23 @@ window.BACKUPS = {
       try { localStorage.setItem('mm_pedidos_v1', JSON.stringify(data.pedidos)); } catch(e){}
       if (typeof _pedidosGuardados !== 'undefined') _pedidosGuardados = data.pedidos;
     }
+
     if (huboCambios) {
-      try { if (typeof renderAll === 'function') renderAll(); } catch(e){ console.error(e); }
+      try {
+        if (typeof renderAll === 'function') renderAll();
+      } catch(e){ console.error('Error al re-renderizar:', e); }
     }
   }
 
   function guardarEnNube() {
     if (!sb || cargandoNube) return;
+    // Debounce: esperamos 1.5s después del último cambio antes de subir
     clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
       try {
         let pedidos = [];
         try { pedidos = JSON.parse(localStorage.getItem('mm_pedidos_v1') || '[]'); } catch(e){}
+
         const payload = {
           productos: (typeof productos !== 'undefined') ? productos : [],
           stock: (typeof stock !== 'undefined') ? stock : {},
@@ -18292,6 +18148,7 @@ window.BACKUPS = {
           pedidos: pedidos,
           updated_at: new Date().toISOString()
         };
+
         const { error } = await sb.from('app_data').update(payload).eq('id', 1);
         if (error) throw error;
         console.log('☁️ Guardado en la nube ✓');
@@ -18301,148 +18158,6 @@ window.BACKUPS = {
     }, 1500);
   }
 
-  // ========== PEDIDOS MAYORISTAS ==========
-
-  async function cargarPedidosPendientes() {
-    if (!sb) return;
-    try {
-      const { data, error } = await sb.from('pedidos_mayoristas')
-        .select('*').eq('estado', 'pendiente').order('created_at', { ascending: false });
-      if (error) throw error;
-      pedidosPendientes = data || [];
-      actualizarBadgeMay();
-    } catch (err) {
-      console.warn('No se pudieron cargar pedidos:', err.message);
-    }
-  }
-
-  function actualizarBadgeMay() {
-    const btn = document.getElementById('btn-pedidos-may-flot');
-    const count = document.getElementById('pedidos-may-count');
-    if (!btn || !count) return;
-    count.textContent = pedidosPendientes.length;
-    btn.classList.toggle('activo', pedidosPendientes.length > 0);
-  }
-
-  function notificarNuevoPedido(pedido) {
-    const total = Math.round(Number(pedido.total)||0).toLocaleString('es-AR');
-    // Toast
-    if (typeof toast === 'function') {
-      toast(`🛒 NUEVO PEDIDO: ${pedido.cliente_nombre} — $${total}`);
-    }
-    // Beep
-    reproducirBeep();
-    // Notificación del navegador
-    if ('Notification' in window && Notification.permission === 'granted') {
-      try {
-        new Notification('🛒 Nuevo pedido mayorista', {
-          body: `${pedido.cliente_nombre}\nTotal: $${total}`,
-          tag: 'pedido-' + pedido.id,
-          requireInteraction: false
-        });
-      } catch(e) {}
-    }
-  }
-
-  function reproducirBeep() {
-    try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return;
-      const ctx = new Ctx();
-      function tono(freq, delay, dur) {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.frequency.value = freq;
-        osc.type = 'sine';
-        const t0 = ctx.currentTime + delay;
-        gain.gain.setValueAtTime(0.0, t0);
-        gain.gain.linearRampToValueAtTime(0.3, t0 + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
-        osc.start(t0);
-        osc.stop(t0 + dur + 0.05);
-      }
-      tono(880, 0,    0.18);
-      tono(1175, 0.2, 0.18);
-      tono(1480, 0.4, 0.30);
-    } catch(e) {}
-  }
-
-  function renderListaPedidosMay() {
-    const cont = document.getElementById('lista-pedidos-may');
-    if (!cont) return;
-    if (pedidosPendientes.length === 0) {
-      cont.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#888;font-size:1rem;">✨ No hay pedidos pendientes</div>';
-      return;
-    }
-    cont.innerHTML = pedidosPendientes.map(p => {
-      const items = Array.isArray(p.items) ? p.items : [];
-      const total = Math.round(Number(p.total)||0).toLocaleString('es-AR');
-      const detalle = items.map(i => {
-        const subt = Math.round((Number(i.precio)||0) * (Number(i.cantidad)||0)).toLocaleString('es-AR');
-        return `<li>${i.cantidad}x ${i.marca?i.marca+' ':''}${i.nombre||''} — $${subt}</li>`;
-      }).join('');
-      const fecha = new Date(p.timestamp || p.created_at || Date.now()).toLocaleString('es-AR');
-      const wspNum = (p.cliente_whatsapp||'').replace(/\D/g,'');
-      const wspMsg = encodeURIComponent(`Hola ${p.cliente_nombre || ''}, te confirmo tu pedido por $${total}. ¿A qué hora lo retirás?`);
-      const wspLink = wspNum ? `https://wa.me/${wspNum}?text=${wspMsg}` : '#';
-      return `
-        <div class="pedido-may-card">
-          <div class="pedido-may-header">
-            <div>
-              <div style="font-weight:800;font-size:1rem;">👤 ${p.cliente_nombre || '(sin nombre)'}</div>
-              <div style="font-size:0.78rem;color:#888;margin-top:2px;">📅 ${fecha}</div>
-              <div style="font-size:0.78rem;color:#888;">📱 ${p.cliente_whatsapp || '-'}</div>
-            </div>
-            <div style="font-size:1.4rem;font-weight:900;color:#27ae60;font-family:Consolas,monospace;">$${total}</div>
-          </div>
-          <div class="pedido-may-items">
-            <ul>${detalle || '<li>(sin items)</li>'}</ul>
-          </div>
-          <div class="pedido-may-meta">
-            💳 ${p.forma_pago || '-'} · ⏰ ${p.horario_retiro || '-'}
-            ${p.notas ? `<br>💬 ${p.notas}` : ''}
-          </div>
-          <div class="pedido-may-acciones">
-            <a class="btn-wa" href="${wspLink}" target="_blank">📲 Confirmar por WhatsApp</a>
-            <button class="btn-ok" onclick="marcarPedidoAtendidoMay('${p.id}')">✅ Atendido</button>
-            <button class="btn-no" onclick="cancelarPedidoMay('${p.id}')">❌ Cancelar</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-  }
-
-  window.abrirModalPedidosMay = function() {
-    document.getElementById('modal-pedidos-may').classList.add('open');
-    renderListaPedidosMay();
-  };
-  window.cerrarModalPedidosMay = function() {
-    document.getElementById('modal-pedidos-may').classList.remove('open');
-  };
-  window.marcarPedidoAtendidoMay = async function(id) {
-    if (!confirm('¿Marcar este pedido como atendido?')) return;
-    try {
-      const { error } = await sb.from('pedidos_mayoristas').update({ estado: 'atendido' }).eq('id', id);
-      if (error) throw error;
-      if (typeof toast === 'function') toast('✅ Pedido marcado como atendido');
-    } catch(err) {
-      if (typeof toast === 'function') toast('Error: ' + err.message);
-    }
-  };
-  window.cancelarPedidoMay = async function(id) {
-    if (!confirm('¿Cancelar este pedido?')) return;
-    try {
-      const { error } = await sb.from('pedidos_mayoristas').update({ estado: 'cancelado' }).eq('id', id);
-      if (error) throw error;
-      if (typeof toast === 'function') toast('❌ Pedido cancelado');
-    } catch(err) {
-      if (typeof toast === 'function') toast('Error: ' + err.message);
-    }
-  };
-
-  // Arrancar
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', esperarApp);
   } else {
