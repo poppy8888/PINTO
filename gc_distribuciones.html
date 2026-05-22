@@ -5738,7 +5738,7 @@ async function loadAll(){
         {id:4,nombre:'Cigarrillos Marlboro',marca:'Cigarrillos',precio:3000,costo:2400,barcode:'',tipo:'unidad'}
       ];
     }
-    toast('📀 Cargando... esperá Firebase');
+    toast('📀 Cargando... esperá Supabase');
   productos.forEach(p=>{
     if(stock[p.id]===undefined)stock[p.id]=0;
     if(!p.barcode)p.barcode='';
@@ -15748,10 +15748,17 @@ renderAll = function(){
 <script src="https://accounts.google.com/gsi/client"></script>
 <script>
 window.GDrive = (function(){
-  const API_KEY = 'AIzaSyCkndCs0MJh65qx6XTfKoTLMsC84nMu6BU';
-  const CLIENT_ID = '260545854260-3g8j3h8i5a148d02fsrhivdrlq04h619.apps.googleusercontent.com';
+  // ════════════════════════════════════════════════════════════════════
+  //   CREDENCIALES DE GOOGLE DRIVE - PROYECTO: GC Distribuciones
+  //   Proyecto Cloud: gc-distribuciones (separado del de la estación)
+  //   Carpeta Drive : GC_Distribuciones_Fotos
+  //   Creadas el    : 22/05/2026
+  // ════════════════════════════════════════════════════════════════════
+  const API_KEY   = 'AIzaSyDkqDJJJeZ2Zm0H5ICJOOy3uBMSyeKRlI0';
+  const CLIENT_ID = '667704157955-mdnpj6g2jlqimttdj851eujdj59qpqfu.apps.googleusercontent.com';
+  // ════════════════════════════════════════════════════════════════════
   const SCOPES = 'https://www.googleapis.com/auth/drive.file';
-  const CARPETA_NOMBRE = 'EstacionDonRamon_Cigarrillos';
+  const CARPETA_NOMBRE = 'GC_Distribuciones_Fotos';
 
   let tokenClient = null;
   let accessToken = null;
@@ -17016,7 +17023,7 @@ window.abrirMigracionFotos = function(){
   modal.innerHTML = `
     <div style="background:#fff;border-radius:14px;max-width:720px;width:96%;max-height:92vh;overflow:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:2px solid #16a085;padding-bottom:12px;">
-        <h2 style="margin:0;color:#1a1a2e;font-size:1.3rem;">📦 Liberar Espacio en Firebase</h2>
+        <h2 style="margin:0;color:#1a1a2e;font-size:1.3rem;">📦 Liberar Espacio (fotos pesadas)</h2>
         <button onclick="document.getElementById('modal-migracion-fotos').remove()" style="background:#e74c3c;color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-weight:800;font-size:1rem;">✕</button>
       </div>
       
@@ -17028,7 +17035,7 @@ window.abrirMigracionFotos = function(){
           <div style="background:#eee;height:14px;border-radius:7px;margin-top:6px;overflow:hidden;">
             <div style="background:${colorTotal};height:100%;width:${Math.min(porcentaje,100)}%;transition:width 0.5s;"></div>
           </div>
-          ${total > 1000000 ? '<div style="margin-top:8px;color:#c0392b;font-weight:800;">⚠️ EXCEDISTE el límite. Por eso Firebase rechaza guardar cambios.</div>' : ''}
+          ${total > 1000000 ? '<div style="margin-top:8px;color:#c0392b;font-weight:800;">⚠️ EXCEDISTE el límite. Por eso se rechaza guardar cambios.</div>' : ''}
           ${total > 800000 && total <= 1000000 ? '<div style="margin-top:8px;color:#e67e22;font-weight:800;">⚠️ Estás cerca del límite. Conviene liberar espacio ya.</div>' : ''}
         </div>
       </div>
@@ -17216,15 +17223,15 @@ window.iniciarMigracionFotos = async function(){
   }
   
   // Guardar el resultado final
-  textoDiv.textContent = 'Guardando en Firebase...';
+  textoDiv.textContent = 'Guardando en Supabase...';
   bar.style.width = '100%';
   bar.textContent = '100%';
   
   try {
     if(typeof saveAll === 'function') await saveAll();
-    log(`✅ Cambios guardados en Firebase`);
+    log(`✅ Cambios guardados en Supabase`);
   } catch(e){
-    log(`⚠️ Error guardando en Firebase: ${e.message}`);
+    log(`⚠️ Error guardando en Supabase: ${e.message}`);
   }
   
   if(typeof renderAll === 'function') renderAll();
@@ -17267,734 +17274,59 @@ window.iniciarMigracionFotos = async function(){
 <!-- ============== /MIGRACIÓN DE FOTOS ============================ -->
 
 <!-- ============================================================ -->
-<!-- ====================== FIREBASE SYNC ======================== -->
+<!-- =========== FIREBASE DESACTIVADO (ahora todo Supabase) ====== -->
 <!-- ============================================================ -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot, enableIndexedDbPersistence,
-         collection, addDoc, query, orderBy, limit, getDocs, deleteDoc, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBfIyFUkg3Ys8Z66AAaqmn42CQ1B9i9eug",
-  authDomain: "estacion-don-ramon-bb3be.firebaseapp.com",
-  projectId: "estacion-don-ramon-bb3be",
-  storageBucket: "estacion-don-ramon-bb3be.firebasestorage.app",
-  messagingSenderId: "481874293546",
-  appId: "1:481874293546:web:0bbe18f6f44b758f272453",
-  measurementId: "G-K6C5JF0YYV"
-};
-
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
-
-// Habilitar persistencia offline: si se cae internet, sigue funcionando
-enableIndexedDbPersistence(db).catch(err => {
-  console.warn('Firebase offline persistence:', err.code);
-});
-
-// Documento principal donde guardamos todo
-const docRef = doc(db, "estacion", "datos_principales");
-
-// Bandera para saber si lo último vino de la nube (para no rebotar)
-let _aplicandoCambioRemoto = false;
-// Bandera para saber si ya hicimos la carga inicial
-let _firstSyncDone = false;
-// Timestamp del último cambio nuestro (para evitar pisarnos a nosotros mismos)
-let _ultimoCambioLocal = 0;
-// Identificador único de esta sesión (para saber si el cambio es nuestro o de otro)
-const _sesionId = 'sess_' + Math.random().toString(36).slice(2,10) + '_' + Date.now();
-
-// ====== Indicador visual de estado de sincronización ======
-function fbCrearIndicador(){
-  if(document.getElementById('fb-indicador')) return;
-  const div = document.createElement('div');
-  div.id = 'fb-indicador';
-  div.style.cssText = 'position:fixed;bottom:14px;right:14px;background:#1a1a2e;color:#fff;padding:8px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;font-family:Segoe UI,Arial,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;gap:7px;';
-  div.innerHTML = '<span id="fb-ico">⏳</span><span id="fb-txt">Conectando a la nube...</span>';
-  document.body.appendChild(div);
-}
-function fbEstado(ico, texto, color){
-  const indicador = document.getElementById('fb-indicador');
-  if(!indicador) return;
-  if(color) indicador.style.background = color;
-  document.getElementById('fb-ico').textContent = ico;
-  document.getElementById('fb-txt').textContent = texto;
-}
-fbCrearIndicador();
-
-// ====== SUBIR los datos del sistema a Firebase ======
-async function fbSubir(){
-  if(_aplicandoCambioRemoto) return; // no rebotar
-  try {
-    const datos = {
-      productos: (typeof productos !== 'undefined' ? productos : []),
-      stock: (typeof stock !== 'undefined' ? stock : {}),
-      clientes: (typeof clientes !== 'undefined' ? clientes : []),
-      proveedores: (typeof proveedores !== 'undefined' ? proveedores : []),
-      facturas: (typeof facturas !== 'undefined' ? facturas : []),
-      movimientosCC: (typeof movimientosCC !== 'undefined' ? movimientosCC : []),
-      log: (typeof log !== 'undefined' ? log.slice(-500) : []),
-      gastos: (typeof gastos !== 'undefined' ? gastos : []),
-      turnos: (typeof turnos !== 'undefined' ? turnos : []),
-      familiasExtra: window.familiasExtra || [],
-      nextId: (typeof nextId !== 'undefined' ? nextId : 100),
-      nextCliId: (typeof nextCliId !== 'undefined' ? nextCliId : 1),
-      nextProvId: (typeof nextProvId !== 'undefined' ? nextProvId : 1),
-      _meta: {
-        sesion: _sesionId,
-        timestamp: Date.now(),
-        fecha: new Date().toISOString()
-      }
-    };
-    _ultimoCambioLocal = datos._meta.timestamp;
-    await setDoc(docRef, datos);
-    fbEstado('✅', 'Sincronizado', '#27500a');
-  } catch (err) {
-    console.error('Firebase subir:', err);
-    fbEstado('⚠️', 'Sin internet — datos locales', '#c0392b');
-  }
-}
-
-// ====== UNIÓN SEGURA: combina la lista remota + los registros que existen
-// SOLO en este equipo (identificando por id). NUNCA descarta lo local. ======
-// Contador que lleva cuántos registros se "rescataron" en cada turno de
-// aplicación remota. Si es > 0, significa que la nube tenía MENOS datos que
-// este equipo, así que hay que devolverle el estado completo para curarla.
-let _rescatadosEsteTurno = 0;
-function _fusionarPorId(remotos, locales){
-  if(!Array.isArray(remotos)) return Array.isArray(locales) ? locales : [];
-  if(!Array.isArray(locales) || locales.length === 0) return remotos;
-  const idsRemotos = new Set(remotos.map(x => x && Number(x.id)));
-  const soloLocales = locales.filter(x => x && x.id != null && !idsRemotos.has(Number(x.id)));
-  if(soloLocales.length > 0){
-    _rescatadosEsteTurno += soloLocales.length;
-    console.warn('🛡️ PROTECCIÓN: ' + soloLocales.length + ' registro(s) existían solo en este equipo — se conservan, NO se borran.');
-  }
-  return remotos.concat(soloLocales);
-}
-
-// ====== BAJAR los datos de Firebase al sistema ======
-function fbAplicarDatosRemotos(datos){
-  if(!datos) return;
-  _aplicandoCambioRemoto = true;
-  _rescatadosEsteTurno = 0;  // reset al inicio de cada turno
-  try {
-    // ==== DEBUG: mostrar en consola qué tipos llegan de Firebase ====
-    if(datos.productos && datos.productos.length > 0){
-      console.log('🔵 FB RECIBIDO - primer producto:', JSON.parse(JSON.stringify(datos.productos[0])));
-      const muestra = datos.productos.slice(-3);
-      muestra.forEach(p => {
-        console.log(`  ${p.marca||''} ${p.nombre||''} → costo:`, p.costo, typeof p.costo, '| precio:', p.precio, typeof p.precio, '| precioCasa:', p.precioCasa, typeof p.precioCasa);
-      });
-    }
-
-    // ==== PROTECCIÓN: si los datos remotos son PEORES que los locales,
-    // fusionar inteligentemente en lugar de pisar todo ====
-    if(datos.productos && Array.isArray(datos.productos) && Array.isArray(productos) && productos.length > 0){
-      const productosLocales = productos;
-      const productosRemotos = datos.productos;
-      // Paso 1: por cada producto remoto, fusionar campo por campo con su par local
-      const productosFusionados = productosRemotos.map(pRemoto => {
-        const pLocal = productosLocales.find(pl => Number(pl.id) === Number(pRemoto.id));
-        if(!pLocal) return pRemoto;
-        // Si el remoto tiene 0 pero el local tiene valor, conservar el local
-        const fusionado = {...pRemoto};
-        ['costo','precio','precioLista2','precioCasa','stockMin','stockIdeal'].forEach(campo => {
-          const valRemoto = Number(pRemoto[campo]) || 0;
-          const valLocal = Number(pLocal[campo]) || 0;
-          if(valRemoto === 0 && valLocal > 0){
-            fusionado[campo] = valLocal;
-            console.warn(`🛡️ PROTECCIÓN: ${pRemoto.nombre} - ${campo} remoto era 0, conservando local ${valLocal}`);
-          }
-        });
-        // 🛡️ PROTECCIÓN DE FOTO Y CAMPOS DE TEXTO: si el remoto los tiene vacíos
-        // pero el local tiene un valor, CONSERVAR el local. Esto evita que una
-        // PC que no pudo cargar la foto le borre la foto a las demás.
-        ['foto','imagen','fotoUrl','codigoBarra','barcode','descripcion','observaciones'].forEach(campo => {
-          const valRemoto = pRemoto[campo];
-          const valLocal  = pLocal[campo];
-          // Considerar vacío: null, undefined, "", "null", "undefined"
-          const remotoVacio = !valRemoto || valRemoto === 'null' || valRemoto === 'undefined';
-          const localTiene  = valLocal && valLocal !== 'null' && valLocal !== 'undefined' && String(valLocal).length > 0;
-          if(remotoVacio && localTiene){
-            fusionado[campo] = valLocal;
-            console.warn(`🛡️ PROTECCIÓN: ${pRemoto.nombre} - ${campo} remoto vacío, conservando local`);
-          }
-        });
-        return fusionado;
-      });
-      // Paso 2 (CLAVE): agregar los productos que existen SOLO en este equipo.
-      // El bug anterior se quedaba ÚNICAMENTE con la lista remota, así que
-      // cualquier producto recién cargado acá y todavía no subido a la nube
-      // se perdía al recibir un cambio remoto. Ahora se hace UNIÓN: no se
-      // pierde nada. (Este era el origen de "se me borran los productos".)
-      productos = _fusionarPorId(productosFusionados, productosLocales);
-    } else if(datos.productos) {
-      productos = datos.productos;
-    }
-    // Stock: fusionar conservando las entradas que solo existen en este equipo
-    // (si no, un producto local nuevo quedaría sin su stock).
-    if(datos.stock){
-      const stockLocalActual = (stock && typeof stock === 'object') ? stock : {};
-      const llavesRemotas = new Set(Object.keys(datos.stock || {}));
-      const llavesSoloLocales = Object.keys(stockLocalActual).filter(k => !llavesRemotas.has(k));
-      if(llavesSoloLocales.length > 0) _rescatadosEsteTurno += llavesSoloLocales.length;
-      stock = Object.assign({}, stockLocalActual, datos.stock);
-    }
-    // Clientes, proveedores, facturas y movimientos: misma unión segura,
-    // así tampoco se pierde un cliente, una factura o un movimiento cargado
-    // en este equipo y todavía no sincronizado.
-    if(datos.clientes)      clientes      = _fusionarPorId(datos.clientes, clientes);
-    if(datos.proveedores)   proveedores   = _fusionarPorId(datos.proveedores, proveedores);
-    if(datos.facturas)      facturas      = _fusionarPorId(datos.facturas, facturas);
-    if(datos.movimientosCC) movimientosCC = _fusionarPorId(datos.movimientosCC, movimientosCC);
-    if(typeof repararMovimientosCC === 'function') repararMovimientosCC();
-    if(datos.log) log = datos.log;
-    if(datos.gastos && typeof gastos !== 'undefined') gastos = datos.gastos;
-    if(datos.turnos && typeof turnos !== 'undefined') turnos = datos.turnos;
-    if(datos.familiasExtra) window.familiasExtra = datos.familiasExtra;
-    if(datos.nextId) nextId = datos.nextId;
-    if(datos.nextCliId) nextCliId = datos.nextCliId;
-    if(datos.nextProvId) nextProvId = datos.nextProvId;
-
-    // ==== NORMALIZAR NÚMEROS (fix decimales con coma argentina) ====
-    if(typeof normalizarNumerosProductos === 'function'){
-      normalizarNumerosProductos();
-    }
-
-    // ==== DEBUG: estado DESPUÉS de aplicar ====
-    if(productos && productos.length > 0){
-      const muestra2 = productos.slice(-3);
-      muestra2.forEach(p => {
-        console.log(`🟢 DESPUÉS - ${p.marca||''} ${p.nombre||''} → costo:`, p.costo, typeof p.costo, '| precio:', p.precio, typeof p.precio);
-      });
-
-      // ==== TRAMPERO: detectar quién borra el costo ====
-      productos.forEach(p => {
-        if(p.__trapped) return;
-        let _costo = p.costo;
-        let _precio = p.precio;
-        Object.defineProperty(p, 'costo', {
-          get(){ return _costo; },
-          set(v){
-            if(_costo > 0 && (v === 0 || v === null || v === undefined || isNaN(v))){
-              console.warn('🚨🚨🚨 ALGUIEN BORRÓ COSTO de', p.nombre, 'de', _costo, '→', v);
-              console.trace('Stack de quién lo hizo:');
-            }
-            _costo = v;
-          },
-          configurable: true
-        });
-        Object.defineProperty(p, 'precio', {
-          get(){ return _precio; },
-          set(v){
-            if(_precio > 0 && (v === 0 || v === null || v === undefined || isNaN(v))){
-              console.warn('🚨🚨🚨 ALGUIEN BORRÓ PRECIO de', p.nombre, 'de', _precio, '→', v);
-              console.trace('Stack de quién lo hizo:');
-            }
-            _precio = v;
-          },
-          configurable: true
-        });
-        p.__trapped = true;
-      });
-    }
-
-    // Guardar en localStorage también para tener backup local (con CLAVES CORRECTAS)
-    try { localStorage.setItem('mm_prods_v1', JSON.stringify(productos)); } catch(e){}
-    try { localStorage.setItem('mm_stock_v1', JSON.stringify(stock)); } catch(e){}
-    try { localStorage.setItem('mm_clientes_v1', JSON.stringify(clientes)); } catch(e){}
-    try { localStorage.setItem('mm_proveedores_v1', JSON.stringify(proveedores)); } catch(e){}
-    try { localStorage.setItem('mm_facturas_v1', JSON.stringify(facturas)); } catch(e){}
-    try { localStorage.setItem('mm_cc_v1', JSON.stringify(movimientosCC)); } catch(e){}
-    try { localStorage.setItem('mm_log_v1', JSON.stringify(log)); } catch(e){}
-
-    if(typeof renderAll === 'function') {
-      try { renderAll(); } catch(errRender){ console.error('Error en renderAll tras cambio remoto:', errRender); }
-    }
-  } finally {
-    _aplicandoCambioRemoto = false;
-  }
-
-  // ====== CURAR LA NUBE ======
-  // Si en este turno rescatamos registros (la nube tenía menos que nosotros),
-  // significa que otro equipo subió un estado incompleto que nos hubiera
-  // borrado datos. Como nosotros ya los preservamos en memoria, ahora le
-  // devolvemos a la nube el estado completo para curarla y que no quede
-  // contagiando a los demás equipos.
-  if(_rescatadosEsteTurno > 0){
-    const cuantos = _rescatadosEsteTurno;
-    console.warn('🩹 La nube tenía menos datos que este equipo. Subiendo ' + cuantos + ' registro(s) rescatado(s) para curarla...');
-    fbEstado('🩹', 'Curando la nube...', '#3b82f6');
-    setTimeout(() => {
-      try { if(typeof saveAll === 'function') saveAll(); }
-      catch(e){ console.error('Error curando la nube:', e); }
-    }, 600);
-  }
-}
-
-// ====== ESCUCHAR cambios en tiempo real ======
-onSnapshot(docRef, (snapshot) => {
-  if(!snapshot.exists()){
-    // Primera vez: subir los datos locales que ya tenemos
-    if(!_firstSyncDone){
-      _firstSyncDone = true;
-      fbEstado('☁️', 'Primer envío...', '#3b82f6');
-      fbSubir();
-    }
-    return;
-  }
-  const datos = snapshot.data();
-  // Si el cambio es nuestro mismo, ignorar
-  if(datos._meta && datos._meta.sesion === _sesionId){
-    _firstSyncDone = true;
-    fbEstado('✅', 'Sincronizado', '#27500a');
-    return;
-  }
-  // Si el cambio es de otro dispositivo, aplicarlo
-  fbEstado('⬇️', 'Recibiendo cambios...', '#3b82f6');
-  fbAplicarDatosRemotos(datos);
-  _firstSyncDone = true;
-  setTimeout(() => fbEstado('✅', 'Sincronizado', '#27500a'), 800);
-}, (err) => {
-  console.error('Firebase onSnapshot:', err);
-  fbEstado('⚠️', 'Error de conexión', '#c0392b');
-});
-
-// ====== INTERCEPTAR saveAll para que también suba a Firebase ======
-window._fbDebounce = null;
-function fbSubirConDebounce(){
-  if(_aplicandoCambioRemoto) return;
-  clearTimeout(window._fbDebounce);
-  window._fbDebounce = setTimeout(() => {
-    fbSubir();
-  }, 800); // espera 800ms para no subir 50 veces seguidas
-}
-
-// Hook a saveAll: cada vez que se guarda local, también subimos a la nube
+<!-- El código de Firebase fue removido porque causaba contagio    -->
+<!-- de datos con el programa de la estación de servicio.          -->
+<!-- Toda la sincronización ahora va por Supabase (más abajo).     -->
+<!-- Se dejan stubs vacíos para que no falle el resto del código.  -->
+<script>
 (function(){
-  const intentar = () => {
-    if(typeof saveAll === 'function'){
-      const _origSaveAll = saveAll;
-      window.saveAll = function(){
-        _origSaveAll.apply(this, arguments);
-        fbSubirConDebounce();
-      };
-      console.log('✅ Firebase hooked into saveAll');
-      return true;
-    }
-    return false;
+  // Estado visual: simular "todo OK" sin conectar a nada
+  function fbEstado(emoji, texto, color){
+    var n = document.getElementById('fb-estado-texto');
+    var p = document.getElementById('fb-estado-emoji');
+    var c = document.getElementById('fb-estado-container');
+    if(n) n.textContent = texto || 'Local';
+    if(p) p.textContent = emoji || '💾';
+    if(c && color) c.style.color = color;
+  }
+  fbEstado('💾', 'Local + Supabase', '#16a085');
+
+  // window.FB: stub que no hace nada (saveAll local sigue funcionando solo)
+  window.FB = {
+    subir: function(){ return Promise.resolve(); },
+    bajar: function(){ return Promise.resolve(); },
+    estado: fbEstado
   };
-  if(!intentar()){
-    // Si no estaba listo, reintentar
-    const intervalo = setInterval(() => {
-      if(intentar()){ clearInterval(intervalo); }
-    }, 300);
-    setTimeout(() => clearInterval(intervalo), 10000);
-  }
+
+  // window.FBPedidos: stub. Los pedidos ahora se manejan vía Supabase.
+  window.FBPedidos = {
+    guardar: function(){ return Promise.resolve(); },
+    eliminar: function(){ return Promise.resolve(); }
+  };
+
+  // window.BACKUPS: stub. Los backups se hacen local + Supabase.
+  window.BACKUPS = {
+    hacerAhora: function(){
+      alert('Los backups automáticos a Firebase fueron desactivados.\nUsá la opción de descargar JSON local para tener un respaldo.');
+      return Promise.resolve(false);
+    },
+    listar: function(){ return Promise.resolve([]); },
+    restaurar: function(){
+      alert('Restauración desde Firebase desactivada. Usá un archivo JSON local.');
+      return Promise.resolve(false);
+    },
+    esPCAdmin: function(){ return localStorage.getItem('ER_ES_PC_ADMIN') === 'true'; }
+  };
+
+  // Inicializar pedidosMayoristas vacío para que la UI no rompa hasta que cargue Supabase
+  if(!window.pedidosMayoristas) window.pedidosMayoristas = [];
+
+  console.log('ℹ️ Firebase desactivado. Sincronización vía Supabase.');
 })();
-
-// Exponer para debug
-window.FB = {
-  subir: fbSubir,
-  forzarBajar: async () => {
-    const snap = await getDoc(docRef);
-    if(snap.exists()) fbAplicarDatosRemotos(snap.data());
-  },
-  estado: fbEstado
-};
-
-// ============================================================================
-// 🛒 PEDIDOS MAYORISTAS - sincronización con Firebase
-// ----------------------------------------------------------------------------
-// Listener en tiempo real sobre la colección "pedidosMayoristas"
-// Cuando llega un pedido nuevo, refresca window.pedidosMayoristas y la UI
-// ============================================================================
-import { onSnapshot as onSnapshotMay } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const colPedidosMay = collection(db, 'pedidosMayoristas');
-
-// Escuchar cambios en tiempo real
-onSnapshotMay(colPedidosMay, (snap) => {
-  const pedidos = [];
-  snap.forEach(d => pedidos.push({ id: d.id, ...d.data() }));
-  window.pedidosMayoristas = pedidos;
-  console.log('🛒 Pedidos mayoristas actualizados:', pedidos.length);
-  if(typeof window.refrescarPedidosMayUI === 'function'){
-    try { window.refrescarPedidosMayUI(); } catch(e){}
-  }
-  // Notificación visual de pedido nuevo
-  const pendientes = pedidos.filter(p => (p.estado||'pendiente') === 'pendiente').length;
-  const indicador = document.getElementById('fb-indicador');
-  if(pendientes > 0 && indicador){
-    // Sutil parpadeo del indicador
-  }
-}, (err) => {
-  console.warn('Pedidos mayoristas listener:', err);
-});
-
-window.FBPedidos = {
-  guardar: async (pedido) => {
-    if(!pedido || !pedido.id) throw new Error('pedido sin id');
-    const pedRef = doc(db, 'pedidosMayoristas', pedido.id);
-    await setDoc(pedRef, pedido);
-  },
-  eliminar: async (pedidoId) => {
-    const pedRef = doc(db, 'pedidosMayoristas', pedidoId);
-    await deleteDoc(pedRef);
-  }
-};
-
-// ============================================================================
-// 🛡️ SISTEMA DE BACKUPS AUTOMÁTICOS DIARIOS A LAS 23:00
-// ----------------------------------------------------------------------------
-// SOLO se ejecuta en la PC marcada como "PC del administrador" (LocalStorage)
-// - A las 23:00 sube un snapshot a Firestore (colección "backups")
-// - Si la PC no estaba prendida a las 23:00, se hace al primer login del día
-// - Mantiene los últimos 30 backups, borra los más viejos automáticamente
-// - Botón en la UI para ver lista, descargar, restaurar y marcar/desmarcar PC
-// ============================================================================
-
-const HORA_BACKUP = 23;             // 23:00 hora local
-const MAX_BACKUPS = 30;             // mantener últimos 30
-const KEY_ES_PC_ADMIN = 'ER_ES_PC_ADMIN';        // 'true' si esta PC es la del admin
-const KEY_ULT_BACKUP   = 'ER_ULTIMO_BACKUP_FECHA'; // 'YYYY-MM-DD' del último backup
-
-function esPCAdminBackup(){
-  return localStorage.getItem(KEY_ES_PC_ADMIN) === 'true';
-}
-
-function fechaHoyStr(){
-  const d = new Date();
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
-
-function ultimoBackupFecha(){
-  return localStorage.getItem(KEY_ULT_BACKUP) || '';
-}
-
-// ====== HACER EL BACKUP (sube a Firestore + descarga JSON) ======
-async function hacerBackupAutomatico(){
-  if(!esPCAdminBackup()){
-    console.log('[BACKUP] No es la PC del admin, no se hace backup.');
-    return false;
-  }
-  const hoy = fechaHoyStr();
-  if(ultimoBackupFecha() === hoy){
-    console.log('[BACKUP] Ya se hizo backup hoy (' + hoy + ').');
-    return false;
-  }
-
-  try {
-    fbEstado('📦', 'Haciendo backup diario...', '#8b6914');
-
-    // Armar el snapshot
-    const snapshot = {
-      fecha: hoy,
-      fechaCompleta: new Date().toISOString(),
-      timestampMs: Date.now(),
-      productos: typeof productos !== 'undefined' ? productos : [],
-      stock: typeof stock !== 'undefined' ? stock : {},
-      clientes: typeof clientes !== 'undefined' ? clientes : [],
-      proveedores: typeof proveedores !== 'undefined' ? proveedores : [],
-      facturas: typeof facturas !== 'undefined' ? facturas : [],
-      movimientosCC: typeof movimientosCC !== 'undefined' ? movimientosCC : [],
-      log: typeof log !== 'undefined' ? log : [],
-      gastos: typeof gastos !== 'undefined' ? gastos : [],
-      turnos: typeof turnos !== 'undefined' ? turnos : [],
-      descuentos: typeof descuentos !== 'undefined' ? descuentos : [],
-      familiasExtra: window.familiasExtra || [],
-      nextId: typeof nextId !== 'undefined' ? nextId : 100,
-      nextCliId: typeof nextCliId !== 'undefined' ? nextCliId : 1,
-      nextProvId: typeof nextProvId !== 'undefined' ? nextProvId : 1,
-      _meta: { pc: 'PC-Admin', creadoEn: Date.now() }
-    };
-
-    // 1) Subir a Firestore en colección "backups"
-    const docId = 'backup_' + hoy + '_' + Date.now();
-    const backupRef = doc(db, 'backups', docId);
-    await setDoc(backupRef, snapshot);
-    console.log('[BACKUP] ☁️ Subido a Firestore como:', docId);
-
-    // 2) Descargar como JSON en la PC del admin
-    try {
-      const blob = new Blob([JSON.stringify(snapshot, null, 2)], {type:'application/json'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'backup_estacion_' + hoy + '.json';
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-      console.log('[BACKUP] 💾 Descargado al disco');
-    } catch(e){ console.warn('[BACKUP] No se pudo descargar:', e); }
-
-    // 3) Marcar la fecha
-    localStorage.setItem(KEY_ULT_BACKUP, hoy);
-
-    // 4) Limpiar backups viejos (mantener últimos MAX_BACKUPS)
-    await limpiarBackupsViejos();
-
-    fbEstado('✅', 'Backup OK · ' + hoy, '#27500a');
-    setTimeout(() => fbEstado('✅', 'Sincronizado', '#27500a'), 4000);
-    return true;
-  } catch(err) {
-    console.error('[BACKUP] Error:', err);
-    fbEstado('⚠️', 'Backup falló', '#c0392b');
-    setTimeout(() => fbEstado('✅', 'Sincronizado', '#27500a'), 4000);
-    return false;
-  }
-}
-
-// ====== LIMPIAR BACKUPS VIEJOS (mantener los últimos MAX_BACKUPS) ======
-async function limpiarBackupsViejos(){
-  try {
-    const q = query(collection(db, 'backups'), orderBy('timestampMs', 'desc'));
-    const snap = await getDocs(q);
-    const docs = [];
-    snap.forEach(d => docs.push({ id: d.id, ts: d.data().timestampMs || 0 }));
-    if(docs.length > MAX_BACKUPS){
-      const aBorrar = docs.slice(MAX_BACKUPS);
-      console.log('[BACKUP] Limpiando ' + aBorrar.length + ' backup(s) viejo(s)...');
-      for(const d of aBorrar){
-        await deleteDoc(doc(db, 'backups', d.id));
-      }
-    }
-  } catch(e){ console.warn('[BACKUP] Error limpiando viejos:', e); }
-}
-
-// ====== LISTAR BACKUPS DISPONIBLES ======
-async function listarBackups(){
-  try {
-    const q = query(collection(db, 'backups'), orderBy('timestampMs', 'desc'), limit(MAX_BACKUPS));
-    const snap = await getDocs(q);
-    const lista = [];
-    snap.forEach(d => {
-      const data = d.data();
-      lista.push({
-        id: d.id,
-        fecha: data.fecha || '?',
-        fechaCompleta: data.fechaCompleta || '',
-        timestampMs: data.timestampMs || 0,
-        cantProductos: (data.productos || []).length,
-        cantFacturas: (data.facturas || []).length,
-        cantClientes: (data.clientes || []).length
-      });
-    });
-    return lista;
-  } catch(e){
-    console.error('[BACKUP] Error listando:', e);
-    return [];
-  }
-}
-
-// ====== RESTAURAR UN BACKUP ======
-async function restaurarBackup(backupId){
-  if(!confirm('⚠️ Vas a RESTAURAR este backup.\n\nLos datos actuales del sistema se van a PISAR con los del backup elegido.\n\nEsto afecta TODAS las PCs en tiempo real.\n\n¿Seguro que querés continuar?')){
-    return false;
-  }
-  try {
-    const backupRef = doc(db, 'backups', backupId);
-    const snap = await getDoc(backupRef);
-    if(!snap.exists()){
-      alert('❌ El backup no existe o fue borrado.');
-      return false;
-    }
-    const datos = snap.data();
-    // Aplicar al sistema
-    if(datos.productos) productos = datos.productos;
-    if(datos.stock) stock = datos.stock;
-    if(datos.clientes) clientes = datos.clientes;
-    if(datos.proveedores) proveedores = datos.proveedores;
-    if(datos.facturas) facturas = datos.facturas;
-    if(datos.movimientosCC) movimientosCC = datos.movimientosCC;
-    if(datos.log) log = datos.log;
-    if(datos.gastos) gastos = datos.gastos;
-    if(datos.turnos) turnos = datos.turnos;
-    if(datos.descuentos) descuentos = datos.descuentos;
-    if(datos.familiasExtra) window.familiasExtra = datos.familiasExtra;
-    if(datos.nextId) nextId = datos.nextId;
-    if(datos.nextCliId) nextCliId = datos.nextCliId;
-    if(datos.nextProvId) nextProvId = datos.nextProvId;
-
-    // Guardar local y subir a Firebase para que se propague a las otras PCs
-    if(typeof saveAll === 'function') await saveAll();
-    if(typeof renderAll === 'function') renderAll();
-    alert('✅ Backup restaurado correctamente.\n\nFecha del backup: ' + (datos.fecha || '?') + '\nProductos: ' + (datos.productos||[]).length + '\nFacturas: ' + (datos.facturas||[]).length);
-    return true;
-  } catch(err){
-    console.error('[BACKUP] Error restaurando:', err);
-    alert('❌ Error al restaurar el backup: ' + err.message);
-    return false;
-  }
-}
-
-// ====== DESCARGAR UN BACKUP COMO JSON ======
-async function descargarBackup(backupId){
-  try {
-    const backupRef = doc(db, 'backups', backupId);
-    const snap = await getDoc(backupRef);
-    if(!snap.exists()){
-      alert('❌ El backup no existe.');
-      return;
-    }
-    const datos = snap.data();
-    const blob = new Blob([JSON.stringify(datos, null, 2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'backup_estacion_' + (datos.fecha || 'sin-fecha') + '.json';
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  } catch(err){
-    alert('❌ Error: ' + err.message);
-  }
-}
-
-// ====== UI: MODAL DE GESTIÓN DE BACKUPS ======
-window.abrirGestionBackups = async function(){
-  const esPCAdmin = esPCAdminBackup();
-  let modal = document.getElementById('modal-backups-auto');
-  if(modal) modal.remove();
-  modal = document.createElement('div');
-  modal.id = 'modal-backups-auto';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:"Segoe UI",Tahoma,Arial,sans-serif;';
-  modal.innerHTML = `
-    <div style="background:#fff;border-radius:12px;max-width:780px;width:96%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-        <h2 style="margin:0;color:#1a1a2e;font-size:1.3rem;">🛡️ Backups Automáticos</h2>
-        <button onclick="document.getElementById('modal-backups-auto').remove()" style="background:#e74c3c;color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.1rem;font-weight:700;">✕</button>
-      </div>
-
-      <div style="background:${esPCAdmin?'#d4edda':'#fff3cd'};border:2px solid ${esPCAdmin?'#27ae60':'#f39c12'};border-radius:8px;padding:14px;margin-bottom:18px;">
-        <div style="font-weight:800;color:${esPCAdmin?'#155724':'#856404'};margin-bottom:6px;font-size:1rem;">
-          ${esPCAdmin ? '✅ Esta PC ESTÁ marcada como Admin' : '⚠️ Esta PC NO está marcada como Admin'}
-        </div>
-        <div style="font-size:0.85rem;color:#333;margin-bottom:10px;">
-          ${esPCAdmin
-            ? 'Esta PC va a hacer el backup automático todos los días a las 23:00 (o al iniciar el día siguiente si estuvo apagada).'
-            : 'Si querés que ESTA PC haga los backups automáticos diarios, marcala con el botón de abajo. Solo UNA PC debe estar marcada.'}
-        </div>
-        ${esPCAdmin
-          ? '<button onclick="desmarcarPCAdmin()" style="background:#e74c3c;color:#fff;border:none;padding:9px 18px;border-radius:6px;font-weight:700;cursor:pointer;">🚫 Desmarcar esta PC</button>'
-          : '<button onclick="marcarPCAdmin()" style="background:#27ae60;color:#fff;border:none;padding:9px 18px;border-radius:6px;font-weight:700;cursor:pointer;">✅ Marcar esta PC como Admin</button>'}
-        <button onclick="hacerBackupManualAhora()" style="background:#3498db;color:#fff;border:none;padding:9px 18px;border-radius:6px;font-weight:700;cursor:pointer;margin-left:8px;">📦 Hacer backup AHORA</button>
-      </div>
-
-      <div style="font-size:0.95rem;font-weight:700;color:#1a1a2e;margin-bottom:10px;">📋 Últimos backups en la nube:</div>
-      <div id="lista-backups-auto" style="background:#f8f9fa;border-radius:8px;padding:14px;min-height:120px;">
-        <div style="text-align:center;color:#888;padding:20px;">⏳ Cargando...</div>
-      </div>
-
-      <div style="margin-top:14px;font-size:0.78rem;color:#666;padding:10px;background:#f0f0f0;border-radius:6px;">
-        ℹ️ Se guardan los últimos ${MAX_BACKUPS} backups. Los más viejos se borran automáticamente.
-        Hora del backup automático: <strong>${HORA_BACKUP}:00</strong>.
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  // Cargar la lista
-  const lista = await listarBackups();
-  const cont = document.getElementById('lista-backups-auto');
-  if(!cont) return;
-  if(lista.length === 0){
-    cont.innerHTML = '<div style="text-align:center;color:#888;padding:20px;">No hay backups todavía. El primero se hará a las 23:00.</div>';
-    return;
-  }
-  cont.innerHTML = lista.map(b => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:#fff;border:1px solid #ddd;border-radius:6px;margin-bottom:6px;">
-      <div>
-        <div style="font-weight:700;color:#1a1a2e;font-size:0.92rem;">📅 ${b.fecha} <span style="color:#888;font-size:0.78rem;font-weight:400;">${b.fechaCompleta ? '· '+new Date(b.fechaCompleta).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) : ''}</span></div>
-        <div style="font-size:0.78rem;color:#666;margin-top:2px;">${b.cantProductos} productos · ${b.cantFacturas} facturas · ${b.cantClientes} clientes</div>
-      </div>
-      <div style="display:flex;gap:6px;">
-        <button onclick="descargarBackupUI('${b.id}')" style="background:#3498db;color:#fff;border:none;padding:7px 12px;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.82rem;" title="Descargar como JSON">💾</button>
-        <button onclick="restaurarBackupUI('${b.id}','${b.fecha}')" style="background:#e67e22;color:#fff;border:none;padding:7px 12px;border-radius:5px;cursor:pointer;font-weight:700;font-size:0.82rem;" title="Restaurar este backup">♻️ Restaurar</button>
-      </div>
-    </div>
-  `).join('');
-};
-
-window.marcarPCAdmin = function(){
-  if(!confirm('¿Marcar ESTA PC como la PC del administrador?\n\nA partir de ahora, esta PC va a hacer los backups automáticos todos los días a las 23:00.\n\nSi otra PC estaba marcada antes, desmarcala manualmente.')) return;
-  localStorage.setItem(KEY_ES_PC_ADMIN, 'true');
-  toast('✅ PC marcada como Admin. Los backups se harán desde acá.');
-  document.getElementById('modal-backups-auto').remove();
-  setTimeout(() => abrirGestionBackups(), 200);
-};
-window.desmarcarPCAdmin = function(){
-  if(!confirm('¿Desmarcar esta PC?\n\nDeja de hacer los backups automáticos. Acordate de marcar otra PC para que los siga haciendo.')) return;
-  localStorage.removeItem(KEY_ES_PC_ADMIN);
-  toast('🚫 PC desmarcada');
-  document.getElementById('modal-backups-auto').remove();
-  setTimeout(() => abrirGestionBackups(), 200);
-};
-window.hacerBackupManualAhora = async function(){
-  if(!esPCAdminBackup()){
-    alert('Esta PC no está marcada como Admin. Marcala primero.');
-    return;
-  }
-  // Forzar: reseteamos la fecha para que se haga aunque ya se haya hecho hoy
-  localStorage.removeItem(KEY_ULT_BACKUP);
-  const ok = await hacerBackupAutomatico();
-  if(ok){
-    toast('✅ Backup hecho manualmente');
-    document.getElementById('modal-backups-auto').remove();
-    setTimeout(() => abrirGestionBackups(), 500);
-  }
-};
-window.descargarBackupUI = (id) => descargarBackup(id);
-window.restaurarBackupUI = (id, fecha) => {
-  document.getElementById('modal-backups-auto').remove();
-  restaurarBackup(id);
-};
-
-// ====== SCHEDULER: cada minuto revisa si toca hacer backup ======
-function inicializarSchedulerBackup(){
-  // Chequeo al arrancar (si la PC estaba apagada y se perdió la hora del backup)
-  setTimeout(() => {
-    if(esPCAdminBackup()){
-      const ahora = new Date();
-      const hoy = fechaHoyStr();
-      // Si ya pasaron las 23:00 de hoy O si es de madrugada y no se hizo ayer
-      const ayerStr = (() => {
-        const d = new Date(); d.setDate(d.getDate()-1);
-        return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-      })();
-      if(ahora.getHours() >= HORA_BACKUP && ultimoBackupFecha() !== hoy){
-        // Pasaron las 23 y no se hizo hoy → hacerlo ahora
-        hacerBackupAutomatico();
-      } else if(ahora.getHours() < HORA_BACKUP && ultimoBackupFecha() !== ayerStr && ultimoBackupFecha() !== hoy){
-        // Es de mañana/tarde temprano y no se hizo ni ayer ni hoy → hacerlo
-        hacerBackupAutomatico();
-      }
-    }
-  }, 12000); // esperar 12s para que Firebase esté listo
-
-  // Chequeo cada minuto (a las 23:00 va a coincidir)
-  setInterval(() => {
-    if(!esPCAdminBackup()) return;
-    const ahora = new Date();
-    if(ahora.getHours() === HORA_BACKUP && ahora.getMinutes() === 0){
-      if(ultimoBackupFecha() !== fechaHoyStr()){
-        hacerBackupAutomatico();
-      }
-    }
-  }, 60 * 1000);
-}
-inicializarSchedulerBackup();
-
-// Exponer para debug
-window.BACKUPS = {
-  hacerAhora: hacerBackupAutomatico,
-  listar: listarBackups,
-  restaurar: restaurarBackup,
-  esPCAdmin: esPCAdminBackup
-};
-
 </script>
-<!-- ====================== /FIREBASE SYNC ======================== -->
+<!-- =================== /FIREBASE DESACTIVADO =================== -->
 
 
 <!-- ============================================================ -->
