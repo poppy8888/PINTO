@@ -13105,25 +13105,19 @@ function onCigFotoSeleccionada(event){
       prev.textContent = '';
       document.getElementById('cig-foto-quitar').style.display = 'block';
 
-      // Subir a Google Drive en segundo plano
-      if(typeof GDrive !== 'undefined' && GDrive.subirImagen){
-        toast('☁️ Subiendo foto a Google Drive...');
-        GDrive.subirImagen(dataURL, 'cigarrillo_' + Date.now() + '.jpg')
-          .then(function(linkPublico){
-            // Reemplazar el base64 por el link público una vez subido
-            cigFotoTemp = linkPublico;
-            prev.style.backgroundImage = `url(${linkPublico})`;
-            toast('✅ Foto guardada en Google Drive');
-          })
-          .catch(function(err){
-            console.error('Error Drive:', err);
-            toast('⚠️ No se pudo subir a Drive — se guardó local');
-            // cigFotoTemp queda como base64 (fallback)
-          });
-      } else {
-        // Sin Drive disponible: queda como base64 (modo viejo)
-        console.warn('GDrive no disponible — guardando como base64');
-      }
+      // Subir a Supabase Storage en segundo plano (reemplaza Google Drive)
+      toast('☁️ Subiendo foto...');
+      subirFotoSupabase(dataURL, 'producto_' + Date.now() + '.jpg')
+        .then(function(linkPublico){
+          cigFotoTemp = linkPublico;
+          prev.style.backgroundImage = `url(${linkPublico})`;
+          toast('✅ Foto guardada en la nube');
+        })
+        .catch(function(err){
+          console.error('Error subiendo foto:', err);
+          toast('⚠️ No se pudo subir — se guardó local');
+          // cigFotoTemp queda como base64 (fallback)
+        });
     };
     img.src = e.target.result;
   };
@@ -18568,6 +18562,43 @@ ${pedido.notas ? `<div class="notas-box">💬 <strong>Notas:</strong> ${pedido.n
     if (!w) { if(typeof toast==='function') toast('⚠️ Permití las ventanas emergentes (pop-ups)'); return; }
     w.document.write(htmlImp);
     w.document.close();
+  };
+
+  // ========== UPLOAD DE IMÁGENES A SUPABASE STORAGE ==========
+  // Función global para subir fotos. Convierte base64 dataURL a blob y lo sube
+  // al bucket 'productos-fotos'. Devuelve la URL pública.
+  window.subirFotoSupabase = async function(dataURL, fileName) {
+    if (!sb) {
+      // Si Supabase no está listo todavía, esperar un poco
+      let intentos = 0;
+      while (!sb && intentos < 10) {
+        await new Promise(r => setTimeout(r, 300));
+        intentos++;
+      }
+      if (!sb) throw new Error('Supabase no está conectado');
+    }
+    // Convertir base64 dataURL a Blob
+    const match = dataURL.match(/^data:(.+?);base64,(.+)$/);
+    if (!match) throw new Error('dataURL inválido');
+    const mime = match[1];
+    const b64 = match[2];
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const blob = new Blob([bytes], { type: mime });
+
+    // Limpiar nombre del archivo
+    const cleanName = (fileName || ('foto_' + Date.now() + '.jpg')).replace(/[^a-zA-Z0-9._-]/g,'_');
+
+    // Subir
+    const { data, error } = await sb.storage
+      .from('productos-fotos')
+      .upload(cleanName, blob, { cacheControl: '3600', upsert: true, contentType: mime });
+    if (error) throw error;
+
+    // Obtener URL pública
+    const { data: pub } = sb.storage.from('productos-fotos').getPublicUrl(data.path);
+    return pub.publicUrl;
   };
 
   // Arrancar
