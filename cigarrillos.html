@@ -12472,30 +12472,27 @@ function generarCarteleraCigarrillosPDF(){
   var hoy = new Date();
   var fechaTxt = hoy.toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' });
 
-  // Armar el HTML de las secciones por marca
-  var secciones = marcas.map(function(m){
-    var tarjetas = grupos[m].map(function(p){
-      var url = fotoUrl(p.foto);
-      // La foto va dentro de una caja con el 🚬 de fondo: si la imagen carga,
-      // la tapa; si falla, queda el dibujito. object-fit:contain => foto COMPLETA.
-      var fotoHtml = url
-        ? '<div class="foto"><span class="ph">🚬</span>' +
-            '<img src="' + esc(url) + '" alt="" loading="eager" ' +
-            'onerror="this.style.display=\'none\';"></div>'
-        : '<div class="foto"><span class="ph">🚬</span></div>';
-      return '' +
-        '<div class="cig">' +
-          fotoHtml +
-          '<div class="nom">' + esc(p.nombre) + '</div>' +
-          '<div class="precio">$' + fmt(p.precio) + '</div>' +
-        '</div>';
-    }).join('');
+  // Armar UNA sola grilla continua con TODOS los cigarrillos juntos (sin cortar
+  // por marca), así no quedan filas a medio llenar ni espacios en blanco.
+  // La marca va como etiqueta arriba de cada tarjeta para que igual se sepa.
+  var tarjetas = cigs.map(function(p){
+    var url = fotoUrl(p.foto);
+    // La foto va dentro de una caja con el 🚬 de fondo: si la imagen carga,
+    // la tapa; si falla, queda el dibujito. object-fit:contain => foto COMPLETA.
+    var fotoHtml = url
+      ? '<div class="foto"><span class="ph">🚬</span>' +
+          '<img src="' + esc(url) + '" alt="" loading="eager" ' +
+          'onerror="this.style.display=\'none\';"></div>'
+      : '<div class="foto"><span class="ph">🚬</span></div>';
     return '' +
-      '<div class="marca-bloque">' +
-        '<div class="marca-titulo">' + esc(m) + '</div>' +
-        '<div class="grid">' + tarjetas + '</div>' +
+      '<div class="cig">' +
+        '<div class="marca-tag">' + esc(p.marca || 'Otros') + '</div>' +
+        fotoHtml +
+        '<div class="nom">' + esc(p.nombre) + '</div>' +
+        '<div class="precio">$' + fmt(p.precio) + '</div>' +
       '</div>';
   }).join('');
+  var secciones = '<div class="grid">' + tarjetas + '</div>';
 
   var html = '' +
     '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
@@ -12509,15 +12506,14 @@ function generarCarteleraCigarrillosPDF(){
     '  .cab .tit{font-size:36px;font-weight:900;letter-spacing:3px;}' +
     '  .cab .neg{font-size:19px;font-weight:700;margin-top:6px;opacity:0.97;}' +
     '  .cab .fch{font-size:14px;margin-top:8px;opacity:0.85;letter-spacing:0.5px;}' +
-    '  .marca-bloque{margin-bottom:24px;page-break-inside:avoid;}' +
-    '  .marca-titulo{background:linear-gradient(90deg,#6b1818,#a83232);color:#fff;font-size:21px;' +
-    '     font-weight:800;letter-spacing:1.5px;padding:9px 18px;border-radius:10px;margin-bottom:12px;' +
-    '     text-transform:uppercase;border-left:8px solid #e8c84a;}' +
-    '  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}' +
-    '  .cig{border:1px solid #e0d4cc;border-radius:14px;padding:12px 12px 14px;' +
+    '  .marca-tag{display:inline-block;background:#6b1818;color:#fff;font-size:11px;font-weight:800;' +
+    '     letter-spacing:0.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;' +
+    '     margin-bottom:8px;}' +
+    '  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}' +
+    '  .cig{border:1px solid #e0d4cc;border-radius:14px;padding:10px 10px 12px;' +
     '     background:#fff;box-shadow:0 3px 8px rgba(0,0,0,0.07);page-break-inside:avoid;' +
     '     display:flex;flex-direction:column;align-items:center;text-align:center;}' +
-    '  .foto{position:relative;width:100%;height:150px;border-radius:10px;background:#faf7f4;' +
+    '  .foto{position:relative;width:100%;height:130px;border-radius:10px;background:#faf7f4;' +
     '     border:1px solid #eee;overflow:hidden;display:flex;align-items:center;justify-content:center;}' +
     '  .foto .ph{font-size:48px;opacity:0.45;}' +
     '  .foto img{position:absolute;top:0;left:0;width:100%;height:100%;' +
