@@ -12417,6 +12417,17 @@ function generarCarteleraCigarrillosPDF(){
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  // Normalizar el link de la foto. Los links de Google Drive (lh3) andan
+  // mejor pidiéndoles un tamaño concreto, así cargan más rápido y completos.
+  function fotoUrl(f){
+    if(!f) return '';
+    f = String(f);
+    if(f.indexOf('lh3.googleusercontent.com') !== -1 && f.indexOf('=') === -1){
+      return f + '=w600';
+    }
+    return f;
+  }
+
   // Solo los cigarrillos que tienen precio cargado (los que se muestran/venden)
   var cigs = productos.filter(function(p){ return p.esCigarrillo && (p.precio||0) > 0; });
 
@@ -12464,16 +12475,19 @@ function generarCarteleraCigarrillosPDF(){
   // Armar el HTML de las secciones por marca
   var secciones = marcas.map(function(m){
     var tarjetas = grupos[m].map(function(p){
-      var foto = p.foto
-        ? '<div class="foto" style="background-image:url(' + esc(p.foto) + ');"></div>'
-        : '<div class="foto sinfoto">🚬</div>';
+      var url = fotoUrl(p.foto);
+      // La foto va dentro de una caja con el 🚬 de fondo: si la imagen carga,
+      // la tapa; si falla, queda el dibujito. object-fit:contain => foto COMPLETA.
+      var fotoHtml = url
+        ? '<div class="foto"><span class="ph">🚬</span>' +
+            '<img src="' + esc(url) + '" alt="" loading="eager" ' +
+            'onerror="this.style.display=\'none\';"></div>'
+        : '<div class="foto"><span class="ph">🚬</span></div>';
       return '' +
         '<div class="cig">' +
-          foto +
-          '<div class="datos">' +
-            '<div class="nom">' + esc(p.nombre) + '</div>' +
-            '<div class="precio">$' + fmt(p.precio) + '</div>' +
-          '</div>' +
+          fotoHtml +
+          '<div class="nom">' + esc(p.nombre) + '</div>' +
+          '<div class="precio">$' + fmt(p.precio) + '</div>' +
         '</div>';
     }).join('');
     return '' +
@@ -12488,38 +12502,50 @@ function generarCarteleraCigarrillosPDF(){
     '<title>Cartelera de Cigarrillos - Estación Don Ramón</title>' +
     '<style>' +
     '  *{box-sizing:border-box;margin:0;padding:0;}' +
-    '  body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:#1a1a1a;background:#fff;padding:18px;}' +
-    '  .cab{background:linear-gradient(135deg,#3a1a0e,#6b1818);color:#fff;border-radius:14px;padding:20px 26px;text-align:center;margin-bottom:18px;}' +
-    '  .cab .tit{font-size:34px;font-weight:900;letter-spacing:2px;}' +
-    '  .cab .neg{font-size:18px;font-weight:700;margin-top:4px;opacity:0.95;}' +
-    '  .cab .fch{font-size:14px;margin-top:6px;opacity:0.85;}' +
-    '  .marca-bloque{margin-bottom:22px;page-break-inside:avoid;}' +
-    '  .marca-titulo{background:#6b1818;color:#fff;font-size:20px;font-weight:800;letter-spacing:1px;' +
-    '     padding:8px 16px;border-radius:8px;margin-bottom:10px;text-transform:uppercase;}' +
-    '  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}' +
-    '  .cig{border:2px solid #e0d4cc;border-radius:12px;padding:10px;display:flex;align-items:center;gap:12px;' +
-    '     background:#fbf7f4;page-break-inside:avoid;}' +
-    '  .foto{width:64px;height:64px;border-radius:10px;background-size:cover;background-position:center;' +
-    '     background-color:#eee;flex-shrink:0;border:1px solid #ddd;}' +
-    '  .foto.sinfoto{display:flex;align-items:center;justify-content:center;font-size:34px;background:#f0e8e2;}' +
-    '  .datos{flex:1;min-width:0;}' +
-    '  .nom{font-size:16px;font-weight:700;line-height:1.15;color:#2a1208;}' +
-    '  .precio{font-size:28px;font-weight:900;color:#c0392b;margin-top:4px;line-height:1;}' +
-    '  .pie{text-align:center;margin-top:14px;font-size:13px;color:#777;border-top:2px solid #eee;padding-top:10px;}' +
+    '  body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:#1a1a1a;' +
+    '     background:#f4ece6;padding:20px;}' +
+    '  .cab{background:linear-gradient(135deg,#3a1a0e,#6b1818);color:#fff;border-radius:16px;' +
+    '     padding:22px 26px;text-align:center;margin-bottom:20px;box-shadow:0 6px 18px rgba(0,0,0,0.18);}' +
+    '  .cab .tit{font-size:36px;font-weight:900;letter-spacing:3px;}' +
+    '  .cab .neg{font-size:19px;font-weight:700;margin-top:6px;opacity:0.97;}' +
+    '  .cab .fch{font-size:14px;margin-top:8px;opacity:0.85;letter-spacing:0.5px;}' +
+    '  .marca-bloque{margin-bottom:24px;page-break-inside:avoid;}' +
+    '  .marca-titulo{background:linear-gradient(90deg,#6b1818,#a83232);color:#fff;font-size:21px;' +
+    '     font-weight:800;letter-spacing:1.5px;padding:9px 18px;border-radius:10px;margin-bottom:12px;' +
+    '     text-transform:uppercase;border-left:8px solid #e8c84a;}' +
+    '  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}' +
+    '  .cig{border:1px solid #e0d4cc;border-radius:14px;padding:12px 12px 14px;' +
+    '     background:#fff;box-shadow:0 3px 8px rgba(0,0,0,0.07);page-break-inside:avoid;' +
+    '     display:flex;flex-direction:column;align-items:center;text-align:center;}' +
+    '  .foto{position:relative;width:100%;height:150px;border-radius:10px;background:#faf7f4;' +
+    '     border:1px solid #eee;overflow:hidden;display:flex;align-items:center;justify-content:center;}' +
+    '  .foto .ph{font-size:48px;opacity:0.45;}' +
+    '  .foto img{position:absolute;top:0;left:0;width:100%;height:100%;' +
+    '     object-fit:contain;background:#fff;}' +  // contain => se ve la foto ENTERA
+    '  .nom{font-size:16px;font-weight:800;line-height:1.2;color:#2a1208;margin-top:10px;min-height:38px;' +
+    '     display:flex;align-items:center;justify-content:center;}' +
+    '  .precio{font-size:30px;font-weight:900;color:#c0392b;margin-top:6px;line-height:1;' +
+    '     background:#fff4f0;border:2px solid #f3c9bf;border-radius:10px;padding:4px 10px;width:100%;}' +
+    '  .pie{text-align:center;margin-top:16px;font-size:13px;color:#777;' +
+    '     border-top:2px solid #ddd;padding-top:12px;}' +
     '  .botones{text-align:center;margin:18px 0;}' +
-    '  .botones button{padding:12px 30px;font-size:15px;font-weight:800;border:none;border-radius:10px;cursor:pointer;margin:0 6px;}' +
+    '  .botones button{padding:12px 30px;font-size:15px;font-weight:800;border:none;' +
+    '     border-radius:10px;cursor:pointer;margin:0 6px;}' +
     '  .botones .imp{background:#c0392b;color:#fff;}' +
     '  .botones .cerrar{background:#888;color:#fff;}' +
+    '  .cargando{text-align:center;color:#6b1818;font-weight:700;font-size:15px;margin:10px 0;}' +
     '  @media print{' +
-    '    body{padding:0;}' +
-    '    .botones{display:none;}' +
-    '    @page{margin:10mm;size:A4;}' +
+    '    body{padding:0;background:#fff;}' +
+    '    .botones,.cargando{display:none;}' +
+    '    .cig{box-shadow:none;}' +
+    '    @page{margin:9mm;size:A4;}' +
     '  }' +
     '</style></head><body>' +
     '<div class="botones">' +
       '<button class="imp" onclick="window.print()">📄 Guardar como PDF / Imprimir</button>' +
       '<button class="cerrar" onclick="window.close()">Cerrar</button>' +
     '</div>' +
+    '<div class="cargando" id="cargando">⏳ Cargando las fotos... el cuadro de impresión se abre solo en unos segundos.</div>' +
     '<div class="cab">' +
       '<div class="tit">🚬 CIGARRILLOS</div>' +
       '<div class="neg">⛽ Estación Don Ramón' + filtradoTxt + '</div>' +
@@ -12527,15 +12553,25 @@ function generarCarteleraCigarrillosPDF(){
     '</div>' +
     secciones +
     '<div class="pie">Precios sujetos a modificación sin previo aviso · Estación Don Ramón</div>' +
-    '<script>setTimeout(function(){window.print();},500);<\/script>' +
+    // Script: ESPERAR a que todas las fotos carguen y RECIÉN AHÍ imprimir.
+    '<script>(function(){' +
+    '  var imgs=Array.prototype.slice.call(document.images);' +
+    '  var total=imgs.length, listos=0, yaImprimio=false;' +
+    '  function quitarCartel(){var c=document.getElementById("cargando"); if(c) c.style.display="none";}' +
+    '  function imprimir(){ if(yaImprimio) return; yaImprimio=true; quitarCartel(); setTimeout(function(){ window.print(); }, 400); }' +
+    '  function una(){ listos++; if(listos>=total) imprimir(); }' +
+    '  if(total===0){ imprimir(); return; }' +
+    '  imgs.forEach(function(im){ if(im.complete){ una(); } else { im.addEventListener("load",una); im.addEventListener("error",una); } });' +
+    '  setTimeout(imprimir, 9000);' + // por las dudas, si alguna foto nunca responde
+    '})();<\/script>' +
     '</body></html>';
 
-  var w = window.open('', '_blank', 'width=900,height=800');
+  var w = window.open('', '_blank', 'width=920,height=820');
   if(!w){ toast('⚠️ El navegador bloqueó la ventana. Permití pop-ups e intentá de nuevo.'); return; }
   w.document.open();
   w.document.write(html);
   w.document.close();
-  toast('📄 Cartelera lista. En el diálogo elegí "Guardar como PDF".');
+  toast('📄 Armando cartelera... esperá que carguen las fotos.');
 }
 window.generarCarteleraCigarrillosPDF = generarCarteleraCigarrillosPDF;
 
