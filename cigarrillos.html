@@ -12411,6 +12411,12 @@ showTab = function(name, btn){
 // para gente mayor) con foto + nombre + precio, agrupada por marca.
 // NO muestra costo ni stock: es info para el cliente, no interna.
 function generarCarteleraCigarrillosPDF(){
+  // ===== DATOS DEL NEGOCIO (podés editarlos acá si querés) =====
+  var NEGOCIO_NOMBRE   = 'Estación Don Ramón';
+  var NEGOCIO_TAGLINE  = 'Distribuidor de Cigarrillos';
+  var NEGOCIO_DIRECCION = '';   // ej: 'Av. San Martín 1234'  (dejalo vacío si no querés mostrarlo)
+  var NEGOCIO_TEL      = '';    // ej: 'Tel: 3856-000000'     (dejalo vacío si no querés mostrarlo)
+
   // Escapar texto para meterlo en HTML sin romper nada
   function esc(s){
     return String(s==null?'':s)
@@ -12435,7 +12441,7 @@ function generarCarteleraCigarrillosPDF(){
   var filtradoTxt = '';
   if(typeof cigFiltroMarca !== 'undefined' && cigFiltroMarca){
     cigs = cigs.filter(function(p){ return (p.marca||'Otros') === cigFiltroMarca; });
-    filtradoTxt = ' · ' + esc(cigFiltroMarca);
+    filtradoTxt = ' - ' + esc(cigFiltroMarca);
   }
   // Si hay algo escrito en el buscador, también lo respetamos
   var buscar = (document.getElementById('cig-buscar') ? document.getElementById('cig-buscar').value : '').toLowerCase().trim();
@@ -12452,89 +12458,92 @@ function generarCarteleraCigarrillosPDF(){
     return;
   }
 
-  // Ordenar por marca y después por nombre
+  // Ordenar por marca y después por nombre (quedan agrupados naturalmente)
   cigs.sort(function(a,b){
     var ma = (a.marca||'').localeCompare(b.marca||'');
     if(ma !== 0) return ma;
     return (a.nombre||'').localeCompare(b.nombre||'');
   });
 
-  // Agrupar por marca
-  var grupos = {};
-  cigs.forEach(function(p){
-    var m = p.marca || 'Otros';
-    if(!grupos[m]) grupos[m] = [];
-    grupos[m].push(p);
-  });
-  var marcas = Object.keys(grupos).sort(function(a,b){ return a.localeCompare(b); });
-
-  // Fecha de hoy bien escrita
+  // Fecha de emisión en formato D/M/AAAA (como el catálogo modelo)
   var hoy = new Date();
-  var fechaTxt = hoy.toLocaleDateString('es-AR', { day:'2-digit', month:'long', year:'numeric' });
+  var fechaTxt = hoy.getDate() + '/' + (hoy.getMonth()+1) + '/' + hoy.getFullYear();
 
-  // Armar UNA sola grilla continua con TODOS los cigarrillos juntos (sin cortar
-  // por marca), así no quedan filas a medio llenar ni espacios en blanco.
-  // La marca va como etiqueta arriba de cada tarjeta para que igual se sepa.
-  var tarjetas = cigs.map(function(p){
+  // Armar las celdas de la grilla (4 columnas, estilo catálogo):
+  //   nombre arriba · foto al medio (completa) · abajo código a la izq y precio a la der
+  var celdas = cigs.map(function(p){
     var url = fotoUrl(p.foto);
-    // La foto va dentro de una caja con el 🚬 de fondo: si la imagen carga,
-    // la tapa; si falla, queda el dibujito. object-fit:contain => foto COMPLETA.
     var fotoHtml = url
       ? '<div class="foto"><span class="ph">🚬</span>' +
           '<img src="' + esc(url) + '" alt="" loading="eager" ' +
           'onerror="this.style.display=\'none\';"></div>'
       : '<div class="foto"><span class="ph">🚬</span></div>';
+    var codigo = p.barcode ? esc(p.barcode) : '';
     return '' +
-      '<div class="cig">' +
-        '<div class="marca-tag">' + esc(p.marca || 'Otros') + '</div>' +
-        fotoHtml +
+      '<div class="cel">' +
         '<div class="nom">' + esc(p.nombre) + '</div>' +
-        '<div class="precio">$' + fmt(p.precio) + '</div>' +
+        fotoHtml +
+        '<div class="fila">' +
+          '<span class="cod">' + codigo + '</span>' +
+          '<span class="prc">$ ' + fmt(p.precio) + '</span>' +
+        '</div>' +
       '</div>';
   }).join('');
-  var secciones = '<div class="grid">' + tarjetas + '</div>';
+
+  // Datos de contacto (solo si los cargaste)
+  var contacto = '';
+  if(NEGOCIO_DIRECCION) contacto += '<div class="dir">' + esc(NEGOCIO_DIRECCION) + '</div>';
+  if(NEGOCIO_TEL)       contacto += '<div class="tel">' + esc(NEGOCIO_TEL) + '</div>';
 
   var html = '' +
     '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
-    '<title>Cartelera de Cigarrillos - Estación Don Ramón</title>' +
+    '<title>Cartelera de Cigarrillos - ' + esc(NEGOCIO_NOMBRE) + '</title>' +
     '<style>' +
     '  *{box-sizing:border-box;margin:0;padding:0;}' +
-    '  body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:#1a1a1a;' +
-    '     background:#f4ece6;padding:20px;}' +
-    '  .cab{background:linear-gradient(135deg,#3a1a0e,#6b1818);color:#fff;border-radius:16px;' +
-    '     padding:22px 26px;text-align:center;margin-bottom:20px;box-shadow:0 6px 18px rgba(0,0,0,0.18);}' +
-    '  .cab .tit{font-size:36px;font-weight:900;letter-spacing:3px;}' +
-    '  .cab .neg{font-size:19px;font-weight:700;margin-top:6px;opacity:0.97;}' +
-    '  .cab .fch{font-size:14px;margin-top:8px;opacity:0.85;letter-spacing:0.5px;}' +
-    '  .marca-tag{display:inline-block;background:#6b1818;color:#fff;font-size:11px;font-weight:800;' +
-    '     letter-spacing:0.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;' +
-    '     margin-bottom:8px;}' +
-    '  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}' +
-    '  .cig{border:1px solid #e0d4cc;border-radius:14px;padding:10px 10px 12px;' +
-    '     background:#fff;box-shadow:0 3px 8px rgba(0,0,0,0.07);page-break-inside:avoid;' +
-    '     display:flex;flex-direction:column;align-items:center;text-align:center;}' +
-    '  .foto{position:relative;width:100%;height:130px;border-radius:10px;background:#faf7f4;' +
-    '     border:1px solid #eee;overflow:hidden;display:flex;align-items:center;justify-content:center;}' +
-    '  .foto .ph{font-size:48px;opacity:0.45;}' +
-    '  .foto img{position:absolute;top:0;left:0;width:100%;height:100%;' +
-    '     object-fit:contain;background:#fff;}' +  // contain => se ve la foto ENTERA
-    '  .nom{font-size:16px;font-weight:800;line-height:1.2;color:#2a1208;margin-top:10px;min-height:38px;' +
-    '     display:flex;align-items:center;justify-content:center;}' +
-    '  .precio{font-size:30px;font-weight:900;color:#c0392b;margin-top:6px;line-height:1;' +
-    '     background:#fff4f0;border:2px solid #f3c9bf;border-radius:10px;padding:4px 10px;width:100%;}' +
-    '  .pie{text-align:center;margin-top:16px;font-size:13px;color:#777;' +
-    '     border-top:2px solid #ddd;padding-top:12px;}' +
-    '  .botones{text-align:center;margin:18px 0;}' +
+    '  body{font-family:Arial,"Segoe UI",Tahoma,sans-serif;color:#1a1a1a;background:#fff;padding:14px;}' +
+    // ---- ENCABEZADO ----
+    '  .cab{display:flex;justify-content:space-between;align-items:flex-start;' +
+    '     padding-bottom:8px;margin-bottom:0;}' +
+    '  .cab-izq{display:flex;align-items:center;gap:12px;}' +
+    '  .logo{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#e8c84a,#caa520);' +
+    '     display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;' +
+    '     box-shadow:0 2px 6px rgba(0,0,0,0.2);}' +
+    '  .marca-nom{font-size:24px;font-weight:900;letter-spacing:2px;color:#1a1a2e;line-height:1;}' +
+    '  .marca-sub{font-size:11px;color:#555;margin-top:3px;letter-spacing:0.5px;}' +
+    '  .cab-der{text-align:right;font-size:13px;color:#1a1a2e;}' +
+    '  .cab-der .dir{font-weight:800;font-size:15px;}' +
+    '  .cab-der .tel{font-weight:700;}' +
+    '  .cab-der .fch{margin-top:4px;color:#444;}' +
+    '  .cab-der .fch b{color:#000;}' +
+    // ---- BARRA DE CATEGORÍA (celeste) ----
+    '  .catbar{background:#bfe6f5;color:#0b3a4a;font-size:18px;font-weight:800;' +
+    '     padding:5px 12px;border-radius:3px;margin-bottom:8px;}' +
+    // ---- GRILLA 4 COLUMNAS ----
+    '  .grid{display:grid;grid-template-columns:repeat(4,1fr);' +
+    '     border-top:1px solid #b9b9b9;border-left:1px solid #b9b9b9;}' +
+    '  .cel{border-right:1px solid #b9b9b9;border-bottom:1px solid #b9b9b9;' +
+    '     padding:8px 8px 4px;display:flex;flex-direction:column;page-break-inside:avoid;}' +
+    '  .nom{font-size:13px;font-weight:700;line-height:1.15;color:#1a1a1a;text-align:center;' +
+    '     min-height:32px;display:flex;align-items:center;justify-content:center;}' +
+    '  .foto{position:relative;width:100%;height:115px;display:flex;align-items:center;' +
+    '     justify-content:center;margin:4px 0;}' +
+    '  .foto .ph{font-size:40px;opacity:0.4;}' +
+    '  .foto img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;}' + // foto COMPLETA
+    '  .fila{display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;}' +
+    '  .cod{font-size:11px;color:#777;}' +
+    '  .prc{font-size:16px;font-weight:900;color:#000;}' +
+    // ---- pie / botones / cargando ----
+    '  .pie{text-align:center;margin-top:12px;font-size:12px;color:#777;}' +
+    '  .botones{text-align:center;margin:14px 0;}' +
     '  .botones button{padding:12px 30px;font-size:15px;font-weight:800;border:none;' +
     '     border-radius:10px;cursor:pointer;margin:0 6px;}' +
     '  .botones .imp{background:#c0392b;color:#fff;}' +
     '  .botones .cerrar{background:#888;color:#fff;}' +
-    '  .cargando{text-align:center;color:#6b1818;font-weight:700;font-size:15px;margin:10px 0;}' +
+    '  .cargando{text-align:center;color:#6b1818;font-weight:700;font-size:15px;margin:8px 0;}' +
     '  @media print{' +
-    '    body{padding:0;background:#fff;}' +
+    '    body{padding:0;}' +
     '    .botones,.cargando{display:none;}' +
-    '    .cig{box-shadow:none;}' +
-    '    @page{margin:9mm;size:A4;}' +
+    '    @page{margin:8mm;size:A4;}' +
     '  }' +
     '</style></head><body>' +
     '<div class="botones">' +
@@ -12542,13 +12551,23 @@ function generarCarteleraCigarrillosPDF(){
       '<button class="cerrar" onclick="window.close()">Cerrar</button>' +
     '</div>' +
     '<div class="cargando" id="cargando">⏳ Cargando las fotos... el cuadro de impresión se abre solo en unos segundos.</div>' +
+    // Encabezado tipo catálogo
     '<div class="cab">' +
-      '<div class="tit">🚬 CIGARRILLOS</div>' +
-      '<div class="neg">⛽ Estación Don Ramón' + filtradoTxt + '</div>' +
-      '<div class="fch">Lista de precios · ' + esc(fechaTxt) + '</div>' +
+      '<div class="cab-izq">' +
+        '<div class="logo">⛽</div>' +
+        '<div>' +
+          '<div class="marca-nom">' + esc(NEGOCIO_NOMBRE) + '</div>' +
+          '<div class="marca-sub">' + esc(NEGOCIO_TAGLINE) + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cab-der">' +
+        contacto +
+        '<div class="fch">Fecha Emisión: <b>' + esc(fechaTxt) + '</b></div>' +
+      '</div>' +
     '</div>' +
-    secciones +
-    '<div class="pie">Precios sujetos a modificación sin previo aviso · Estación Don Ramón</div>' +
+    '<div class="catbar">Cigarrillos' + filtradoTxt + '</div>' +
+    '<div class="grid">' + celdas + '</div>' +
+    '<div class="pie">Precios sujetos a modificación sin previo aviso · ' + esc(NEGOCIO_NOMBRE) + '</div>' +
     // Script: ESPERAR a que todas las fotos carguen y RECIÉN AHÍ imprimir.
     '<script>(function(){' +
     '  var imgs=Array.prototype.slice.call(document.images);' +
