@@ -589,7 +589,7 @@ window.enviarPedido = async function(){
     const { error } = await sb.from('pedidos_mayoristas').insert([pedido]);
     if (error) throw error;
 
-    const wspAdmin = '5493854102266';
+    const wspAdmin = '5493491687621'; // GC Distribuciones - Ceres (donde llegan los pedidos)
     let detalle = items.map(i => `• ${i.cantidad}x ${i.marca?i.marca+' ':''}${i.nombre} — $${fmt(Math.round(i.precio*i.cantidad))}`).join('\n');
     const msg = encodeURIComponent(
       `🛒 *NUEVO PEDIDO MAYORISTA*\n\n` +
