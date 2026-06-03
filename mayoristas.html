@@ -598,7 +598,7 @@ window.enviarPedido = async function(){
     await setDoc(doc(db, 'pedidosMayoristas', pedido.id), pedido);
 
     // Abrir WhatsApp al admin
-    const wspAdmin = '5493854102266'; // por defecto, pero se puede leer de config
+    const wspAdmin = '5493857674790'; // número donde llegan los pedidos
     let detalle = items.map(i => `• ${i.cantidad}x ${i.marca?i.marca+' ':''}${i.nombre} — $${fmt(Math.round(i.precio*i.cantidad))}`).join('\n');
     const msg = encodeURIComponent(
       `🛒 *NUEVO PEDIDO MAYORISTA*\n\n` +
