@@ -28,6 +28,23 @@
   .mapa{width:100%;height:230px;border:0;display:block;border-top:1px solid #eee;}
   .zona-link{display:block;text-align:center;padding:11px;background:#27500a;color:#fff;font-weight:800;text-decoration:none;font-size:0.9rem;}
 
+  /* ANIMACIONES de los iconos */
+  .ic-cal{display:inline-block;animation:pulso 1.8s ease-in-out infinite;transform-origin:center;}
+  .ic-truck{display:inline-block;animation:manejar 1.1s ease-in-out infinite;transform-origin:bottom center;}
+  @keyframes pulso{
+    0%,100%{transform:scale(1) rotate(0);}
+    50%{transform:scale(1.18) rotate(-6deg);}
+  }
+  @keyframes manejar{
+    0%{transform:translateX(0) translateY(0) rotate(0);}
+    20%{transform:translateX(3px) translateY(-1px) rotate(-3deg);}
+    40%{transform:translateX(0) translateY(0) rotate(0);}
+    60%{transform:translateX(3px) translateY(-1px) rotate(-3deg);}
+    80%{transform:translateX(0) translateY(0) rotate(0);}
+    100%{transform:translateX(0) translateY(0) rotate(0);}
+  }
+  @media (prefers-reduced-motion: reduce){ .ic-cal,.ic-truck{animation:none;} }
+
   /* FILTROS */
   .filtros{padding:12px 16px 4px;}
   .buscador{width:100%;padding:11px 14px;border:2px solid #d8c9bd;border-radius:10px;font-size:1rem;}
@@ -107,13 +124,13 @@
 
 <div class="zona">
   <div class="zona-top">
-    <div class="zona-item"><span class="ic">📅</span><div><b>Tomamos pedidos</b><span>Lunes y Martes</span></div></div>
-    <div class="zona-item"><span class="ic">🚚</span><div><b>Miércoles</b><span>Reparto Ceres → Pinto</span></div></div>
-    <div class="zona-item"><span class="ic">🚚</span><div><b>Jueves</b><span>Reparto Ceres → Herrera</span></div></div>
+    <div class="zona-item"><span class="ic ic-cal">📅</span><div><b>Tomamos pedidos</b><span>Lunes y Martes</span></div></div>
+    <div class="zona-item"><span class="ic ic-truck">🚚</span><div><b>Miércoles</b><span>Reparto Ceres → Pinto</span></div></div>
+    <div class="zona-item"><span class="ic ic-truck">🚚</span><div><b>Jueves</b><span>Reparto Ceres → Herrera</span></div></div>
   </div>
   <div style="padding:0 14px 10px;font-size:0.8rem;color:#777;">📍 Todo derecho por la RN 34 · Pinto a 110 km · Herrera a 235 km</div>
-  <iframe class="mapa" src="https://maps.google.com/maps?saddr=Ceres,Santa+Fe,Argentina&daddr=Pinto,Santiago+del+Estero+to:Herrera,Santiago+del+Estero&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-  <a class="zona-link" href="https://www.google.com/maps/dir/Ceres,+Santa+Fe/Pinto,+Santiago+del+Estero/Herrera,+Santiago+del+Estero" target="_blank">📍 Ver recorrido completo en Google Maps</a>
+  <iframe class="mapa" src="https://maps.google.com/maps?saddr=Ceres,Santa+Fe,Argentina&daddr=Pinto,Santiago+del+Estero+to:Colonia+Dora,Santiago+del+Estero+to:Herrera,Santiago+del+Estero&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <a class="zona-link" href="https://www.google.com/maps/dir/Ceres,+Santa+Fe/Pinto,+Santiago+del+Estero/Colonia+Dora,+Santiago+del+Estero/Herrera,+Santiago+del+Estero" target="_blank">📍 Ver recorrido completo en Google Maps</a>
 </div>
 
 <div class="filtros">
