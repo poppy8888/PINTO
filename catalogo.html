@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GC Distribuciones · Catálogo</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
   body{background:#f4ece6;color:#1a1a1a;padding-bottom:90px;}
@@ -44,6 +45,11 @@
     100%{transform:translateX(0) translateY(0) rotate(0);}
   }
   @media (prefers-reduced-motion: reduce){ .ic-cal,.ic-truck{animation:none;} }
+
+  /* etiquetas de pueblos en el mapa */
+  .mtip{background:#fff;border:1px solid #aaa;border-radius:5px;font-size:0.7rem;font-weight:800;color:#222;padding:1px 6px;box-shadow:0 1px 3px rgba(0,0,0,0.25);}
+  .mtip::before{display:none;}
+  .leaflet-container{font-family:inherit;}
 
   /* FILTROS */
   .filtros{padding:12px 16px 4px;}
@@ -129,7 +135,7 @@
     <div class="zona-item"><span class="ic ic-truck">🚚</span><div><b>Jueves</b><span>Reparto Ceres → Herrera</span></div></div>
   </div>
   <div style="padding:0 14px 10px;font-size:0.8rem;color:#777;">📍 Todo derecho por la RN 34 · Pinto a 110 km · Herrera a 235 km</div>
-  <iframe class="mapa" src="https://maps.google.com/maps?saddr=Ceres,Santa+Fe,Argentina&daddr=Pinto,Santiago+del+Estero+to:Colonia+Dora,Santiago+del+Estero+to:Herrera,Santiago+del+Estero&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  <div id="mapa" class="mapa"></div>
   <a class="zona-link" href="https://www.google.com/maps/dir/Ceres,+Santa+Fe/Pinto,+Santiago+del+Estero/Colonia+Dora,+Santiago+del+Estero/Herrera,+Santiago+del+Estero" target="_blank">📍 Ver recorrido completo en Google Maps</a>
 </div>
 
@@ -171,6 +177,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
@@ -469,6 +476,48 @@ function toast(m){
   clearTimeout(window._tt); window._tt = setTimeout(()=>t.classList.remove('show'), 2200);
 }
 window.toast = toast;
+</script>
+<script>
+// ===== MAPA DEL RECORRIDO (línea dibujada a mano, derecho por la RN 34) =====
+(function(){
+  function initMapa(){
+    var cont = document.getElementById('mapa');
+    if(!cont) return;
+    if(typeof L === 'undefined'){ cont.innerHTML = '<div style="padding:24px;text-align:center;color:#888;">No se pudo cargar el mapa.</div>'; return; }
+    // Pueblos sobre la RN 34 (coordenadas reales)
+    var ceres   = [-29.8825, -61.9442];
+    var pinto   = [-29.1390, -62.6490];
+    var dora    = [-28.6000, -62.9520];
+    var herrera = [-28.4838, -63.0696];
+    var ruta = [ceres, pinto, dora, herrera];
+
+    var map = L.map('mapa', { scrollWheelZoom:false });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 16, attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Línea del recorrido (derecho por la 34)
+    var linea = L.polyline(ruta, { color:'#1a5fc4', weight:5, opacity:0.9 }).addTo(map);
+
+    // Puntos de cada pueblo
+    var pts = [
+      [ceres,   'Ceres (salida)', '#27ae60'],
+      [pinto,   'Pinto',          '#c0392b'],
+      [dora,    'Colonia Dora',   '#c0392b'],
+      [herrera, 'Herrera',        '#c0392b']
+    ];
+    pts.forEach(function(p){
+      L.circleMarker(p[0], { radius:7, color:'#fff', weight:2, fillColor:p[2], fillOpacity:1 })
+        .addTo(map)
+        .bindTooltip(p[1], { permanent:true, direction:'top', offset:[0,-6], className:'mtip' });
+    });
+
+    map.fitBounds(linea.getBounds(), { padding:[35,35] });
+    setTimeout(function(){ map.invalidateSize(); }, 300);
+  }
+  if(document.readyState !== 'loading') initMapa();
+  else document.addEventListener('DOMContentLoaded', initMapa);
+})();
 </script>
 </body>
 </html>
