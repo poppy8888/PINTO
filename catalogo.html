@@ -26,7 +26,7 @@
   .zona-item .ic{font-size:1.5rem;flex-shrink:0;}
   .zona-item b{color:#27500a;display:block;font-size:0.9rem;}
   .zona-item span{color:#555;font-size:0.82rem;}
-  .mapa{width:100%;height:230px;border:0;display:block;border-top:1px solid #eee;}
+  .mapa{width:100%;height:340px;border:0;display:block;border-top:1px solid #eee;}
   .zona-link{display:block;text-align:center;padding:11px;background:#27500a;color:#fff;font-weight:800;text-decoration:none;font-size:0.9rem;}
 
   /* ANIMACIONES de los iconos */
@@ -47,7 +47,8 @@
   @media (prefers-reduced-motion: reduce){ .ic-cal,.ic-truck{animation:none;} }
 
   /* etiquetas de pueblos en el mapa */
-  .mtip{background:#fff;border:1px solid #aaa;border-radius:5px;font-size:0.7rem;font-weight:800;color:#222;padding:1px 6px;box-shadow:0 1px 3px rgba(0,0,0,0.25);}
+  .mtip{background:#fff;border:1px solid #aaa;border-radius:4px;font-size:0.58rem;font-weight:700;color:#222;padding:0 4px;box-shadow:0 1px 2px rgba(0,0,0,0.25);}
+  .mtip-big{font-size:0.72rem;font-weight:800;}
   .mtip::before{display:none;}
   .leaflet-container{font-family:inherit;}
 
@@ -488,47 +489,62 @@ window.toast = toast;
     var cont = document.getElementById('mapa');
     if(!cont) return;
     if(typeof L === 'undefined'){ cont.innerHTML = '<div style="padding:24px;text-align:center;color:#888;">No se pudo cargar el mapa.</div>'; return; }
-    // Pueblos sobre la RN 34 (coordenadas reales)
-    var ceres   = [-29.8825, -61.9442];
-    var pinto   = [-29.1390, -62.6490];
-    var dora    = [-28.6000, -62.9520];
-    var herrera = [-28.4838, -63.0696];
-    var lugones = [-28.3368, -63.3408];
-    var mailin  = [-28.4824, -63.2762];
+    // Pueblos sobre la RN 34 (en orden de Ceres hacia el norte)
+    var ceres      = [-29.8825, -61.9442];
+    var selva      = [-29.7680, -62.0480];
+    var palonegro  = [-29.6550, -62.1560];
+    var argentina  = [-29.5790, -62.2280];
+    var malbran    = [-29.3780, -62.4210];
+    var pinto      = [-29.1390, -62.6490];
+    var casares    = [-29.0200, -62.7160];
+    var sayana     = [-28.8800, -62.7940];
+    var icano      = [-28.7080, -62.8910];
+    var dora       = [-28.6000, -62.9520];
+    var herrera    = [-28.4838, -63.0696];
+    var lugones    = [-28.3368, -63.3408];
+    var mailin     = [-28.4824, -63.2762];
 
     var map = L.map('mapa', { scrollWheelZoom:false });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 16, attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // MIÉRCOLES (azul): Ceres -> Pinto -> Colonia Dora
-    var tramoMie = L.polyline([ceres, pinto, dora], { color:'#1a5fc4', weight:5, opacity:0.9 }).addTo(map);
+    // MIÉRCOLES (azul): Ceres ... hasta Colonia Dora
+    var rutaMie = [ceres, selva, palonegro, argentina, malbran, pinto, casares, sayana, icano, dora];
+    L.polyline(rutaMie, { color:'#1a5fc4', weight:5, opacity:0.9 }).addTo(map);
     // JUEVES (verde): Colonia Dora -> Herrera -> Lugones
     L.polyline([dora, herrera, lugones], { color:'#1e8e3e', weight:5, opacity:0.9 }).addTo(map);
     // Ramal a Mailín (15 km al oeste, sale de Herrera) - punteado
     L.polyline([herrera, mailin], { color:'#1e8e3e', weight:4, opacity:0.85, dashArray:'7,7' }).addTo(map);
 
-    // Puntos de cada pueblo (color por día)
+    // Puntos de cada pueblo. [coords, nombre, color, principal?]
     var pts = [
-      [ceres,   'Ceres (salida)', '#27ae60'],
-      [pinto,   'Pinto',          '#1a5fc4'],
-      [dora,    'Colonia Dora',   '#1a5fc4'],
-      [herrera, 'Herrera',        '#1e8e3e'],
-      [lugones, 'Lugones',        '#1e8e3e'],
-      [mailin,  'Mailín',         '#1e8e3e']
+      [ceres,     'Ceres',        '#27ae60', 1],
+      [selva,     'Selva',        '#1a5fc4', 0],
+      [palonegro, 'Palo Negro',   '#1a5fc4', 0],
+      [argentina, 'Argentina',    '#1a5fc4', 0],
+      [malbran,   'Malbrán',      '#1a5fc4', 0],
+      [pinto,     'Pinto',        '#1a5fc4', 1],
+      [casares,   'Casares',      '#1a5fc4', 0],
+      [sayana,    'Real Sayana',  '#1a5fc4', 0],
+      [icano,     'Icaño',        '#1a5fc4', 0],
+      [dora,      'Colonia Dora', '#1a5fc4', 1],
+      [herrera,   'Herrera',      '#1e8e3e', 1],
+      [lugones,   'Lugones',      '#1e8e3e', 1],
+      [mailin,    'Mailín',       '#1e8e3e', 1]
     ];
-    pts.forEach(function(p){
-      L.circleMarker(p[0], { radius:7, color:'#fff', weight:2, fillColor:p[2], fillOpacity:1 })
+    pts.forEach(function(p, i){
+      var big = p[3] === 1;
+      var dir = (i % 2 === 0) ? 'left' : 'right';
+      var off = (dir === 'right') ? [7,0] : [-7,0];
+      L.circleMarker(p[0], { radius: big?7:5, color:'#fff', weight:2, fillColor:p[2], fillOpacity:1 })
         .addTo(map)
-        .bindTooltip(p[1], { permanent:true, direction:'top', offset:[0,-6], className:'mtip' });
+        .bindTooltip(p[1], { permanent:true, direction:dir, offset:off, className: big?'mtip mtip-big':'mtip' });
     });
 
     // Encuadrar para que se vea todo el recorrido
-    var todo = L.featureGroup([
-      L.polyline([ceres, pinto, dora, herrera, lugones]),
-      L.polyline([herrera, mailin])
-    ]);
-    map.fitBounds(todo.getBounds(), { padding:[35,35] });
+    var todo = L.featureGroup([ L.polyline(rutaMie), L.polyline([dora, herrera, lugones]), L.polyline([herrera, mailin]) ]);
+    map.fitBounds(todo.getBounds(), { padding:[40, 60] });
     setTimeout(function(){ map.invalidateSize(); }, 300);
   }
   if(document.readyState !== 'loading') initMapa();
