@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estación Don Ramón · Cigarrillos</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif;}
+  body{background:#f3ece8;color:#1a1a1a;padding-bottom:90px;}
+
+  /* ENCABEZADO */
+  .cab{background:linear-gradient(135deg,#3a1a0e,#6b1818);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;}
+  .cab .logo{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#e8c84a,#caa520);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.25);}
+  .cab .nom{font-size:1.3rem;font-weight:900;line-height:1;letter-spacing:0.5px;}
+  .cab .sub{font-size:0.76rem;opacity:0.9;margin-top:3px;}
+
+  .aviso{background:#e8c84a;color:#3a1a0e;text-align:center;font-size:0.85rem;font-weight:800;padding:7px 12px;}
+
+  /* FILTROS */
+  .filtros{padding:12px 16px 4px;}
+  .buscador{width:100%;padding:11px 14px;border:2px solid #d8c9bd;border-radius:10px;font-size:1rem;}
+  .buscador:focus{outline:none;border-color:#6b1818;}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+  .chip{background:#fff;border:1px solid #d8c9bd;color:#6b1818;border-radius:20px;padding:5px 12px;font-size:0.8rem;font-weight:700;cursor:pointer;}
+  .chip.active{background:#6b1818;color:#fff;border-color:#6b1818;}
+
+  /* GRILLA */
+  .productos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:14px 16px;}
+  .card{background:#fff;border:1px solid #e0d4cc;border-radius:14px;padding:10px;display:flex;flex-direction:column;box-shadow:0 2px 6px rgba(0,0,0,0.06);}
+  .card.on{border-color:#6b1818;box-shadow:0 0 0 2px rgba(107,24,24,0.25);}
+  .card-foto{width:100%;height:120px;border-radius:10px;background:#4a1818 center/contain no-repeat;display:flex;align-items:center;justify-content:center;font-size:40px;color:#d4a020;border:1px solid #eee;}
+  .card-marca{font-size:0.68rem;color:#888;text-transform:uppercase;font-weight:700;margin-top:8px;letter-spacing:0.4px;}
+  .card-nom{font-size:0.9rem;font-weight:700;color:#2a1208;line-height:1.2;min-height:34px;margin-top:2px;}
+
+  .qty-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+  .qty-lbl{font-size:0.72rem;color:#888;font-weight:700;}
+  .qty{display:flex;align-items:center;gap:4px;}
+  .qty button{width:30px;height:30px;border:none;background:#eee;border-radius:7px;font-size:1.1rem;font-weight:800;cursor:pointer;color:#333;}
+  .qty button:hover{background:#ddd;}
+  .qty input{width:52px;text-align:center;border:1px solid #ddd;border-radius:7px;height:30px;font-size:0.95rem;font-weight:700;}
+
+  .sin{grid-column:1/-1;text-align:center;color:#999;padding:40px 0;font-size:0.95rem;}
+
+  /* CARRITO FLOTANTE */
+  .flot{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#6b1818;color:#fff;padding:14px 26px;border-radius:30px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(107,24,24,0.45);z-index:90;display:none;align-items:center;gap:10px;border:none;font-size:1rem;}
+  .flot.activo{display:flex;}
+
+  /* MODAL CARRITO */
+  .ov{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:flex-end;justify-content:center;z-index:1000;}
+  .ov.open{display:flex;}
+  .carr{background:#fff;width:100%;max-width:520px;max-height:92vh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;}
+  .carr-h{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid #eee;}
+  .carr-h h2{font-size:1.15rem;color:#3a1a0e;}
+  .carr-x{background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;}
+  .carr-body{overflow-y:auto;padding:12px 16px;flex:1;}
+  .carr-vacio{text-align:center;color:#999;padding:30px 0;}
+  .ci{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+  .ci .ci-nom{flex:1;font-size:0.9rem;font-weight:700;color:#2a1208;}
+  .ci .ci-del{background:#e74c3c;color:#fff;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.85rem;}
+  .carr-form{padding:6px 16px 0;}
+  .carr-form label{font-size:0.78rem;font-weight:700;color:#444;display:block;margin:8px 0 3px;}
+  .carr-form input,.carr-form textarea{width:100%;padding:10px;border:2px solid #d8c9bd;border-radius:8px;font-size:0.95rem;}
+  .carr-form input:focus,.carr-form textarea:focus{outline:none;border-color:#6b1818;}
+  .carr-foot{padding:14px 16px;border-top:1px solid #eee;display:flex;gap:10px;}
+  .btn-seguir{flex:1;background:#eee;color:#444;border:none;border-radius:10px;padding:13px;font-weight:800;cursor:pointer;}
+  .btn-enviar{flex:2;background:#25d366;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:800;cursor:pointer;font-size:1rem;}
+  .btn-enviar:disabled{opacity:0.5;cursor:default;}
+
+  .ok{text-align:center;padding:40px 24px;}
+  .ok .ic{font-size:3.5rem;}
+  .ok h3{margin:10px 0;color:#6b1818;}
+  .ok a{display:inline-block;margin-top:14px;padding:14px 26px;background:#25d366;color:#fff;border-radius:10px;font-weight:800;text-decoration:none;font-size:1.05rem;}
+  .ok button{margin-top:16px;display:block;width:100%;padding:11px;background:#1e5b9e;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;}
+
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:10px 20px;border-radius:24px;font-size:0.88rem;font-weight:700;opacity:0;transition:opacity 0.2s;z-index:2000;pointer-events:none;}
+  .toast.show{opacity:0.95;}
+</style>
+</head>
+<body>
+
+<div class="cab">
+  <div class="logo">🚬</div>
+  <div>
+    <div class="nom">Estación Don Ramón</div>
+    <div class="sub">Cigarrillos · Venta Mayorista</div>
+  </div>
+</div>
+<div class="aviso">🛒 Armá tu pedido y mandánoslo. Te pasamos los precios al confirmar.</div>
+
+<div class="filtros">
+  <input type="text" id="buscador" class="buscador" placeholder="🔍 Buscar marca o producto...">
+  <div class="chips" id="chips"></div>
+</div>
+
+<div id="productos" class="productos">
+  <div class="sin">⏳ Cargando catálogo...</div>
+</div>
+
+<button class="flot" id="flot">🛒 <span id="flot-count">0</span> productos · Ver pedido</button>
+
+<!-- MODAL CARRITO -->
+<div class="ov" id="ov">
+  <div class="carr" id="carr">
+    <div class="carr-h">
+      <h2>🛒 Tu pedido</h2>
+      <button class="carr-x" id="btn-cerrar">✕</button>
+    </div>
+    <div class="carr-body" id="carr-body">
+      <div class="carr-vacio">Todavía no agregaste productos.</div>
+    </div>
+    <div class="carr-form" id="carr-form">
+      <label>👤 Tu nombre o comercio *</label>
+      <input type="text" id="cli-nombre" placeholder="Ej: Kiosco La Esquina / Juan Pérez">
+      <label>📱 Tu WhatsApp *</label>
+      <input type="tel" id="cli-wsp" placeholder="Ej: 3854 123456">
+      <label>💬 Notas (opcional)</label>
+      <textarea id="cli-notas" rows="2" placeholder="Aclaraciones del pedido..."></textarea>
+    </div>
+    <div class="carr-foot">
+      <button class="btn-seguir" id="btn-seguir">Seguir</button>
+      <button class="btn-enviar" id="btn-enviar">📲 Enviar pedido</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+// ============================================================
+//   CATÁLOGO PÚBLICO · Estación Don Ramón - Cigarrillos (sin precios)
+// ============================================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot, setDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const WSP_ADMIN = '5493857674790'; // número donde llegan los pedidos
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBfIyFUkg3Ys8Z66AAaqmn42CQ1B9i9eug",
+  authDomain: "estacion-don-ramon-bb3be.firebaseapp.com",
+  projectId: "estacion-don-ramon-bb3be",
+  storageBucket: "estacion-don-ramon-bb3be.firebasestorage.app",
+  messagingSenderId: "481874293546",
+  appId: "1:481874293546:web:0bbe18f6f44b758f272453"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const docRef = doc(db, 'estacion', 'datos_principales');
+
+const state = { productos: [], filtro: 'todas', carrito: {} };
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fotoUrl(f){
+  if(!f) return '';
+  f = String(f);
+  if(f.indexOf('lh3.googleusercontent.com') !== -1 && f.indexOf('=') === -1) return f + '=w600';
+  return f;
+}
+// ¿Es cigarrillo? (mismo criterio que el sistema)
+function esCig(p){
+  return p.esCigarrillo === true || p.familia === 'Cigarrillos' || p.tipo === 'cigarrillo';
+}
+// Precio sólo para saber si el producto está "cargado" (NO se muestra)
+function precioCargado(p){
+  return (Number(p.precioLista2) > 0 ? Number(p.precioLista2) : Number(p.precio) || 0) > 0;
+}
+function visibles(){ return state.productos.filter(p => esCig(p) && precioCargado(p)); }
+function prodById(id){ return state.productos.find(x => Number(x.id) === Number(id)); }
+
+// ============== CARGA EN TIEMPO REAL ==============
+onSnapshot(docRef, (snap) => {
+  if(!snap.exists()){
+    document.getElementById('productos').innerHTML = '<div class="sin">No hay catálogo cargado todavía.</div>';
+    return;
+  }
+  state.productos = snap.data().productos || [];
+  renderChips();
+  renderProductos();
+}, (err) => {
+  console.warn('Firebase error:', err);
+  document.getElementById('productos').innerHTML = '<div class="sin">⚠️ No se pudo cargar el catálogo. Probá recargar la página.</div>';
+});
+
+// ============== RENDER ==============
+function renderChips(){
+  const vis = visibles();
+  const marcas = [...new Set(vis.map(p => p.marca || 'Otros'))].filter(Boolean).sort();
+  let h = `<button class="chip ${state.filtro==='todas'?'active':''}" data-f="todas">Todas (${vis.length})</button>`;
+  marcas.forEach(m => {
+    const n = vis.filter(p => (p.marca||'Otros')===m).length;
+    h += `<button class="chip ${state.filtro===m?'active':''}" data-f="${esc(m)}">${esc(m)} (${n})</button>`;
+  });
+  const cont = document.getElementById('chips');
+  cont.innerHTML = h;
+  cont.querySelectorAll('.chip').forEach(b => b.onclick = () => { state.filtro = b.getAttribute('data-f'); renderChips(); renderProductos(); });
+}
+
+function renderProductos(){
+  const buscar = (document.getElementById('buscador').value || '').toLowerCase().trim();
+  let lista = visibles();
+  if(state.filtro !== 'todas') lista = lista.filter(p => (p.marca||'Otros') === state.filtro);
+  if(buscar) lista = lista.filter(p =>
+    (p.nombre||'').toLowerCase().includes(buscar) ||
+    (p.marca||'').toLowerCase().includes(buscar) ||
+    (p.barcode||'').includes(buscar));
+  lista.sort((a,b) => (a.marca||'').localeCompare(b.marca||'') || (a.nombre||'').localeCompare(b.nombre||''));
+
+  const cont = document.getElementById('productos');
+  if(lista.length === 0){ cont.innerHTML = '<div class="sin">No se encontraron productos.</div>'; return; }
+  cont.innerHTML = lista.map(cardHtml).join('');
+  cont.querySelectorAll('[data-menos]').forEach(b => b.onclick = () => cambiarCant(b.getAttribute('data-menos'), -1));
+  cont.querySelectorAll('[data-mas]').forEach(b => b.onclick = () => cambiarCant(b.getAttribute('data-mas'), 1));
+  cont.querySelectorAll('[data-set]').forEach(inp => inp.onchange = () => setCant(inp.getAttribute('data-set'), inp.value));
+}
+
+function cardHtml(p){
+  const cant = state.carrito[p.id] || 0;
+  const url = fotoUrl(p.foto);
+  const fotoStyle = url ? `style="background-image:url(${esc(url)})"` : '';
+  return `
+    <div class="card ${cant>0?'on':''}">
+      <div class="card-foto" ${fotoStyle}>${url?'':'🚬'}</div>
+      <div class="card-marca">${esc(p.marca||'')}</div>
+      <div class="card-nom">${esc(p.nombre||'')}</div>
+      <div class="qty-row">
+        <span class="qty-lbl">Cant.</span>
+        <div class="qty">
+          <button data-menos="${p.id}">−</button>
+          <input type="number" min="0" step="1" value="${cant}" data-set="${p.id}">
+          <button data-mas="${p.id}">+</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ============== CARRITO ==============
+function cambiarCant(id, delta){
+  const n = (state.carrito[id] || 0) + delta;
+  if(n <= 0) delete state.carrito[id]; else state.carrito[id] = n;
+  renderProductos(); actualizarFlot(); if(document.getElementById('ov').classList.contains('open')) renderCarrito();
+}
+function setCant(id, val){
+  let n = Math.floor(Number(val) || 0);
+  if(n <= 0) delete state.carrito[id]; else state.carrito[id] = n;
+  renderProductos(); actualizarFlot(); if(document.getElementById('ov').classList.contains('open')) renderCarrito();
+}
+function totalItems(){ return Object.keys(state.carrito).length; }
+function actualizarFlot(){
+  const n = totalItems();
+  document.getElementById('flot-count').textContent = n;
+  document.getElementById('flot').classList.toggle('activo', n > 0);
+}
+function abrirCarrito(){ document.getElementById('ov').classList.add('open'); renderCarrito(); }
+function cerrarCarrito(){ document.getElementById('ov').classList.remove('open'); }
+
+function renderCarrito(){
+  const body = document.getElementById('carr-body');
+  const ids = Object.keys(state.carrito).filter(id => state.carrito[id] > 0);
+  if(ids.length === 0){
+    body.innerHTML = '<div class="carr-vacio">Todavía no agregaste productos.</div>';
+    document.getElementById('btn-enviar').disabled = true;
+    return;
+  }
+  document.getElementById('btn-enviar').disabled = false;
+  body.innerHTML = ids.map(id => {
+    const p = prodById(id); if(!p) return '';
+    return `
+      <div class="ci">
+        <div class="ci-nom">${esc(p.marca?p.marca+' ':'')}${esc(p.nombre)}</div>
+        <div class="qty">
+          <button data-menos="${p.id}">−</button>
+          <span style="min-width:30px;text-align:center;font-weight:800;">${state.carrito[id]}</span>
+          <button data-mas="${p.id}">+</button>
+        </div>
+        <button class="ci-del" data-del="${p.id}">🗑️</button>
+      </div>`;
+  }).join('');
+  body.querySelectorAll('[data-menos]').forEach(b => b.onclick = () => cambiarCant(b.getAttribute('data-menos'), -1));
+  body.querySelectorAll('[data-mas]').forEach(b => b.onclick = () => cambiarCant(b.getAttribute('data-mas'), 1));
+  body.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { delete state.carrito[b.getAttribute('data-del')]; renderProductos(); actualizarFlot(); renderCarrito(); });
+}
+
+// ============== ENVIAR PEDIDO ==============
+async function enviarPedido(){
+  const ids = Object.keys(state.carrito).filter(id => state.carrito[id] > 0);
+  if(ids.length === 0){ toast('El carrito está vacío'); return; }
+  const nombre = document.getElementById('cli-nombre').value.trim();
+  const wsp = document.getElementById('cli-wsp').value.trim();
+  if(!nombre){ toast('⚠️ Poné tu nombre o comercio'); document.getElementById('cli-nombre').focus(); return; }
+  if(wsp.replace(/\D/g,'').length < 8){ toast('⚠️ Poné un WhatsApp válido'); document.getElementById('cli-wsp').focus(); return; }
+  const notas = document.getElementById('cli-notas').value.trim();
+
+  const items = ids.map(id => {
+    const p = prodById(id);
+    return { id:Number(p.id), nombre:p.nombre, marca:p.marca||'', cantidad:state.carrito[id], precio:0 };
+  });
+
+  const lineas = items.map(i => `• ${i.cantidad}x ${i.marca?i.marca+' ':''}${i.nombre}`).join('\n');
+
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = true; btn.textContent = '⏳ Enviando...';
+
+  const pedido = {
+    id: 'pub_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+    timestamp: Date.now(),
+    clienteId: null,
+    clienteNombre: nombre,
+    clienteWhatsapp: wsp,
+    items, total: 0,
+    formaPago: '', horarioRetiro: '',
+    notas: (notas ? notas+' ' : '') + '[Pedido web público - sin precios]',
+    estado: 'pendiente'
+  };
+  try { await setDoc(doc(db, 'pedidosMayoristas', pedido.id), pedido); }
+  catch(err){ console.warn('No se pudo guardar en base (sigue por WhatsApp):', err.message); }
+
+  const msg = encodeURIComponent(
+    `🛒 *NUEVO PEDIDO (web)*\n\n` +
+    `👤 ${nombre}\n` +
+    `📱 ${wsp}\n\n` +
+    `📦 *PEDIDO:*\n${lineas}\n\n` +
+    (notas ? `💬 ${notas}\n\n` : '') +
+    `_(Pedido sin precios - confirmar total)_`
+  );
+
+  document.getElementById('carr').innerHTML = `
+    <div class="ok">
+      <div class="ic">✅</div>
+      <h3>¡Pedido listo!</h3>
+      <p>Tocá el botón verde para enviárnoslo por WhatsApp.<br>Te confirmamos los precios y el total enseguida.</p>
+      <a href="https://wa.me/${WSP_ADMIN}?text=${msg}" target="_blank">📲 Enviar por WhatsApp</a>
+      <button onclick="location.reload()">Volver al catálogo</button>
+    </div>`;
+  state.carrito = {}; actualizarFlot();
+}
+
+// ============== UTILS / EVENTOS ==============
+function toast(m){
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('show');
+  clearTimeout(window._tt); window._tt = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+document.getElementById('buscador').addEventListener('input', renderProductos);
+document.getElementById('flot').addEventListener('click', abrirCarrito);
+document.getElementById('btn-cerrar').addEventListener('click', cerrarCarrito);
+document.getElementById('btn-seguir').addEventListener('click', cerrarCarrito);
+document.getElementById('btn-enviar').addEventListener('click', enviarPedido);
+</script>
+</body>
+</html>
