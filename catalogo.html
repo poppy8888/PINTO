@@ -148,10 +148,33 @@ const state = { productos: [], filtro: 'todas', carrito: {} };
 
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-// ¿Se vende por peso? (nombre con KG, o marcado por peso)
+// ¿Se vende por peso (queso o fiambre)? -> Entera / Media / Por kilo
+// Lo demás (aceitunas, chizitos, tutuca, palito, Dean Funes, etc.) va por unidad,
+// aunque la bolsa pese 1 Kg.
 function esPorPeso(p){
-  if(p && (p.porPeso === true || p.unidad === 'kg')) return true;
-  return /\bkg\b|kilo/i.test(p && p.nombre ? p.nombre : '');
+  if(!p) return false;
+  if(p.porPeso === true || p.unidad === 'kg') return true; // si algún día lo marcás a mano
+  const fam = (p.familia||'').toLowerCase();
+  const nom = (p.nombre||'').toLowerCase();
+  const marca = (p.marca||'').toLowerCase();
+  const txt = fam + ' ' + nom + ' ' + marca;
+
+  // EXCEPCIONES: estos NO van por peso (vienen en bolsa/unidad, aunque pesen 1 Kg)
+  const NO_PESO = ['funes','aceituna','chizito','chisito','tutuca','palito','mani','maní',
+                   'snack','golosina','galletit','gaseosa','bebida','condimento','especia',
+                   'pimienta','oregano','orégano','perejil','provenzal','chimichurri','pimenton','pimentón',' aji','ají'];
+  if(NO_PESO.some(k => txt.includes(k))) return false;
+
+  // Familias que SÍ van por peso
+  if(fam.includes('fiambre') || fam.includes('queso')) return true;
+
+  // Palabras de QUESO y FIAMBRE en el nombre (por si no está la familia cargada)
+  const PESO = ['queso','muzz','sardo','sardit','provol','cremoso','ricota','pategras',
+                'port salut','portsalut','tybo','jamon','jamón','mortadela','salame',
+                'salamin','salamín','bondiola','panceta','lomo','pastron','pastrón',
+                'matambre','paleta','longaniza','chorizo','morcilla','fiambre','salchich',
+                'pancho','roast','leberwurst'];
+  return PESO.some(k => nom.includes(k));
 }
 
 // Un producto aparece si tiene precio cargado (es real), aunque NO mostremos el precio
