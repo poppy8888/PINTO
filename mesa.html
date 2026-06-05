@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Comedor El Padrino — Pedí desde tu mesa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --vino:#2a0f0a; --vino2:#431712; --crema:#f6ecd9; --crema-soft:#e9dcc2;
+    --oro:#e8b04a; --oro-d:#c98f2b; --oro-dark:#b8862f; --rojo:#d1452f; --verde:#3f7d3f;
+    --linea:rgba(246,236,217,0.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--vino);color:var(--crema)}
+  body{
+    font-family:'Outfit',sans-serif;
+    min-height:100vh;
+    background:
+      radial-gradient(120% 80% at 50% -10%, #5a201780 0%, transparent 55%),
+      radial-gradient(80% 60% at 100% 100%, #3a130d 0%, transparent 60%),
+      var(--vino);
+    padding-bottom:120px;
+  }
+  .grain{position:fixed;inset:0;pointer-events:none;opacity:0.05;z-index:1;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+  /* HEADER */
+  header{position:relative;z-index:2;text-align:center;padding:34px 20px 20px;border-bottom:1px solid var(--linea);}
+  .marca-top{font-size:0.72rem;letter-spacing:5px;text-transform:uppercase;color:var(--oro);font-weight:600;opacity:0.85}
+  h1{font-family:'Fraunces',serif;font-weight:900;font-size:2.5rem;line-height:0.95;margin:6px 0 4px;
+     background:linear-gradient(180deg,#fbe7b8,var(--oro));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .tagline{font-style:italic;font-family:'Fraunces',serif;font-weight:500;color:var(--crema-soft);opacity:0.8;font-size:0.95rem}
+  .mesa-chip{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:var(--vino2);
+    border:1px solid var(--oro);color:var(--oro);padding:8px 18px;border-radius:30px;font-weight:700;font-size:0.95rem;
+    box-shadow:0 6px 20px rgba(0,0,0,0.35)}
+  .mesa-input{background:var(--vino2);border:1px solid var(--oro);color:var(--crema);border-radius:30px;
+    padding:8px 14px;font-size:1rem;text-align:center;width:130px;font-family:'Outfit'}
+
+  /* CONTENIDO */
+  main{position:relative;z-index:2;max-width:680px;margin:0 auto;padding:8px 14px}
+  .cat{font-family:'Fraunces',serif;font-weight:600;font-size:1.5rem;color:var(--oro);
+    margin:26px 6px 10px;display:flex;align-items:center;gap:12px}
+  .cat::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--oro),transparent)}
+
+  .item{display:flex;gap:14px;align-items:center;background:linear-gradient(180deg,#ffffff08,#ffffff03);
+    border:1px solid var(--linea);border-radius:16px;padding:12px;margin-bottom:10px;
+    backdrop-filter:blur(2px);animation:rise .5s both}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .item-foto{width:62px;height:62px;border-radius:12px;flex:0 0 auto;object-fit:cover;
+    background:var(--vino2);display:flex;align-items:center;justify-content:center;font-size:1.7rem;border:1px solid var(--linea)}
+  .item-info{flex:1;min-width:0}
+  .item-nom{font-weight:600;font-size:1.02rem;line-height:1.15}
+  .item-precio{color:var(--oro);font-weight:700;margin-top:2px;font-size:0.98rem}
+  .stepper{display:flex;align-items:center;gap:0;flex:0 0 auto}
+  .stepper button{width:36px;height:36px;border-radius:50%;border:1px solid var(--oro);
+    background:transparent;color:var(--oro);font-size:1.3rem;font-weight:700;cursor:pointer;line-height:1;
+    display:flex;align-items:center;justify-content:center;transition:.15s}
+  .stepper button:active{transform:scale(0.9)}
+  .stepper .add{background:var(--oro);color:var(--vino)}
+  .stepper .qty{min-width:30px;text-align:center;font-weight:800;font-size:1.1rem}
+  .stepper .menos{opacity:0;width:0;border:0;pointer-events:none;transition:.2s}
+  .item.activo .stepper .menos{opacity:1;width:36px;border:1px solid var(--oro);pointer-events:auto}
+  .item.activo .stepper .qty{opacity:1;width:30px}
+  .item:not(.activo) .stepper .qty{opacity:0;width:0;overflow:hidden}
+  .item.activo{border-color:var(--oro);box-shadow:0 0 0 1px var(--oro) inset}
+
+  /* NOTA + NOMBRE */
+  .extras{margin:20px 6px 0}
+  .extras label{display:block;font-size:0.8rem;color:var(--crema-soft);margin:0 0 4px 2px}
+  .extras input,.extras textarea{width:100%;background:var(--vino2);border:1px solid var(--linea);
+    color:var(--crema);border-radius:12px;padding:11px 14px;font-family:'Outfit';font-size:0.95rem;margin-bottom:12px;resize:none}
+  .extras input:focus,.extras textarea:focus{outline:none;border-color:var(--oro)}
+
+  /* BARRA INFERIOR */
+  .barra{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:14px;
+    background:linear-gradient(180deg,transparent,var(--vino) 26%);}
+  .barra-inner{max-width:680px;margin:0 auto;display:flex;gap:12px;align-items:center;
+    background:var(--vino2);border:1px solid var(--oro);border-radius:18px;padding:12px 16px;
+    box-shadow:0 -6px 30px rgba(0,0,0,0.5)}
+  .barra-total{flex:1}
+  .barra-total .lbl{font-size:0.7rem;text-transform:uppercase;letter-spacing:2px;color:var(--crema-soft);opacity:0.7}
+  .barra-total .num{font-family:'Fraunces',serif;font-weight:900;font-size:1.7rem;color:var(--oro);line-height:1}
+  .btn-enviar{background:var(--oro);color:var(--vino);border:none;border-radius:14px;padding:14px 22px;
+    font-family:'Outfit';font-weight:800;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.15s}
+  .btn-enviar:active{transform:scale(0.97)}
+  .btn-enviar:disabled{opacity:0.4;cursor:not-allowed}
+
+  /* ESTADOS */
+  .aviso{position:relative;z-index:2;text-align:center;padding:60px 24px;color:var(--crema-soft)}
+  .aviso .em{font-size:3rem;display:block;margin-bottom:14px}
+
+  /* OVERLAY CONFIRMACIÓN */
+  .conf{position:fixed;inset:0;z-index:50;background:var(--vino);display:none;
+    flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;
+    animation:fade .4s both}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .conf.show{display:flex}
+  .conf .check{width:110px;height:110px;border-radius:50%;background:var(--verde);display:flex;align-items:center;
+    justify-content:center;font-size:3.4rem;margin-bottom:24px;animation:pop .5s both}
+  @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+  .conf h2{font-family:'Fraunces',serif;font-size:2rem;margin-bottom:10px;color:var(--crema)}
+  .conf p{color:var(--crema-soft);max-width:340px;line-height:1.5;margin-bottom:26px}
+  .conf button{background:transparent;border:1px solid var(--oro);color:var(--oro);
+    padding:12px 24px;border-radius:30px;font-family:'Outfit';font-weight:700;font-size:1rem;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <div class="marca-top">Comedor</div>
+  <h1>El Padrino</h1>
+  <div class="tagline">Pedí desde tu mesa, nosotros cocinamos</div>
+  <div id="mesa-cont" style="margin-top:16px"></div>
+</header>
+
+<div id="cuenta-mesa" style="display:none;max-width:680px;margin:14px auto 0;padding:12px 16px;background:var(--vino2);border:1px solid var(--oro);border-radius:14px;color:var(--crema);text-align:center;font-size:0.95rem;"></div>
+
+<main id="menu-cont">
+  <div class="aviso"><span class="em">🍲</span>Cargando el menú...</div>
+</main>
+
+<div class="extras" id="extras" style="display:none">
+  <label>Tu nombre (opcional)</label>
+  <input id="cli-nombre" type="text" placeholder="Ej: Juan, mesa de la ventana..." maxlength="40">
+  <label>Aclaraciones para la cocina (opcional)</label>
+  <textarea id="cli-nota" rows="2" placeholder="Ej: sin sal, la milanesa bien cocida, una sin hielo..." maxlength="200"></textarea>
+</div>
+
+<div class="barra" id="barra" style="display:none">
+  <div class="barra-inner">
+    <div class="barra-total">
+      <div class="lbl"><span id="cant-items">0</span> ítems</div>
+      <div class="num" id="total-num">$0</div>
+    </div>
+    <button class="btn-enviar" id="btn-enviar" onclick="enviarPedido()" disabled>Enviar pedido 🍽️</button>
+  </div>
+</div>
+
+<div class="conf" id="conf">
+  <div class="check">✓</div>
+  <h2>¡Pedido enviado!</h2>
+  <p>Ya le llegó a la cocina. En un rato te lo acercamos a la <b id="conf-mesa">mesa</b>. ¡Gracias!</p>
+  <button onclick="reiniciar()">Pedir algo más</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, addDoc, getDocs, query, where }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAIxSOounkM70XyJGLNe5KJHy0v4JA1UU8",
+  authDomain: "lepadrino-77eed.firebaseapp.com",
+  projectId: "lepadrino-77eed",
+  storageBucket: "lepadrino-77eed.firebasestorage.app",
+  messagingSenderId: "123637186140",
+  appId: "1:123637186140:web:f96ff9058e35cc7f587099",
+  measurementId: "G-FV5DMVY339"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ---- número de mesa (viene en el QR: mesa.html?mesa=5) ----
+const params = new URLSearchParams(location.search);
+let MESA = params.get('mesa') || '';
+const carrito = {};   // { id: {nombre, precio, cant} }
+
+function pesos(n){ return '$' + (Number(n)||0).toLocaleString('es-AR'); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function pintarMesa(){
+  const c = document.getElementById('mesa-cont');
+  if(MESA){
+    c.innerHTML = '<div class="mesa-chip">🪑 Mesa ' + esc(MESA) + '</div>';
+  } else {
+    c.innerHTML = '<div style="font-size:0.85rem;color:var(--crema-soft);margin-bottom:8px">¿En qué mesa estás?</div>' +
+      '<input class="mesa-input" id="mesa-manual" type="number" placeholder="N° mesa" min="1">';
+    document.getElementById('mesa-manual').addEventListener('input', e => { MESA = e.target.value.trim(); revisarBoton(); cargarCuentaMesa(); });
+  }
+}
+
+async function cargarMenu(){
+  pintarMesa();
+  let snap;
+  try { snap = await getDoc(doc(db,'menuPublico','actual')); }
+  catch(e){ mostrarAviso('📡','No pudimos cargar el menú. Probá de nuevo en un momento.'); return; }
+  if(!snap.exists() || !(snap.data().items||[]).length){
+    mostrarAviso('🍽️','El menú todavía no está publicado. Avisale al encargado.'); return;
+  }
+  const items = snap.data().items.filter(i => i.nombre);
+  // agrupar por familia
+  const grupos = {};
+  items.forEach(i => { const f = i.familia || 'Otros'; (grupos[f] = grupos[f]||[]).push(i); });
+  const cont = document.getElementById('menu-cont');
+  cont.innerHTML = '';
+  let delay = 0;
+  Object.keys(grupos).sort().forEach(fam => {
+    const h = document.createElement('div'); h.className='cat'; h.textContent = fam;
+    cont.appendChild(h);
+    grupos[fam].forEach(it => {
+      const card = document.createElement('div');
+      card.className = 'item'; card.id = 'item-'+it.id;
+      card.style.animationDelay = (delay+=0.04)+'s';
+      const foto = it.foto
+        ? `<img class="item-foto" src="${esc(it.foto)}" alt="" onerror="this.outerHTML='&lt;div class=&quot;item-foto&quot;&gt;🍴&lt;/div&gt;'">`
+        : `<div class="item-foto">🍴</div>`;
+      card.innerHTML = foto +
+        `<div class="item-info">
+            <div class="item-nom">${esc(it.nombre)}</div>
+            <div class="item-precio">${pesos(it.precio)}</div>
+         </div>
+         <div class="stepper">
+            <button class="menos" aria-label="quitar">−</button>
+            <span class="qty">0</span>
+            <button class="add" aria-label="agregar">+</button>
+         </div>`;
+      const qtyEl = card.querySelector('.qty');
+      card.querySelector('.add').onclick = () => cambiar(it, +1, card, qtyEl);
+      card.querySelector('.menos').onclick = () => cambiar(it, -1, card, qtyEl);
+      cont.appendChild(card);
+    });
+  });
+  document.getElementById('extras').style.display='block';
+  document.getElementById('barra').style.display='block';
+  cargarCuentaMesa();
+}
+
+async function cargarCuentaMesa(){
+  const cont = document.getElementById('cuenta-mesa');
+  if(!cont) return;
+  if(!MESA){ cont.style.display='none'; return; }
+  try{
+    const qy = query(collection(db,'pedidosMesa'), where('mesa','==', MESA));
+    const snap = await getDocs(qy);
+    let total = 0; snap.forEach(d => total += Number(d.data().total)||0);
+    if(total > 0){
+      cont.style.display='block';
+      cont.innerHTML = 'Ya pediste en esta mesa: <b style="color:var(--oro);">'+pesos(total)+'</b><br><span style="font-size:0.8rem;opacity:0.85;">No incluye lo que estás eligiendo ahora</span>';
+    } else {
+      cont.style.display='none';
+    }
+  }catch(e){ cont.style.display='none'; }
+}
+
+function cambiar(it, delta, card, qtyEl){
+  const cur = carrito[it.id]?.cant || 0;
+  const nueva = Math.max(0, cur + delta);
+  if(nueva === 0){ delete carrito[it.id]; card.classList.remove('activo'); }
+  else { carrito[it.id] = {nombre:it.nombre, precio:Number(it.precio)||0, cant:nueva}; card.classList.add('activo'); }
+  qtyEl.textContent = nueva;
+  refrescarBarra();
+}
+
+function refrescarBarra(){
+  let total=0, cant=0;
+  Object.values(carrito).forEach(x => { total += x.precio*x.cant; cant += x.cant; });
+  document.getElementById('total-num').textContent = pesos(total);
+  document.getElementById('cant-items').textContent = cant;
+  revisarBoton();
+}
+function revisarBoton(){
+  const hay = Object.keys(carrito).length>0;
+  document.getElementById('btn-enviar').disabled = !(hay && MESA);
+}
+function mostrarAviso(em,txt){
+  document.getElementById('menu-cont').innerHTML = '<div class="aviso"><span class="em">'+em+'</span>'+txt+'</div>';
+}
+
+window.enviarPedido = async function(){
+  if(!MESA){ alert('Decinos en qué mesa estás 🙂'); return; }
+  const items = Object.values(carrito).map(x => ({nombre:x.nombre, precio:x.precio, cant:x.cant}));
+  if(!items.length) return;
+  let total=0; items.forEach(x => total += x.precio*x.cant);
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  try{
+    await addDoc(collection(db,'pedidosMesa'), {
+      mesa: MESA,
+      items: items,
+      total: total,
+      nombre: (document.getElementById('cli-nombre').value||'').trim(),
+      nota: (document.getElementById('cli-nota').value||'').trim(),
+      estado: 'nuevo',
+      fecha: new Date().toISOString(),
+      timestampMs: Date.now()
+    });
+    document.getElementById('conf-mesa').textContent = 'mesa ' + MESA;
+    document.getElementById('conf').classList.add('show');
+  }catch(e){
+    console.error(e);
+    alert('No se pudo enviar el pedido. Revisá la conexión e intentá de nuevo.');
+    btn.disabled=false; btn.textContent='Enviar pedido 🍽️';
+  }
+};
+
+window.reiniciar = function(){
+  Object.keys(carrito).forEach(k => delete carrito[k]);
+  document.getElementById('conf').classList.remove('show');
+  document.getElementById('cli-nota').value='';
+  const btn=document.getElementById('btn-enviar'); btn.textContent='Enviar pedido 🍽️';
+  cargarMenu();
+};
+
+cargarMenu();
+</script>
+</body>
+</html>
