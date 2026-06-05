@@ -1494,8 +1494,8 @@ body.rol-operadora #tanques-grid {
         <div class="md-grid-label">Historial</div>
       </div>
       <div class="md-grid-item" onclick="mdAbrir('cigarrillos')">
-        <div class="md-grid-icono" style="background:#fff3e0;color:#ff6f00;">🚬</div>
-        <div class="md-grid-label">Cigarrillos</div>
+        <div class="md-grid-icono" style="background:#fff3e0;color:#ff6f00;">🍽️</div>
+        <div class="md-grid-label">Menú</div>
       </div>
       <div class="md-grid-item" onclick="mdAbrir('compra')">
         <div class="md-grid-icono" style="background:#e8f5e9;color:#1f7c3e;">🛍️</div>
@@ -1787,7 +1787,7 @@ setInterval(() => {
     </div>
     <div>
       <div class="header-title">🍽️ Comedor El Padrino</div>
-      <div class="header-sub">☁️ Sistema en la NUBE (prueba) · Surtidor + Minimarket</div>
+      <div class="header-sub">☁️ Sistema en la NUBE (prueba) · Sistema de Comedor</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
@@ -2454,9 +2454,9 @@ setInterval(() => {
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('surtidor',this)">⛽ Surtidor</button>
+  <button class="tab active" onclick="showTab('surtidor',this)">💰 Ventas</button>
   <button class="tab" onclick="showTab('stock',this)">📦 Stock</button>
-  <button class="tab" onclick="showTab('cigarrillos',this)">🚬 Cigarrillos</button>
+  <button class="tab" onclick="showTab('cigarrillos',this)">🍽️ Menú</button>
   <button class="tab" onclick="showTab('acciones',this)">⚙️ Acciones</button>
   <button class="tab" onclick="showTab('compra',this)">🛒 Compra</button>
   <button class="tab" onclick="showTab('precios',this)">💲 Precios</button>
@@ -2823,7 +2823,7 @@ setInterval(() => {
 <div id="panel-cigarrillos" class="panel">
   <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,0.08);">
     <div style="display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#3a1a0e,#6b1818);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
-      <span style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">🚬 CIGARRILLOS</span>
+      <span style="font-size:1.4rem;font-weight:800;letter-spacing:1px;">🍽️ MENÚ</span>
       <span style="font-size:0.85rem;opacity:0.85;" id="cig-resumen">—</span>
     </div>
 
@@ -17116,6 +17116,310 @@ window.BACKUPS = {
 
 </script>
 <!-- ====================== /FIREBASE SYNC ======================== -->
+
+<!-- ============================================================ -->
+<!-- ================ PEDIDOS DE MESA (QR) ====================== -->
+<!-- ============================================================ -->
+<script type="module">
+import { getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, getDoc, setDoc, onSnapshot, deleteDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const dbMesa = getFirestore(getApp());   // reutiliza el mismo proyecto Firebase
+
+// Categorías (familias) que se muestran en el menú del QR. Vacío = todas.
+let familiasMenu = [];
+try { familiasMenu = JSON.parse(localStorage.getItem('lp_menu_familias') || '[]'); } catch(e){ familiasMenu = []; }
+async function cargarFamiliasMenu(){
+  try{
+    const s = await getDoc(doc(dbMesa,'menuPublico','config'));
+    if(s.exists() && Array.isArray(s.data().familias)){
+      familiasMenu = s.data().familias;
+      try { localStorage.setItem('lp_menu_familias', JSON.stringify(familiasMenu)); } catch(e){}
+    }
+  }catch(e){}
+}
+cargarFamiliasMenu();
+
+// ---------- 1) PUBLICAR EL MENÚ (solo nombre/precio/foto, sin datos privados) ----------
+async function publicarMenu(){
+  try{
+    const prods = (typeof productos !== 'undefined' ? productos : []) || [];
+    const items = prods
+      .filter(p => p && p.nombre && !p.esCombustible)
+      .filter(p => familiasMenu.length === 0 ? true : familiasMenu.includes(p.familia || 'Otros'))
+      .map(p => ({
+        id: p.id,
+        nombre: p.nombre,
+        precio: Number(p.precio) || Number(p.precioCasa) || 0,
+        familia: p.familia || 'Otros',
+        foto: p.foto || ''
+      }));
+    await setDoc(doc(dbMesa, 'menuPublico', 'actual'), {
+      items: items,
+      actualizado: Date.now()
+    });
+    console.log('🍽️ Menú publicado para los clientes:', items.length, 'items');
+    return items.length;
+  }catch(err){
+    console.error('Error publicando menú:', err);
+    return -1;
+  }
+}
+window.publicarMenuAhora = async function(){
+  const n = await publicarMenu();
+  if(typeof toast === 'function'){
+    toast(n >= 0 ? ('🍽️ Menú publicado (' + n + ' productos)') : '⚠️ No se pudo publicar el menú');
+  }
+};
+
+// Publicar el menú automáticamente cuando se guardan cambios (con espera)
+let _menuTimer = null;
+function publicarMenuDebounce(){
+  clearTimeout(_menuTimer);
+  _menuTimer = setTimeout(publicarMenu, 4000);
+}
+(function engancharSaveAll(){
+  let intentos = 0;
+  const iv = setInterval(() => {
+    intentos++;
+    if(typeof window.saveAll === 'function'){
+      const orig = window.saveAll;
+      window.saveAll = function(){
+        orig.apply(this, arguments);
+        publicarMenuDebounce();
+      };
+      clearInterval(iv);
+      console.log('🍽️ Publicación de menú enganchada a saveAll');
+    }
+    if(intentos > 40) clearInterval(iv);
+  }, 300);
+})();
+// Primera publicación al arrancar (cuando ya cargaron los productos)
+setTimeout(publicarMenu, 9000);
+
+// ---------- 2) RECIBIR PEDIDOS DE MESA EN TIEMPO REAL ----------
+const colMesa = collection(dbMesa, 'pedidosMesa');
+window.pedidosMesa = [];
+let _cantPrevia = -1;
+
+function beepPedido(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine'; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    o.start(); o.stop(ctx.currentTime + 0.5);
+  }catch(e){}
+}
+
+function crearBotonMesa(){
+  if(document.getElementById('btn-mesa-flotante')) return;
+  const b = document.createElement('button');
+  b.id = 'btn-mesa-flotante';
+  b.onclick = abrirPedidosMesa;
+  b.style.cssText = 'position:fixed;bottom:14px;left:14px;background:#c0392b;color:#fff;border:none;border-radius:30px;padding:12px 20px;font-size:0.95rem;font-weight:800;font-family:Segoe UI,Arial,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,0.4);z-index:9998;cursor:pointer;display:flex;align-items:center;gap:8px;';
+  b.innerHTML = '🍽️ Pedidos de Mesa <span id="badge-mesa" style="background:#fff;color:#c0392b;border-radius:50%;min-width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-size:0.8rem;padding:0 6px;">0</span>';
+  document.body.appendChild(b);
+}
+crearBotonMesa();
+
+function actualizarBadgeMesa(){
+  const badge = document.getElementById('badge-mesa');
+  const btn = document.getElementById('btn-mesa-flotante');
+  if(!badge || !btn) return;
+  const n = window.pedidosMesa.length;
+  badge.textContent = n;
+  btn.style.background = n > 0 ? '#e74c3c' : '#7f8c8d';
+  btn.style.animation = n > 0 ? 'mesaPulse 1.4s ease-in-out infinite' : 'none';
+}
+// keyframes para el pulso
+(function(){
+  const s = document.createElement('style');
+  s.textContent = '@keyframes mesaPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}';
+  document.head.appendChild(s);
+})();
+
+onSnapshot(colMesa, (snap) => {
+  const arr = [];
+  snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
+  arr.sort((a,b) => (a.timestampMs||0) - (b.timestampMs||0)); // más viejos primero (FIFO cocina)
+  window.pedidosMesa = arr;
+  actualizarBadgeMesa();
+  // aviso sonoro si entró uno nuevo
+  if(_cantPrevia !== -1 && arr.length > _cantPrevia){
+    beepPedido();
+    if(typeof toast === 'function') toast('🔔 ¡Nuevo pedido de mesa!');
+  }
+  _cantPrevia = arr.length;
+  // si el modal está abierto, refrescarlo
+  if(document.getElementById('modal-pedidos-mesa')) renderListaPedidosMesa();
+});
+
+// ---------- 3) MODAL DE GESTIÓN ----------
+window.abrirPedidosMesa = function(){
+  let modal = document.getElementById('modal-pedidos-mesa');
+  if(modal) modal.remove();
+  modal = document.createElement('div');
+  modal.id = 'modal-pedidos-mesa';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:Segoe UI,Arial,sans-serif;';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;max-width:680px;width:96%;max-height:90vh;overflow:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h2 style="margin:0;color:#1a1a2e;font-size:1.3rem;">🍽️ Pedidos de Mesa</h2>
+        <div style="display:flex;gap:8px;">
+          <button onclick="abrirConfigMenuQR()" style="background:#8e44ad;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;" title="Elegir qué categorías ven los clientes en el QR">⚙️ Categorías</button>
+          <button onclick="publicarMenuAhora()" style="background:#27ae60;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;" title="Volver a publicar el menú que ven los clientes">🍽️ Publicar menú</button>
+          <button onclick="document.getElementById('modal-pedidos-mesa').remove()" style="background:#e74c3c;color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.1rem;font-weight:700;">✕</button>
+        </div>
+      </div>
+      <div id="lista-pedidos-mesa"></div>
+    </div>`;
+  document.body.appendChild(modal);
+  renderListaPedidosMesa();
+};
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function renderListaPedidosMesa(){
+  const cont = document.getElementById('lista-pedidos-mesa');
+  if(!cont) return;
+  const ped = window.pedidosMesa || [];
+  if(ped.length === 0){
+    cont.innerHTML = '<div style="text-align:center;color:#888;padding:30px;">No hay pedidos pendientes. 🎉</div>';
+    return;
+  }
+  cont.innerHTML = ped.map(p => {
+    const hora = p.timestampMs ? new Date(p.timestampMs).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) : '';
+    const lineas = (p.items||[]).map(it =>
+      `<div style="display:flex;justify-content:space-between;font-size:0.9rem;padding:2px 0;">
+         <span><b>${it.cant}×</b> ${esc(it.nombre)}</span>
+         <span style="color:#666;">$${((Number(it.precio)||0)*(Number(it.cant)||0)).toLocaleString('es-AR')}</span>
+       </div>`).join('');
+    const esDelivery = p.tipo === 'delivery';
+    const titulo = esDelivery ? '🛵 DELIVERY' : ('🪑 Mesa ' + esc(p.mesa||'?'));
+    const colorBorde = esDelivery ? '#8e44ad' : '#e74c3c';
+    const colorTit = esDelivery ? '#8e44ad' : '#c0392b';
+    const infoCli = esDelivery
+      ? `${p.nombre?`<div style="font-size:0.92rem;color:#1a1a2e;margin-bottom:2px;"><b>${esc(p.nombre)}</b></div>`:''}
+         ${p.telefono?`<div style="font-size:0.85rem;color:#333;">📞 <a href="tel:${esc(p.telefono)}" style="color:#2980b9;">${esc(p.telefono)}</a></div>`:''}
+         ${p.direccion?`<div style="font-size:0.85rem;color:#333;">📍 ${esc(p.direccion)}${p.referencia?(' — '+esc(p.referencia)):''}</div>`:''}
+         ${p.pago?`<div style="font-size:0.85rem;color:#333;">💵 ${esc(p.pago)}</div>`:''}`
+      : (p.nombre ? `<div style="font-size:0.82rem;color:#555;margin-bottom:6px;">Cliente: ${esc(p.nombre)}</div>` : '');
+    return `
+    <div style="border:2px solid ${colorBorde};border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:1.25rem;font-weight:900;color:${colorTit};">${titulo}</div>
+        <div style="font-size:0.8rem;color:#888;">${hora}</div>
+      </div>
+      <div style="margin-bottom:6px;">${infoCli}</div>
+      ${lineas}
+      ${p.nota ? `<div style="margin-top:6px;font-size:0.82rem;background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:6px;">📝 ${esc(p.nota)}</div>` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;border-top:1px dashed #ccc;padding-top:8px;">
+        <div style="font-weight:800;color:#1a1a2e;">Total: $${(Number(p.total)||0).toLocaleString('es-AR')}</div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="imprimirComanda('${p.id}')" style="background:#2980b9;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;">🖨️ Comanda</button>
+          <button onclick="servirPedidoMesa('${p.id}')" style="background:#27ae60;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;">✅ Servido</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.imprimirComanda = function(id){
+  const p = (window.pedidosMesa||[]).find(x => x.id === id);
+  if(!p) return;
+  const hora = p.timestampMs ? new Date(p.timestampMs).toLocaleString('es-AR') : '';
+  const filas = (p.items||[]).map(it =>
+    `<tr><td style="font-size:22px;font-weight:bold;padding:4px 0;">${it.cant}×</td><td style="font-size:20px;padding:4px 6px;">${esc(it.nombre)}</td></tr>`).join('');
+  const esDelivery = p.tipo === 'delivery';
+  const tituloGrande = esDelivery ? 'DELIVERY 🛵' : ('MESA ' + esc(p.mesa));
+  const datosCab = esDelivery
+    ? `${p.nombre?`<div style="font-size:15px;font-weight:bold;">${esc(p.nombre)}</div>`:''}
+       ${p.telefono?`<div style="font-size:14px;">Tel: ${esc(p.telefono)}</div>`:''}
+       ${p.direccion?`<div style="font-size:16px;font-weight:bold;margin-top:3px;">📍 ${esc(p.direccion)}${p.referencia?(' ('+esc(p.referencia)+')'):''}</div>`:''}
+       ${p.pago?`<div style="font-size:14px;">Pago: ${esc(p.pago)}</div>`:''}`
+    : (p.nombre ? `<div style="font-size:13px;">Cliente: ${esc(p.nombre)}</div>` : '');
+  const win = window.open('', '_blank', 'width=380,height=600');
+  win.document.write(`
+    <html><head><title>Comanda ${esDelivery?'Delivery':('Mesa '+esc(p.mesa))}</title></head>
+    <body style="font-family:Arial,sans-serif;margin:0;padding:14px;">
+      <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:10px;">
+        <div style="font-size:16px;">COMEDOR EL PADRINO</div>
+        <div style="font-size:30px;font-weight:900;">${tituloGrande}</div>
+        <div style="font-size:12px;">${hora}</div>
+        ${datosCab}
+      </div>
+      <table style="width:100%;border-collapse:collapse;">${filas}</table>
+      ${p.nota ? `<div style="margin-top:10px;border:1px dashed #000;padding:6px;font-size:14px;">NOTA: ${esc(p.nota)}</div>` : ''}
+      <div style="margin-top:12px;border-top:2px dashed #000;padding-top:6px;font-size:16px;font-weight:bold;text-align:right;">TOTAL: $${(Number(p.total)||0).toLocaleString('es-AR')}</div>
+    </body></html>`);
+  win.document.close();
+  setTimeout(() => { win.print(); }, 300);
+};
+
+window.servirPedidoMesa = async function(id){
+  if(!confirm('¿Marcar este pedido como SERVIDO? Se va a quitar de la lista.')) return;
+  try{
+    await deleteDoc(doc(dbMesa, 'pedidosMesa', id));
+    if(typeof toast === 'function') toast('✅ Pedido servido');
+  }catch(err){
+    console.error(err);
+    alert('No se pudo actualizar. Revisá la conexión.');
+  }
+};
+// ---------- 4) CONFIGURAR QUÉ CATEGORÍAS VAN AL MENÚ DEL QR ----------
+function familiasDisponibles(){
+  const set = new Set();
+  (typeof productos !== 'undefined' ? productos : []).forEach(p => {
+    if(p && p.nombre && !p.esCombustible) set.add(p.familia || 'Otros');
+  });
+  (window.familiasExtra || []).forEach(f => set.add(f));
+  return Array.from(set).sort((a,b)=>a.localeCompare(b));
+}
+window.abrirConfigMenuQR = function(){
+  let modal = document.getElementById('modal-config-menu-qr');
+  if(modal) modal.remove();
+  const fams = familiasDisponibles();
+  modal = document.createElement('div');
+  modal.id = 'modal-config-menu-qr';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999999;display:flex;align-items:center;justify-content:center;font-family:Segoe UI,Arial,sans-serif;';
+  const filas = fams.length ? fams.map(f => `
+    <label style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid #eee;cursor:pointer;font-size:0.95rem;">
+      <input type="checkbox" value="${esc(f)}" ${familiasMenu.includes(f)?'checked':''} style="width:18px;height:18px;">
+      <span>📁 ${esc(f)}</span>
+    </label>`).join('')
+    : '<div style="padding:20px;text-align:center;color:#888;">Todavía no tenés categorías. Cargá productos con su familia primero.</div>';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;max-width:460px;width:94%;max-height:88vh;overflow:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+      <h2 style="margin:0 0 6px;color:#1a1a2e;font-size:1.2rem;">⚙️ Categorías del menú QR</h2>
+      <p style="font-size:0.85rem;color:#666;margin-bottom:14px;">Marcá las categorías de <b>comidas y bebidas</b> que querés que vean los clientes en la mesa. Lo que no marques no aparece en el QR (lo seguís vendiendo normal desde el sistema).</p>
+      <div style="border:1px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:12px;">${filas}</div>
+      <p style="font-size:0.78rem;color:#999;margin-bottom:14px;">Si no marcás ninguna, se muestran todas.</p>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button onclick="document.getElementById('modal-config-menu-qr').remove()" style="background:#eee;color:#333;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;font-weight:700;">Cancelar</button>
+        <button onclick="guardarConfigMenuQR()" style="background:#27ae60;color:#fff;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;font-weight:700;">Guardar y publicar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+};
+window.guardarConfigMenuQR = async function(){
+  const modal = document.getElementById('modal-config-menu-qr');
+  if(!modal) return;
+  familiasMenu = Array.from(modal.querySelectorAll('input[type=checkbox]:checked')).map(c => c.value);
+  try { localStorage.setItem('lp_menu_familias', JSON.stringify(familiasMenu)); } catch(e){}
+  try { await setDoc(doc(dbMesa,'menuPublico','config'), { familias: familiasMenu, actualizado: Date.now() }); } catch(e){}
+  await publicarMenu();
+  modal.remove();
+  if(typeof toast === 'function') toast('✅ Menú del QR actualizado');
+};
+</script>
+<!-- ================ /PEDIDOS DE MESA (QR) ===================== -->
+
 
 </body>
 </html>
