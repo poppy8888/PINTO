@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mozo — Comedor El Padrino</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --vino:#241a14; --panel:#33261d; --crema:#f6ecd9; --oro:#e8b04a; --rojo:#e74c3c; --verde:#27ae60; --naranja:#f39c12; --linea:rgba(246,236,217,0.12); }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Outfit',sans-serif;background:var(--vino);color:var(--crema);min-height:100vh;padding-bottom:30px}
+  header{position:sticky;top:0;z-index:5;background:var(--vino);border-bottom:1px solid var(--linea);padding:16px;display:flex;justify-content:space-between;align-items:center}
+  header h1{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:900;color:var(--oro)}
+  .estado{font-size:0.72rem;color:#9c8;display:flex;align-items:center;gap:5px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--verde)}
+  main{max-width:640px;margin:0 auto;padding:14px}
+  .sec-tit{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--oro);margin:18px 4px 10px;display:flex;align-items:center;gap:8px}
+  .card{background:var(--panel);border:1px solid var(--linea);border-radius:14px;padding:14px;margin-bottom:12px}
+  .card.call{border:2px solid var(--naranja);animation:pulse 1.1s ease-in-out infinite}
+  .card.nuevo{border:2px solid var(--rojo)}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .mesa{font-size:1.3rem;font-weight:900}
+  .mesa.call{color:var(--naranja)} .mesa.ord{color:var(--rojo)} .mesa.deli{color:#b07cd6}
+  .hora{font-size:0.75rem;opacity:0.6}
+  .motivo{font-size:1rem;margin-top:4px}
+  .items{margin-top:8px;font-size:0.92rem}
+  .items div{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid var(--linea)}
+  .nota{margin-top:8px;font-size:0.85rem;background:#3d2f12;border:1px solid var(--oro);border-radius:8px;padding:7px}
+  .btn{border:none;border-radius:10px;padding:11px 18px;font-family:'Outfit';font-weight:800;font-size:0.95rem;cursor:pointer;color:#fff;margin-top:10px}
+  .btn-ok{background:var(--verde)} .btn-call{background:#1a1a2e;color:#fff}
+  .vacio{text-align:center;opacity:0.5;padding:24px;font-size:0.95rem}
+  /* overlay activar */
+  #gate{position:fixed;inset:0;background:var(--vino);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px}
+  #gate h2{font-family:'Fraunces',serif;font-size:1.8rem;color:var(--oro);margin-bottom:12px}
+  #gate p{opacity:0.8;margin-bottom:26px;max-width:300px;line-height:1.5}
+  #gate button{background:var(--oro);color:var(--vino);border:none;border-radius:40px;padding:18px 40px;font-family:'Outfit';font-weight:800;font-size:1.2rem;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div style="font-size:3.4rem;margin-bottom:10px">🔔</div>
+  <h2>Modo Mozo</h2>
+  <p>Tocá el botón para empezar a recibir los llamados y pedidos con sonido.</p>
+  <button onclick="activar()">Activar avisos</button>
+</div>
+
+<header>
+  <h1>🔔 Mozo</h1>
+  <div class="estado"><span class="dot" id="dot"></span><span id="estado-txt">Conectando...</span></div>
+</header>
+
+<main>
+  <div class="sec-tit">🔔 Llamados de mesas</div>
+  <div id="llamados"><div class="vacio">Sin llamados.</div></div>
+
+  <div class="sec-tit">🍽️ Pedidos nuevos</div>
+  <div id="pedidos"><div class="vacio">Sin pedidos nuevos.</div></div>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAIxSOounkM70XyJGLNe5KJHy0v4JA1UU8",
+  authDomain: "lepadrino-77eed.firebaseapp.com",
+  projectId: "lepadrino-77eed",
+  storageBucket: "lepadrino-77eed.firebasestorage.app",
+  messagingSenderId: "123637186140",
+  appId: "1:123637186140:web:f96ff9058e35cc7f587099",
+  measurementId: "G-FV5DMVY339"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let audioCtx = null, activo = false;
+let llamadas = [], pedidos = [];
+let prevLl = -1, prevPe = -1;
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function hora(ms){ return ms ? new Date(ms).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) : ''; }
+function pesos(n){ return '$'+(Number(n)||0).toLocaleString('es-AR'); }
+
+window.activar = function(){
+  try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); audioCtx.resume(); }catch(e){}
+  activo = true;
+  document.getElementById('gate').style.display='none';
+  // “desbloquear” el audio con un beep mudo
+  beep(0.001);
+};
+function beep(vol){
+  if(!audioCtx) return;
+  try{
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type='sine'; o.frequency.value=880;
+    const v = vol==null?0.3:vol;
+    g.gain.setValueAtTime(0.0001,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(v,audioCtx.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+0.5);
+    o.start(); o.stop(audioCtx.currentTime+0.5);
+  }catch(e){}
+}
+function sonar(doble){ beep(); if(doble) setTimeout(()=>beep(), 280); }
+
+function setEstado(ok){
+  document.getElementById('dot').style.background = ok ? '#27ae60' : '#e74c3c';
+  document.getElementById('estado-txt').textContent = ok ? 'Conectado' : 'Sin conexión';
+}
+
+window.atender = async function(id){ try{ await deleteDoc(doc(db,'llamadasMesa',id)); }catch(e){ alert('No se pudo. Revisá la conexión.'); } };
+window.entregar = async function(id, esDelivery){
+  try{
+    if(esDelivery){ await deleteDoc(doc(db,'pedidosMesa',id)); }
+    else { await updateDoc(doc(db,'pedidosMesa',id), { estado:'servido' }); }
+  }catch(e){ alert('No se pudo. Revisá la conexión.'); }
+};
+
+function renderLlamados(){
+  const c = document.getElementById('llamados');
+  if(!llamadas.length){ c.innerHTML='<div class="vacio">Sin llamados.</div>'; return; }
+  c.innerHTML = llamadas.map(l => `
+    <div class="card call">
+      <div class="row">
+        <span class="mesa call">🔔 Mesa ${esc(String(l.mesa||'?'))}</span>
+        <span class="hora">${hora(l.timestampMs)}</span>
+      </div>
+      ${l.motivo?`<div class="motivo">${esc(l.motivo)}</div>`:'<div class="motivo" style="opacity:.7">Necesita algo</div>'}
+      <button class="btn btn-call" onclick="atender('${l.id}')">Atender ✓</button>
+    </div>`).join('');
+}
+function renderPedidos(){
+  const c = document.getElementById('pedidos');
+  const nuevos = pedidos.filter(p => p.estado !== 'servido');
+  if(!nuevos.length){ c.innerHTML='<div class="vacio">Sin pedidos nuevos.</div>'; return; }
+  c.innerHTML = nuevos.map(p => {
+    const deli = p.tipo==='delivery';
+    const lineas = (p.items||[]).map(it=>`<div><span>${it.cant}× ${esc(it.nombre)}</span><span>${pesos((Number(it.precio)||0)*(Number(it.cant)||0))}</span></div>`).join('');
+    return `
+    <div class="card nuevo">
+      <div class="row">
+        <span class="mesa ${deli?'deli':'ord'}">${deli?'🛵 Delivery':('🪑 Mesa '+esc(String(p.mesa||'?')))}</span>
+        <span class="hora">${hora(p.timestampMs)}</span>
+      </div>
+      ${deli&&p.direccion?`<div class="motivo">📍 ${esc(p.direccion)}</div>`:''}
+      <div class="items">${lineas}</div>
+      ${p.nota?`<div class="nota">📝 ${esc(p.nota)}</div>`:''}
+      <button class="btn btn-ok" onclick="entregar('${p.id}', ${deli})">Entregado ✓</button>
+    </div>`;
+  }).join('');
+}
+
+onSnapshot(collection(db,'llamadasMesa'), (snap)=>{
+  const arr=[]; snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+  arr.sort((a,b)=>(a.timestampMs||0)-(b.timestampMs||0));
+  llamadas=arr; setEstado(true); renderLlamados();
+  if(activo && prevLl!==-1 && arr.length>prevLl) sonar(true);
+  prevLl=arr.length;
+}, ()=>setEstado(false));
+
+onSnapshot(collection(db,'pedidosMesa'), (snap)=>{
+  const arr=[]; snap.forEach(d=>arr.push({id:d.id,...d.data()}));
+  arr.sort((a,b)=>(a.timestampMs||0)-(b.timestampMs||0));
+  pedidos=arr; setEstado(true); renderPedidos();
+  const nuevosCount = arr.filter(p=>p.estado!=='servido').length;
+  if(activo && prevPe!==-1 && nuevosCount>prevPe) sonar(false);
+  prevPe=nuevosCount;
+}, ()=>setEstado(false));
+</script>
+</body>
+</html>
