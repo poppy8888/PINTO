@@ -17217,19 +17217,29 @@ const colMesa = collection(dbMesa, 'pedidosMesa');
 window.pedidosMesa = [];
 let _cantPrevia = -1;
 
-function beepPedido(){
+let _audioCtx = null;
+function getCtx(){
   try{
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.type = 'sine'; o.frequency.value = 880;
-    g.gain.setValueAtTime(0.001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-    o.start(); o.stop(ctx.currentTime + 0.5);
-  }catch(e){}
+    if(!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(_audioCtx.state === 'suspended') _audioCtx.resume();
+    return _audioCtx;
+  }catch(e){ return null; }
 }
+// desbloquear el audio en la primera interacción del usuario
+['click','keydown','touchstart'].forEach(ev => document.addEventListener(ev, getCtx, true));
+function tono(freq, start, dur, vol){
+  const ctx = getCtx(); if(!ctx) return;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type = 'sine'; o.frequency.value = freq;
+  const t = ctx.currentTime + start;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol || 0.5, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.start(t); o.stop(t + dur + 0.03);
+}
+function beepPedido(){ tono(880, 0, 0.45, 0.5); }
+function beepLlamada(){ tono(988,0,0.22,0.6); tono(740,0.26,0.22,0.6); tono(988,0.52,0.45,0.6); }
 
 // ---- alerta repetida (sonido + parpadeo del título) hasta abrir la lista ----
 let _alerta = null;
@@ -17704,8 +17714,8 @@ onSnapshot(colLlamadas, (snap) => {
   window.llamadasMesa = arr;
   renderLlamadas();
   if(_cantLlamadasPrev !== -1 && arr.length > _cantLlamadasPrev){
-    beepPedido();
-    setTimeout(beepPedido, 280);   // doble beep = llamada
+    beepLlamada();
+    setTimeout(beepLlamada, 1000);   // alarma de llamada, repetida
     if(typeof toast === 'function') toast('🔔 ¡Una mesa te está llamando!');
   }
   if(document.getElementById('modal-plano-mesas')) renderPlanoMesas();
