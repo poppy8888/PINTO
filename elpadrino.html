@@ -2550,9 +2550,9 @@ setInterval(() => {
   <!-- Cabecera tipo modal de venta -->
   <div style="background:linear-gradient(135deg,#0a1a2e,#1e3a5e);color:#fff;padding:14px 22px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:0 2px 10px rgba(10,26,46,0.2);">
     <div style="display:flex;align-items:center;gap:12px;">
-      <span style="font-size:1.5rem;">⛽</span>
+      <span style="font-size:1.5rem;">🧾</span>
       <div>
-        <div style="font-size:1.15rem;font-weight:900;letter-spacing:1.2px;">VENTA SURTIDOR</div>
+        <div style="font-size:1.15rem;font-weight:900;letter-spacing:1.2px;">VENTAS</div>
         <div style="font-size:0.72rem;opacity:0.75;" id="vu-fecha-cab">—</div>
       </div>
     </div>
@@ -2634,7 +2634,7 @@ setInterval(() => {
     </div>
 
     <!-- Combustibles compactos -->
-    <details style="background:#0f0f22;border-radius:10px;padding:0;margin-bottom:12px;overflow:hidden;">
+    <details class="oculto-comedor" style="background:#0f0f22;border-radius:10px;padding:0;margin-bottom:12px;overflow:hidden;">
       <summary style="padding:10px 14px;cursor:pointer;color:#e8c84a;font-weight:800;font-size:0.85rem;letter-spacing:0.5px;display:flex;justify-content:space-between;align-items:center;">
         <span>⛽ COMBUSTIBLES — Tocá un surtidor para despachar</span>
       </summary>
@@ -2644,7 +2644,7 @@ setInterval(() => {
     </details>
 
     <!-- Tanques (admin) -->
-    <details class="admin-only seccion-tanques" style="background:#0f0f22;border-radius:10px;padding:0;margin-bottom:12px;overflow:hidden;">
+    <details class="admin-only seccion-tanques oculto-comedor" style="background:#0f0f22;border-radius:10px;padding:0;margin-bottom:12px;overflow:hidden;">
       <summary style="padding:10px 14px;cursor:pointer;color:#e8c84a;font-weight:800;font-size:0.85rem;letter-spacing:0.5px;display:flex;justify-content:space-between;align-items:center;">
         <span>🛢️ STOCK DE TANQUES</span>
         <button onclick="event.preventDefault();event.stopPropagation();abrirNuevoCombustible()" style="padding:4px 10px;background:#27500a;color:#fff;border:none;border-radius:5px;font-weight:700;cursor:pointer;font-size:0.74rem;">➕ Nuevo</button>
@@ -2658,7 +2658,7 @@ setInterval(() => {
     <div style="background:#1a1a2e;color:#fff;border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button onclick="vuCancelarTicket()" id="vu-btn-cancelar-ticket" style="padding:10px 16px;background:#888;color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer;font-size:0.88rem;">❌ Cancelar</button>
-        <input type="text" id="vu-patente" placeholder="🚗 Patente"
+        <input type="text" id="vu-patente" class="oculto-comedor" placeholder="🚗 Patente"
                style="padding:10px 12px;border:none;border-radius:7px;font-weight:700;font-size:0.88rem;color:#1a1a2e;text-transform:uppercase;width:130px;">
       </div>
       <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
@@ -2680,6 +2680,7 @@ setInterval(() => {
 </div>
 
 <style>
+  .oculto-comedor{display:none !important;}
   @media (max-width: 900px){
     #panel-surtidor [style*="grid-template-columns:1fr 1fr 1fr"]{
       grid-template-columns: 1fr !important;
@@ -17122,7 +17123,7 @@ window.BACKUPS = {
 <!-- ============================================================ -->
 <script type="module">
 import { getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, getDoc, setDoc, onSnapshot, deleteDoc }
+import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, onSnapshot, deleteDoc }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const dbMesa = getFirestore(getApp());   // reutiliza el mismo proyecto Firebase
@@ -17217,6 +17218,26 @@ function beepPedido(){
   }catch(e){}
 }
 
+// ---- alerta repetida (sonido + parpadeo del título) hasta abrir la lista ----
+let _alerta = null;
+let _tituloOrig = document.title;
+let _tickAlerta = 0;
+function iniciarAlerta(){
+  if(_alerta) return;            // ya está sonando, no duplicar
+  beepPedido();
+  _tickAlerta = 0;
+  _alerta = setInterval(() => {
+    _tickAlerta++;
+    const n = window.pedidosMesa.length;
+    document.title = (_tickAlerta % 2 === 0) ? _tituloOrig : ('🔔 (' + n + ') ¡PEDIDO!');
+    if(_tickAlerta % 8 === 0) beepPedido();   // un beep cada ~12s
+  }, 1500);
+}
+function detenerAlerta(){
+  if(_alerta){ clearInterval(_alerta); _alerta = null; }
+  document.title = _tituloOrig;
+}
+
 function crearBotonMesa(){
   if(document.getElementById('btn-mesa-flotante')) return;
   const b = document.createElement('button');
@@ -17232,7 +17253,7 @@ function actualizarBadgeMesa(){
   const badge = document.getElementById('badge-mesa');
   const btn = document.getElementById('btn-mesa-flotante');
   if(!badge || !btn) return;
-  const n = window.pedidosMesa.length;
+  const n = (window.pedidosMesa||[]).filter(p => p.estado !== 'servido').length;
   badge.textContent = n;
   btn.style.background = n > 0 ? '#e74c3c' : '#7f8c8d';
   btn.style.animation = n > 0 ? 'mesaPulse 1.4s ease-in-out infinite' : 'none';
@@ -17250,18 +17271,22 @@ onSnapshot(colMesa, (snap) => {
   arr.sort((a,b) => (a.timestampMs||0) - (b.timestampMs||0)); // más viejos primero (FIFO cocina)
   window.pedidosMesa = arr;
   actualizarBadgeMesa();
-  // aviso sonoro si entró uno nuevo
-  if(_cantPrevia !== -1 && arr.length > _cantPrevia){
-    beepPedido();
-    if(typeof toast === 'function') toast('🔔 ¡Nuevo pedido de mesa!');
+  // aviso si entró uno nuevo (suena repetido hasta abrir la lista)
+  const modalAbierto = !!document.getElementById('modal-pedidos-mesa');
+  if(_cantPrevia !== -1 && arr.length > _cantPrevia && !modalAbierto){
+    iniciarAlerta();
+    if(typeof toast === 'function') toast('🔔 ¡Nuevo pedido!');
   }
+  if(arr.length === 0) detenerAlerta();
   _cantPrevia = arr.length;
-  // si el modal está abierto, refrescarlo
+  // si los modales están abiertos, refrescarlos
   if(document.getElementById('modal-pedidos-mesa')) renderListaPedidosMesa();
+  if(document.getElementById('modal-plano-mesas')) renderPlanoMesas();
 });
 
 // ---------- 3) MODAL DE GESTIÓN ----------
 window.abrirPedidosMesa = function(){
+  detenerAlerta();
   let modal = document.getElementById('modal-pedidos-mesa');
   if(modal) modal.remove();
   modal = document.createElement('div');
@@ -17290,44 +17315,83 @@ function renderListaPedidosMesa(){
   if(!cont) return;
   const ped = window.pedidosMesa || [];
   if(ped.length === 0){
-    cont.innerHTML = '<div style="text-align:center;color:#888;padding:30px;">No hay pedidos pendientes. 🎉</div>';
+    cont.innerHTML = '<div style="text-align:center;color:#888;padding:30px;">No hay mesas ni pedidos abiertos. 🎉</div>';
     return;
   }
-  cont.innerHTML = ped.map(p => {
-    const hora = p.timestampMs ? new Date(p.timestampMs).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) : '';
-    const lineas = (p.items||[]).map(it =>
+  const deliveries = ped.filter(p => p.tipo === 'delivery');
+  const mesaOrders = ped.filter(p => p.tipo !== 'delivery');
+
+  function lineasDe(p){
+    return (p.items||[]).map(it =>
       `<div style="display:flex;justify-content:space-between;font-size:0.9rem;padding:2px 0;">
-         <span><b>${it.cant}×</b> ${esc(it.nombre)}</span>
+         <span><b>${it.cant}\u00d7</b> ${esc(it.nombre)}</span>
          <span style="color:#666;">$${((Number(it.precio)||0)*(Number(it.cant)||0)).toLocaleString('es-AR')}</span>
        </div>`).join('');
-    const esDelivery = p.tipo === 'delivery';
-    const titulo = esDelivery ? '🛵 DELIVERY' : ('🪑 Mesa ' + esc(p.mesa||'?'));
-    const colorBorde = esDelivery ? '#8e44ad' : '#e74c3c';
-    const colorTit = esDelivery ? '#8e44ad' : '#c0392b';
-    const infoCli = esDelivery
-      ? `${p.nombre?`<div style="font-size:0.92rem;color:#1a1a2e;margin-bottom:2px;"><b>${esc(p.nombre)}</b></div>`:''}
-         ${p.telefono?`<div style="font-size:0.85rem;color:#333;">📞 <a href="tel:${esc(p.telefono)}" style="color:#2980b9;">${esc(p.telefono)}</a></div>`:''}
-         ${p.direccion?`<div style="font-size:0.85rem;color:#333;">📍 ${esc(p.direccion)}${p.referencia?(' — '+esc(p.referencia)):''}</div>`:''}
-         ${p.pago?`<div style="font-size:0.85rem;color:#333;">💵 ${esc(p.pago)}</div>`:''}`
-      : (p.nombre ? `<div style="font-size:0.82rem;color:#555;margin-bottom:6px;">Cliente: ${esc(p.nombre)}</div>` : '');
+  }
+  function ronda(p){
+    const hora = p.timestampMs ? new Date(p.timestampMs).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) : '';
+    const servido = p.estado === 'servido';
     return `
-    <div style="border:2px solid ${colorBorde};border-radius:10px;padding:14px;margin-bottom:12px;background:#fff;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div style="font-size:1.25rem;font-weight:900;color:${colorTit};">${titulo}</div>
-        <div style="font-size:0.8rem;color:#888;">${hora}</div>
-      </div>
-      <div style="margin-bottom:6px;">${infoCli}</div>
-      ${lineas}
-      ${p.nota ? `<div style="margin-top:6px;font-size:0.82rem;background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:6px;">📝 ${esc(p.nota)}</div>` : ''}
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;border-top:1px dashed #ccc;padding-top:8px;">
-        <div style="font-weight:800;color:#1a1a2e;">Total: $${(Number(p.total)||0).toLocaleString('es-AR')}</div>
-        <div style="display:flex;gap:6px;">
-          <button onclick="imprimirComanda('${p.id}')" style="background:#2980b9;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;">🖨️ Comanda</button>
-          <button onclick="servirPedidoMesa('${p.id}')" style="background:#27ae60;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;">✅ Servido</button>
+      <div style="border:1px solid ${servido?'#d8d8d8':'#f0b6b3'};background:${servido?'#fafafa':'#fff6f5'};border-radius:8px;padding:10px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:0.78rem;font-weight:800;color:${servido?'#888':'#c0392b'};">${servido?'\u2714 Entregado':'\ud83d\udd14 NUEVO'} <span style="font-weight:400;color:#999;">\u00b7 ${hora}</span></span>
+          <span style="font-weight:800;color:#1a1a2e;">$${(Number(p.total)||0).toLocaleString('es-AR')}</span>
         </div>
-      </div>
-    </div>`;
-  }).join('');
+        ${lineasDe(p)}
+        ${p.nota ? `<div style="margin-top:5px;font-size:0.8rem;background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:5px;">\ud83d\udcdd ${esc(p.nota)}</div>` : ''}
+        <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:8px;">
+          <button onclick="imprimirComanda('${p.id}')" style="background:#2980b9;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.82rem;">\ud83d\udda8\ufe0f Comanda</button>
+          ${!servido ? `<button onclick="marcarEntregado('${p.id}')" style="background:#27ae60;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.82rem;">\u2705 Entregado</button>` : ''}
+        </div>
+      </div>`;
+  }
+
+  let html = '';
+
+  // ----- MESAS (cuenta acumulada) -----
+  const porMesa = {};
+  mesaOrders.forEach(p => { const m = p.mesa || '?'; (porMesa[m] = porMesa[m] || []).push(p); });
+  Object.keys(porMesa).sort((a,b) => (Number(a)||0)-(Number(b)||0)).forEach(mesa => {
+    const rondas = porMesa[mesa].slice().sort((a,b)=>(a.timestampMs||0)-(b.timestampMs||0));
+    const totalMesa = rondas.reduce((s,r)=>s+(Number(r.total)||0),0);
+    const hayNuevo = rondas.some(r => r.estado !== 'servido');
+    html += `
+      <div style="border:2px solid ${hayNuevo?'#e74c3c':'#bbb'};border-radius:10px;padding:14px;margin-bottom:14px;background:#fff;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:1.3rem;font-weight:900;color:#c0392b;">\ud83e\ude91 Mesa ${esc(mesa)} ${hayNuevo?'<span style="font-size:0.7rem;background:#e74c3c;color:#fff;padding:2px 8px;border-radius:10px;vertical-align:middle;">NUEVO</span>':''}</div>
+          <div style="text-align:right;"><div style="font-size:0.7rem;color:#888;">CUENTA</div><div style="font-size:1.4rem;font-weight:900;color:#1a1a2e;">$${totalMesa.toLocaleString('es-AR')}</div></div>
+        </div>
+        ${rondas.map(ronda).join('')}
+        <button onclick="cobrarMesa('${esc(String(mesa))}')" style="width:100%;margin-top:6px;background:#1a1a2e;color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;font-weight:800;font-size:0.95rem;">\ud83d\udcb0 Cobrar y cerrar mesa \u2014 $${totalMesa.toLocaleString('es-AR')}</button>
+      </div>`;
+  });
+
+  // ----- DELIVERY (cada uno aparte) -----
+  deliveries.slice().sort((a,b)=>(a.timestampMs||0)-(b.timestampMs||0)).forEach(p => {
+    const hora = p.timestampMs ? new Date(p.timestampMs).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) : '';
+    html += `
+      <div style="border:2px solid #8e44ad;border-radius:10px;padding:14px;margin-bottom:14px;background:#fff;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-size:1.25rem;font-weight:900;color:#8e44ad;">\ud83d\udef5 DELIVERY</div>
+          <div style="font-size:0.8rem;color:#888;">${hora}</div>
+        </div>
+        ${p.nombre?`<div style="font-size:0.92rem;color:#1a1a2e;"><b>${esc(p.nombre)}</b></div>`:''}
+        ${p.telefono?`<div style="font-size:0.85rem;color:#333;">\ud83d\udcde <a href="tel:${esc(p.telefono)}" style="color:#2980b9;">${esc(p.telefono)}</a></div>`:''}
+        ${p.direccion?`<div style="font-size:0.85rem;color:#333;margin-bottom:6px;">\ud83d\udccd ${esc(p.direccion)}${p.referencia?(' \u2014 '+esc(p.referencia)):''}</div>`:''}
+        ${p.pago?`<div style="font-size:0.85rem;color:#333;margin-bottom:6px;">\ud83d\udcb5 ${esc(p.pago)}</div>`:''}
+        ${lineasDe(p)}
+        ${p.nota ? `<div style="margin-top:6px;font-size:0.82rem;background:#fff8e1;border:1px solid #ffe082;border-radius:6px;padding:6px;">\ud83d\udcdd ${esc(p.nota)}</div>` : ''}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;border-top:1px dashed #ccc;padding-top:8px;">
+          <div style="font-weight:800;color:#1a1a2e;">Total: $${(Number(p.total)||0).toLocaleString('es-AR')}</div>
+          <div style="display:flex;gap:6px;">
+            <button onclick="imprimirComanda('${p.id}')" style="background:#2980b9;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;">\ud83d\udda8\ufe0f Comanda</button>
+            <button onclick="cerrarDelivery('${p.id}')" style="background:#27ae60;color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:700;">\u2705 Entregado</button>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  cont.innerHTML = html;
 }
 
 window.imprimirComanda = function(id){
@@ -17362,16 +17426,55 @@ window.imprimirComanda = function(id){
   setTimeout(() => { win.print(); }, 300);
 };
 
-window.servirPedidoMesa = async function(id){
-  if(!confirm('¿Marcar este pedido como SERVIDO? Se va a quitar de la lista.')) return;
+window.marcarEntregado = async function(id){
+  try{
+    await updateDoc(doc(dbMesa, 'pedidosMesa', id), { estado: 'servido' });
+    if(typeof toast === 'function') toast('\u2705 Entregado');
+  }catch(err){ console.error(err); alert('No se pudo actualizar. Revis\u00e1 la conexi\u00f3n.'); }
+};
+
+window.cerrarDelivery = async function(id){
+  if(!confirm('\u00bfMarcar este delivery como entregado y cobrado? Se quita de la lista.')) return;
   try{
     await deleteDoc(doc(dbMesa, 'pedidosMesa', id));
-    if(typeof toast === 'function') toast('✅ Pedido servido');
-  }catch(err){
-    console.error(err);
-    alert('No se pudo actualizar. Revisá la conexión.');
-  }
+    if(typeof toast === 'function') toast('\u2705 Delivery cerrado');
+  }catch(err){ console.error(err); alert('No se pudo actualizar. Revis\u00e1 la conexi\u00f3n.'); }
 };
+
+window.cobrarMesa = async function(mesa){
+  const rondas = (window.pedidosMesa||[]).filter(p => p.tipo !== 'delivery' && String(p.mesa) === String(mesa));
+  if(!rondas.length) return;
+  const total = rondas.reduce((s,r)=>s+(Number(r.total)||0),0);
+  if(!confirm('Cobrar la Mesa ' + mesa + ' por $' + total.toLocaleString('es-AR') + ' y cerrarla?\n\nSe borra la cuenta de esta mesa.')) return;
+  imprimirCuentaMesa(mesa, rondas, total);
+  try{
+    for(const r of rondas){ await deleteDoc(doc(dbMesa, 'pedidosMesa', r.id)); }
+    if(typeof toast === 'function') toast('\ud83d\udcb0 Mesa ' + mesa + ' cobrada y cerrada');
+  }catch(err){ console.error(err); alert('No se pudo cerrar la mesa. Revis\u00e1 la conexi\u00f3n.'); }
+};
+
+function imprimirCuentaMesa(mesa, rondas, total){
+  const items = [];
+  rondas.forEach(r => (r.items||[]).forEach(it => items.push(it)));
+  const filas = items.map(it =>
+    `<tr><td style="padding:3px 0;">${it.cant}\u00d7 ${esc(it.nombre)}</td><td style="text-align:right;padding:3px 0;">$${((Number(it.precio)||0)*(Number(it.cant)||0)).toLocaleString('es-AR')}</td></tr>`).join('');
+  const win = window.open('', '_blank', 'width=380,height=600');
+  win.document.write(`
+    <html><head><title>Cuenta Mesa ${esc(mesa)}</title></head>
+    <body style="font-family:Arial,sans-serif;margin:0;padding:14px;">
+      <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:10px;">
+        <div style="font-size:16px;">COMEDOR EL PADRINO</div>
+        <div style="font-size:24px;font-weight:900;">CUENTA \u00b7 MESA ${esc(mesa)}</div>
+        <div style="font-size:12px;">${new Date().toLocaleString('es-AR')}</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">${filas}</table>
+      <div style="margin-top:12px;border-top:2px dashed #000;padding-top:8px;font-size:20px;font-weight:bold;text-align:right;">TOTAL: $${total.toLocaleString('es-AR')}</div>
+      <div style="text-align:center;margin-top:14px;font-size:13px;">\u00a1Gracias por su visita!</div>
+    </body></html>`);
+  win.document.close();
+  setTimeout(() => { win.print(); }, 300);
+}
+
 // ---------- 4) CONFIGURAR QUÉ CATEGORÍAS VAN AL MENÚ DEL QR ----------
 function familiasDisponibles(){
   const set = new Set();
@@ -17417,6 +17520,97 @@ window.guardarConfigMenuQR = async function(){
   modal.remove();
   if(typeof toast === 'function') toast('✅ Menú del QR actualizado');
 };
+
+// ---------- 5) PLANO / SALÓN DE MESAS ----------
+function numMesas(){
+  let n = parseInt(localStorage.getItem('lp_num_mesas')||'20',10);
+  if(!n || n<1) n = 20;
+  return n;
+}
+function crearBotonPlano(){
+  if(document.getElementById('btn-plano-mesas')) return;
+  const b = document.createElement('button');
+  b.id = 'btn-plano-mesas';
+  b.onclick = abrirPlanoMesas;
+  b.style.cssText = 'position:fixed;bottom:64px;left:14px;background:#2980b9;color:#fff;border:none;border-radius:30px;padding:11px 18px;font-size:0.92rem;font-weight:800;font-family:Segoe UI,Arial,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,0.4);z-index:9998;cursor:pointer;display:flex;align-items:center;gap:8px;';
+  b.innerHTML = '🗺️ Salón';
+  document.body.appendChild(b);
+}
+crearBotonPlano();
+
+window.abrirPlanoMesas = function(){
+  let modal = document.getElementById('modal-plano-mesas');
+  if(modal) modal.remove();
+  modal = document.createElement('div');
+  modal.id = 'modal-plano-mesas';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:Segoe UI,Arial,sans-serif;';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;max-width:820px;width:96%;max-height:90vh;overflow:auto;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+        <h2 style="margin:0;color:#1a1a2e;font-size:1.3rem;">🗺️ Salón — Plano de mesas</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label style="font-size:0.8rem;color:#555;">Mesas:</label>
+          <input id="inp-num-mesas" type="number" min="1" max="200" value="${numMesas()}" onchange="setNumMesas(this.value)" style="width:64px;padding:6px;border:1px solid #ccc;border-radius:6px;text-align:center;">
+          <button onclick="document.getElementById('modal-plano-mesas').remove()" style="background:#e74c3c;color:#fff;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1.1rem;font-weight:700;">✕</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;font-size:0.78rem;color:#666;margin-bottom:14px;flex-wrap:wrap;">
+        <span><span style="display:inline-block;width:12px;height:12px;background:#eafaf0;border:1px solid #27ae60;border-radius:3px;vertical-align:middle;"></span> Libre</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#fff6f5;border:1px solid #e67e22;border-radius:3px;vertical-align:middle;"></span> Ocupada</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#e74c3c;border-radius:3px;vertical-align:middle;"></span> Pedido nuevo</span>
+      </div>
+      <div id="plano-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:12px;"></div>
+    </div>`;
+  document.body.appendChild(modal);
+  renderPlanoMesas();
+};
+
+window.setNumMesas = function(v){
+  let n = parseInt(v,10); if(!n||n<1) n=20; if(n>200) n=200;
+  try{ localStorage.setItem('lp_num_mesas', String(n)); }catch(e){}
+  renderPlanoMesas();
+};
+
+function renderPlanoMesas(){
+  const grid = document.getElementById('plano-grid');
+  if(!grid) return;
+  const ped = (window.pedidosMesa||[]).filter(p => p.tipo !== 'delivery');
+  const data = {};
+  ped.forEach(p => {
+    const m = String(p.mesa||'?');
+    if(!data[m]) data[m] = { total:0, nuevo:false, rondas:0 };
+    data[m].total += Number(p.total)||0;
+    data[m].rondas += 1;
+    if(p.estado !== 'servido') data[m].nuevo = true;
+  });
+  let maxMesa = numMesas();
+  Object.keys(data).forEach(m => { const n = parseInt(m,10); if(n>maxMesa) maxMesa = n; });
+  let html = '';
+  for(let i=1;i<=maxMesa;i++){
+    const d = data[String(i)];
+    const ocupada = !!d;
+    const nuevo = ocupada && d.nuevo;
+    const bg = nuevo ? '#e74c3c' : (ocupada ? '#fff6f5' : '#eafaf0');
+    const bord = nuevo ? '#c0392b' : (ocupada ? '#e67e22' : '#27ae60');
+    const colTxt = nuevo ? '#fff' : '#1a1a2e';
+    const sub = ocupada
+      ? `<div style="font-size:1.15rem;font-weight:900;color:${nuevo?'#fff':'#c0392b'};margin-top:3px;">$${d.total.toLocaleString('es-AR')}</div><div style="font-size:0.68rem;color:${nuevo?'#ffecec':'#888'};">${d.rondas} pedido${d.rondas!==1?'s':''}${nuevo?' · NUEVO':''}</div>`
+      : `<div style="font-size:0.82rem;color:#27ae60;font-weight:700;margin-top:6px;">Libre</div>`;
+    html += `
+      <div onclick="${ocupada?`verMesaDetalle('${i}')`:''}" style="border:2px solid ${bord};background:${bg};border-radius:12px;padding:12px 8px;text-align:center;${ocupada?'cursor:pointer;':''}${nuevo?'animation:mesaPulse 1.2s ease-in-out infinite;':''}">
+        <div style="font-size:1.05rem;font-weight:900;color:${colTxt};">🪑 ${i}</div>
+        ${sub}
+      </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+window.verMesaDetalle = function(mesa){
+  const m = document.getElementById('modal-plano-mesas');
+  if(m) m.remove();
+  abrirPedidosMesa();
+};
+
 </script>
 <!-- ================ /PEDIDOS DE MESA (QR) ===================== -->
 
