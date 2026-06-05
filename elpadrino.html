@@ -1792,6 +1792,16 @@ setInterval(() => {
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <div class="header-date" id="hdate"></div>
+    <style>
+      #menu-herramientas-panel > button,
+      #menu-herramientas-panel > label{
+        width:100%;display:flex;align-items:center;gap:8px;
+        justify-content:flex-start;text-align:left;margin:0;white-space:nowrap;
+      }
+    </style>
+    <div id="menu-herramientas-wrap" style="position:relative;">
+    <button onclick="toggleMenuHerramientas(event)" id="btn-menu-herramientas" style="padding:10px 18px;border-radius:6px;border:1px solid #d4a020;background:#e8c84a;color:#1a1a2e;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;display:flex;align-items:center;gap:8px;">⚙️ Herramientas ▾</button>
+    <div id="menu-herramientas-panel" onclick="cerrarMenuHerramientas()" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:#1a1a2e;border:1px solid #3a3a5a;border-radius:10px;padding:8px;min-width:240px;box-shadow:0 14px 34px rgba(0,0,0,0.5);z-index:5000;flex-direction:column;gap:6px;">
     <button onclick="exportarBackup()" style="padding:10px 18px;border-radius:6px;border:1px solid #d4a020;background:#e8c84a;color:#1a1a2e;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">💾 Backup</button>
     <button onclick="exportarAExcel()" style="padding:10px 18px;border-radius:6px;border:1px solid #1f7c3e;background:#27ae60;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Exportar todo a un archivo Excel">📊 Excel</button>
     <button onclick="diagnosticoNumeros()" style="padding:10px 18px;border-radius:6px;border:1px solid #c00;background:#f55;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Diagnóstico de números">🔍 DIAG</button>
@@ -1805,8 +1815,26 @@ setInterval(() => {
     <button onclick="abrirPedidosMayoristas()" id="btn-pedidos-may" style="padding:10px 18px;border-radius:6px;border:1px solid #5a1a1a;background:#a52a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;position:relative;" title="Pedidos de clientes mayoristas">🛒 Pedidos May. <span id="badge-pedidos-nuevos" style="display:none;position:absolute;top:-6px;right:-6px;background:#fff;color:#a52a2a;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #a52a2a;"></span></button>
     <button onclick="abrirMigracionFotos()" id="btn-migracion-fotos" style="padding:10px 18px;border-radius:6px;border:1px solid #1a4d3a;background:#16a085;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;" title="Migrar fotos pesadas a Drive (libera espacio en Firebase)">📦 Liberar Espacio</button>
     <button onclick="cerrarSesion()" style="padding:10px 18px;border-radius:6px;border:1px solid #6b1818;background:#8b2a2a;color:#fff;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Segoe UI',Tahoma,Arial,sans-serif;">🚪 Cerrar sesión</button>
+    </div>
+    </div>
   </div>
 </div>
+<script>
+  function toggleMenuHerramientas(e){
+    if(e){ e.stopPropagation(); }
+    var p = document.getElementById('menu-herramientas-panel');
+    if(!p) return;
+    p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
+  }
+  function cerrarMenuHerramientas(){
+    var p = document.getElementById('menu-herramientas-panel');
+    if(p) p.style.display = 'none';
+  }
+  document.addEventListener('click', function(ev){
+    var w = document.getElementById('menu-herramientas-wrap');
+    if(w && !w.contains(ev.target)) cerrarMenuHerramientas();
+  });
+</script>
 
 <!-- Elementos ocultos para compatibilidad con funciones existentes -->
 <div style="display:none;">
