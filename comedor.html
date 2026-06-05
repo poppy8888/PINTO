@@ -775,29 +775,45 @@ function abrirItemMod(id=null){
   oM('mod-item');
 }
 async function subirFotoItem(e){
-  const f=e.target.files[0];if(!f||!sb)return;
-  const st=document.getElementById('i-foto-st');st.textContent='⏳ Subiendo...';
+  const f=e.target.files[0];if(!f)return;
+  const st=document.getElementById('i-foto-st');st.textContent='⏳ Procesando...';
   const r=new FileReader();
   r.onload=async(ev)=>{
     const img=new Image();
     img.onload=async()=>{
+      // Redimensionar a máx 480px
       const M=480;let w=img.width,h=img.height;
-      if(w>h){if(w>M){h=h*(M/w);w=M;}}else{if(h>M){w=w*(M/h);h=M;}}
+      if(w>h){if(w>M){h=Math.round(h*(M/w));w=M;}}else{if(h>M){w=Math.round(w*(M/h));h=M;}}
       const cv=document.createElement('canvas');cv.width=w;cv.height=h;
       cv.getContext('2d').drawImage(img,0,0,w,h);
-      const durl=cv.toDataURL('image/jpeg',0.82);
-      const m=durl.match(/^data:(.+?);base64,(.+)$/);
-      const bin=atob(m[2]);const bytes=new Uint8Array(bin.length);
-      for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
-      const blob=new Blob([bytes],{type:m[1]});
-      const fn='plato_'+Date.now()+'.jpg';
-      const{data,error}=await sb.storage.from('comedor-fotos').upload(fn,blob,{upsert:true,contentType:m[1]});
-      if(error){st.textContent='❌ Error';return;}
-      const{data:pub}=sb.storage.from('comedor-fotos').getPublicUrl(data.path);
-      document.getElementById('i-foto').value=pub.publicUrl;
-      st.textContent='✅ Foto subida';
-    };img.src=ev.target.result;
-  };r.readAsDataURL(f);
+      const durl=cv.toDataURL('image/jpeg',0.78);
+
+      // Intentar subir a Supabase Storage primero
+      if(sb){
+        try{
+          const m2=durl.match(/^data:(.+?);base64,(.+)$/);
+          const bin=atob(m2[2]);const bytes=new Uint8Array(bin.length);
+          for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+          const blob=new Blob([bytes],{type:m2[1]});
+          const fn='plato_'+Date.now()+'.jpg';
+          const{data,error}=await sb.storage.from('comedor-fotos').upload(fn,blob,{upsert:true,contentType:'image/jpeg'});
+          if(!error){
+            const{data:pub}=sb.storage.from('comedor-fotos').getPublicUrl(data.path);
+            document.getElementById('i-foto').value=pub.publicUrl;
+            st.textContent='✅ Foto subida';
+            return;
+          }
+        }catch(err){console.warn('Storage no disponible, usando base64');}
+      }
+
+      // Fallback: guardar imagen comprimida como base64 en la BD
+      document.getElementById('i-foto').value=durl;
+      st.textContent='✅ Foto lista';
+    };
+    img.onerror=()=>{st.textContent='❌ No se pudo leer la imagen';};
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(f);
 }
 async function guardarItem(){
   const id=$v('ied'),nom=$v('i-nom').trim(),pre=parseFloat($v('i-pre')),des=$v('i-des').trim(),foto=$v('i-foto').trim(),cat=$v('i-cat'),disp=document.getElementById('i-disp').checked;
