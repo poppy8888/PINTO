@@ -17123,6 +17123,36 @@ window.BACKUPS = {
 </script>
 <!-- ====================== /FIREBASE SYNC ======================== -->
 
+<!-- Puente: cargar los productos de una mesa en el carrito de Ventas (acceso directo) -->
+<script>
+window.cargarMesaEnVentas = function(items){
+  try{
+    if(typeof vuTicket === 'undefined'){ return false; }
+    vuTicket.length = 0;
+    (items||[]).forEach(function(it){
+      var prod = (typeof productos !== 'undefined' ? productos : []).find(function(p){ return p && p.nombre === it.nombre; });
+      var cant = Number(it.cant)||1;
+      var precio = Number(it.precio)||0;
+      vuTicket.push({
+        tipo: (prod && prod.esCigarrillo) ? 'cigarrillo' : 'producto',
+        prodId: prod ? prod.id : null,
+        nombre: it.nombre,
+        cantidad: cant,
+        precioUnit: precio,
+        subtotal: cant * precio,
+        esDespacho: false
+      });
+    });
+    if(typeof vuRenderTicket === 'function') vuRenderTicket();
+    if(typeof showTab === 'function'){
+      var tabVentas = document.querySelector('button.tab');
+      showTab('surtidor', tabVentas || undefined);
+    }
+    return true;
+  }catch(e){ console.error('cargarMesaEnVentas:', e); return false; }
+};
+</script>
+
 <!-- ============================================================ -->
 <!-- ================ PEDIDOS DE MESA (QR) ====================== -->
 <!-- ============================================================ -->
@@ -17136,12 +17166,20 @@ const dbMesa = getFirestore(getApp());   // reutiliza el mismo proyecto Firebase
 // Categorías (familias) que se muestran en el menú del QR. Vacío = todas.
 let familiasMenu = [];
 try { familiasMenu = JSON.parse(localStorage.getItem('lp_menu_familias') || '[]'); } catch(e){ familiasMenu = []; }
+let whatsappComedor = '';
+try{ whatsappComedor = localStorage.getItem('lp_whatsapp')||''; }catch(e){}
 async function cargarFamiliasMenu(){
   try{
     const s = await getDoc(doc(dbMesa,'menuPublico','config'));
-    if(s.exists() && Array.isArray(s.data().familias)){
-      familiasMenu = s.data().familias;
-      try { localStorage.setItem('lp_menu_familias', JSON.stringify(familiasMenu)); } catch(e){}
+    if(s.exists()){
+      if(Array.isArray(s.data().familias)){
+        familiasMenu = s.data().familias;
+        try { localStorage.setItem('lp_menu_familias', JSON.stringify(familiasMenu)); } catch(e){}
+      }
+      if(typeof s.data().whatsapp === 'string'){
+        whatsappComedor = s.data().whatsapp;
+        try { localStorage.setItem('lp_whatsapp', whatsappComedor); } catch(e){}
+      }
     }
   }catch(e){}
 }
@@ -17209,19 +17247,29 @@ const colMesa = collection(dbMesa, 'pedidosMesa');
 window.pedidosMesa = [];
 let _cantPrevia = -1;
 
-function beepPedido(){
+let _audioCtx = null;
+function getCtx(){
   try{
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.type = 'sine'; o.frequency.value = 880;
-    g.gain.setValueAtTime(0.001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-    o.start(); o.stop(ctx.currentTime + 0.5);
-  }catch(e){}
+    if(!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(_audioCtx.state === 'suspended') _audioCtx.resume();
+    return _audioCtx;
+  }catch(e){ return null; }
 }
+// desbloquear el audio en la primera interacción del usuario
+['click','keydown','touchstart'].forEach(ev => document.addEventListener(ev, getCtx, true));
+function tono(freq, start, dur, vol){
+  const ctx = getCtx(); if(!ctx) return;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type = 'sine'; o.frequency.value = freq;
+  const t = ctx.currentTime + start;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol || 0.5, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.start(t); o.stop(t + dur + 0.03);
+}
+function beepPedido(){ tono(880, 0, 0.45, 0.5); }
+function beepLlamada(){ tono(988,0,0.22,0.6); tono(740,0.26,0.22,0.6); tono(988,0.52,0.45,0.6); }
 
 // ---- alerta repetida (sonido + parpadeo del título) hasta abrir la lista ----
 let _alerta = null;
@@ -17450,12 +17498,24 @@ window.cobrarMesa = async function(mesa){
   const rondas = (window.pedidosMesa||[]).filter(p => p.tipo !== 'delivery' && String(p.mesa) === String(mesa));
   if(!rondas.length) return;
   const total = rondas.reduce((s,r)=>s+(Number(r.total)||0),0);
-  if(!confirm('Cobrar la Mesa ' + mesa + ' por $' + total.toLocaleString('es-AR') + ' y cerrarla?\n\nSe borra la cuenta de esta mesa.')) return;
-  imprimirCuentaMesa(mesa, rondas, total);
+  if(!confirm('Cobrar la Mesa ' + mesa + ' por $' + total.toLocaleString('es-AR') + ' ?\n\nSe cargan los productos en la pantalla VENTAS para elegir forma de pago y cobrar (con vuelto), y la mesa se cierra.')) return;
+
+  // juntar todos los items de la mesa
+  const items = [];
+  rondas.forEach(r => (r.items||[]).forEach(it => items.push(it)));
+
+  // cargar en el carrito de Ventas usando el puente (acceso directo al carrito)
+  if(typeof window.cargarMesaEnVentas === 'function'){
+    window.cargarMesaEnVentas(items);
+  }
+
+  // cerrar el modal de pedidos y la mesa (liberarla)
+  const modal = document.getElementById('modal-pedidos-mesa'); if(modal) modal.remove();
   try{
     for(const r of rondas){ await deleteDoc(doc(dbMesa, 'pedidosMesa', r.id)); }
-    if(typeof toast === 'function') toast('\ud83d\udcb0 Mesa ' + mesa + ' cobrada y cerrada');
-  }catch(err){ console.error(err); alert('No se pudo cerrar la mesa. Revis\u00e1 la conexi\u00f3n.'); }
+  }catch(err){ console.error('cobrarMesa cerrar:', err); }
+
+  if(typeof toast === 'function') toast('\ud83e\uddfe Mesa ' + mesa + ' cargada en Ventas. Eleg\u00ed forma de pago y tocá COBRAR.');
 };
 
 function imprimirCuentaMesa(mesa, rondas, total){
@@ -17508,6 +17568,11 @@ window.abrirConfigMenuQR = function(){
       <p style="font-size:0.85rem;color:#666;margin-bottom:14px;">Marcá las categorías de <b>comidas y bebidas</b> que querés que vean los clientes en la mesa. Lo que no marques no aparece en el QR (lo seguís vendiendo normal desde el sistema).</p>
       <div style="border:1px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:12px;">${filas}</div>
       <p style="font-size:0.78rem;color:#999;margin-bottom:14px;">Si no marcás ninguna, se muestran todas.</p>
+      <div style="border-top:1px solid #eee;padding-top:12px;margin-bottom:14px;">
+        <label style="display:block;font-size:0.85rem;color:#333;font-weight:700;margin-bottom:4px;">📱 WhatsApp del comedor (para pedidos por WhatsApp)</label>
+        <input id="cfg-whatsapp" type="text" value="${esc(whatsappComedor||'')}" placeholder="Ej: 5493854102266" style="width:100%;padding:9px 12px;border:1px solid #ccc;border-radius:6px;font-size:0.95rem;">
+        <div style="font-size:0.72rem;color:#999;margin-top:4px;">Código de país + número, sin espacios ni signo +. (Argentina: 549 + característica sin 0 + número sin 15).</div>
+      </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
         <button onclick="document.getElementById('modal-config-menu-qr').remove()" style="background:#eee;color:#333;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;font-weight:700;">Cancelar</button>
         <button onclick="guardarConfigMenuQR()" style="background:#27ae60;color:#fff;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;font-weight:700;">Guardar y publicar</button>
@@ -17519,11 +17584,14 @@ window.guardarConfigMenuQR = async function(){
   const modal = document.getElementById('modal-config-menu-qr');
   if(!modal) return;
   familiasMenu = Array.from(modal.querySelectorAll('input[type=checkbox]:checked')).map(c => c.value);
+  const wsp = ((modal.querySelector('#cfg-whatsapp') && modal.querySelector('#cfg-whatsapp').value) || '').replace(/[^0-9]/g,'');
+  whatsappComedor = wsp;
   try { localStorage.setItem('lp_menu_familias', JSON.stringify(familiasMenu)); } catch(e){}
-  try { await setDoc(doc(dbMesa,'menuPublico','config'), { familias: familiasMenu, actualizado: Date.now() }); } catch(e){}
+  try { localStorage.setItem('lp_whatsapp', whatsappComedor); } catch(e){}
+  try { await setDoc(doc(dbMesa,'menuPublico','config'), { familias: familiasMenu, whatsapp: whatsappComedor, actualizado: Date.now() }); } catch(e){}
   await publicarMenu();
   modal.remove();
-  if(typeof toast === 'function') toast('✅ Menú del QR actualizado');
+  if(typeof toast === 'function') toast('✅ Configuración guardada');
 };
 
 // ---------- 5) PLANO / SALÓN DE MESAS ----------
@@ -17593,6 +17661,7 @@ function renderPlanoMesas(){
   let html = '';
   for(let i=1;i<=maxMesa;i++){
     const d = data[String(i)];
+    const llamando = (window.llamadasMesa||[]).some(l => String(l.mesa)===String(i));
     const ocupada = !!d;
     const nuevo = ocupada && d.nuevo;
     const bg = nuevo ? '#e74c3c' : (ocupada ? '#fff6f5' : '#eafaf0');
@@ -17603,7 +17672,7 @@ function renderPlanoMesas(){
       : `<div style="font-size:0.82rem;color:#27ae60;font-weight:700;margin-top:6px;">Libre</div>`;
     html += `
       <div onclick="${ocupada?`verMesaDetalle('${i}')`:''}" style="border:2px solid ${bord};background:${bg};border-radius:12px;padding:12px 8px;text-align:center;${ocupada?'cursor:pointer;':''}${nuevo?'animation:mesaPulse 1.2s ease-in-out infinite;':''}">
-        <div style="font-size:1.05rem;font-weight:900;color:${colTxt};">🪑 ${i}</div>
+        <div style="font-size:1.05rem;font-weight:900;color:${colTxt};">${llamando?'🔔 ':''}🪑 ${i}</div>
         ${sub}
       </div>`;
   }
@@ -17615,6 +17684,51 @@ window.verMesaDetalle = function(mesa){
   if(m) m.remove();
   abrirPedidosMesa();
 };
+
+
+// ---------- 6) LLAMADOR DE MESAS (el cliente llama al mozo) ----------
+const colLlamadas = collection(dbMesa, 'llamadasMesa');
+window.llamadasMesa = [];
+let _cantLlamadasPrev = -1;
+
+function crearContenedorLlamadas(){
+  if(document.getElementById('llamadas-cont')) return;
+  const c = document.createElement('div');
+  c.id = 'llamadas-cont';
+  c.style.cssText = 'position:fixed;top:66px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;align-items:center;max-width:92%;';
+  document.body.appendChild(c);
+}
+crearContenedorLlamadas();
+
+function renderLlamadas(){
+  const c = document.getElementById('llamadas-cont');
+  if(!c) return;
+  c.innerHTML = (window.llamadasMesa||[]).map(l => `
+    <div style="background:#f39c12;color:#1a1a2e;border-radius:30px;padding:10px 18px;box-shadow:0 8px 24px rgba(0,0,0,0.4);display:flex;align-items:center;gap:14px;font-family:Segoe UI,Arial,sans-serif;font-weight:800;animation:mesaPulse 1.1s ease-in-out infinite;">
+      <span>🔔 La Mesa ${esc(String(l.mesa||'?'))} te llama${l.motivo?(' — '+esc(l.motivo)):''}</span>
+      <button onclick="atenderLlamada('${l.id}')" style="background:#1a1a2e;color:#fff;border:none;padding:7px 16px;border-radius:20px;cursor:pointer;font-weight:700;">Atender ✓</button>
+    </div>`).join('');
+}
+
+window.atenderLlamada = async function(id){
+  try{ await deleteDoc(doc(dbMesa, 'llamadasMesa', id)); }
+  catch(e){ console.error(e); }
+};
+
+onSnapshot(colLlamadas, (snap) => {
+  const arr = [];
+  snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
+  arr.sort((a,b) => (a.timestampMs||0) - (b.timestampMs||0));
+  window.llamadasMesa = arr;
+  renderLlamadas();
+  if(_cantLlamadasPrev !== -1 && arr.length > _cantLlamadasPrev){
+    beepLlamada();
+    setTimeout(beepLlamada, 1000);   // alarma de llamada, repetida
+    if(typeof toast === 'function') toast('🔔 ¡Una mesa te está llamando!');
+  }
+  if(document.getElementById('modal-plano-mesas')) renderPlanoMesas();
+  _cantLlamadasPrev = arr.length;
+});
 
 </script>
 <!-- ================ /PEDIDOS DE MESA (QR) ===================== -->
