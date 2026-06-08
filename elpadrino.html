@@ -16401,6 +16401,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, doc, setDoc, getDoc, onSnapshot, enableIndexedDbPersistence,
          collection, addDoc, query, orderBy, limit, getDocs, deleteDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInAnonymously, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAIxSOounkM70XyJGLNe5KJHy0v4JA1UU8",
@@ -16414,6 +16416,24 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
+
+// ====== LOGIN ANÓNIMO: autentica en segundo plano para que las reglas
+// de seguridad de Firebase puedan exigir usuario logueado. Es invisible
+// para el usuario (no tiene que escribir nada). ======
+const _auth = getAuth(app);
+// Promesa que se resuelve cuando ya estamos autenticados.
+// Toda la sincronización debe esperar a que esto termine.
+window._fbAuthListo = new Promise((resolve) => {
+  onAuthStateChanged(_auth, (user) => {
+    if(user){ resolve(user); }
+  });
+  signInAnonymously(_auth).catch((err) => {
+    console.error('Firebase login anónimo:', err);
+    // Si falla el login, resolvemos igual para no bloquear el programa
+    // (quedaría como antes, sin auth, pero al menos funciona)
+    resolve(null);
+  });
+});
 
 // Habilitar persistencia offline: si se cae internet, sigue funcionando
 enableIndexedDbPersistence(db).catch(err => {
@@ -16662,6 +16682,9 @@ function fbAplicarDatosRemotos(datos){
 }
 
 // ====== ESCUCHAR cambios en tiempo real ======
+// Esperamos a que el login anónimo esté listo ANTES de conectar el listener,
+// así nunca intentamos leer/escribir sin estar autenticados.
+window._fbAuthListo.then(() => {
 onSnapshot(docRef, (snapshot) => {
   if(!snapshot.exists()){
     // Primera vez: subir los datos locales que ya tenemos
@@ -16687,6 +16710,7 @@ onSnapshot(docRef, (snapshot) => {
 }, (err) => {
   console.error('Firebase onSnapshot:', err);
   fbEstado('⚠️', 'Error de conexión', '#c0392b');
+});
 });
 
 // ====== INTERCEPTAR saveAll para que también suba a Firebase ======
@@ -16742,7 +16766,8 @@ import { onSnapshot as onSnapshotMay } from "https://www.gstatic.com/firebasejs/
 
 const colPedidosMay = collection(db, 'pedidosMayoristas');
 
-// Escuchar cambios en tiempo real
+// Escuchar cambios en tiempo real (esperando el login anónimo)
+window._fbAuthListo.then(() => {
 onSnapshotMay(colPedidosMay, (snap) => {
   const pedidos = [];
   snap.forEach(d => pedidos.push({ id: d.id, ...d.data() }));
@@ -16759,6 +16784,7 @@ onSnapshotMay(colPedidosMay, (snap) => {
   }
 }, (err) => {
   console.warn('Pedidos mayoristas listener:', err);
+});
 });
 
 window.FBPedidos = {
