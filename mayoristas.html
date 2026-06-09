@@ -230,8 +230,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
-// ⚠️ IMPORTANTE: la colección se llama "estacion" (igual que en el sistema admin)
-const docRef = doc(db, 'estacion', 'datos_principales');
+// Lee del catálogo PÚBLICO (copia limpia), no de 'estacion' que está protegido
+const docRef = doc(db, 'catalogoPublico', 'actual');
 
 // Estado de la app
 const state = {
@@ -255,12 +255,12 @@ setTimeout(() => {
 onSnapshot(docRef, (snap) => {
   _firebaseListo = true;
   if(!snap.exists()){
-    console.warn('Documento principal no existe');
+    console.warn('Catálogo público no existe');
     return;
   }
   const data = snap.data();
-  state.productos = data.productos || [];
-  state.clientes  = data.clientes || [];
+  state.productos = data.items || [];
+  state.clientes  = data.mayoristas || [];
   _datosCargados = true;
   console.log('📡 Datos recibidos: ' + state.productos.length + ' productos, ' + state.clientes.length + ' clientes');
   // Si ya estábamos logueados, refrescar la UI
