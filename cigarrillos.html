@@ -16367,6 +16367,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, doc, setDoc, getDoc, onSnapshot, enableIndexedDbPersistence,
          collection, addDoc, query, orderBy, limit, getDocs, deleteDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInAnonymously, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBfIyFUkg3Ys8Z66AAaqmn42CQ1B9i9eug",
@@ -16380,6 +16382,17 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
+
+// ====== LOGIN ANÓNIMO: autentica en segundo plano (invisible para el
+// usuario) para que las reglas de seguridad puedan exigir usuario logueado. ======
+const _auth = getAuth(app);
+window._fbAuthListo = new Promise((resolve) => {
+  onAuthStateChanged(_auth, (user) => { if(user){ resolve(user); } });
+  signInAnonymously(_auth).catch((err) => {
+    console.error('Firebase login anónimo:', err);
+    resolve(null);
+  });
+});
 
 // Habilitar persistencia offline: si se cae internet, sigue funcionando
 enableIndexedDbPersistence(db).catch(err => {
@@ -16443,6 +16456,45 @@ async function fbSubir(){
     _ultimoCambioLocal = datos._meta.timestamp;
     await setDoc(docRef, datos);
     fbEstado('✅', 'Sincronizado', '#27500a');
+
+    // ====== PUBLICAR CATÁLOGO PÚBLICO ======
+    // Copia LIMPIA solo con los campos que necesitan las páginas públicas
+    // (catálogo de cigarrillos y mayoristas). NO incluye costos, clientes,
+    // ventas ni stock. Así esas páginas leen de acá y NO de 'estacion',
+    // que queda protegido por las reglas de seguridad.
+    try {
+      const prods = (typeof productos !== 'undefined' ? productos : []) || [];
+      const itemsPublicos = prods
+        .filter(p => p && p.nombre)
+        .map(p => ({
+          id: p.id,
+          nombre: p.nombre || '',
+          marca: p.marca || '',
+          familia: p.familia || '',
+          foto: p.foto || '',
+          barcode: p.barcode || '',
+          esCigarrillo: !!p.esCigarrillo,
+          // precio de venta normal y precio lista 2 (mayorista). Sin costos.
+          precio: Number(p.precio) || 0,
+          precioLista2: Number(p.precioLista2) || 0
+        }));
+      await setDoc(doc(db, 'catalogoPublico', 'actual'), {
+        items: itemsPublicos,
+        // Lista MÍNIMA de clientes mayoristas: solo lo necesario para el login
+        // (WhatsApp y clave). NO se incluye dirección, saldo, ni historial.
+        mayoristas: ((typeof clientes !== 'undefined' ? clientes : []) || [])
+          .filter(c => c && c.esMayorista && c.claveMayorista)
+          .map(c => ({
+            id: c.id,
+            nombre: c.nombre || '',
+            whatsappMayorista: c.whatsappMayorista || '',
+            claveMayorista: c.claveMayorista || ''
+          })),
+        actualizado: Date.now()
+      });
+    } catch(ePub){
+      console.warn('Catálogo público no se pudo publicar:', ePub);
+    }
   } catch (err) {
     console.error('Firebase subir:', err);
     fbEstado('⚠️', 'Sin internet — datos locales', '#c0392b');
@@ -16628,6 +16680,7 @@ function fbAplicarDatosRemotos(datos){
 }
 
 // ====== ESCUCHAR cambios en tiempo real ======
+window._fbAuthListo.then(() => {
 onSnapshot(docRef, (snapshot) => {
   if(!snapshot.exists()){
     // Primera vez: subir los datos locales que ya tenemos
@@ -16653,6 +16706,7 @@ onSnapshot(docRef, (snapshot) => {
 }, (err) => {
   console.error('Firebase onSnapshot:', err);
   fbEstado('⚠️', 'Error de conexión', '#c0392b');
+});
 });
 
 // ====== INTERCEPTAR saveAll para que también suba a Firebase ======
