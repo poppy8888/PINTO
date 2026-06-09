@@ -145,7 +145,8 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
-const docRef = doc(db, 'estacion', 'datos_principales');
+// Lee del catálogo PÚBLICO (copia limpia sin datos privados), no de 'estacion'
+const docRef = doc(db, 'catalogoPublico', 'actual');
 
 const state = { productos: [], filtro: 'todas', carrito: {} };
 
@@ -173,7 +174,7 @@ onSnapshot(docRef, (snap) => {
     document.getElementById('productos').innerHTML = '<div class="sin">No hay catálogo cargado todavía.</div>';
     return;
   }
-  state.productos = snap.data().productos || [];
+  state.productos = snap.data().items || [];
   renderChips();
   renderProductos();
 }, (err) => {
