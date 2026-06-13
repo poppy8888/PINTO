@@ -285,13 +285,16 @@ await new Promise(r => {
 });
 console.log('Auth OK, cargando datos...');
 
-let allProds = [], allStock = {}, whatsapp = '', familiaActual = '', busqueda = '';
+let allProds = [], allStock = {}, whatsapp = '', mostrarPrecios = true, familiaActual = '', busqueda = '';
 let carrito = [];
 try { const s = sessionStorage.getItem('cg_cart'); if(s) carrito = JSON.parse(s); } catch(e){}
 
 // Config (WhatsApp) - no bloqueante
 getDoc(doc(db, "config", "catalogo")).then(snap => {
-  if(snap.exists()) whatsapp = snap.data().whatsapp || '';
+  if(snap.exists()){
+    whatsapp = snap.data().whatsapp || '';
+    mostrarPrecios = snap.data().mostrarPrecios !== false;
+  }
 }).catch(e => console.log('Config no disponible'));
 
 // Productos en tiempo real
@@ -370,7 +373,7 @@ function renderProds(){
         <div class="prod-fam">${p.familia||p.marca||''}</div>
         <div class="prod-name">${p.nombre||''}</div>
         <div class="prod-foot">
-          <div class="prod-price">$${fmtN(precio)}${p.tipo==='peso'?'<small>/kg</small>':''}</div>
+          <div class="prod-price">${mostrarPrecios ? '$'+fmtN(precio)+(p.tipo==='peso'?'<small>/kg</small>':'') : '<span style="color:#f5c500;font-size:0.8rem;">Consultar</span>'}</div>
           <button class="prod-add" onclick="window._addCart(${p.id},event)">+</button>
         </div>
       </div>
@@ -425,7 +428,7 @@ function renderProdsSearch(){
         <div class="prod-fam">${p.familia||p.marca||''}</div>
         <div class="prod-name">${p.nombre||''}</div>
         <div class="prod-foot">
-          <div class="prod-price">$${fmtN(precio)}</div>
+          <div class="prod-price">${mostrarPrecios ? '$'+fmtN(precio) : '<span style="color:#f5c500;font-size:0.8rem;">Consultar</span>'}</div>
           <button class="prod-add" onclick="window._addCart(${p.id},event)">+</button>
         </div>
       </div>
