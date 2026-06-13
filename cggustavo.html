@@ -3082,6 +3082,7 @@ setInterval(() => {
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
       <span id="cat-contador" style="font-size:0.75rem;color:#f5c500;font-weight:700;"></span>
+      <button onclick="catTogglePrecios()" id="btn-toggle-precios" style="padding:8px 14px;background:#333;color:#fff;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">💲 Ocultar precios</button>
       <button onclick="catConfigWA()" style="padding:8px 14px;background:#25d366;color:#fff;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">📱 WhatsApp pedidos</button>
       <button onclick="window.open('gustavocatalogo.html','_blank')" style="padding:8px 14px;background:#f5c500;color:#1a1a1a;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">👁️ Ver catálogo público</button>
     </div>
@@ -3102,6 +3103,17 @@ setInterval(() => {
   </div>
 
   <div id="cat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+
+  <!-- PEDIDOS RECIBIDOS -->
+  <div id="cat-pedidos-section" style="margin-top:20px;">
+    <div style="background:#1a1a1a;color:#fff;padding:12px 18px;border-radius:8px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:1rem;font-weight:800;">📋 Pedidos recibidos</span>
+      <span id="cat-pedidos-badge" style="background:#e24b4a;color:#fff;padding:3px 10px;border-radius:12px;font-size:0.75rem;font-weight:700;display:none;">0 nuevos</span>
+    </div>
+    <div id="cat-pedidos-list" style="font-size:0.85rem;color:#888;text-align:center;padding:20px;">
+      Cargando pedidos...
+    </div>
+  </div>
 </div>
 
 <!-- PANEL SURTIDOR -->
@@ -35229,7 +35241,7 @@ function showTab(name,btn){
   if(name==='pedidos'){ renderPedidos(); }
   if(name==='etiquetas'){ inicializarEtiquetas(); }
   if(name==='cigarrillos'){ if(typeof renderCigarrillos === 'function') renderCigarrillos(); }
-  if(name==='catalogo'){ renderCatalogo(); }
+  if(name==='catalogo'){ renderCatalogo(); initPedidosListener(); cargarEstadoPrecios(); }
 }
 
 // ========== CATÁLOGO (gestión) ==========
@@ -35313,11 +35325,183 @@ function catToggle(id, val){
 }
 
 // ── WhatsApp Config para pedidos ──
+
+// ── PEDIDOS EN TIEMPO REAL ──
+let _pedidosListener = null;
+let _pedidosCount = 0;
+
+// ── TOGGLE PRECIOS ──
+async function catTogglePrecios(){
+  try {
+    const { initializeApp, getApps, getApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getFirestore, doc: fbDoc, getDoc: fbGet, setDoc: fbSet } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const cfg = {apiKey:"AIzaSyBYHIviddPZ389w-2Ve_Gg7HRISkUpmWMM",authDomain:"mayorista-41be3.firebaseapp.com",projectId:"mayorista-41be3",storageBucket:"mayorista-41be3.firebasestorage.app",messagingSenderId:"957550135985",appId:"1:957550135985:web:d5cc026da122449b7c7090"};
+    const fbApp = getApps().length ? getApp() : initializeApp(cfg);
+    const fbDb = getFirestore(fbApp);
+    const cfgRef = fbDoc(fbDb, "config", "catalogo");
+    let actual = true;
+    try { const snap = await fbGet(cfgRef); if(snap.exists()) actual = snap.data().mostrarPrecios !== false; } catch(e){}
+    const nuevo = !actual;
+    await fbSet(cfgRef, { mostrarPrecios: nuevo }, { merge: true });
+    const btn = document.getElementById('btn-toggle-precios');
+    btn.textContent = nuevo ? '💲 Ocultar precios' : '👁️ Mostrar precios';
+    btn.style.background = nuevo ? '#333' : '#e24b4a';
+    alert(nuevo ? '✅ Precios VISIBLES en el catálogo' : '🚫 Precios OCULTOS — el cliente ve "Consultar precio"');
+  } catch(err){ alert('❌ Error: ' + err.message); }
+}
+
+// Cargar estado del toggle al abrir catálogo
+async function cargarEstadoPrecios(){
+  try {
+    const { initializeApp, getApps, getApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getFirestore, doc: fbDoc, getDoc: fbGet } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const cfg = {apiKey:"AIzaSyBYHIviddPZ389w-2Ve_Gg7HRISkUpmWMM",authDomain:"mayorista-41be3.firebaseapp.com",projectId:"mayorista-41be3",storageBucket:"mayorista-41be3.firebasestorage.app",messagingSenderId:"957550135985",appId:"1:957550135985:web:d5cc026da122449b7c7090"};
+    const fbApp = getApps().length ? getApp() : initializeApp(cfg);
+    const fbDb = getFirestore(fbApp);
+    const snap = await fbGet(fbDoc(fbDb, "config", "catalogo"));
+    if(snap.exists()){
+      const mostrar = snap.data().mostrarPrecios !== false;
+      const btn = document.getElementById('btn-toggle-precios');
+      btn.textContent = mostrar ? '💲 Ocultar precios' : '👁️ Mostrar precios';
+      btn.style.background = mostrar ? '#333' : '#e24b4a';
+    }
+  } catch(e){}
+}
+
+// ── CONFIRMAR PEDIDO ──
+async function confirmarPedidoCat(pedidoId, clienteNom, clienteTel, totalOriginal){
+  const montoReal = prompt(`Factura real para ${clienteNom}\n\nMonto original del pedido: $${Number(totalOriginal).toLocaleString('es-AR')}\n\nPoné el monto real facturado:`, totalOriginal);
+  if(montoReal === null) return;
+  const monto = parseFloat(montoReal.replace(/[^0-9.,]/g,'').replace(',','.'));
+  if(isNaN(monto)){ alert('Monto inválido'); return; }
+
+  try {
+    const { initializeApp, getApps, getApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getFirestore, doc: fbDoc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const cfg = {apiKey:"AIzaSyBYHIviddPZ389w-2Ve_Gg7HRISkUpmWMM",authDomain:"mayorista-41be3.firebaseapp.com",projectId:"mayorista-41be3",storageBucket:"mayorista-41be3.firebasestorage.app",messagingSenderId:"957550135985",appId:"1:957550135985:web:d5cc026da122449b7c7090"};
+    const fbApp = getApps().length ? getApp() : initializeApp(cfg);
+    const fbDb = getFirestore(fbApp);
+    await updateDoc(fbDoc(fbDb, "pedidos", pedidoId), {
+      estado: 'confirmado',
+      totalFacturado: monto
+    });
+
+    // Enviar WhatsApp al cliente
+    if(clienteTel){
+      const tel = clienteTel.replace(/\D/g,'');
+      const msg = `✅ *CG Distribución*\n\nHola ${clienteNom}, tu pedido fue confirmado.\n💰 Total facturado: *$${monto.toLocaleString('es-AR')}*\n\n¡Gracias por tu compra!`;
+      if(confirm(`¿Enviar mensaje de confirmación por WhatsApp a ${clienteNom}?`)){
+        window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`,'_blank');
+      }
+    }
+  } catch(err){
+    alert('❌ Error: ' + err.message);
+  }
+}
+
+function initPedidosListener(){
+  if(_pedidosListener) return; // ya escuchando
+  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js").then(({initializeApp, getApps, getApp}) => {
+    import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({getFirestore, collection, onSnapshot, query, orderBy, limit}) => {
+      const cfg = {
+        apiKey: "AIzaSyBYHIviddPZ389w-2Ve_Gg7HRISkUpmWMM",
+        authDomain: "mayorista-41be3.firebaseapp.com",
+        projectId: "mayorista-41be3",
+        storageBucket: "mayorista-41be3.firebasestorage.app",
+        messagingSenderId: "957550135985",
+        appId: "1:957550135985:web:d5cc026da122449b7c7090"
+      };
+      const fbApp = getApps().length ? getApp() : initializeApp(cfg);
+      const fbDb = getFirestore(fbApp);
+      const q = query(collection(fbDb, "pedidos"), orderBy("fecha", "desc"), limit(20));
+      _pedidosListener = onSnapshot(q, (snap) => {
+        const pedidos = [];
+        snap.forEach(d => pedidos.push({id: d.id, ...d.data()}));
+        renderPedidosCat(pedidos);
+        // Notificar si hay nuevos
+        if(_pedidosCount > 0 && pedidos.length > _pedidosCount){
+          const nuevo = pedidos[0];
+          catToastPedido(`🔔 Nuevo pedido de ${nuevo.cliente || 'cliente'} — $${Number(nuevo.total||0).toLocaleString('es-AR')}`);
+          try { new Audio('data:audio/wav;base64,UklGRl9vT19teleGZvcm1hdAAA').play(); } catch(e){}
+        }
+        _pedidosCount = pedidos.length;
+      }, (err) => {
+        console.error('Error pedidos:', err);
+        document.getElementById('cat-pedidos-list').innerHTML = '<div style="color:#e24b4a;padding:16px;">⚠️ Error al cargar pedidos. Verificá las reglas de Firestore.</div>';
+      });
+    });
+  });
+}
+
+function renderPedidosCat(pedidos){
+  const div = document.getElementById('cat-pedidos-list');
+  const badge = document.getElementById('cat-pedidos-badge');
+
+  const pendientes = pedidos.filter(p => p.estado === 'pendiente').length;
+  if(pendientes > 0){
+    badge.style.display = '';
+    badge.textContent = `${pendientes} pendiente${pendientes>1?'s':''}`;
+  } else {
+    badge.style.display = 'none';
+  }
+
+  if(pedidos.length === 0){
+    div.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;">No hay pedidos todavía</div>';
+    return;
+  }
+
+  div.innerHTML = pedidos.map(p => {
+    const fecha = p.fecha ? new Date(p.fecha) : new Date();
+    const hoy = new Date();
+    const esHoy = fecha.toDateString() === hoy.toDateString();
+    const fechaStr = esHoy ? fecha.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) : fecha.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'}) + ' ' + fecha.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    const estadoColor = p.estado==='pendiente' ? '#f5c500' : p.estado==='confirmado' ? '#27ae60' : '#888';
+    const estadoIcon = p.estado==='pendiente' ? '⏳' : p.estado==='confirmado' ? '✅' : '📋';
+    const items = (p.items || []).map(i => `${i.nombre} x${i.qty}`).join(', ');
+
+    return `<div style="background:#fff;border-radius:8px;border-left:4px solid ${estadoColor};padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div style="font-weight:800;font-size:0.9rem;">${estadoIcon} ${p.cliente || 'Sin nombre'}</div>
+        <div style="font-size:0.72rem;color:#888;">${fechaStr}</div>
+      </div>
+      <div style="font-size:0.78rem;color:#555;margin-bottom:4px;">📞 ${p.telefono || '-'}</div>
+      <div style="font-size:0.75rem;color:#888;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${items || 'Sin detalle'}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-weight:800;font-size:1rem;font-family:'Consolas',monospace;">$${Number(p.total||0).toLocaleString('es-AR')}${p.totalFacturado ? ` <span style="color:#27ae60;font-size:0.78rem;">→ Facturado: $${Number(p.totalFacturado).toLocaleString('es-AR')}</span>` : ''}</div>
+        ${p.estado==='pendiente' ? `<button onclick="confirmarPedidoCat('${p.id}','${(p.cliente||'').replace(/'/g,"\\'")}','${p.telefono||''}',${p.total||0})" style="padding:5px 12px;background:#27ae60;color:#fff;border:none;border-radius:5px;font-size:0.72rem;font-weight:700;cursor:pointer;">✅ Confirmar y facturar</button>` : ''}
+        ${p.notas ? `<div style="font-size:0.7rem;color:#888;max-width:40%;text-align:right;">📝 ${p.notas}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function catToastPedido(msg){
+  let t = document.getElementById('cat-toast-pedido');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'cat-toast-pedido';
+    t.style.cssText = 'position:fixed;top:80px;right:20px;background:#1a1a1a;color:#f5c500;padding:14px 22px;border-radius:10px;font-size:0.9rem;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,0.4);z-index:99999;border:2px solid #f5c500;animation:fadeIn 0.3s ease;max-width:350px;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.display = '';
+  setTimeout(() => { t.style.display = 'none'; }, 6000);
+}
+
+// ── WhatsApp Config para pedidos ──
 async function catConfigWA(){
   try {
     const { initializeApp, getApps, getApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
     const { getFirestore, doc: fbDoc, getDoc: fbGet, setDoc: fbSet } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-    const fbApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const cfg = {
+      apiKey: "AIzaSyBYHIviddPZ389w-2Ve_Gg7HRISkUpmWMM",
+      authDomain: "mayorista-41be3.firebaseapp.com",
+      projectId: "mayorista-41be3",
+      storageBucket: "mayorista-41be3.firebasestorage.app",
+      messagingSenderId: "957550135985",
+      appId: "1:957550135985:web:d5cc026da122449b7c7090"
+    };
+    const fbApp = getApps().length ? getApp() : initializeApp(cfg);
     const fbDb = getFirestore(fbApp);
     const cfgRef = fbDoc(fbDb, "config", "catalogo");
     let actual = '';
