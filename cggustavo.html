@@ -3082,6 +3082,7 @@ setInterval(() => {
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
       <span id="cat-contador" style="font-size:0.75rem;color:#f5c500;font-weight:700;"></span>
+      <button onclick="catConfigWA()" style="padding:8px 14px;background:#25d366;color:#fff;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">📱 WhatsApp pedidos</button>
       <button onclick="window.open('gustavocatalogo.html','_blank')" style="padding:8px 14px;background:#f5c500;color:#1a1a1a;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">👁️ Ver catálogo público</button>
     </div>
   </div>
@@ -35309,6 +35310,23 @@ function catToggle(id, val){
   prod.enCatalogo = val;
   saveAll();
   renderCatalogo();
+}
+
+// ── WhatsApp Config para pedidos ──
+async function catConfigWA(){
+  try {
+    const { doc: fbDoc, getDoc: fbGet, setDoc: fbSet } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const cfgRef = fbDoc(window._dbRef || db, "config", "catalogo");
+    let actual = '';
+    try { const snap = await fbGet(cfgRef); if(snap.exists()) actual = snap.data().whatsapp || ''; } catch(e){}
+    const num = prompt('Número de WhatsApp donde recibís los pedidos\n(con código de país, ej: 5493364012345)\n\nDejá vacío para desactivar WhatsApp:', actual);
+    if(num === null) return;
+    await fbSet(cfgRef, { whatsapp: num.trim() }, { merge: true });
+    alert('✅ WhatsApp ' + (num.trim() ? 'configurado: ' + num.trim() : 'desactivado'));
+  } catch(err){
+    console.error(err);
+    alert('❌ Error al guardar: ' + err.message);
+  }
 }
 
 // ── Google Drive Upload Config ──
