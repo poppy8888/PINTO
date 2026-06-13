@@ -35315,8 +35315,11 @@ function catToggle(id, val){
 // ── WhatsApp Config para pedidos ──
 async function catConfigWA(){
   try {
-    const { doc: fbDoc, getDoc: fbGet, setDoc: fbSet } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-    const cfgRef = fbDoc(window._dbRef || db, "config", "catalogo");
+    const { initializeApp, getApps, getApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+    const { getFirestore, doc: fbDoc, getDoc: fbGet, setDoc: fbSet } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const fbApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const fbDb = getFirestore(fbApp);
+    const cfgRef = fbDoc(fbDb, "config", "catalogo");
     let actual = '';
     try { const snap = await fbGet(cfgRef); if(snap.exists()) actual = snap.data().whatsapp || ''; } catch(e){}
     const num = prompt('Número de WhatsApp donde recibís los pedidos\n(con código de país, ej: 5493364012345)\n\nDejá vacío para desactivar WhatsApp:', actual);
