@@ -232,7 +232,7 @@ body{
 </div>
 
 <!-- BACK -->
-<div class="back-bar" id="back-bar" onclick="showFamilias()">← Volver a familias</div>
+<div class="back-bar" id="back-bar" onclick="showFamilias()" style="display:none">← Volver a familias</div>
 
 <!-- LOADING -->
 <div class="loading" id="loading"><div class="sp"></div><div>Cargando catálogo...</div></div>
@@ -278,7 +278,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 const auth = getAuth(app);
-await new Promise(r => { onAuthStateChanged(auth, u => { if(u) r(u); }); signInAnonymously(auth).catch(() => r(null)); });
+await new Promise(r => {
+  const timeout = setTimeout(() => { console.log('Auth timeout'); r(null); }, 5000);
+  onAuthStateChanged(auth, u => { if(u){ clearTimeout(timeout); r(u); } });
+  signInAnonymously(auth).then(cred => { clearTimeout(timeout); r(cred.user); }).catch(e => { console.log('Auth error:', e); clearTimeout(timeout); r(null); });
+});
+console.log('Auth OK, cargando datos...');
 
 let allProds = [], allStock = {}, whatsapp = '', familiaActual = '', busqueda = '';
 let carrito = [];
@@ -291,13 +296,16 @@ getDoc(doc(db, "config", "catalogo")).then(snap => {
 
 // Productos en tiempo real
 const docRef = doc(db, "lareina", "datos_principales");
+console.log('Escuchando documento...');
 onSnapshot(docRef, (snap) => {
+  console.log('Snapshot recibido, exists:', snap.exists());
   if(!snap.exists()){
     document.getElementById('loading').innerHTML = '⚠️ No se encontraron datos. Verificá que el programa principal esté sincronizado.';
     return;
   }
   const d = snap.data();
   allProds = (d.productos || []).filter(p => !p.esCombustible && !p.oculto && p.enCatalogo !== false);
+  console.log('Productos cargados:', allProds.length);
   allStock = d.stock || {};
   document.getElementById('loading').style.display = 'none';
   if(familiaActual && familiaActual !== '__search__') renderProds();
@@ -310,8 +318,8 @@ onSnapshot(docRef, (snap) => {
 // ═══ FAMILIAS ═══
 function showFamilias(){
   familiaActual = '';
-  document.getElementById('back-bar').classList.remove('show');
-  document.getElementById('fam-grid').style.display = '';
+  document.getElementById('back-bar').style.display = 'none';
+  document.getElementById('fam-grid').style.display = 'grid';
   document.getElementById('prod-grid').style.display = 'none';
   document.getElementById('buscar').value = '';
   busqueda = '';
@@ -334,9 +342,9 @@ window.showFamilias = showFamilias;
 
 window._selFam = function(f){
   familiaActual = f;
-  document.getElementById('back-bar').classList.add('show');
+  document.getElementById('back-bar').style.display = 'flex';
   document.getElementById('fam-grid').style.display = 'none';
-  document.getElementById('prod-grid').style.display = '';
+  document.getElementById('prod-grid').style.display = 'grid';
   renderProds();
 };
 
@@ -388,9 +396,9 @@ document.getElementById('buscar').addEventListener('input', function(){
     if(!familiaActual && busqueda.length >= 2){
       // Buscar en todos, mostrar grilla
       familiaActual = '__search__';
-      document.getElementById('back-bar').classList.add('show');
+      document.getElementById('back-bar').style.display = 'flex';
       document.getElementById('fam-grid').style.display = 'none';
-      document.getElementById('prod-grid').style.display = '';
+      document.getElementById('prod-grid').style.display = 'grid';
       renderProdsSearch();
     } else if(familiaActual === '__search__' && !busqueda){
       showFamilias();
