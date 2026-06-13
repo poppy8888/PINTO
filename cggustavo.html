@@ -3082,7 +3082,7 @@ setInterval(() => {
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
       <span id="cat-contador" style="font-size:0.75rem;color:#f5c500;font-weight:700;"></span>
-      <button onclick="window.open('catalogo.html','_blank')" style="padding:8px 14px;background:#f5c500;color:#1a1a1a;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">👁️ Ver catálogo público</button>
+      <button onclick="window.open('gustavocatalogo.html','_blank')" style="padding:8px 14px;background:#f5c500;color:#1a1a1a;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">👁️ Ver catálogo público</button>
     </div>
   </div>
 
@@ -35253,14 +35253,14 @@ function renderCatalogo(){
     });
   }
   if(familia) lista = lista.filter(p => (p.familia||p.marca||'General') === familia);
-  if(estado === 'en') lista = lista.filter(p => p.enCatalogo);
-  if(estado === 'fuera') lista = lista.filter(p => !p.enCatalogo);
+  if(estado === 'en') lista = lista.filter(p => p.enCatalogo !== false);
+  if(estado === 'fuera') lista = lista.filter(p => p.enCatalogo === false);
   if(estado === 'confoto') lista = lista.filter(p => p.imagenURL);
   if(estado === 'sinfoto') lista = lista.filter(p => !p.imagenURL);
 
   lista.sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
 
-  const totalEnCat = productos.filter(p => p.enCatalogo && !p.esCombustible).length;
+  const totalEnCat = productos.filter(p => p.enCatalogo !== false && !p.esCombustible).length;
   const totalConFoto = productos.filter(p => p.imagenURL && !p.esCombustible).length;
   document.getElementById('cat-contador').textContent = `${totalEnCat} en catálogo · ${totalConFoto} con foto`;
 
@@ -35271,7 +35271,7 @@ function renderCatalogo(){
   }
 
   grid.innerHTML = lista.map(p => {
-    const enCat = p.enCatalogo ? true : false;
+    const enCat = p.enCatalogo !== false ? true : false;
     const imgUrl = p.imagenURL || '';
     let thumbSrc = '';
     if(imgUrl){
