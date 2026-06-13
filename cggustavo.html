@@ -2890,7 +2890,7 @@ setInterval(() => {
   <button class="tab" onclick="showTab(&#39;clientes&#39;,this)"><span class="tab-icon">👥</span><span class="tab-label">Clientes</span></button>
   <button class="tab" onclick="showTab(&#39;proveedores&#39;,this)"><span class="tab-icon">🚚</span><span class="tab-label">Proveedores</span></button>
   <button class="tab" onclick="showTab(&#39;cuentas&#39;,this)"><span class="tab-icon">💳</span><span class="tab-label">Cta. Corriente</span></button>
-  <button class="tab" onclick="window.open('catalogo.html','_blank')" style="background:linear-gradient(135deg,#9b59b6,#7d3c98);border-color:#7d3c98;"><span class="tab-icon" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">🛍️</span><span class="tab-label" style="color:#fff;font-weight:800;">Catálogo</span></button>
+  <button class="tab" onclick="showTab(&#39;catalogo&#39;,this)" style="background:linear-gradient(135deg,#9b59b6,#7d3c98);border-color:#7d3c98;"><span class="tab-icon" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">🛍️</span><span class="tab-label" style="color:#fff;font-weight:800;">Catálogo</span></button>
   <button class="tab" id="btn-mas" onclick="toggleMasMenu(event)" style="display:none;"><span class="tab-icon">🔧</span><span class="tab-label">Más</span></button>
   <!-- Pestañas ocultas (accesibles solo desde "Más") -->
   <button class="tab" id="tab-admin-lr" onclick="showTab(&#39;admin-lr&#39;,this)"><span class="tab-icon">⚙️</span><span class="tab-label">Admin</span></button>
@@ -3072,6 +3072,36 @@ setInterval(() => {
   </div>
 </div>
 <!-- /PANEL ADMIN LA REINA -->
+
+<!-- PANEL CATÁLOGO (gestión) -->
+<div id="panel-catalogo" class="panel">
+  <div style="background:#1a1a1a;color:#fff;padding:14px 20px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+    <div>
+      <span style="font-size:1.2rem;font-weight:800;">🛍️ Gestión del Catálogo</span>
+      <span style="font-size:0.75rem;color:#aaa;margin-left:10px;">Elegí qué productos se ven en el catálogo y poneles foto</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span id="cat-contador" style="font-size:0.75rem;color:#f5c500;font-weight:700;"></span>
+      <button onclick="window.open('catalogo.html','_blank')" style="padding:8px 14px;background:#f5c500;color:#1a1a1a;border:none;border-radius:6px;font-size:0.78rem;font-weight:700;cursor:pointer;">👁️ Ver catálogo público</button>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+    <input type="text" id="cat-buscar" placeholder="Buscar producto..." oninput="renderCatalogo()" style="flex:1;min-width:200px;padding:9px 14px;border:2px solid #ddd;border-radius:8px;font-size:0.88rem;">
+    <select id="cat-filtro-familia" onchange="renderCatalogo()" style="padding:9px;border:2px solid #ddd;border-radius:8px;font-size:0.85rem;">
+      <option value="">Todas las familias</option>
+    </select>
+    <select id="cat-filtro-estado" onchange="renderCatalogo()" style="padding:9px;border:2px solid #ddd;border-radius:8px;font-size:0.85rem;">
+      <option value="">Todos</option>
+      <option value="en">En catálogo</option>
+      <option value="fuera">Sin catálogo</option>
+      <option value="confoto">Con foto</option>
+      <option value="sinfoto">Sin foto</option>
+    </select>
+  </div>
+
+  <div id="cat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+</div>
 
 <!-- PANEL SURTIDOR -->
 <div id="panel-surtidor" class="panel">
@@ -35198,6 +35228,100 @@ function showTab(name,btn){
   if(name==='pedidos'){ renderPedidos(); }
   if(name==='etiquetas'){ inicializarEtiquetas(); }
   if(name==='cigarrillos'){ if(typeof renderCigarrillos === 'function') renderCigarrillos(); }
+  if(name==='catalogo'){ renderCatalogo(); }
+}
+
+// ========== CATÁLOGO (gestión) ==========
+function renderCatalogo(){
+  const buscar = (document.getElementById('cat-buscar').value || '').toLowerCase().trim();
+  const familia = document.getElementById('cat-filtro-familia').value;
+  const estado = document.getElementById('cat-filtro-estado').value;
+
+  // Llenar select familias
+  const selFam = document.getElementById('cat-filtro-familia');
+  const familias = [...new Set(productos.map(p => p.familia || p.marca || 'General').filter(Boolean))].sort();
+  const famActual = selFam.value;
+  selFam.innerHTML = '<option value="">Todas las familias</option>' + familias.map(f => `<option value="${f}" ${f===famActual?'selected':''}>${f}</option>`).join('');
+
+  let lista = productos.filter(p => !p.esCombustible);
+
+  if(buscar){
+    const palabras = buscar.split(/\s+/);
+    lista = lista.filter(p => {
+      const txt = `${p.nombre||''} ${p.marca||''} ${p.familia||''} ${p.barcode||''}`.toLowerCase();
+      return palabras.every(w => txt.includes(w));
+    });
+  }
+  if(familia) lista = lista.filter(p => (p.familia||p.marca||'General') === familia);
+  if(estado === 'en') lista = lista.filter(p => p.enCatalogo);
+  if(estado === 'fuera') lista = lista.filter(p => !p.enCatalogo);
+  if(estado === 'confoto') lista = lista.filter(p => p.imagenURL);
+  if(estado === 'sinfoto') lista = lista.filter(p => !p.imagenURL);
+
+  lista.sort((a,b) => (a.nombre||'').localeCompare(b.nombre||''));
+
+  const totalEnCat = productos.filter(p => p.enCatalogo && !p.esCombustible).length;
+  const totalConFoto = productos.filter(p => p.imagenURL && !p.esCombustible).length;
+  document.getElementById('cat-contador').textContent = `${totalEnCat} en catálogo · ${totalConFoto} con foto`;
+
+  const grid = document.getElementById('cat-grid');
+  if(lista.length === 0){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#888;">No se encontraron productos</div>';
+    return;
+  }
+
+  grid.innerHTML = lista.map(p => {
+    const enCat = p.enCatalogo ? true : false;
+    const imgUrl = p.imagenURL || '';
+    let thumbSrc = '';
+    if(imgUrl){
+      const m1 = imgUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      const m2 = imgUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      const fid = m1 ? m1[1] : (m2 ? m2[1] : '');
+      thumbSrc = fid ? `https://drive.google.com/thumbnail?id=${fid}&sz=w100` : imgUrl;
+    }
+    const precio = p.precioLista2 || p.precio || 0;
+
+    return `<div style="background:#fff;border-radius:10px;border:2px solid ${enCat?'#27500a':'#e0e0e0'};padding:12px;display:flex;gap:12px;align-items:center;transition:border-color 0.2s;">
+      <div onclick="catCambiarFoto(${p.id})" style="width:60px;height:60px;border-radius:8px;background:#f0f0f4;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;overflow:hidden;cursor:pointer;border:1px solid #ddd;background-size:cover;background-position:center;${thumbSrc?`background-image:url(${thumbSrc})`:''}" title="Click para cambiar foto">
+        ${thumbSrc?'':'📷'}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.marca?p.marca+' — ':''}${p.nombre||''}</div>
+        <div style="font-size:0.68rem;color:#888;">${p.familia||''} · $${Number(precio).toLocaleString('es-AR')}</div>
+        <div style="margin-top:5px;display:flex;gap:6px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:0.75rem;font-weight:600;color:${enCat?'#27500a':'#999'};">
+            <input type="checkbox" ${enCat?'checked':''} onchange="catToggle(${p.id},this.checked)" style="accent-color:#27500a;width:16px;height:16px;">
+            ${enCat?'En catálogo':'Oculto'}
+          </label>
+          <button onclick="catCambiarFoto(${p.id})" style="padding:3px 8px;background:${imgUrl?'#e8f5e9':'#fff3e0'};border:1px solid ${imgUrl?'#81c784':'#ffb74d'};border-radius:4px;font-size:0.68rem;font-weight:600;cursor:pointer;color:#333;">
+            ${imgUrl?'📷 Cambiar':'📷 Poner foto'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function catToggle(id, val){
+  const prod = productos.find(p => Number(p.id) === Number(id));
+  if(!prod) return;
+  prod.enCatalogo = val;
+  saveAll();
+  renderCatalogo();
+}
+
+function catCambiarFoto(id){
+  const prod = productos.find(p => Number(p.id) === Number(id));
+  if(!prod) return;
+  const url = prompt('Pegá el link de Google Drive de la foto\n(o dejá vacío para quitar)', prod.imagenURL || '');
+  if(url === null) return; // canceló
+  prod.imagenURL = url.trim();
+  if(!prod.enCatalogo && url.trim()){
+    if(confirm('¿Querés agregarlo al catálogo también?')) prod.enCatalogo = true;
+  }
+  saveAll();
+  renderCatalogo();
 }
 
 // ========== ESTADÍSTICAS ==========
