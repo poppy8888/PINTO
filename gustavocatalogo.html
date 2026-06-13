@@ -284,22 +284,27 @@ let allProds = [], allStock = {}, whatsapp = '', familiaActual = '', busqueda = 
 let carrito = [];
 try { const s = sessionStorage.getItem('cg_cart'); if(s) carrito = JSON.parse(s); } catch(e){}
 
-// Config (WhatsApp)
-try {
-  const cfgSnap = await getDoc(doc(db, "config", "catalogo"));
-  if(cfgSnap.exists()) whatsapp = cfgSnap.data().whatsapp || '';
-} catch(e){}
+// Config (WhatsApp) - no bloqueante
+getDoc(doc(db, "config", "catalogo")).then(snap => {
+  if(snap.exists()) whatsapp = snap.data().whatsapp || '';
+}).catch(e => console.log('Config no disponible'));
 
 // Productos en tiempo real
 const docRef = doc(db, "lareina", "datos_principales");
 onSnapshot(docRef, (snap) => {
-  if(!snap.exists()) return;
+  if(!snap.exists()){
+    document.getElementById('loading').innerHTML = '⚠️ No se encontraron datos. Verificá que el programa principal esté sincronizado.';
+    return;
+  }
   const d = snap.data();
   allProds = (d.productos || []).filter(p => !p.esCombustible && !p.oculto && p.enCatalogo !== false);
   allStock = d.stock || {};
   document.getElementById('loading').style.display = 'none';
-  if(familiaActual) renderProds();
+  if(familiaActual && familiaActual !== '__search__') renderProds();
   else showFamilias();
+}, (err) => {
+  console.error('Firebase error:', err);
+  document.getElementById('loading').innerHTML = '⚠️ Error al conectar. Recargá la página.';
 });
 
 // ═══ FAMILIAS ═══
