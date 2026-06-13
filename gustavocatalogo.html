@@ -461,7 +461,7 @@ const docRef = doc(db, "lareina", "datos_principales");
 onSnapshot(docRef, (snap) => {
   if(!snap.exists()) return;
   const data = snap.data();
-  allProductos = (data.productos || []).filter(p => !p.esCombustible && !p.oculto);
+  allProductos = (data.productos || []).filter(p => !p.esCombustible && !p.oculto && p.enCatalogo);
   allStock = data.stock || {};
   document.getElementById('cat-cargando').style.display = 'none';
   document.getElementById('cat-grid').style.display = '';
