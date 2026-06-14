@@ -278,6 +278,14 @@ db.collection("catalogoPublico").doc("actual").onSnapshot(snap => {
 
 /* ===== Helpers ===== */
 function fmt(n){ return Number(n||0).toLocaleString("es-AR"); }
+function imgUrl(f){
+  if(!f) return '';
+  f = String(f);
+  if(f.indexOf('thumbnail') !== -1) return f; // ya está en formato bueno
+  let m = f.match(/[?&]id=([^&]+)/) || f.match(/lh3\.googleusercontent\.com\/d\/([^=?&/]+)/) || f.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if(m && m[1]) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w600';
+  return f;
+}
 function esMayorista(){ return cliente !== null; }
 function verPrecios(){ return esMayorista() || MOSTRAR_PRECIOS; }
 function precioDe(p){ return esMayorista() ? Number(p.precioLista2 || p.precio || 0) : Number(p.precio || 0); }
@@ -315,7 +323,7 @@ function renderDestacados(){
   if(dest.length < 3){ cont.innerHTML = ""; return; }
   cont.innerHTML = '<div class="destacados"><div class="tit">Destacados</div><div class="fila-dest">'+
     dest.map(p => {
-      const foto = 'style="background-image:url(\''+String(p.foto).replace(/'/g,"%27")+'\')"';
+      const foto = 'style="background-image:url(\''+String(imgUrl(p.foto)).replace(/'/g,"%27")+'\')"';
       const precio = verPrecios() ? '<div class="card-precio">$'+fmt(precioDe(p))+'</div>' : '<div class="card-precio oculto">Consultá 🔒</div>';
       return '<div class="mini-card"><div class="card-foto" '+foto+'></div><div class="card-cuerpo">'+
         '<div class="card-nom">'+p.nombre+'</div>'+precio+
@@ -338,7 +346,7 @@ function renderProductos(){
 
 function cardHTML(p){
   const id=p.id, cant=carrito[id]||0, agotado=p.disponible===false;
-  const foto = p.foto ? 'style="background-image:url(\''+String(p.foto).replace(/'/g,"%27")+'\')"' : '';
+  const foto = p.foto ? 'style="background-image:url(\''+String(imgUrl(p.foto)).replace(/'/g,"%27")+'\')"' : '';
   const precioHTML = verPrecios() ? '<div class="card-precio">$'+fmt(precioDe(p))+'</div>' : '<div class="card-precio oculto">Consultá el precio 🔒</div>';
   let accion;
   if(agotado) accion='<button class="btn-add" disabled>Sin stock</button>';
@@ -370,7 +378,7 @@ function abrirCarrito(){
   const items=itemsCarrito();
   if(items.length===0){ toast("Tu pedido está vacío"); return; }
   document.getElementById("carr-items").innerHTML = items.map(i=>{
-    const foto = i.foto ? 'style="background-image:url(\''+String(i.foto).replace(/'/g,"%27")+'\')"' : '';
+    const foto = i.foto ? 'style="background-image:url(\''+String(imgUrl(i.foto)).replace(/'/g,"%27")+'\')"' : '';
     const precio = verPrecios() ? '<div class="ic-precio">$'+fmt(i.precioFinal)+' c/u</div>' : '<div class="ic-precio">a confirmar</div>';
     return '<div class="item-carr"><div class="ic-foto" '+foto+'>'+(i.foto?'':'🧺')+'</div>'+
       '<div class="ic-nom">'+i.nombre+precio+'</div>'+
