@@ -3,124 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>MiniMarket La Reina · Catálogo</title>
+<title>La Reina Online · Hacé tu pedido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --vino:#7b1e2b;          /* burdeos La Reina */
-    --vino-osc:#5c1620;
-    --oro:#c9a24b;           /* dorado corona */
-    --crema:#fbf7ef;         /* fondo cálido */
-    --tinta:#2a2024;         /* texto */
-    --gris:#8a8086;
-    --linea:#ece3d6;
-    --ok:#2f8f57;
+    --naranja:#F5710A;
+    --naranja-osc:#d9620a;
+    --verde:#1B5A3D;
+    --verde-claro:#2f8f57;
+    --fondo:#F7F6F4;
+    --tinta:#2a2622;
+    --gris:#9A9791;
+    --linea:#ececec;
     --blanco:#fff;
-    --sombra:0 2px 14px rgba(60,20,30,.08);
+    --sombra:0 1px 10px rgba(40,30,20,.07);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   body{
-    font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
-    background:var(--crema); color:var(--tinta);
-    padding-bottom:88px; /* espacio para barra carrito */
+    font-family:'Open Sans',system-ui,-apple-system,Roboto,sans-serif;
+    background:var(--fondo); color:var(--tinta);
+    padding-bottom:84px;
   }
-  /* ---------- Encabezado ---------- */
+  h1,h2,h3,.lato{font-family:'Lato','Open Sans',sans-serif;}
+
+  /* ---------- Header ---------- */
   header{
-    background:linear-gradient(135deg,var(--vino),var(--vino-osc));
-    color:#fff; padding:16px 16px 14px; position:sticky; top:0; z-index:40;
-    box-shadow:0 2px 12px rgba(0,0,0,.18);
+    background:var(--blanco); position:sticky; top:0; z-index:50;
+    box-shadow:0 1px 8px rgba(0,0,0,.08); padding:10px 14px 0;
   }
-  .marca{display:flex;align-items:center;gap:11px;}
-  .corona{font-size:1.9rem;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3));}
-  .marca-txt h1{margin:0;font-size:1.25rem;font-weight:800;letter-spacing:.3px;}
-  .marca-txt p{margin:2px 0 0;font-size:.72rem;opacity:.82;font-weight:500;letter-spacing:.4px;text-transform:uppercase;}
-  .head-acc{height:3px;background:var(--oro);border-radius:2px;margin-top:11px;}
-  .login-row{display:flex;justify-content:space-between;align-items:center;margin-top:11px;gap:10px;}
-  .estado-cli{font-size:.78rem;opacity:.92;display:flex;align-items:center;gap:6px;min-width:0;}
-  .estado-cli b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .btn-clave{
-    background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.35);
-    padding:6px 13px;border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;
+  .top{display:flex;align-items:center;gap:12px;}
+  .marca{display:flex;align-items:center;gap:9px;flex:0 0 auto;}
+  .corona{
+    width:38px;height:38px;border-radius:10px;background:var(--naranja);
+    display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#fff;
+    box-shadow:0 2px 6px rgba(245,113,10,.35);
   }
-  .btn-clave:active{background:rgba(255,255,255,.28);}
-  /* ---------- Buscador + familias ---------- */
-  .barra-busca{padding:12px 14px 4px;}
-  .barra-busca input{
-    width:100%;padding:11px 14px;border:1.5px solid var(--linea);border-radius:12px;
-    font-size:.95rem;background:#fff;outline:none;
+  .marca-txt h1{margin:0;font-size:1.05rem;font-weight:900;color:var(--verde);letter-spacing:.2px;line-height:1;}
+  .marca-txt span{font-size:.64rem;color:var(--gris);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+  .cart-btn{
+    margin-left:auto;position:relative;background:var(--verde);color:#fff;border:none;
+    width:44px;height:44px;border-radius:12px;font-size:1.25rem;cursor:pointer;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
   }
-  .barra-busca input:focus{border-color:var(--oro);}
-  .familias{
-    display:flex;gap:8px;overflow-x:auto;padding:10px 14px 12px;scrollbar-width:none;
+  .cart-btn .badge{
+    position:absolute;top:-5px;right:-5px;background:var(--naranja);color:#fff;
+    min-width:20px;height:20px;border-radius:10px;font-size:.72rem;font-weight:800;
+    display:none;align-items:center;justify-content:center;padding:0 5px;border:2px solid #fff;
   }
-  .familias::-webkit-scrollbar{display:none;}
-  .chip{
-    flex:0 0 auto;background:#fff;border:1.5px solid var(--linea);color:var(--tinta);
-    padding:7px 14px;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;
+  .buscador-row{display:flex;gap:8px;align-items:center;padding:10px 0 8px;}
+  .buscador-row input{
+    flex:1;padding:11px 14px;border:1.5px solid var(--linea);border-radius:24px;
+    font-size:.95rem;background:var(--fondo);outline:none;font-family:inherit;
   }
-  .chip.activo{background:var(--vino);border-color:var(--vino);color:#fff;}
-  /* ---------- Grilla productos ---------- */
-  .grupo-fam{padding:4px 14px 0;}
-  .grupo-fam h2{
-    font-size:.95rem;color:var(--vino);margin:18px 0 9px;font-weight:800;
+  .buscador-row input:focus{border-color:var(--naranja);background:#fff;}
+  .login-pill{
+    flex:0 0 auto;background:#fff;border:1.5px solid var(--naranja);color:var(--naranja);
+    padding:9px 14px;border-radius:24px;font-size:.8rem;font-weight:800;cursor:pointer;white-space:nowrap;
+  }
+  .login-pill.activo{background:var(--verde);border-color:var(--verde);color:#fff;}
+  /* categorías */
+  .cats{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0 11px;}
+  .cat{
+    flex:0 0 auto;background:var(--fondo);border:1.5px solid var(--linea);color:var(--tinta);
+    padding:7px 15px;border-radius:20px;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;
+  }
+  .cat.activo{background:var(--naranja);border-color:var(--naranja);color:#fff;}
+
+  /* ---------- Destacados ---------- */
+  .destacados{padding:16px 14px 4px;}
+  .destacados .tit{font-size:1rem;font-weight:900;color:var(--verde);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .destacados .tit::before{content:"🔥";}
+  .fila-dest{display:flex;gap:11px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;}
+  .fila-dest::-webkit-scrollbar{display:none;}
+  .mini-card{flex:0 0 138px;background:#fff;border-radius:14px;border:1px solid var(--linea);overflow:hidden;box-shadow:var(--sombra);}
+
+  /* ---------- Grilla ---------- */
+  .seccion{padding:6px 14px 0;}
+  .seccion h2{
+    font-size:1rem;color:var(--verde);margin:18px 0 10px;font-weight:900;
     display:flex;align-items:center;gap:8px;
   }
-  .grupo-fam h2::before{content:"";width:14px;height:2px;background:var(--oro);border-radius:2px;}
+  .seccion h2::before{content:"";width:5px;height:18px;background:var(--naranja);border-radius:3px;}
   .grilla{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;}
   @media(min-width:560px){.grilla{grid-template-columns:repeat(3,1fr);}}
   @media(min-width:820px){.grilla{grid-template-columns:repeat(4,1fr);}}
   .card{
     background:#fff;border:1px solid var(--linea);border-radius:14px;overflow:hidden;
-    display:flex;flex-direction:column;box-shadow:var(--sombra);
+    display:flex;flex-direction:column;box-shadow:var(--sombra);position:relative;
   }
   .card-foto{
-    width:100%;aspect-ratio:1/1;background:#f3ede2 center/cover no-repeat;
-    display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:#cdbfa8;position:relative;
+    width:100%;aspect-ratio:1/1;background:#f3efe9 center/cover no-repeat;
+    display:flex;align-items:center;justify-content:center;font-size:2.1rem;color:#d8cdbe;
+  }
+  .tag-stock{
+    position:absolute;top:8px;left:8px;background:var(--gris);color:#fff;
+    font-size:.62rem;font-weight:800;padding:3px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:.4px;
   }
   .card-cuerpo{padding:9px 10px 10px;display:flex;flex-direction:column;gap:6px;flex:1;}
-  .card-nom{font-size:.85rem;font-weight:700;line-height:1.2;min-height:2.05em;}
-  .card-precio{font-size:1rem;font-weight:800;color:var(--vino);font-variant-numeric:tabular-nums;}
-  .card-precio.oculto{font-size:.74rem;font-weight:600;color:var(--gris);}
-  .card-add{
-    margin-top:auto;display:flex;align-items:center;justify-content:center;gap:7px;
-  }
+  .card-nom{font-size:.84rem;font-weight:700;line-height:1.2;min-height:2.05em;}
+  .card-precio{font-size:1.05rem;font-weight:900;color:var(--verde);font-variant-numeric:tabular-nums;font-family:'Lato',sans-serif;}
+  .card-precio.oculto{font-size:.74rem;font-weight:700;color:var(--gris);}
+  .card-add{margin-top:auto;}
   .btn-add{
-    width:100%;background:var(--vino);color:#fff;border:none;border-radius:9px;
-    padding:8px;font-size:.84rem;font-weight:800;cursor:pointer;
+    width:100%;background:var(--naranja);color:#fff;border:none;border-radius:10px;
+    padding:9px;font-size:.85rem;font-weight:800;cursor:pointer;font-family:'Lato',sans-serif;
   }
-  .btn-add:active{background:var(--vino-osc);}
+  .btn-add:active{background:var(--naranja-osc);}
+  .btn-add:disabled{background:#cfc9c0;cursor:default;}
   .qty{display:flex;align-items:center;justify-content:space-between;width:100%;
-    border:1.5px solid var(--vino);border-radius:9px;overflow:hidden;}
-  .qty button{background:var(--vino);color:#fff;border:none;width:34px;height:34px;font-size:1.1rem;font-weight:800;cursor:pointer;}
-  .qty span{font-weight:800;font-size:.95rem;}
-  /* ---------- Barra carrito ---------- */
-  .barra-carrito{
-    position:fixed;left:0;right:0;bottom:0;z-index:45;
-    background:#fff;border-top:1px solid var(--linea);box-shadow:0 -3px 16px rgba(60,20,30,.1);
-    padding:11px 14px;display:flex;align-items:center;gap:12px;
-    transform:translateY(110%);transition:transform .22s ease;
-  }
-  .barra-carrito.visible{transform:translateY(0);}
-  .carrito-info{flex:1;min-width:0;}
-  .carrito-info .ci-cant{font-size:.74rem;color:var(--gris);font-weight:600;}
-  .carrito-info .ci-total{font-size:1.05rem;font-weight:800;color:var(--vino);}
-  .btn-ver-carrito{
-    background:linear-gradient(135deg,var(--vino),var(--vino-osc));color:#fff;border:none;
-    padding:12px 20px;border-radius:12px;font-size:.92rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:8px;
-  }
-  /* ---------- Modales ---------- */
-  .overlay{
-    position:fixed;inset:0;background:rgba(40,15,22,.55);z-index:60;
-    display:none;align-items:flex-end;justify-content:center;
-  }
+    border:2px solid var(--naranja);border-radius:10px;overflow:hidden;}
+  .qty button{background:var(--naranja);color:#fff;border:none;width:36px;height:36px;font-size:1.15rem;font-weight:800;cursor:pointer;}
+  .qty span{font-weight:900;font-size:1rem;font-family:'Lato',sans-serif;}
+
+  /* ---------- Overlays ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(30,20,10,.5);z-index:70;display:none;align-items:flex-end;justify-content:center;}
   .overlay.abierto{display:flex;}
   @media(min-width:560px){.overlay{align-items:center;}}
-  .hoja{
-    background:var(--crema);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;
-    border-radius:18px 18px 0 0;padding:18px;
-  }
+  .hoja{background:var(--fondo);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:18px;}
   @media(min-width:560px){.hoja{border-radius:18px;}}
-  .hoja h3{margin:0 0 4px;color:var(--vino);font-size:1.15rem;}
+  .hoja h3{margin:0 0 4px;color:var(--verde);font-size:1.2rem;font-weight:900;}
   .hoja .sub{margin:0 0 16px;color:var(--gris);font-size:.85rem;}
   .campo{margin-bottom:13px;}
   .campo label{display:block;font-size:.8rem;font-weight:700;margin-bottom:5px;}
@@ -128,129 +131,106 @@
     width:100%;padding:11px 13px;border:1.5px solid var(--linea);border-radius:11px;
     font-size:.95rem;background:#fff;outline:none;font-family:inherit;
   }
-  .campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--oro);}
+  .campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--naranja);}
   .btn-grande{
-    width:100%;background:linear-gradient(135deg,var(--vino),var(--vino-osc));color:#fff;border:none;
-    padding:14px;border-radius:12px;font-size:1rem;font-weight:800;cursor:pointer;margin-top:4px;
+    width:100%;background:var(--naranja);color:#fff;border:none;padding:14px;border-radius:12px;
+    font-size:1rem;font-weight:900;cursor:pointer;margin-top:4px;font-family:'Lato',sans-serif;
   }
   .btn-grande.wsp{background:#25d366;}
   .btn-grande:disabled{opacity:.5;}
-  .btn-link{background:none;border:none;color:var(--gris);font-size:.85rem;cursor:pointer;width:100%;padding:12px;font-weight:600;}
-  /* lista carrito */
+  .btn-link{background:none;border:none;color:var(--gris);font-size:.85rem;cursor:pointer;width:100%;padding:12px;font-weight:700;}
   .item-carr{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--linea);}
-  .item-carr .ic-foto{width:46px;height:46px;border-radius:8px;background:#f3ede2 center/cover;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#cdbfa8;}
+  .item-carr .ic-foto{width:46px;height:46px;border-radius:8px;background:#f3efe9 center/cover;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#d8cdbe;}
   .item-carr .ic-nom{flex:1;font-size:.85rem;font-weight:700;line-height:1.2;}
   .item-carr .ic-precio{font-size:.78rem;color:var(--gris);}
   .mini-qty{display:flex;align-items:center;gap:8px;}
-  .mini-qty button{width:28px;height:28px;border:1.5px solid var(--vino);background:#fff;color:var(--vino);border-radius:7px;font-weight:800;cursor:pointer;font-size:1rem;}
+  .mini-qty button{width:28px;height:28px;border:1.5px solid var(--naranja);background:#fff;color:var(--naranja);border-radius:7px;font-weight:800;cursor:pointer;font-size:1rem;}
   .mini-qty span{min-width:18px;text-align:center;font-weight:800;}
-  .resumen-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;font-size:1.15rem;font-weight:800;color:var(--vino);}
-  /* estados */
-  .estado-vacio{text-align:center;padding:60px 24px;color:var(--gris);}
-  .estado-vacio .ev-ico{font-size:3rem;margin-bottom:10px;}
-  .estado-vacio h3{color:var(--tinta);margin:0 0 6px;}
-  .cargando{text-align:center;padding:70px 24px;color:var(--gris);}
-  .spin{width:34px;height:34px;border:3px solid var(--linea);border-top-color:var(--vino);border-radius:50%;margin:0 auto 14px;animation:gira .8s linear infinite;}
-  @keyframes gira{to{transform:rotate(360deg);}}
-  .toast{
-    position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
-    background:var(--tinta);color:#fff;padding:11px 18px;border-radius:24px;font-size:.86rem;font-weight:600;
-    z-index:80;opacity:0;transition:all .25s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.25);
+  .resumen-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;font-size:1.2rem;font-weight:900;color:var(--verde);font-family:'Lato',sans-serif;}
+
+  /* ---------- Barra carrito ---------- */
+  .barra{
+    position:fixed;left:0;right:0;bottom:0;z-index:55;background:#fff;border-top:1px solid var(--linea);
+    box-shadow:0 -3px 16px rgba(40,30,20,.1);padding:11px 14px;display:flex;align-items:center;gap:12px;
+    transform:translateY(110%);transition:transform .22s ease;
   }
+  .barra.visible{transform:translateY(0);}
+  .barra .info{flex:1;min-width:0;}
+  .barra .cant{font-size:.74rem;color:var(--gris);font-weight:700;}
+  .barra .total{font-size:1.1rem;font-weight:900;color:var(--verde);font-family:'Lato',sans-serif;}
+  .barra .ver{background:var(--naranja);color:#fff;border:none;padding:12px 20px;border-radius:12px;font-size:.92rem;font-weight:900;cursor:pointer;font-family:'Lato',sans-serif;}
+
+  /* estados */
+  .vacio{text-align:center;padding:60px 24px;color:var(--gris);}
+  .vacio .ico{font-size:3rem;margin-bottom:10px;}
+  .vacio h3{color:var(--tinta);margin:0 0 6px;}
+  .cargando{text-align:center;padding:70px 24px;color:var(--gris);}
+  .spin{width:34px;height:34px;border:3px solid var(--linea);border-top-color:var(--naranja);border-radius:50%;margin:0 auto 14px;animation:gira .8s linear infinite;}
+  @keyframes gira{to{transform:rotate(360deg);}}
+  .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);background:var(--tinta);color:#fff;padding:11px 18px;border-radius:24px;font-size:.86rem;font-weight:700;z-index:80;opacity:0;transition:all .25s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.25);}
   .toast.visible{opacity:1;transform:translateX(-50%) translateY(0);}
-  .pill-mayor{background:var(--oro);color:#3a2c0a;font-size:.66rem;font-weight:800;padding:2px 8px;border-radius:10px;}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="marca">
-    <span class="corona">♛</span>
-    <div class="marca-txt">
-      <h1>MiniMarket La Reina</h1>
-      <p>Hacé tu pedido online</p>
+  <div class="top">
+    <div class="marca">
+      <div class="corona">♛</div>
+      <div class="marca-txt">
+        <h1>La Reina</h1>
+        <span>MiniMarket · Online</span>
+      </div>
     </div>
+    <button class="cart-btn" onclick="abrirCarrito()">🛒<span class="badge" id="badge">0</span></button>
   </div>
-  <div class="head-acc"></div>
-  <div class="login-row">
-    <div class="estado-cli" id="estado-cli">Comprando como invitado</div>
-    <button class="btn-clave" id="btn-clave" onclick="abrirLogin()">🔑 Ver precios</button>
+  <div class="buscador-row">
+    <input type="text" id="buscador" placeholder="Buscar productos…" oninput="render()">
+    <button class="login-pill" id="login-pill" onclick="abrirLogin()">🔑 Ver precios</button>
   </div>
+  <div class="cats" id="cats"></div>
 </header>
 
-<div class="barra-busca">
-  <input type="text" id="buscador" placeholder="Buscar un producto…" oninput="render()">
-</div>
-<div class="familias" id="familias"></div>
+<div id="destacados"></div>
 
 <main id="contenido">
-  <div class="cargando"><div class="spin"></div>Cargando el catálogo…</div>
+  <div class="cargando"><div class="spin"></div>Cargando productos…</div>
 </main>
 
-<!-- Barra carrito flotante -->
-<div class="barra-carrito" id="barra-carrito">
-  <div class="carrito-info">
-    <div class="ci-cant" id="ci-cant">0 productos</div>
-    <div class="ci-total" id="ci-total">&nbsp;</div>
+<div class="barra" id="barra">
+  <div class="info">
+    <div class="cant" id="b-cant">0 productos</div>
+    <div class="total" id="b-total">&nbsp;</div>
   </div>
-  <button class="btn-ver-carrito" onclick="abrirCarrito()">🛒 Ver pedido</button>
+  <button class="ver" onclick="abrirCarrito()">Ver pedido</button>
 </div>
 
-<!-- Modal: login mayorista -->
+<!-- Login -->
 <div class="overlay" id="ov-login">
   <div class="hoja">
     <h3>Ver precios</h3>
     <p class="sub">Si sos cliente de cuenta corriente, ingresá con tu clave para ver tus precios.</p>
-    <div class="campo">
-      <label>Tu WhatsApp</label>
-      <input type="tel" id="login-wsp" inputmode="numeric" placeholder="Ej: 3854102266">
-    </div>
-    <div class="campo">
-      <label>Tu clave</label>
-      <input type="text" id="login-clave" placeholder="Clave de cliente">
-    </div>
+    <div class="campo"><label>Tu WhatsApp</label><input type="tel" id="login-wsp" inputmode="numeric" placeholder="Ej: 3854102266"></div>
+    <div class="campo"><label>Tu clave</label><input type="text" id="login-clave" placeholder="Clave de cliente"></div>
     <button class="btn-grande" onclick="entrarMayorista()">Entrar</button>
     <button class="btn-link" onclick="cerrar('ov-login')">Seguir como invitado</button>
   </div>
 </div>
 
-<!-- Modal: carrito / checkout -->
+<!-- Carrito -->
 <div class="overlay" id="ov-carrito">
   <div class="hoja">
     <h3>Tu pedido</h3>
     <p class="sub" id="carr-sub">Revisá y confirmá.</p>
     <div id="carr-items"></div>
-    <div class="resumen-total" id="carr-total-row" style="display:none;">
-      <span>Total</span><span id="carr-total">$0</span>
-    </div>
-
+    <div class="resumen-total" id="carr-total-row" style="display:none;"><span>Total</span><span id="carr-total">$0</span></div>
     <div id="carr-form" style="margin-top:14px;">
-      <div class="campo">
-        <label>Tu nombre</label>
-        <input type="text" id="ped-nombre" placeholder="Nombre y apellido">
-      </div>
-      <div class="campo">
-        <label>Tu WhatsApp</label>
-        <input type="tel" id="ped-wsp" inputmode="numeric" placeholder="Ej: 3854102266">
-      </div>
-      <div class="campo">
-        <label>Forma de pago</label>
-        <select id="ped-pago">
-          <option value="Efectivo">Efectivo</option>
-          <option value="Transferencia">Transferencia</option>
-          <option value="Cuenta corriente">Cuenta corriente</option>
-        </select>
-      </div>
-      <div class="campo">
-        <label>¿Cuándo lo retirás?</label>
-        <input type="text" id="ped-retiro" placeholder="Ej: hoy a la tarde">
-      </div>
-      <div class="campo">
-        <label>Notas (opcional)</label>
-        <textarea id="ped-notas" rows="2" placeholder="Alguna aclaración…"></textarea>
-      </div>
+      <div class="campo"><label>Tu nombre</label><input type="text" id="ped-nombre" placeholder="Nombre y apellido"></div>
+      <div class="campo"><label>Tu WhatsApp</label><input type="tel" id="ped-wsp" inputmode="numeric" placeholder="Ej: 3854102266"></div>
+      <div class="campo"><label>Forma de pago</label><select id="ped-pago"><option value="Efectivo">Efectivo</option><option value="Transferencia">Transferencia</option><option value="Cuenta corriente">Cuenta corriente</option></select></div>
+      <div class="campo"><label>¿Cuándo lo retirás?</label><input type="text" id="ped-retiro" placeholder="Ej: hoy a la tarde"></div>
+      <div class="campo"><label>Notas (opcional)</label><textarea id="ped-notas" rows="2" placeholder="Alguna aclaración…"></textarea></div>
     </div>
-
     <button class="btn-grande wsp" id="btn-enviar" onclick="enviarPedido()">📲 Enviar pedido por WhatsApp</button>
     <button class="btn-link" onclick="cerrar('ov-carrito')">Seguir comprando</button>
   </div>
@@ -258,14 +238,11 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-/* ============================================================
-   CONFIGURACIÓN — MiniMarket La Reina
-   ============================================================ */
+/* ===== Configuración — MiniMarket La Reina ===== */
 const firebaseConfig = {
   apiKey: "AIzaSyCK-2w0Do8lDtIrmTuyQYO5OP1fdthXcPg",
   authDomain: "la-reina-4b475.firebaseapp.com",
@@ -274,26 +251,15 @@ const firebaseConfig = {
   messagingSenderId: "387746897671",
   appId: "1:387746897671:web:4674cab351943f5dd42fa2"
 };
-const WHATSAPP_NEGOCIO = "5493854102266"; // número donde llegan los pedidos
+const WHATSAPP_NEGOCIO = "5493854102266";
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-/* ============================================================
-   ESTADO
-   ============================================================ */
-let CATALOGO = [];          // items publicados
-let MAYORISTAS = [];        // clientes con clave
-let MOSTRAR_PRECIOS = false; // ¿el negocio muestra precios al público?
-let cliente = null;         // null = invitado ; {nombre,id,whatsapp} = mayorista
-let familiaActiva = "Todas";
-let carrito = {};           // { idProducto: cantidad }
-let listo = false;
+let CATALOGO = [], MAYORISTAS = [], MOSTRAR_PRECIOS = false;
+let cliente = null, familiaActiva = "Todas", carrito = {}, listo = false;
 
-/* ============================================================
-   ARRANQUE
-   ============================================================ */
 auth.signInAnonymously().catch(e => console.warn("auth:", e));
 
 db.collection("catalogoPublico").doc("actual").onSnapshot(snap => {
@@ -307,259 +273,154 @@ db.collection("catalogoPublico").doc("actual").onSnapshot(snap => {
 }, err => {
   console.error(err);
   document.getElementById("contenido").innerHTML =
-    '<div class="estado-vacio"><div class="ev-ico">📡</div><h3>No pudimos conectar</h3><p>Revisá tu internet y volvé a entrar.</p></div>';
+    '<div class="vacio"><div class="ico">📡</div><h3>No pudimos conectar</h3><p>Revisá tu internet y volvé a entrar.</p></div>';
 });
 
-/* ============================================================
-   HELPERS
-   ============================================================ */
+/* ===== Helpers ===== */
 function fmt(n){ return Number(n||0).toLocaleString("es-AR"); }
 function esMayorista(){ return cliente !== null; }
 function verPrecios(){ return esMayorista() || MOSTRAR_PRECIOS; }
 function precioDe(p){ return esMayorista() ? Number(p.precioLista2 || p.precio || 0) : Number(p.precio || 0); }
-function toast(msg){
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("visible");
-  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove("visible"), 2200);
-}
+function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("visible"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("visible"),2200); }
 function cerrar(id){ document.getElementById(id).classList.remove("abierto"); }
-function familiasUnicas(){
-  const set = new Set();
-  CATALOGO.forEach(p => set.add(p.familia || "Otros"));
-  return ["Todas", ...[...set].sort((a,b)=>a.localeCompare(b,"es"))];
-}
+function familiasUnicas(){ const s=new Set(); CATALOGO.forEach(p=>s.add(p.familia||"Otros")); return ["Todas", ...[...s].sort((a,b)=>a.localeCompare(b,"es"))]; }
 
-/* ============================================================
-   RENDER
-   ============================================================ */
+/* ===== Render ===== */
 function pintarVacio(){
   document.getElementById("contenido").innerHTML =
-    '<div class="estado-vacio"><div class="ev-ico">🛒</div><h3>Catálogo en preparación</h3>' +
-    '<p>Estamos cargando los productos. Volvé en un ratito.</p></div>';
+    '<div class="vacio"><div class="ico">🛒</div><h3>Catálogo en preparación</h3><p>Estamos cargando los productos. Volvé en un ratito.</p></div>';
 }
 
 function render(){
   if(!listo) return;
-  renderFamilias();
-  renderProductos();
-  renderBarraCarrito();
-  // estado del cliente en el header
-  const ec = document.getElementById("estado-cli");
-  const bc = document.getElementById("btn-clave");
-  if(esMayorista()){
-    ec.innerHTML = '<span class="pill-mayor">CLIENTE</span> <b>'+ (cliente.nombre||"") +'</b>';
-    bc.textContent = "Salir";
-    bc.onclick = salirMayorista;
-  } else {
-    ec.textContent = "Comprando como invitado";
-    bc.textContent = "🔑 Ver precios";
-    bc.onclick = abrirLogin;
-  }
+  renderCats(); renderDestacados(); renderProductos(); renderBarra();
+  const lp = document.getElementById("login-pill");
+  if(esMayorista()){ lp.textContent = "👋 " + (cliente.nombre||"Cliente"); lp.classList.add("activo"); lp.onclick = salirMayorista; }
+  else { lp.textContent = "🔑 Ver precios"; lp.classList.remove("activo"); lp.onclick = abrirLogin; }
 }
 
-function renderFamilias(){
-  const cont = document.getElementById("familias");
-  cont.innerHTML = familiasUnicas().map(f =>
-    '<div class="chip '+(f===familiaActiva?"activo":"")+'" onclick="setFamilia(\''+f.replace(/'/g,"\\'")+'\')">'+f+'</div>'
+function renderCats(){
+  document.getElementById("cats").innerHTML = familiasUnicas().map(f =>
+    '<div class="cat '+(f===familiaActiva?"activo":"")+'" onclick="setFamilia(\''+f.replace(/'/g,"\\'")+'\')">'+f+'</div>'
   ).join("");
 }
-function setFamilia(f){ familiaActiva = f; render(); window.scrollTo({top:0,behavior:"smooth"}); }
+function setFamilia(f){ familiaActiva=f; render(); window.scrollTo({top:0,behavior:"smooth"}); }
+
+function renderDestacados(){
+  const cont = document.getElementById("destacados");
+  // destacados = productos con foto y disponibles (solo en vista "Todas" y sin búsqueda)
+  const q = (document.getElementById("buscador").value||"").trim();
+  if(familiaActiva !== "Todas" || q){ cont.innerHTML = ""; return; }
+  const dest = CATALOGO.filter(p => p.foto && p.disponible !== false).slice(0, 10);
+  if(dest.length < 3){ cont.innerHTML = ""; return; }
+  cont.innerHTML = '<div class="destacados"><div class="tit">Destacados</div><div class="fila-dest">'+
+    dest.map(p => {
+      const foto = 'style="background-image:url(\''+String(p.foto).replace(/'/g,"%27")+'\')"';
+      const precio = verPrecios() ? '<div class="card-precio">$'+fmt(precioDe(p))+'</div>' : '<div class="card-precio oculto">Consultá 🔒</div>';
+      return '<div class="mini-card"><div class="card-foto" '+foto+'></div><div class="card-cuerpo">'+
+        '<div class="card-nom">'+p.nombre+'</div>'+precio+
+        '<div class="card-add"><button class="btn-add" onclick="sumar('+p.id+')">Agregar</button></div></div></div>';
+    }).join("")+'</div></div>';
+}
 
 function renderProductos(){
-  const q = (document.getElementById("buscador").value || "").trim().toLowerCase();
+  const q = (document.getElementById("buscador").value||"").trim().toLowerCase();
   let lista = CATALOGO.slice();
-  if(familiaActiva !== "Todas") lista = lista.filter(p => (p.familia||"Otros") === familiaActiva);
+  if(familiaActiva !== "Todas") lista = lista.filter(p => (p.familia||"Otros")===familiaActiva);
   if(q) lista = lista.filter(p => (p.nombre||"").toLowerCase().includes(q));
-
   const cont = document.getElementById("contenido");
-  if(lista.length === 0){
-    cont.innerHTML = '<div class="estado-vacio"><div class="ev-ico">🔍</div><h3>Sin resultados</h3><p>Probá con otro nombre o familia.</p></div>';
-    return;
-  }
-  // agrupar por familia
+  if(lista.length === 0){ cont.innerHTML = '<div class="vacio"><div class="ico">🔍</div><h3>Sin resultados</h3><p>Probá con otro nombre o categoría.</p></div>'; return; }
   const grupos = {};
-  lista.forEach(p => { const f = p.familia||"Otros"; (grupos[f]=grupos[f]||[]).push(p); });
+  lista.forEach(p => { const f=p.familia||"Otros"; (grupos[f]=grupos[f]||[]).push(p); });
   const fams = Object.keys(grupos).sort((a,b)=>a.localeCompare(b,"es"));
-
-  cont.innerHTML = fams.map(f => {
-    const cards = grupos[f].map(cardHTML).join("");
-    return '<div class="grupo-fam"><h2>'+f+'</h2><div class="grilla">'+cards+'</div></div>';
-  }).join("");
+  cont.innerHTML = fams.map(f => '<div class="seccion"><h2>'+f+'</h2><div class="grilla">'+grupos[f].map(cardHTML).join("")+'</div></div>').join("");
 }
 
 function cardHTML(p){
-  const id = p.id;
-  const cant = carrito[id] || 0;
-  const agotado = p.disponible === false;
-  const foto = p.foto
-    ? 'style="background-image:url(\''+p.foto.replace(/'/g,"%27")+'\')"'
-    : '';
-  const precioHTML = verPrecios()
-    ? '<div class="card-precio">$'+fmt(precioDe(p))+'</div>'
-    : '<div class="card-precio oculto">Consultá el precio 🔒</div>';
+  const id=p.id, cant=carrito[id]||0, agotado=p.disponible===false;
+  const foto = p.foto ? 'style="background-image:url(\''+String(p.foto).replace(/'/g,"%27")+'\')"' : '';
+  const precioHTML = verPrecios() ? '<div class="card-precio">$'+fmt(precioDe(p))+'</div>' : '<div class="card-precio oculto">Consultá el precio 🔒</div>';
   let accion;
-  if(agotado){
-    accion = '<button class="btn-add" disabled style="background:#bbb;cursor:default;">Sin stock</button>';
-  } else if(cant>0){
-    accion = '<div class="qty"><button onclick="restar('+id+')">−</button><span>'+cant+'</span><button onclick="sumar('+id+')">+</button></div>';
-  } else {
-    accion = '<button class="btn-add" onclick="sumar('+id+')">Agregar</button>';
-  }
-  return '<div class="card"'+(agotado?' style="opacity:.6;"':'')+'>'+
+  if(agotado) accion='<button class="btn-add" disabled>Sin stock</button>';
+  else if(cant>0) accion='<div class="qty"><button onclick="restar('+id+')">−</button><span>'+cant+'</span><button onclick="sumar('+id+')">+</button></div>';
+  else accion='<button class="btn-add" onclick="sumar('+id+')">Agregar</button>';
+  return '<div class="card">'+
+    (agotado?'<div class="tag-stock">Sin stock</div>':'')+
     '<div class="card-foto" '+foto+'>'+(p.foto?'':'🧺')+'</div>'+
-    '<div class="card-cuerpo">'+
-      '<div class="card-nom">'+(p.nombre||"")+'</div>'+
-      precioHTML+
-      '<div class="card-add">'+accion+'</div>'+
-    '</div>'+
-  '</div>';
+    '<div class="card-cuerpo"><div class="card-nom">'+(p.nombre||"")+'</div>'+precioHTML+
+    '<div class="card-add">'+accion+'</div></div></div>';
 }
 
-/* ============================================================
-   CARRITO
-   ============================================================ */
-function sumar(id){ carrito[id] = (carrito[id]||0)+1; render(); }
-function restar(id){
-  carrito[id] = (carrito[id]||0)-1;
-  if(carrito[id] <= 0) delete carrito[id];
-  render();
-}
-function itemsCarrito(){
-  return Object.keys(carrito).map(id => {
-    const p = CATALOGO.find(x => String(x.id) === String(id));
-    if(!p) return null;
-    return { ...p, cantidad: carrito[id], precioFinal: precioDe(p) };
-  }).filter(Boolean);
-}
-function totalCarrito(){ return itemsCarrito().reduce((s,i)=> s + i.precioFinal*i.cantidad, 0); }
+/* ===== Carrito ===== */
+function sumar(id){ carrito[id]=(carrito[id]||0)+1; render(); }
+function restar(id){ carrito[id]=(carrito[id]||0)-1; if(carrito[id]<=0) delete carrito[id]; render(); }
+function itemsCarrito(){ return Object.keys(carrito).map(id=>{ const p=CATALOGO.find(x=>String(x.id)===String(id)); if(!p) return null; return {...p, cantidad:carrito[id], precioFinal:precioDe(p)}; }).filter(Boolean); }
+function totalCarrito(){ return itemsCarrito().reduce((s,i)=>s+i.precioFinal*i.cantidad,0); }
 function cantTotal(){ return Object.values(carrito).reduce((s,c)=>s+c,0); }
 
-function renderBarraCarrito(){
-  const n = cantTotal();
-  const barra = document.getElementById("barra-carrito");
-  document.getElementById("ci-cant").textContent = n + (n===1?" producto":" productos");
-  document.getElementById("ci-total").innerHTML = verPrecios() ? "$"+fmt(totalCarrito()) : "&nbsp;";
+function renderBarra(){
+  const n=cantTotal(), barra=document.getElementById("barra"), badge=document.getElementById("badge");
+  document.getElementById("b-cant").textContent = n+(n===1?" producto":" productos");
+  document.getElementById("b-total").innerHTML = verPrecios() ? "$"+fmt(totalCarrito()) : "&nbsp;";
   barra.classList.toggle("visible", n>0);
+  if(n>0){ badge.style.display="flex"; badge.textContent=n; } else { badge.style.display="none"; }
 }
 
 function abrirCarrito(){
-  const items = itemsCarrito();
-  const cont = document.getElementById("carr-items");
-  if(items.length === 0){ toast("Tu pedido está vacío"); return; }
-  cont.innerHTML = items.map(i => {
-    const foto = i.foto ? 'style="background-image:url(\''+i.foto.replace(/'/g,"%27")+'\')"' : '';
+  const items=itemsCarrito();
+  if(items.length===0){ toast("Tu pedido está vacío"); return; }
+  document.getElementById("carr-items").innerHTML = items.map(i=>{
+    const foto = i.foto ? 'style="background-image:url(\''+String(i.foto).replace(/'/g,"%27")+'\')"' : '';
     const precio = verPrecios() ? '<div class="ic-precio">$'+fmt(i.precioFinal)+' c/u</div>' : '<div class="ic-precio">a confirmar</div>';
-    return '<div class="item-carr">'+
-      '<div class="ic-foto" '+foto+'>'+(i.foto?'':'🧺')+'</div>'+
+    return '<div class="item-carr"><div class="ic-foto" '+foto+'>'+(i.foto?'':'🧺')+'</div>'+
       '<div class="ic-nom">'+i.nombre+precio+'</div>'+
-      '<div class="mini-qty"><button onclick="restar('+i.id+');abrirCarrito()">−</button>'+
-        '<span>'+i.cantidad+'</span>'+
-        '<button onclick="sumar('+i.id+');abrirCarrito()">+</button></div>'+
-    '</div>';
+      '<div class="mini-qty"><button onclick="restar('+i.id+');abrirCarrito()">−</button><span>'+i.cantidad+'</span><button onclick="sumar('+i.id+');abrirCarrito()">+</button></div></div>';
   }).join("");
-  const totalRow = document.getElementById("carr-total-row");
-  if(verPrecios()){
-    totalRow.style.display = "flex";
-    document.getElementById("carr-total").textContent = "$"+fmt(totalCarrito());
-    document.getElementById("carr-sub").textContent = "Revisá tu pedido y confirmá.";
-  } else {
-    totalRow.style.display = "none";
-    document.getElementById("carr-sub").textContent = "Te pasamos el total cuando recibamos el pedido.";
-  }
-  // si es mayorista, prellenar sus datos
-  if(esMayorista()){
-    document.getElementById("ped-nombre").value = cliente.nombre || "";
-    document.getElementById("ped-wsp").value = cliente.whatsapp || "";
-  }
+  const tr=document.getElementById("carr-total-row");
+  if(verPrecios()){ tr.style.display="flex"; document.getElementById("carr-total").textContent="$"+fmt(totalCarrito()); document.getElementById("carr-sub").textContent="Revisá tu pedido y confirmá."; }
+  else { tr.style.display="none"; document.getElementById("carr-sub").textContent="Te pasamos el total cuando recibamos el pedido."; }
+  if(esMayorista()){ document.getElementById("ped-nombre").value=cliente.nombre||""; document.getElementById("ped-wsp").value=cliente.whatsapp||""; }
   document.getElementById("ov-carrito").classList.add("abierto");
 }
 
-/* ============================================================
-   LOGIN MAYORISTA
-   ============================================================ */
+/* ===== Login mayorista ===== */
 function abrirLogin(){ document.getElementById("ov-login").classList.add("abierto"); }
 function entrarMayorista(){
-  const wsp = (document.getElementById("login-wsp").value||"").replace(/\D/g,"");
-  const clave = (document.getElementById("login-clave").value||"").trim();
-  if(!wsp || !clave){ toast("Completá WhatsApp y clave"); return; }
-  const match = MAYORISTAS.find(m =>
-    String(m.clave) === clave &&
-    String(m.whatsapp).replace(/\D/g,"").endsWith(wsp.slice(-8))
-  );
-  if(!match){ toast("WhatsApp o clave incorrectos"); return; }
-  cliente = { id: match.id, nombre: match.nombre, whatsapp: String(match.whatsapp).replace(/\D/g,"") };
-  cerrar("ov-login");
-  toast("¡Hola "+ (cliente.nombre||"") +"! Ya ves tus precios");
-  render();
+  const wsp=(document.getElementById("login-wsp").value||"").replace(/\D/g,"");
+  const clave=(document.getElementById("login-clave").value||"").trim();
+  if(!wsp||!clave){ toast("Completá WhatsApp y clave"); return; }
+  const m=MAYORISTAS.find(x=> String(x.clave)===clave && String(x.whatsapp).replace(/\D/g,"").endsWith(wsp.slice(-8)));
+  if(!m){ toast("WhatsApp o clave incorrectos"); return; }
+  cliente={ id:m.id, nombre:m.nombre, whatsapp:String(m.whatsapp).replace(/\D/g,"") };
+  cerrar("ov-login"); toast("¡Hola "+(cliente.nombre||"")+"! Ya ves tus precios"); render();
 }
-function salirMayorista(){ cliente = null; toast("Saliste de tu cuenta"); render(); }
+function salirMayorista(){ cliente=null; toast("Saliste de tu cuenta"); render(); }
 
-/* ============================================================
-   ENVIAR PEDIDO
-   ============================================================ */
+/* ===== Enviar pedido ===== */
 async function enviarPedido(){
-  const items = itemsCarrito();
-  if(items.length === 0){ toast("Tu pedido está vacío"); return; }
-  const nombre = (document.getElementById("ped-nombre").value||"").trim();
-  const wsp = (document.getElementById("ped-wsp").value||"").replace(/\D/g,"");
-  const pago = document.getElementById("ped-pago").value;
-  const retiro = (document.getElementById("ped-retiro").value||"").trim();
-  const notas = (document.getElementById("ped-notas").value||"").trim();
+  const items=itemsCarrito();
+  if(items.length===0){ toast("Tu pedido está vacío"); return; }
+  const nombre=(document.getElementById("ped-nombre").value||"").trim();
+  const wsp=(document.getElementById("ped-wsp").value||"").replace(/\D/g,"");
+  const pago=document.getElementById("ped-pago").value;
+  const retiro=(document.getElementById("ped-retiro").value||"").trim();
+  const notas=(document.getElementById("ped-notas").value||"").trim();
   if(!nombre){ toast("Decinos tu nombre"); return; }
-  if(wsp.length < 6){ toast("Dejanos un WhatsApp válido"); return; }
-
-  const btn = document.getElementById("btn-enviar");
-  btn.disabled = true; btn.textContent = "Enviando…";
-
-  const id = "ped_" + Date.now() + "_" + Math.random().toString(36).slice(2,7);
-  const pedido = {
-    id,
-    clienteNombre: nombre,
-    clienteWhatsapp: wsp,
-    clienteId: esMayorista() ? cliente.id : null,
-    esInvitado: !esMayorista(),
-    formaPago: pago,
-    horarioRetiro: retiro || "a coordinar",
-    notas: notas,
-    items: items.map(i => ({
-      id: i.id, nombre: i.nombre, cantidad: i.cantidad,
-      precio: Math.round(i.precioFinal)
-    })),
-    estado: "pendiente",
-    timestamp: Date.now()
-  };
-
-  try {
-    await db.collection("pedidosMayoristas").doc(id).set(pedido);
-  } catch(e){
-    console.error(e);
-    btn.disabled = false; btn.textContent = "📲 Enviar pedido por WhatsApp";
-    toast("No se pudo enviar. Probá de nuevo.");
-    return;
-  }
-
-  // Armar texto para WhatsApp
-  let txt = "*Nuevo pedido — La Reina*%0A%0A";
-  txt += "Cliente: " + encodeURIComponent(nombre) + "%0A";
-  txt += "WhatsApp: " + wsp + "%0A";
-  txt += "Pago: " + encodeURIComponent(pago) + "%0A";
-  txt += "Retira: " + encodeURIComponent(retiro || "a coordinar") + "%0A%0A";
-  items.forEach(i => {
-    txt += "• " + encodeURIComponent(i.nombre) + " x" + i.cantidad;
-    if(verPrecios()) txt += " — $" + fmt(Math.round(i.precioFinal*i.cantidad));
-    txt += "%0A";
-  });
-  if(verPrecios()) txt += "%0A*TOTAL: $" + fmt(totalCarrito()) + "*";
-  if(notas) txt += "%0A%0ANota: " + encodeURIComponent(notas);
-
-  // limpiar y avisar
-  carrito = {};
-  cerrar("ov-carrito");
-  render();
-  btn.disabled = false; btn.textContent = "📲 Enviar pedido por WhatsApp";
-  toast("¡Pedido enviado! 🎉");
-
-  window.open("https://wa.me/" + WHATSAPP_NEGOCIO + "?text=" + txt, "_blank");
+  if(wsp.length<6){ toast("Dejanos un WhatsApp válido"); return; }
+  const btn=document.getElementById("btn-enviar"); btn.disabled=true; btn.textContent="Enviando…";
+  const id="ped_"+Date.now()+"_"+Math.random().toString(36).slice(2,7);
+  const pedido={ id, clienteNombre:nombre, clienteWhatsapp:wsp, clienteId: esMayorista()?cliente.id:null,
+    esInvitado:!esMayorista(), formaPago:pago, horarioRetiro:retiro||"a coordinar", notas:notas,
+    items: items.map(i=>({ id:i.id, nombre:i.nombre, cantidad:i.cantidad, precio:Math.round(i.precioFinal) })),
+    estado:"pendiente", timestamp:Date.now() };
+  try { await db.collection("pedidosMayoristas").doc(id).set(pedido); }
+  catch(e){ console.error(e); btn.disabled=false; btn.textContent="📲 Enviar pedido por WhatsApp"; toast("No se pudo enviar. Probá de nuevo."); return; }
+  let txt="*Nuevo pedido — La Reina*%0A%0ACliente: "+encodeURIComponent(nombre)+"%0AWhatsApp: "+wsp+"%0APago: "+encodeURIComponent(pago)+"%0ARetira: "+encodeURIComponent(retiro||"a coordinar")+"%0A%0A";
+  items.forEach(i=>{ txt+="• "+encodeURIComponent(i.nombre)+" x"+i.cantidad; if(verPrecios()) txt+=" — $"+fmt(Math.round(i.precioFinal*i.cantidad)); txt+="%0A"; });
+  if(verPrecios()) txt+="%0A*TOTAL: $"+fmt(totalCarrito())+"*";
+  if(notas) txt+="%0A%0ANota: "+encodeURIComponent(notas);
+  carrito={}; cerrar("ov-carrito"); render(); btn.disabled=false; btn.textContent="📲 Enviar pedido por WhatsApp"; toast("¡Pedido enviado! 🎉");
+  window.open("https://wa.me/"+WHATSAPP_NEGOCIO+"?text="+txt, "_blank");
 }
 </script>
 </body>
