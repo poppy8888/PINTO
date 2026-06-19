@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consorcio Río Mikilo · App de consulta (conectable a ArcGIS)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --arena:#E9E4D8;--arena2:#F4F1E8;--papel:#FFFFFF;
+    --tinta:#16302B;--tinta2:#52605A;--tinta3:#8A938D;
+    --agua:#0E7C6B;--agua-osc:#0A574A;--agua-cl:#CBE5DD;
+    --deuda:#B5481F;--deuda-cl:#F1DACE;--deuda-osc:#7F3115;
+    --aldia:#3F7A2C;--aldia-cl:#DCE8CC;--aldia-osc:#2C5A1C;
+    --linea:#D6CFBF;--linea2:#C2BAA6;
+    --display:'Space Grotesk',ui-sans-serif,system-ui,sans-serif;
+    --body:'Inter',ui-sans-serif,system-ui,sans-serif;
+    --mono:'Space Mono',ui-monospace,monospace;--r:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--body);background:var(--arena);color:var(--tinta);line-height:1.6}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--linea2);background:var(--arena2)}
+  .hd{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:baseline;gap:12px}
+  .brand .mark{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.5px;color:var(--agua-osc)}
+  .brand .sub{font-size:13px;color:var(--tinta2);font-weight:500}
+  .session{display:flex;align-items:center;gap:12px;font-size:14px}
+  .session .who b{color:var(--tinta);font-weight:600}
+  .btn{font-family:var(--body);font-size:14px;font-weight:600;border:1px solid var(--linea2);background:var(--papel);color:var(--tinta);padding:8px 14px;border-radius:8px;cursor:pointer}
+  .btn:hover{border-color:var(--agua);background:#fff}
+  #login{padding:44px 0 60px}
+  .lead{max-width:680px;margin-bottom:30px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--agua-osc);margin-bottom:12px}
+  .lead h1{font-family:var(--display);font-weight:600;font-size:34px;line-height:1.12;letter-spacing:-1px;margin-bottom:12px}
+  .lead p{font-size:16px;color:var(--tinta2)}
+  .pick-label{font-size:13px;font-weight:600;color:var(--tinta2);text-transform:uppercase;letter-spacing:.5px;margin:0 0 14px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .ucard{text-align:left;background:var(--papel);border:1px solid var(--linea);border-radius:var(--r);padding:18px;cursor:pointer;font-family:var(--body)}
+  .ucard:hover{border-color:var(--agua);box-shadow:0 6px 18px rgba(22,48,43,.08)}
+  .ucard .un{font-family:var(--display);font-weight:600;font-size:17px;margin-bottom:4px}
+  .ucard .uu{font-family:var(--mono);font-size:12px;color:var(--tinta3)}
+  .ucard .um{margin-top:14px;display:flex;gap:14px;font-size:13px;color:var(--tinta2)}
+  .ucard .um b{font-family:var(--mono);color:var(--tinta)}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+  .dot.ok{background:var(--aldia)}.dot.bad{background:var(--deuda)}
+  .tools{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .admin-btn{background:var(--tinta);color:#fff;border-color:var(--tinta)}
+  .filebtn{display:inline-flex;align-items:center;gap:8px}
+  #app{display:none;padding:20px 0 56px}#app.on{display:block}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--papel);border:1px solid var(--linea);border-radius:var(--r);overflow:hidden}
+  .map-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--linea)}
+  .map-head h2{font-family:var(--display);font-weight:600;font-size:16px}
+  .map-head .scale{font-family:var(--mono);font-size:11px;color:var(--tinta3)}
+  #map{width:100%;height:560px;background:#cdd6cf}
+  .ficha{padding:18px}
+  .ficha .rn{font-family:var(--display);font-weight:600;font-size:20px}
+  .ficha .ru{font-family:var(--mono);font-size:12px;color:var(--tinta3);margin-top:2px}
+  .status{display:inline-flex;gap:6px;margin-top:12px;padding:5px 11px;border-radius:20px;font-size:13px;font-weight:600}
+  .status.ok{background:var(--aldia-cl);color:var(--aldia-osc)}
+  .status.bad{background:var(--deuda-cl);color:var(--deuda-osc)}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+  .metric{background:var(--arena2);border:1px solid var(--linea);border-radius:8px;padding:11px 10px}
+  .metric .mk{font-size:11px;color:var(--tinta2);text-transform:uppercase;letter-spacing:.4px}
+  .metric .mv{font-family:var(--mono);font-weight:700;font-size:18px;margin-top:3px}
+  .metric .mv.deuda{color:var(--deuda)}.metric .mv.ok{color:var(--aldia)}
+  .metric .mu{font-size:11px;color:var(--tinta3)}
+  .sec-t{font-size:12px;font-weight:600;color:var(--tinta2);text-transform:uppercase;letter-spacing:.5px;margin:20px 0 10px}
+  .lot-list{display:flex;flex-direction:column;gap:8px}
+  .lot{display:flex;justify-content:space-between;gap:10px;background:var(--papel);border:1px solid var(--linea);border-radius:8px;padding:10px 12px;cursor:pointer;text-align:left;font-family:var(--body)}
+  .lot:hover{border-color:var(--agua);background:var(--arena2)}
+  .lot.sel{border-color:var(--agua);background:var(--agua-cl)}
+  .lot .li{font-family:var(--mono);font-weight:700;font-size:14px}
+  .lot .lc{font-size:12px;color:var(--tinta2)}
+  .lot .ls{text-align:right}
+  .lot .ls .sa{font-family:var(--mono);font-weight:700;font-size:13px}
+  .lot .ls .sa.bad{color:var(--deuda)}.lot .ls .sa.ok{color:var(--aldia)}
+  .lot .ls .sh{font-size:11px;color:var(--tinta3)}
+  .detail{margin-top:16px;border-top:1px dashed var(--linea2);padding-top:14px;display:none}.detail.on{display:block}
+  .detail h4{font-family:var(--display);font-size:15px;margin-bottom:10px}
+  .drow{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;border-bottom:1px solid var(--arena)}
+  .drow span:first-child{color:var(--tinta2)}.drow span:last-child{font-family:var(--mono);font-weight:700}
+  .drow.total span:last-child{color:var(--deuda);font-size:15px}
+  .hint{font-size:12.5px;color:var(--tinta3);margin-top:14px;line-height:1.5}
+  .leaflet-popup-content{font-family:var(--body)}
+  .banner{background:var(--agua-cl);border:1px solid var(--agua);color:var(--agua-osc);font-size:13px;padding:9px 14px;border-radius:8px;margin-bottom:14px;display:none}
+  .banner.on{display:block}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hd">
+    <div class="brand"><span class="mark">RIEGOS</span>
+      <span class="sub">Consorcio Hídrico del Sudeste Santiagueño · Canal Mikilo</span></div>
+    <div class="session" id="session" style="display:none">
+      <span class="who" id="whoLabel"></span>
+      <button class="btn" id="logout">Cambiar de usuario</button>
+    </div>
+  </div>
+</header>
+<main class="wrap">
+  <section id="login">
+    <div class="lead">
+      <div class="eyebrow">Padrón de establecimientos · Campaña 2025 / 2026</div>
+      <h1>Consultá tu campo, tu superficie y tu canon de riego</h1>
+      <p>Versión conectable a ArcGIS. Trae datos de ejemplo en la zona de Pinto. Para usar tus planos reales, exportá la capa de lotes de ArcGIS Pro a GeoJSON (en WGS84, con el campo <b>lote_id</b>) y cargala con el botón de abajo.</p>
+    </div>
+    <p class="pick-label">Ingresá como establecimiento</p>
+    <div class="cards" id="userCards"></div>
+    <div class="tools">
+      <button class="btn admin-btn" id="adminBtn">Ver toda la red (administrador)</button>
+      <label class="btn filebtn">Cargar mis lotes (GeoJSON)
+        <input type="file" id="fileIn" accept=".geojson,.json" style="display:none">
+      </label>
+    </div>
+  </section>
+  <section id="app">
+    <div class="banner" id="banner"></div>
+    <div class="grid">
+      <div class="panel">
+        <div class="map-head"><h2 id="mapTitle">Red del canal Mikilo</h2>
+          <span class="scale" id="scaleLbl">datos de ejemplo</span></div>
+        <div id="map"></div>
+      </div>
+      <aside class="panel ficha" id="ficha"></aside>
+    </div>
+  </section>
+</main>
+<script>
+/* ===== Datos no espaciales (harían de BASE DE DATOS de deuda) ===== */
+const TARIFA=19000, PERIODO="Campaña 2025/2026";
+// canon por lote_id: facturado y pagado. El saldo se calcula.
+let CANON={
+  "L-01":{fact:15*TARIFA,pag:15*TARIFA}, "L-02":{fact:22*TARIFA,pag:0},
+  "L-03":{fact:18*TARIFA,pag:18*TARIFA}, "L-04":{fact:12*TARIFA,pag:6*TARIFA},
+  "L-05":{fact:9*TARIFA,pag:9*TARIFA},   "L-06":{fact:40*TARIFA,pag:12*TARIFA},
+  "L-07":{fact:25*TARIFA,pag:0},         "L-08":{fact:16*TARIFA,pag:16*TARIFA},
+  "L-09":{fact:30*TARIFA,pag:30*TARIFA}, "L-10":{fact:20*TARIFA,pag:20*TARIFA},
+};
+
+/* ===== Capas espaciales de EJEMPLO (reemplazables por tus GeoJSON de ArcGIS) =====
+   En tu proyecto: canales/obras los exportás igual; lotes los cargás con el botón. */
+function rect(lng,lat,w=0.013,h=0.010){return [[[lng,lat],[lng+w,lat],[lng+w,lat-h],[lng,lat-h],[lng,lat]]];}
+const LOTES_EJEMPLO={type:"FeatureCollection",features:[
+  ["L-01","Campo Pinto","Pinto","Canal Mikilo",15,-62.668,-29.118],
+  ["L-02","Campo Pinto","Pinto","Canal Mikilo",22,-62.652,-29.118],
+  ["L-03","Campo Alegre","Malbrán","Canal Mikilo",18,-62.454,-29.332],
+  ["L-04","Campo Alegre","Malbrán","Canal Mikilo",12,-62.438,-29.332],
+  ["L-05","Campo Alegre","Malbrán","Canal Mikilo",9,-62.454,-29.346],
+  ["L-06","Campo Las Abras","Villa Unión","Canal Villa Unión",40,-62.614,-29.198],
+  ["L-07","Campo Las Abras","Villa Unión","Canal Villa Unión",25,-62.598,-29.198],
+  ["L-08","Campo Las Abras","Villa Unión","Canal Villa Unión",16,-62.614,-29.212],
+  ["L-09","Campo de Afagro","zona del Oso","Canal Ramón Paz",30,-62.517,-29.274],
+  ["L-10","Campo de Afagro","zona del Oso","Canal Ramón Paz",20,-62.501,-29.274],
+].map(([id,est,loc,canal,sup,lng,lat])=>({
+  type:"Feature",
+  properties:{lote_id:id,establecimiento:est,localidad:loc,canal,superficie_ha:sup},
+  geometry:{type:"Polygon",coordinates:rect(lng,lat)}
+}))};
+
+const CANALES={type:"FeatureCollection",features:[
+  {type:"Feature",properties:{nombre:"Canal Mikilo",tipo:"matriz"},
+   geometry:{type:"LineString",coordinates:[[-62.78,-29.085],[-62.66,-29.12],[-62.58,-29.18],[-62.47,-29.30],[-62.43,-29.34]]}},
+  {type:"Feature",properties:{nombre:"Canal Villa Unión",tipo:"secundario"},
+   geometry:{type:"LineString",coordinates:[[-62.62,-29.165],[-62.61,-29.19],[-62.602,-29.205]]}},
+  {type:"Feature",properties:{nombre:"Canal Ramón Paz",tipo:"secundario"},
+   geometry:{type:"LineString",coordinates:[[-62.52,-29.245],[-62.51,-29.265],[-62.506,-29.28]]}},
+]};
+const OBRAS={type:"FeatureCollection",features:[
+  ["Azud nivelador y toma · Brea Corral","toma",-62.78,-29.085],
+  ["Puente Blanco → Villa Unión","derivacion",-62.62,-29.165],
+  ["Derivación → Canal Ramón Paz","derivacion",-62.52,-29.245],
+  ["Represa Pública","represa",-62.70,-29.10],
+  ["Represa La Cantera","represa",-62.662,-29.118],
+].map(([nombre,tipo,lng,lat])=>({type:"Feature",properties:{nombre,tipo},
+  geometry:{type:"Point",coordinates:[lng,lat]}}))};
+
+/* ===== Utilidades ===== */
+const money=v=>new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(v);
+const ha=v=>new Intl.NumberFormat("es-AR",{maximumFractionDigits:1}).format(v);
+const saldoDe=id=>{const c=CANON[id];return c?c.fact-c.pag:null;};
+
+let LOTES=LOTES_EJEMPLO;          // capa activa de lotes
+let activo=null, loteSel=null;
+let map, lotesLayer, canalesLayer, obrasLayer;
+
+/* ===== Derivar establecimientos desde la capa de lotes ===== */
+function establecimientos(){
+  const m={};
+  LOTES.features.forEach(f=>{
+    const p=f.properties, est=p.establecimiento||"(sin establecimiento)";
+    (m[est]=m[est]||{nombre:est,localidad:p.localidad||"",canal:p.canal||"",lotes:[]}).lotes.push(p);
+  });
+  return m;
+}
+function resumen(est){
+  const e=establecimientos()[est]; if(!e)return{n:0,sup:0,deuda:0,lotes:[]};
+  const sup=e.lotes.reduce((a,p)=>a+(+p.superficie_ha||0),0);
+  const deuda=e.lotes.reduce((a,p)=>a+(saldoDe(p.lote_id)||0),0);
+  return{n:e.lotes.length,sup,deuda,lotes:e.lotes,localidad:e.localidad,canal:e.canal};
+}
+
+/* ===== LOGIN cards ===== */
+function pintarCards(){
+  const c=document.getElementById("userCards"); c.innerHTML="";
+  Object.keys(establecimientos()).forEach(est=>{
+    const s=resumen(est), debe=s.deuda>0;
+    const b=document.createElement("button"); b.className="ucard";
+    b.innerHTML=`<div class="un">${est}</div><div class="uu">${s.localidad||"—"} · ${s.canal||"—"}</div>
+      <div class="um"><span><b>${s.n}</b> lote${s.n>1?"s":""}</span><span><b>${ha(s.sup)}</b> ha</span>
+      <span><span class="dot ${debe?"bad":"ok"}"></span>${debe?"con deuda":"al día"}</span></div>`;
+    b.onclick=()=>entrar(est); c.appendChild(b);
+  });
+}
+
+/* ===== MAPA ===== */
+function initMap(){
+  map=L.map("map",{zoomControl:true}).setView([-29.19,-62.58],11);
+  L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {maxZoom:19,attribution:"Imagery © Esri"}).addTo(map);
+  canalesLayer=L.geoJSON(CANALES,{style:f=>({
+    color:f.properties.tipo==="matriz"?"#0A574A":"#16b39a",
+    weight:f.properties.tipo==="matriz"?5:3,opacity:.95})
+  }).bindTooltip(l=>l.feature.properties.nombre).addTo(map);
+  obrasLayer=L.geoJSON(OBRAS,{pointToLayer:(f,ll)=>L.circleMarker(ll,{
+    radius:6,color:"#0A574A",weight:2,fillColor:"#fff",fillOpacity:1})
+  }).bindTooltip(l=>l.feature.properties.nombre).addTo(map);
+  dibujarLotes();
+}
+function estiloLote(f){
+  const id=f.properties.lote_id, saldo=saldoDe(id), debe=saldo>0;
+  const mine=activo&&activo!=="ADMIN"&&f.properties.establecimiento===activo;
+  const sel=loteSel===id;
+  let fill,line,fo,w;
+  if(activo==="ADMIN"||!activo){fill=debe?"#B5481F":"#3F7A2C";fo=.45;line=debe?"#7F3115":"#2C5A1C";w=1.5;}
+  else if(mine){fill=debe?"#B5481F":"#3F7A2C";fo=.6;line=debe?"#7F3115":"#2C5A1C";w=2;}
+  else{fill="#8A938D";fo=.2;line="#8A938D";w=1;}
+  if(saldo===null){fill="#8A938D";fo=.3;line="#5F5E5A";}
+  return{color:sel?"#0E7C6B":line,weight:sel?4:w,fillColor:fill,fillOpacity:fo};
+}
+function dibujarLotes(){
+  if(lotesLayer)map.removeLayer(lotesLayer);
+  lotesLayer=L.geoJSON(LOTES,{
+    style:estiloLote,
+    onEachFeature:(f,layer)=>{
+      const p=f.properties, s=saldoDe(p.lote_id);
+      layer.bindTooltip(`${p.lote_id} · ${ha(p.superficie_ha||0)} ha`);
+      layer.on("click",()=>seleccionarLote(p.lote_id));
+    }
+  }).addTo(map);
+}
+
+/* ===== PANEL ===== */
+function pintarFicha(){
+  const f=document.getElementById("ficha");
+  if(activo==="ADMIN"){
+    const ids=LOTES.features.map(x=>x.properties.lote_id);
+    const sup=LOTES.features.reduce((a,x)=>a+(+x.properties.superficie_ha||0),0);
+    const fact=ids.reduce((a,id)=>a+((CANON[id]||{}).fact||0),0);
+    const pag=ids.reduce((a,id)=>a+((CANON[id]||{}).pag||0),0);
+    const ests=establecimientos();
+    const conDeuda=Object.keys(ests).filter(e=>resumen(e).deuda>0).length;
+    f.innerHTML=`<div class="rn">Resumen del consorcio</div>
+      <div class="ru">administrador · ${PERIODO}</div>
+      <div class="metrics">
+        <div class="metric"><div class="mk">Lotes</div><div class="mv">${LOTES.features.length}</div></div>
+        <div class="metric"><div class="mk">Superficie</div><div class="mv">${ha(sup)}</div><div class="mu">ha</div></div>
+        <div class="metric"><div class="mk">Campos</div><div class="mv">${Object.keys(ests).length}</div></div></div>
+      <div class="sec-t">Cuenta de la campaña</div>
+      <div class="drow"><span>Facturado</span><span>${money(fact)}</span></div>
+      <div class="drow"><span>Cobrado</span><span style="color:var(--aldia)">${money(pag)}</span></div>
+      <div class="drow total"><span>Adeudado</span><span>${money(fact-pag)}</span></div>
+      <div class="drow"><span>Campos con deuda</span><span>${conDeuda} de ${Object.keys(ests).length}</span></div>
+      <div class="hint">Tocá un lote del mapa para ver su detalle.</div>`;
+    return;
+  }
+  const s=resumen(activo), debe=s.deuda>0;
+  const lots=s.lotes.map(p=>{const sa=saldoDe(p.lote_id);
+    return `<button class="lot ${loteSel===p.lote_id?'sel':''}" data-id="${p.lote_id}">
+      <div><div class="li">${p.lote_id}</div><div class="lc">${p.canal||"—"}</div></div>
+      <div class="ls"><div class="sa ${sa>0?'bad':'ok'}">${sa>0?money(sa):(sa===null?'sin datos':'al día')}</div>
+      <div class="sh">${ha(p.superficie_ha||0)} ha</div></div></button>`;}).join("");
+  f.innerHTML=`<div class="rn">${activo}</div>
+    <div class="ru">${s.localidad||"—"} · ${s.canal||"—"} · ${PERIODO}</div>
+    <span class="status ${debe?'bad':'ok'}">${debe?'● Cuenta con deuda':'● Cuenta al día'}</span>
+    <div class="metrics">
+      <div class="metric"><div class="mk">Lotes</div><div class="mv">${s.n}</div></div>
+      <div class="metric"><div class="mk">Superficie</div><div class="mv">${ha(s.sup)}</div><div class="mu">ha</div></div>
+      <div class="metric"><div class="mk">Deuda</div><div class="mv ${debe?'deuda':'ok'}">${debe?money(s.deuda):'$0'}</div></div></div>
+    <div class="sec-t">Lotes del campo</div><div class="lot-list">${lots}</div>
+    <div class="detail" id="detail"></div>
+    <div class="hint">Tocá un lote (en la lista o el mapa) para ver el desglose.</div>`;
+  f.querySelectorAll(".lot").forEach(b=>b.onclick=()=>seleccionarLote(b.dataset.id));
+  if(loteSel)pintarDetalle();
+}
+function pintarDetalle(){
+  const d=document.getElementById("detail"); if(!d)return;
+  const fe=LOTES.features.find(x=>x.properties.lote_id===loteSel);
+  if(!fe){d.className="detail";return;}
+  const p=fe.properties, c=CANON[loteSel];
+  d.className="detail on";
+  d.innerHTML=`<h4>Detalle · ${p.lote_id}</h4>
+    <div class="drow"><span>Empadronado a</span><span style="font-weight:600">${p.canal||"—"}</span></div>
+    <div class="drow"><span>Superficie</span><span>${ha(p.superficie_ha||0)} ha</span></div>`+
+    (c?`<div class="drow"><span>Facturado</span><span>${money(c.fact)}</span></div>
+    <div class="drow"><span>Pagado</span><span style="color:var(--aldia)">${money(c.pag)}</span></div>
+    <div class="drow total"><span>Saldo</span><span>${money(c.fact-c.pag)}</span></div>`
+    :`<div class="drow"><span>Canon</span><span>sin datos de deuda</span></div>`);
+}
+function seleccionarLote(id){
+  loteSel=(loteSel===id)?null:id;
+  dibujarLotes(); pintarFicha();
+  const fe=LOTES.features.find(x=>x.properties.lote_id===loteSel);
+  if(fe&&lotesLayer){lotesLayer.eachLayer(l=>{if(l.feature.properties.lote_id===loteSel)map.fitBounds(l.getBounds(),{maxZoom:14,padding:[40,40]});});}
+}
+
+/* ===== Entrar / salir ===== */
+function entrar(est){
+  activo=est; loteSel=null;
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").classList.add("on");
+  document.getElementById("session").style.display="flex";
+  document.getElementById("whoLabel").innerHTML=est==="ADMIN"?'Sesión: <b>Administrador</b>':'Sesión: <b>'+est+'</b>';
+  document.getElementById("mapTitle").textContent=est==="ADMIN"?"Red completa del consorcio":"Tu campo en la red";
+  if(!map)initMap(); else dibujarLotes();
+  pintarFicha();
+  setTimeout(()=>{map.invalidateSize();
+    if(est!=="ADMIN"&&lotesLayer){const g=[];lotesLayer.eachLayer(l=>{if(l.feature.properties.establecimiento===est)g.push(l);});
+      if(g.length)map.fitBounds(L.featureGroup(g).getBounds(),{maxZoom:13,padding:[40,40]});}
+    else if(lotesLayer&&lotesLayer.getBounds().isValid())map.fitBounds(lotesLayer.getBounds(),{padding:[30,30]});
+  },200);
+}
+document.getElementById("adminBtn").onclick=()=>entrar("ADMIN");
+document.getElementById("logout").onclick=()=>{
+  activo=null;loteSel=null;
+  document.getElementById("app").classList.remove("on");
+  document.getElementById("login").style.display="block";
+  document.getElementById("session").style.display="none";
+};
+
+/* ===== Cargar GeoJSON propio (export de ArcGIS Pro) ===== */
+document.getElementById("fileIn").addEventListener("change",ev=>{
+  const file=ev.target.files[0]; if(!file)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const gj=JSON.parse(rd.result);
+      if(gj.type!=="FeatureCollection"||!Array.isArray(gj.features))throw 0;
+      const conId=gj.features.filter(f=>f.properties&&(f.properties.lote_id||f.properties.LOTE_ID));
+      if(!conId.length)throw "Falta el campo lote_id en las propiedades.";
+      // normalizar nombre del campo id
+      conId.forEach(f=>{if(!f.properties.lote_id&&f.properties.LOTE_ID)f.properties.lote_id=f.properties.LOTE_ID;});
+      LOTES={type:"FeatureCollection",features:conId};
+      const ban=document.getElementById("banner");
+      const sinCanon=conId.filter(f=>!CANON[f.properties.lote_id]).length;
+      ban.className="banner on";
+      ban.innerHTML=`Cargados <b>${conId.length}</b> lotes desde tu archivo.`+
+        (sinCanon?` ${sinCanon} no tienen deuda asociada todavía (cargala en la tabla de canon).`:"");
+      document.getElementById("scaleLbl").textContent="tus datos (GeoJSON)";
+      pintarCards();
+      alert("GeoJSON cargado: "+conId.length+" lotes. Elegí un establecimiento o entrá como administrador.");
+    }catch(e){alert("No pude leer el GeoJSON. "+(typeof e==="string"?e:"Revisá que sea un FeatureCollection con campo lote_id."));}
+  };
+  rd.readAsText(file);
+});
+
+pintarCards();
+</script>
+</body>
+</html>
