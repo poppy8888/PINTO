@@ -1,6 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- ===== PARCHE: cajita separada para CIGARRILLOS (no borrar) ===== -->
+<script>
+(function () {
+  var PREFIX = 'CIG_';   // prefijo unico de este programa
+
+  var real;
+  try { real = window.localStorage; } catch (e) { return; }
+  if (!real) return;
+
+  // 1) Migracion unica (NO destructiva): copia los datos actuales a este programa
+  try {
+    if (real.getItem('__ns_mig_' + PREFIX) !== '1') {
+      var claves = [];
+      for (var i = 0; i < real.length; i++) claves.push(real.key(i));
+      claves.forEach(function (k) {
+        if (!k || k.indexOf('CIG_') === 0 || k.indexOf('FIA_') === 0 || k.indexOf('__ns_mig_') === 0) return;
+        if (real.getItem(PREFIX + k) === null) real.setItem(PREFIX + k, real.getItem(k));
+      });
+      real.setItem('__ns_mig_' + PREFIX, '1');
+    }
+  } catch (e) {}
+
+  // 2) De ahora en mas, todo se lee/guarda con el prefijo de este programa
+  var shim = {
+    getItem:    function (k){ return real.getItem(PREFIX + k); },
+    setItem:    function (k, v){ return real.setItem(PREFIX + k, v); },
+    removeItem: function (k){ return real.removeItem(PREFIX + k); },
+    clear:      function (){ var d=[]; for(var i=0;i<real.length;i++){var kk=real.key(i); if(kk&&kk.indexOf(PREFIX)===0)d.push(kk);} d.forEach(function(kk){real.removeItem(kk);}); },
+    key:        function (i){ return real.key(i); },
+    get length(){ return real.length; }
+  };
+  try { Object.defineProperty(window, 'localStorage', { configurable: true, get: function(){ return shim; } }); } catch (e) {}
+})();
+</script>
+<!-- ===== FIN PARCHE ===== -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>⛽ Estación Don Ramón - PRUEBA NUBE</title>
