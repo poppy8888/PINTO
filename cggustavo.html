@@ -31081,7 +31081,7 @@ setInterval(() => {
             <input type="text" id="cli-clave-mayorista" placeholder="Ej: marlboro123" style="width:100%;padding:8px;border:2px solid #b8870c;border-radius:6px;font-size:0.9rem;">
           </div>
         </div>
-        <div style="font-size:0.72rem;color:#1a1a1a;margin-top:8px;opacity:0.85;">💡 El cliente entra a la página mayorista con su número de WhatsApp + clave. Ve precios Lista 2 y puede hacer pedidos.</div>
+        <div style="font-size:0.72rem;color:#1a1a1a;margin-top:8px;opacity:0.85;">💡 El cliente entra al catálogo mayorista con su número de WhatsApp + clave. Ve precios de Venta y puede hacer pedidos.</div>
       </div>
     </div>
     <div class="modal-btns" style="margin-top:18px;">
@@ -43866,10 +43866,10 @@ renderAll = function(){
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 window.GDrive = (function(){
-  const API_KEY = 'AIzaSyDU0IsD1biARJK8UwSTViiZBlmcwPOe9-c';
-  const CLIENT_ID = '319444394260-55u5pkfqjdi8289qe0k14jrtbq8a1q2a.apps.googleusercontent.com';
+  const API_KEY = 'AIzaSyBYHIviddPZ389w-2Ve_Gg7HRISkUpmWMM';
+  const CLIENT_ID = '957550135985-pl8l0v0m51djo4skjq3msp3kkguqosib.apps.googleusercontent.com';
   const SCOPES = 'https://www.googleapis.com/auth/drive.file';
-  const CARPETA_NOMBRE = 'LaReina_Cigarrillos';
+  const CARPETA_NOMBRE = 'CG_Distribucion_Productos';
 
   let tokenClient = null;
   let accessToken = null;
@@ -44832,7 +44832,7 @@ setInterval(() => {
 // ============================================================================
 // 🛒 GESTIÓN DE PEDIDOS MAYORISTAS
 // ----------------------------------------------------------------------------
-// Los pedidos vienen de mayoristas.html y se guardan en Firestore en la
+// Los pedidos vienen de cgcatalogo.html y se guardan en Firestore en la
 // colección "pedidosMayoristas". Acá los listamos, aprobamos, rechazamos.
 // ============================================================================
 
@@ -44868,7 +44868,7 @@ function abrirPedidosMayoristas(){
           <label style="font-size:0.85rem;font-weight:700;color:#1a1a1a;">📱 Mi WhatsApp (donde llegan los pedidos):</label>
           <input id="cfg-wsp-admin" type="text" value="${getWspAdmin()}" style="padding:7px 10px;border:2px solid #b8870c;border-radius:6px;font-size:0.9rem;width:160px;">
           <button onclick="guardarWspAdmin()" style="padding:7px 14px;background:#27500a;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;">💾 Guardar</button>
-          <a href="mayoristas.html" target="_blank" style="margin-left:auto;padding:7px 14px;background:#3498db;color:#fff;border-radius:6px;font-weight:700;text-decoration:none;font-size:0.85rem;">🌐 Abrir página mayoristas</a>
+          <a href="https://poppy8888.github.io/PINTO/cgcatalogo.html" target="_blank" style="margin-left:auto;padding:7px 14px;background:#3498db;color:#fff;border-radius:6px;font-weight:700;text-decoration:none;font-size:0.85rem;">🌐 Abrir catálogo mayorista</a>
         </div>
       </div>
 
@@ -45520,6 +45520,7 @@ window.abrirEditorCatalogo = function(){
         <div style="font-size:0.82rem;color:#666;" id="cat-contador">—</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button onclick="catRepublicar()" style="padding:9px 14px;border:none;border-radius:7px;font-size:0.82rem;font-weight:800;cursor:pointer;background:#2980b9;color:#fff;">🔄 Actualizar vidriera</button>
+          <button onclick="catGenerarPDF()" style="padding:9px 14px;border:none;border-radius:7px;font-size:0.82rem;font-weight:800;cursor:pointer;background:#a52a2a;color:#fff;">📄 Generar PDF</button>
           <button onclick="arreglarLinksDrive()" style="padding:9px 14px;border:none;border-radius:7px;font-size:0.82rem;font-weight:800;cursor:pointer;background:#8e44ad;color:#fff;">🔧 Reparar fotos</button>
           <button id="cat-btn-precios" onclick="catTogglePreciosPublico()" style="padding:9px 14px;border:none;border-radius:7px;font-size:0.82rem;font-weight:800;cursor:pointer;"></button>
         </div>
@@ -45571,6 +45572,250 @@ window.catTogglePreciosPublico = function(){
 window.catRepublicar = function(){
   fbPublicarCatalogo();
   if(typeof toast === 'function') toast('🔄 Vidriera actualizada');
+};
+
+// ============================================================
+// 📄 GENERAR PDF DEL CATÁLOGO MAYORISTA
+// Abre una ventana nueva con vista para impresión (A4) y dispara
+// el diálogo de impresión del navegador. El usuario elige
+// "Guardar como PDF" desde ahí. Incluye fotos, precios de Venta
+// común y agrupa por familia/categoría.
+// ============================================================
+window.catGenerarPDF = function(){
+  const prods = (typeof productos !== 'undefined' ? productos : []);
+  // Solo productos del catálogo, activos y con nombre
+  const lista = prods.filter(p => p && p.nombre && p.activo !== false && p.enCatalogo !== false);
+  if(lista.length === 0){
+    if(typeof toast === 'function') toast('⚠️ No hay productos en el catálogo');
+    else alert('No hay productos en el catálogo');
+    return;
+  }
+
+  // Agrupar por familia
+  const grupos = {};
+  lista.forEach(p => {
+    const fam = (p.familia || p.marca || 'Otros').trim() || 'Otros';
+    if(!grupos[fam]) grupos[fam] = [];
+    grupos[fam].push(p);
+  });
+
+  // Ordenar familias alfabéticamente, productos dentro de cada familia también
+  const familiasOrdenadas = Object.keys(grupos).sort((a,b) => a.localeCompare(b,'es'));
+  familiasOrdenadas.forEach(f => {
+    grupos[f].sort((a,b) => (a.nombre||'').localeCompare(b.nombre||'','es'));
+  });
+
+  // Fecha actual
+  const hoy = new Date();
+  const fechaStr = hoy.toLocaleDateString('es-AR', {day:'2-digit', month:'long', year:'numeric'});
+
+  // Stock actual para mostrar disponibilidad
+  const stockMap = (typeof stock !== 'undefined' && stock) ? stock : {};
+
+  // WhatsApp admin para footer
+  let wspAdmin = '';
+  try { wspAdmin = localStorage.getItem('ER_WSP_ADMIN') || ''; } catch(e){}
+
+  // Helper escape
+  const esc = (s) => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const fmt = (n) => Number(n||0).toLocaleString('es-AR', {maximumFractionDigits:2});
+
+  // HTML del PDF
+  let html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Catálogo CG Distribución - ${esc(fechaStr)}</title>
+<style>
+  @page { size: A4; margin: 12mm 10mm; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;color:#1a1a1a;background:#fff;font-size:10pt;}
+
+  .header{
+    background:linear-gradient(135deg,#1a1a1a 0%,#2a2a2a 100%);
+    color:#fff;padding:14px 18px;border-bottom:4px solid #f5c500;
+    display:flex;align-items:center;gap:14px;margin-bottom:14px;
+  }
+  .header .logo{
+    width:56px;height:56px;border-radius:50%;background:#f5c500;
+    display:flex;align-items:center;justify-content:center;font-size:30px;
+    flex-shrink:0;
+  }
+  .header .titulo{
+    font-family:'Georgia','Times New Roman',serif;font-style:italic;
+    font-size:24pt;color:#f5c500;font-weight:800;letter-spacing:0.5px;line-height:1;
+  }
+  .header .sub{
+    color:#d4d4d4;font-size:8pt;letter-spacing:3px;text-transform:uppercase;margin-top:5px;
+  }
+  .header .fecha{
+    margin-left:auto;text-align:right;color:#f5c500;font-weight:700;font-size:9pt;
+  }
+  .header .fecha small{display:block;color:#d4d4d4;font-size:7pt;font-weight:600;margin-top:2px;}
+
+  .info-precios{
+    background:#fff3cd;border:1px solid #f5c500;border-radius:6px;
+    padding:8px 14px;margin:0 4px 14px;font-size:8.5pt;color:#5a4a22;
+    text-align:center;font-weight:700;
+  }
+
+  .familia{
+    margin-top:18px;page-break-inside:avoid;
+  }
+  .familia-h{
+    background:#1a1a1a;color:#f5c500;padding:7px 12px;border-radius:6px;
+    font-size:11pt;font-weight:800;letter-spacing:0.5px;
+    text-transform:uppercase;border-left:5px solid #f5c500;
+  }
+  .familia-h .count{
+    float:right;color:#d4d4d4;font-size:8.5pt;font-weight:600;text-transform:none;letter-spacing:0;
+  }
+
+  .grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;
+  }
+  .prod{
+    border:1px solid #e0d4b5;border-radius:8px;padding:7px;
+    display:flex;flex-direction:column;page-break-inside:avoid;background:#fff;
+  }
+  .prod-foto{
+    width:100%;aspect-ratio:1/1;background:#fbf8ee center/contain no-repeat;
+    border-radius:5px;border:1px solid #f0e6cf;
+    display:flex;align-items:center;justify-content:center;font-size:32pt;
+    margin-bottom:5px;
+  }
+  .prod-nom{
+    font-size:8.5pt;font-weight:700;color:#1a1a1a;line-height:1.2;
+    min-height:30px;
+  }
+  .prod-precio{
+    font-size:11pt;font-weight:800;color:#1a1a1a;margin-top:4px;
+    border-top:1px solid #f0e6cf;padding-top:4px;
+  }
+  .prod-precio .moneda{font-size:9pt;color:#666;}
+  .prod-stock{
+    font-size:7pt;color:#888;margin-top:2px;font-weight:600;
+  }
+  .prod-stock.cero{color:#c0392b;font-weight:800;}
+  .prod.sin-stock{opacity:0.55;}
+  .prod-sin-precio{
+    font-size:8pt;color:#8a7634;background:#fff8e1;border-radius:4px;
+    padding:3px 6px;text-align:center;margin-top:4px;font-weight:700;
+  }
+
+  .footer{
+    margin-top:24px;padding-top:10px;border-top:2px solid #f5c500;
+    text-align:center;color:#666;font-size:8pt;
+    page-break-inside:avoid;
+  }
+  .footer strong{color:#1a1a1a;}
+
+  /* Saltos de página entre familias grandes */
+  .familia.salto{page-break-before:always;}
+
+  @media print {
+    body{print-color-adjust:exact;-webkit-print-color-adjust:exact;}
+    .no-print{display:none !important;}
+  }
+  .barra-acciones{
+    position:fixed;top:0;left:0;right:0;background:#1a1a1a;color:#fff;
+    padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+    z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  .barra-acciones b{color:#f5c500;}
+  .barra-acciones button{
+    background:#f5c500;color:#1a1a1a;border:none;padding:8px 18px;
+    border-radius:6px;font-weight:800;cursor:pointer;font-size:0.9rem;margin-left:8px;
+  }
+  .barra-acciones button.gris{background:#666;color:#fff;}
+  body.con-barra{padding-top:60px;}
+</style>
+</head>
+<body class="con-barra">
+
+<div class="barra-acciones no-print">
+  <div>📄 Vista previa · <b>${lista.length} productos</b> · ${familiasOrdenadas.length} categorías</div>
+  <div>
+    <button onclick="window.close()" class="gris">Cerrar</button>
+    <button onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+  </div>
+</div>
+
+<div class="header">
+  <div class="logo">👑</div>
+  <div>
+    <div class="titulo">CG Distribución</div>
+    <div class="sub">Catálogo Mayorista</div>
+  </div>
+  <div class="fecha">
+    ${esc(fechaStr)}
+    <small>${lista.length} productos · ${familiasOrdenadas.length} categorías</small>
+  </div>
+</div>
+
+<div class="info-precios">
+  💰 Precios al ${esc(hoy.toLocaleDateString('es-AR'))} · Sujetos a modificación sin previo aviso
+</div>
+`;
+
+  // Generar contenido por familia
+  familiasOrdenadas.forEach((fam, idx) => {
+    const items = grupos[fam];
+    // No poner salto antes de la primera familia
+    const saltoClase = (idx > 0 && idx % 3 === 0) ? ' salto' : '';
+    html += `<div class="familia${saltoClase}">`;
+    html += `<div class="familia-h">${esc(fam)}<span class="count">${items.length} ${items.length === 1 ? 'producto' : 'productos'}</span></div>`;
+    html += `<div class="grid">`;
+    items.forEach(p => {
+      const stReg = stockMap[p.id];
+      const st = (stReg === undefined || stReg === null) ? null : Number(stReg);
+      const sinStock = (st !== null && st <= 0);
+      const precio = Math.round(Number(p.precio || p.precioVenta || 0));
+      const foto = p.foto ? `style="background-image:url('${esc(p.foto)}')"` : '';
+      const emoji = !p.foto ? '📦' : '';
+      let bloquePrecio = '';
+      if(precio > 0){
+        bloquePrecio = `<div class="prod-precio"><span class="moneda">$</span> ${fmt(precio)}</div>`;
+      } else {
+        bloquePrecio = `<div class="prod-sin-precio">Consultar precio</div>`;
+      }
+      let stockTxt = '';
+      if(sinStock) stockTxt = `<div class="prod-stock cero">⛔ Sin stock</div>`;
+      else if(st !== null && st > 0 && st <= 3) stockTxt = `<div class="prod-stock">Últimas ${st} u.</div>`;
+      html += `
+        <div class="prod ${sinStock?'sin-stock':''}">
+          <div class="prod-foto" ${foto}>${emoji}</div>
+          <div class="prod-nom">${esc(p.nombre)}</div>
+          ${bloquePrecio}
+          ${stockTxt}
+        </div>
+      `;
+    });
+    html += `</div></div>`;
+  });
+
+  // Footer
+  html += `
+<div class="footer">
+  <strong>CG Distribución</strong> · Catálogo Mayorista
+  ${wspAdmin ? '<br>📱 WhatsApp: +54 ' + esc(wspAdmin) : ''}
+  <br>Documento generado el ${esc(hoy.toLocaleString('es-AR'))}
+</div>
+
+</body>
+</html>`;
+
+  // Abrir en ventana nueva
+  const w = window.open('', '_blank', 'width=900,height=700');
+  if(!w){
+    if(typeof toast === 'function') toast('⚠️ Permití las ventanas emergentes para generar el PDF');
+    else alert('Permití las ventanas emergentes para generar el PDF');
+    return;
+  }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  if(typeof toast === 'function') toast('✅ Vista previa abierta. Tocá "Imprimir / Guardar PDF"');
 };
 
 window.catToggle = function(id, val){
