@@ -329,12 +329,27 @@ window.intentarLogin = function(){
   const c = String(document.getElementById('lg-pass').value || '').trim();
   if(!u || !c){ document.getElementById('lg-error').textContent = 'Completá usuario y clave.'; return; }
   const uDig = u.replace(/\D/g,'');
-  const found = getLoginList().find(x => {
-    if(String(x.clave==null?'':x.clave).trim() !== c) return false;
+  const lista = getLoginList();
+  if(!lista.length){
+    document.getElementById('lg-error').textContent = 'Todavía no hay clientes con clave publicados. Pedile al admin que toque "Actualizar vidriera".';
+    return;
+  }
+  const claveOk = x => String(x.clave==null?'':x.clave).trim() === c;
+  const usuarioOk = x => {
     const usr=_norm(x.usuario), nom=_norm(x.nombre), wsp=String(x.whatsapp||'').replace(/\D/g,'');
-    return u===usr || u===nom || (uDig.length>=8 && uDig===wsp);
-  });
-  if(!found){ document.getElementById('lg-error').textContent = 'Usuario o clave incorrectos.'; return; }
+    if(u===usr || u===nom) return true;
+    // Comparar por los últimos 8 dígitos del WhatsApp (ignora 54 / 549 / 0 / 15 adelante)
+    if(uDig.length>=6 && wsp.length>=6 && uDig.slice(-8)===wsp.slice(-8)) return true;
+    return false;
+  };
+  const found = lista.find(x => claveOk(x) && usuarioOk(x));
+  if(!found){
+    // Mensaje más útil: distinguir si falló la clave o el usuario
+    if(lista.some(claveOk)) document.getElementById('lg-error').textContent = 'La clave es correcta pero el usuario no coincide. Probá con tu nombre o tu número de WhatsApp.';
+    else if(lista.some(usuarioOk)) document.getElementById('lg-error').textContent = 'Te encontramos, pero la clave no es correcta.';
+    else document.getElementById('lg-error').textContent = 'Usuario o clave incorrectos.';
+    return;
+  }
   state.cliente = { id: found.id || null, usuario: found.usuario, nombre: found.nombre || found.usuario, lista: found.lista || 'lista2' };
   state.verPrecios = true;
   try{ sessionStorage.setItem('gc_cli', JSON.stringify(state.cliente)); sessionStorage.removeItem('gc_guest'); }catch(e){}
