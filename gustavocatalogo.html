@@ -300,9 +300,11 @@ function getLoginList(){
   if(Array.isArray(state.clientesWeb) && state.clientesWeb.length) return state.clientesWeb;
   if(Array.isArray(state.mayoristas) && state.mayoristas.length){
     return state.mayoristas.map(m => ({
+      id: m.id || null,
       usuario: _norm(m.usuario || m.nombre || m.whatsapp),
       clave: String(m.clave==null?'':m.clave),
       nombre: m.nombre || m.usuario || 'Cliente',
+      whatsapp: String(m.whatsapp || '').replace(/\D/g,''), // ← clave: mantener el WhatsApp para poder entrar por número
       lista: m.lista || 'lista2'
     }));
   }
