@@ -342,11 +342,13 @@ window.intentarLogin = function(){
     if(uDig.length>=6 && wsp.length>=6 && uDig.slice(-8)===wsp.slice(-8)) return true;
     return false;
   };
-  const found = lista.find(x => claveOk(x) && usuarioOk(x));
+  const conClave = lista.filter(claveOk);
+  let found = conClave.find(usuarioOk);
+  // Si la clave es única (la tiene un solo cliente), con eso alcanza para entrar:
+  // el usuario/WhatsApp queda como dato opcional para no trabar el ingreso.
+  if(!found && conClave.length === 1) found = conClave[0];
   if(!found){
-    // Mensaje más útil: distinguir si falló la clave o el usuario
-    if(lista.some(claveOk)) document.getElementById('lg-error').textContent = 'La clave es correcta pero el usuario no coincide. Probá con tu nombre o tu número de WhatsApp.';
-    else if(lista.some(usuarioOk)) document.getElementById('lg-error').textContent = 'Te encontramos, pero la clave no es correcta.';
+    if(conClave.length > 1) document.getElementById('lg-error').textContent = 'Esa clave es de varios clientes. Escribí tu nombre o tu WhatsApp para identificarte.';
     else document.getElementById('lg-error').textContent = 'Usuario o clave incorrectos.';
     return;
   }
