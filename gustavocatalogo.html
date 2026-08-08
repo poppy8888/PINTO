@@ -64,7 +64,11 @@
   .productos{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;padding:14px 16px;}
   .card{background:#fff;border:1px solid #e0d4cc;border-radius:14px;padding:10px;display:flex;flex-direction:column;box-shadow:0 2px 6px rgba(0,0,0,0.06);}
   .card.on{border-color:#27500a;box-shadow:0 0 0 2px rgba(39,80,10,0.25);}
-  .card-foto{width:100%;aspect-ratio:1/1;min-height:180px;border-radius:10px;background:#faf7f4 center/contain no-repeat;display:flex;align-items:center;justify-content:center;font-size:64px;border:1px solid #eee;}
+  .card.sin-stock .card-foto{opacity:0.4;}
+  .card.sin-stock .card-marca,.card.sin-stock .card-nom,.card.sin-stock .precio{opacity:0.5;}
+  .card-foto{width:100%;aspect-ratio:1/1;min-height:180px;border-radius:10px;background:#faf7f4 center/contain no-repeat;display:flex;align-items:center;justify-content:center;font-size:64px;border:1px solid #eee;position:relative;}
+  .badge-sinstock{position:absolute;top:8px;left:8px;background:#c0392b;color:#fff;font-size:0.68rem;font-weight:800;letter-spacing:0.3px;padding:3px 9px;border-radius:20px;box-shadow:0 2px 6px rgba(0,0,0,0.25);z-index:2;}
+  .sinstock-msg{margin-top:8px;text-align:center;font-size:0.75rem;font-weight:700;color:#c0392b;background:#fdecea;border-radius:7px;padding:6px 4px;}
   .card-marca{font-size:0.68rem;color:#888;text-transform:uppercase;font-weight:700;margin-top:8px;letter-spacing:0.4px;}
   .card-nom{font-size:0.9rem;font-weight:700;color:#2a1208;line-height:1.2;min-height:34px;margin-top:2px;}
 
@@ -572,14 +576,16 @@ function cardHtml(p){
       </div>
     </div>`;
 
+  const sinStock = p.disponible === false;
+  const badgeHtml = sinStock ? '<div class="badge-sinstock">SIN STOCK</div>' : '';
+
   return `
-    <div class="card ${cant>0?'on':''}">
-      <div class="card-foto" ${fotoStyle}>${p.foto?'':icono}</div>
+    <div class="card ${cant>0?'on':''} ${sinStock?'sin-stock':''}">
+      <div class="card-foto" ${fotoStyle}>${badgeHtml}${p.foto?'':icono}</div>
       <div class="card-marca">${esc(p.marca||'')}</div>
       <div class="card-nom">${esc(p.nombre||'')}</div>
       ${precioHtml}
-      ${presHtml}
-      ${qtyHtml}
+      ${sinStock ? '<div class="sinstock-msg">Sin stock por el momento</div>' : `${presHtml}${qtyHtml}`}
     </div>`;
 }
 
