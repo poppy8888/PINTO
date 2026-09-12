@@ -4948,7 +4948,11 @@ function abrirDetalleProducto(id){
   document.getElementById('pd-precio-casa').value = prod.precioCasa || prod.costo || 0;
   // Lista 2
   document.getElementById('pd-costo-l2').value = prod.costo || 0;
-  document.getElementById('pd-precio-l2').value = prod.precioLista2 || prod.precio || 0;
+  // Mostrar la Lista 2 REAL. Si está en 0 hay que ver un 0, no el precio de
+  // venta: si rellenamos con prod.precio, al guardar se escribe ese valor en
+  // precioLista2 y el producto queda con un precio mayorista que nadie cargó
+  // (y que despues queda congelado cuando cambia el precio de venta).
+  document.getElementById('pd-precio-l2').value = prod.precioLista2 || 0;
   if(prod.costo > 0 && prod.precioLista2 > 0){
     const utilL2 = ((prod.precioLista2 - prod.costo) / prod.costo * 100).toFixed(1);
     document.getElementById('pd-utilidad-l2').value = utilL2;
@@ -4983,12 +4987,17 @@ function abrirDetalleProducto(id){
     // 🏠 Casa → siempre igual al costo
     pdCasaInp.value = Math.round(c);
 
-    // 📋 Lista 2 → mantiene el margen original
-    const nuevoL2 = Math.round(c * (1 + pdCostoInp._margenL2));
-    pdCostoL2.value  = Math.round(c);
-    pdPrecioL2.value = nuevoL2;
-    if(c > 0 && nuevoL2 > 0){
-      pdUtilL2.value = ((nuevoL2 - c) / c * 100).toFixed(1);
+    // 📋 Lista 2 → mantiene el margen original, PERO solo si el producto ya
+    // tiene precio mayorista. Si está en 0, se respeta el 0 (ese producto usa
+    // el precio de venta comun). Antes se llenaba con el costo y no habia
+    // forma de dejarlo en cero.
+    pdCostoL2.value = Math.round(c);
+    if((parseNumero(pdPrecioL2.value) || 0) > 0){
+      const nuevoL2 = Math.round(c * (1 + pdCostoInp._margenL2));
+      pdPrecioL2.value = nuevoL2;
+      if(c > 0 && nuevoL2 > 0){
+        pdUtilL2.value = ((nuevoL2 - c) / c * 100).toFixed(1);
+      }
     }
 
     // 🏷️ Precio Venta → recalcula según la utilidad que tiene puesta
@@ -5011,11 +5020,18 @@ function pdCalcularDesdeUtilidad(){
     // Recalcular Lista2 y Casa con el costo actual (manteniendo decimales)
     document.getElementById('pd-precio-casa').value = Math.round(costo * 100) / 100;
     document.getElementById('pd-costo-l2').value = Math.round(costo * 100) / 100;
-    const margenL2 = costoInp._margenL2 || 0;
-    const nuevoL2 = Math.round(costo * (1 + margenL2) * 100) / 100;
-    document.getElementById('pd-precio-l2').value = nuevoL2;
-    if(nuevoL2 > 0){
-      document.getElementById('pd-utilidad-l2').value = ((nuevoL2 - costo) / costo * 100).toFixed(1);
+    // Solo recalcular la Lista 2 si el producto YA tenía precio mayorista.
+    // Si está en 0 significa "sin precio mayorista, usa el precio de venta":
+    // pisarlo con el costo le inventaría un precio que nadie cargó, y ademas
+    // impedía dejarlo en 0 (se volvía a llenar al tocar el costo).
+    const l2Actual = parseNumero(document.getElementById('pd-precio-l2').value) || 0;
+    if(l2Actual > 0){
+      const margenL2 = costoInp._margenL2 || 0;
+      const nuevoL2 = Math.round(costo * (1 + margenL2) * 100) / 100;
+      document.getElementById('pd-precio-l2').value = nuevoL2;
+      if(nuevoL2 > 0){
+        document.getElementById('pd-utilidad-l2').value = ((nuevoL2 - costo) / costo * 100).toFixed(1);
+      }
     }
   }
 }
